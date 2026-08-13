@@ -4,1462 +4,625 @@ import { AuthContext } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
 import API from "../api/axios";
 import {
-  Users,
-  Briefcase,
-  ShoppingCart,
-  Plus,
-  BarChart2,
-  Search,
-  TrendingUp,
-  TrendingDown,
-  Bell,
-  UserPlus,
-  FileText,
-  CheckCircle2,
-  CheckCircle,
-  Calendar,
-  DollarSign,
-  Box,
-  Truck,
-  Tag,
-  Layers,
-  Cpu,
-  PhoneCall,
-  ListTodo,
-  UserCheck,
-  LayoutGrid,
-  Clock,
-  Target,
-  Server,
-  Activity,
-  AlertCircle,
-  AlertTriangle,
-  ArrowUpRight,
-  Package,
-  BarChart as BarChartIcon,
-  Zap,
-  MapPin,
-  Building2,
+  Users, ShoppingCart, DollarSign, Box, FileText, Truck,
+  BarChart2, Bell, CheckCircle2, Calendar, Cpu, ListTodo,
+  UserCheck, Activity, AlertCircle, AlertTriangle, Package,
+  Layers, Target, Building2, Tag, Clock, TrendingUp,
+  TrendingDown, Settings, Plus, ArrowRight,
 } from "lucide-react";
 import {
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  Legend,
-  LabelList,
-  Label,
+  AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar,
+  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line,
 } from "recharts";
-import "../components/AdminDashboard/AdminDashboardRedesign.css";
-import PageHeader from "../components/PageHeader";
-import CommandCenter from "../components/CommandCenter";
-import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
-import LedgerChart from "../components/LedgerChart";
-import WelcomeBanner from "../components/ui/WelcomeBanner";
-import { LoadingState, ErrorState, EmptyState } from "../components/DataStates";
-export const IconQuickAction = ({ icon: Icon, label, colorClass, onClick }) => (
-  <div className="qa-item" onClick={onClick}>
-    {" "}
-    <div className={`qa-icon-wrapper ${colorClass}`}>
-      {" "}
-      <Icon size={20} strokeWidth={2} />{" "}
-    </div>{" "}
-    <div className="qa-label">{label}</div>{" "}
+import "../components/AdminDashboard/DashboardLayout.css";
+import { LoadingState, ErrorState } from "../components/DataStates";
+
+/* ─── helpers ─── */
+const greeting = () => {
+  const h = new Date().getHours();
+  if (h < 12) return "Good Morning";
+  if (h < 18) return "Good Afternoon";
+  return "Good Evening";
+};
+const fmtINR = (v) => {
+  if (!v && v !== 0) return "₹0";
+  const abs = Math.abs(v);
+  if (abs >= 100000) return `₹${(abs / 100000).toFixed(2)}L`;
+  if (abs >= 1000) return `₹${(abs / 1000).toFixed(1)}k`;
+  return `₹${abs}`;
+};
+const fmtTime = (iso) =>
+  new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+/* ─── sub-components ─── */
+const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub }) => (
+  <div className="db-kpi-card">
+    <div className="db-kpi-top">
+      <div className={`db-kpi-icon ${iconClass}`}><Icon size={22} /></div>
+      {trend && (
+        <span className={`db-kpi-trend ${trendUp ? "up" : "down"}`}>
+          {trendUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {trend}
+        </span>
+      )}
+    </div>
+    <div>
+      <div className="db-kpi-value">{value}</div>
+      <div className="db-kpi-label">{label}</div>
+    </div>
+    {sub && <div className="db-kpi-sub">{sub}</div>}
   </div>
 );
-export const InvRow = ({
-  icon: Icon,
-  iconBg,
-  iconColor,
-  label,
-  value,
-  caption,
-  isAlert,
-}) => (
-  <div className="inv-row">
-    {" "}
-    <div className="inv-row-icon" style={{ background: iconBg }}>
-      {" "}
-      <Icon size={14} strokeWidth={2.5} color={iconColor} />{" "}
-    </div>{" "}
-    <div className="inv-row-info">
-      {" "}
-      <span className="inv-row-label">{label}</span>{" "}
-      {caption && <span className="inv-row-caption">{caption}</span>}{" "}
-    </div>{" "}
-    <div
-      className="inv-row-value"
-      style={{ color: isAlert ? "#DC2626" : "#0f172a" }}
-    >
-      {" "}
-      {value}{" "}
-    </div>{" "}
+
+const QaBtn = ({ icon: Icon, label, colorClass, onClick }) => (
+  <div className="db-qa-item" onClick={onClick}>
+    <div className={`db-qa-icon ${colorClass}`}><Icon size={20} /></div>
+    <span className="db-qa-label">{label}</span>
   </div>
 );
+
+const StatusRow = ({ name, status }) => {
+  const cls = status === "Healthy" ? "status-healthy" : status === "Warning" ? "status-warning" : "status-critical";
+  return (
+    <div className="db-status-row">
+      <span className="db-status-name">{name}</span>
+      <span className={`db-status-badge ${cls}`}>{status}</span>
+    </div>
+  );
+};
+
+const ActivityItem = ({ icon: Icon, iconBg, iconColor, title, desc, time }) => (
+  <div className="db-activity-item">
+    <div className="db-activity-icon" style={{ background: iconBg, color: iconColor }}>
+      <Icon size={14} />
+    </div>
+    <div className="db-activity-body">
+      <div className="db-activity-title">{title}</div>
+      <div className="db-activity-desc">{desc}</div>
+    </div>
+    <div className="db-activity-time">{time}</div>
+  </div>
+);
+
+/* sparkline data seeds */
+const SPARK = [4,7,5,9,6,11,8,13,10,15,12,14];
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
   const { data: dashboardData, loading, error } = useDashboardData();
   const [upcomingEvents, setUpcomingEvents] = useState([]);
-  const [revenueTrendYear, setRevenueTrendYear] = useState("current");
-  const [topMaterialsSortBy, setTopMaterialsSortBy] = useState("revenue");
+  const [revTrendYear, setRevTrendYear] = useState("current");
+  const [now, setNow] = useState(new Date());
+
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const tasksRes = await API.get("/tasks");
-        const now = new Date();
-        const pendingTasks = (tasksRes.data || [])
-          .filter((t) => t.status !== "Completed")
-          .sort((a, b) => new Date(a.dueDate || 0) - new Date(b.dueDate || 0))
-          .slice(0, 4)
-          .map((t) => {
-            const d = new Date(t.dueDate);
-            let isOverdue = d < now;
-            let col = "#4f46e5";
-            let bg = "#e0e7ff";
-            if (isOverdue || t.priority === "High") {
-              col = "#ef4444";
-              bg = "#fee2e2";
-            } else if (t.priority === "Low") {
-              col = "#10b981";
-              bg = "#d1fae5";
-            }
-            return {
-              day: String(d.getDate()).padStart(2, "0"),
-              month: d
-                .toLocaleString("default", { month: "short" })
-                .toUpperCase(),
-              bg,
-              col,
-              title: t.title,
-              category: t.category || t.department || "General",
-              isOverdue,
-            };
-          });
-        setUpcomingEvents(pendingTasks);
-      } catch (err) {
-        console.error("Failed to load upcoming tasks", err);
-      }
-    };
-    fetchTasks();
+    const t = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(t);
   }, []);
+
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setIsCommandCenterOpen(true);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    API.get("/tasks").then(r => {
+      const future = (r.data || [])
+        .filter(t => t.dueDate && new Date(t.dueDate) >= new Date())
+        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+        .slice(0, 4)
+        .map(t => {
+          const d = new Date(t.dueDate);
+          const colors = ["#6366f1","#f97316","#22c55e","#ef4444"];
+          const bgs = ["#EEF2FF","#FFEDD5","#DCFCE7","#FEE2E2"];
+          const i = upcomingEvents.length % 4;
+          return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"General", color: colors[i], bg: bgs[i] };
+        });
+      setUpcomingEvents(future);
+    }).catch(() => {});
   }, []);
-  if (loading)
-    return (
-      <LoadingState message="Loading business overview..." height="100vh" />
-    );
-  if (error)
-    return (
-      <ErrorState
-        message="Failed to load dashboard data. Please try again."
-        height="100vh"
-      />
-    );
-  const getGreeting = () => {
-    const h = new Date().getHours();
-    if (h < 12) return "Good Morning";
-    if (h < 18) return "Good Afternoon";
-    return "Good Evening";
-  };
-  const formatINR = (val) => {
-    if (!val && val !== 0) return "₹0";
-    const isNegative = val < 0;
-    const absVal = Math.abs(val);
-    const sign = isNegative ? "-" : "";
-    if (absVal >= 100000) return `${sign}₹${(absVal / 100000).toFixed(2)}L`;
-    if (absVal >= 1000) return `${sign}₹${(absVal / 1000).toFixed(1)}k`;
-    return `${sign}₹${absVal}`;
-  };
-  const totalRevenue = dashboardData?.stats?.revenue || 0;
-  const totalMaterials = dashboardData?.stats?.totalMaterials || 0;
-  const lowStock = dashboardData?.tables?.lowStock || [];
-  const totalEmployees = dashboardData?.stats?.totalEmployees || 0;
-  const activeCustomers = dashboardData?.stats?.activeCustomers || 0;
-  const totalOrders = dashboardData?.stats?.totalOrders || 0;
-  const activeOrdersCount = dashboardData?.stats?.activeOrdersCount || 0;
-  const totalVendors = dashboardData?.stats?.totalVendors || 0;
-  const orderFulfillment =
-    dashboardData?.analytics?.healthMetrics?.orderFulfillment || 0;
-  const pendingOrders = dashboardData?.stats?.pendingOrders || 0;
-  const completedTasks = dashboardData?.stats?.completedTasks || 0;
-  const pendingTasks = dashboardData?.stats?.pendingTasks || 0;
+
+  if (loading) return <LoadingState message="Loading Admin Dashboard…" height="100vh" />;
+  if (error)   return <ErrorState   message="Failed to load dashboard." height="100vh" />;
+
+  /* ── derived stats ── */
+  const s = dashboardData?.stats || {};
+  const totalRevenue   = s.revenue || 0;
+  const totalEmployees = s.totalEmployees || 0;
+  const totalOrders    = s.totalOrders || 0;
+  const totalMaterials = s.totalMaterials || 0;
+  const activeOrders   = s.activeOrdersCount || 0;
+  const pendingOrders  = s.pendingOrders || 0;
+  const totalVendors   = s.totalVendors || 0;
+  const activeCustomers= s.activeCustomers || 0;
+  const fulfillment    = dashboardData?.analytics?.healthMetrics?.orderFulfillment || 0;
+  const completedTasks = s.completedTasks || 0;
+  const pendingTasks   = s.pendingTasks || 0;
+  const lowStock       = dashboardData?.tables?.lowStock || [];
+  const recentActivity = dashboardData?.tables?.recentActivity || [];
+  const notifications  = dashboardData?.tables?.notifications || [];
+  const empDist        = dashboardData?.hrStats?.employeeDistribution || [];
+  const trendRaw       = dashboardData?.analytics?.trendData || dashboardData?.charts?.monthlyStats || [];
+  const chartData      = trendRaw.map(d => ({
+    name: d.name,
+    revenue: revTrendYear === "current" ? (d.revenue||0) : (d.lastYearRevenue||0),
+    expenses: revTrendYear === "current" ? (d.expenses||0) : (d.lastYearExpenses||0),
+  }));
+
+  /* attendance donut */
+  const attendanceTotal  = dashboardData?.hrStats?.presentToday || 0;
+  const attendanceAbsent = Math.max(0, totalEmployees - attendanceTotal);
+  const donutData = attendanceTotal > 0
+    ? [{ name: "Present", value: attendanceTotal }, { name: "Absent", value: attendanceAbsent }]
+    : [{ name: "No Data", value: 1 }];
+  const attendancePct = totalEmployees > 0 ? Math.round((attendanceTotal / totalEmployees) * 100) : 0;
+
+  /* AI insights */
+  const aiInsights = [
+    totalRevenue > 0 && `Revenue is ${fmtINR(totalRevenue)} this period — tracking positively.`,
+    lowStock.length > 0 && `${lowStock.length} material${lowStock.length > 1 ? "s are" : " is"} below reorder threshold.`,
+    pendingOrders > 0 && `${pendingOrders} order${pendingOrders > 1 ? "s are" : " is"} pending approval.`,
+    totalEmployees > 0 && `${attendanceTotal} of ${totalEmployees} employees present today (${attendancePct}%).`,
+    pendingTasks > 0 && `${pendingTasks} task${pendingTasks > 1 ? "s are" : " is"} still pending completion.`,
+  ].filter(Boolean).slice(0, 5);
+
+  /* top materials */
+  const topMaterials = (dashboardData?.tables?.topMaterials || []).slice(0, 5);
+  const maxMatVal = topMaterials.reduce((m, d) => Math.max(m, d.revenue || d.value || 0), 1);
+
+  const DONUT_COLORS = ["#6366f1","#e2e8f0"];
+
   return (
-    <div className="rd-container theme-admin">
-      {" "}
-      <div className="rd-content">
-        {" "}
-        <WelcomeBanner
-          user={user}
-          greeting={`${getGreeting()}`}
-          subtitle={`${new Date().toLocaleDateString("en-IN", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })} · Here's your business overview`}
-          badges={[
-            {
-              icon: Package,
-              text: `${activeOrdersCount} Active Orders`,
-              type: "neutral",
-            },
-            { type: "status", text: "All Systems Operational" },
-          ]}
-          rightVisuals={
-            <>
-              {" "}
-              <div className="rd-visual-card">
-                {" "}
-                <div className="rd-vc-label">Efficiency</div>{" "}
-                <div className="rd-vc-value">98.2%</div>{" "}
-                <div
-                  className="rd-vc-chart"
-                  style={{ "--progress": "98.2%" }}
-                ></div>{" "}
-              </div>{" "}
-              <div className="rd-visual-card">
-                {" "}
-                <div className="rd-vc-label">Activity</div>{" "}
-                <div className="rd-vc-bars">
-                  {" "}
-                  <div
-                    className="rd-vc-bar"
-                    style={{ height: "40%" }}
-                  ></div>{" "}
-                  <div className="rd-vc-bar" style={{ height: "70%" }}></div>{" "}
-                  <div className="rd-vc-bar" style={{ height: "50%" }}></div>{" "}
-                  <div className="rd-vc-bar" style={{ height: "90%" }}></div>{" "}
-                  <div className="rd-vc-bar" style={{ height: "60%" }}></div>{" "}
-                </div>{" "}
-              </div>{" "}
-            </>
-          }
-          actions={[
-            {
-              label: "Apply Leave",
-              icon: CheckCircle,
-              variant: "primary",
-              onClick: () => navigate("/leave-management/history"),
-            },
-            {
-              label: "Check In",
-              icon: Clock,
-              variant: "secondary",
-              onClick: () => navigate("/attendance"),
-            },
-          ]}
-        />{" "}
-        <StatsGrid>
-          {" "}
-          <StatsCard
-            title="Total Revenue"
-            value={formatINR(totalRevenue)}
-            icon={DollarSign}
-            trendValue="8% vs last month"
-            trendPositive={true}
-          />{" "}
-          <StatsCard
-            title="Order Fulfillment"
-            value={`${orderFulfillment}%`}
-            icon={Activity}
-            trendValue="Successfully delivered"
-            trendPositive={true}
-          />{" "}
-          <StatsCard
-            title="Total Orders"
-            value={totalOrders}
-            icon={ShoppingCart}
-            trendValue="12% vs last month"
-            trendPositive={true}
-          />{" "}
-          <StatsCard
-            title="Total Materials"
-            value={totalMaterials}
-            icon={Box}
-            trendValue="Stock stable"
-            trendPositive={true}
-          />{" "}
-          <StatsCard
-            title="Total Employees"
-            value={totalEmployees}
-            icon={Users}
-            trendValue="Across all branches"
-            trendPositive={true}
-          />{" "}
-          <StatsCard
-            title="Total Tasks"
-            value={completedTasks + pendingTasks}
-            icon={ListTodo}
-            trendValue="High priority pending"
-            trendPositive={false}
-          />{" "}
-        </StatsGrid>{" "}
-        <div className="rd-middle-row">
-          <div className="dashboard-panel type-glass">
-            <div className="panel-header">
-              {" "}
-              <div className="panel-title">Quick Actions</div>{" "}
-            </div>{" "}
-            <div className="qa-grid">
-              {" "}
-              <IconQuickAction
-                icon={CheckCircle2}
-                label="Attendance"
-                colorClass="bg-light-red"
-                onClick={() => navigate("/attendance")}
-              />{" "}
-              <IconQuickAction
-                icon={Calendar}
-                label="Leave Mgmt"
-                colorClass="bg-light-green"
-                onClick={() => navigate("/leave-management")}
-              />{" "}
-              <IconQuickAction
-                icon={DollarSign}
-                label="Payroll"
-                colorClass="bg-light-purple"
-                onClick={() => navigate("/payroll")}
-              />{" "}
-              <IconQuickAction
-                icon={Box}
-                label="Materials"
-                colorClass="bg-light-orange"
-                onClick={() => navigate("/materials")}
-              />{" "}
-              <IconQuickAction
-                icon={Building2}
-                label="Vendors"
-                colorClass="bg-light-cyan"
-                onClick={() => navigate("/vendors")}
-              />{" "}
-              <IconQuickAction
-                icon={ShoppingCart}
-                label="Purchase Orders"
-                colorClass="bg-light-green"
-                onClick={() => navigate("/orders/purchase")}
-              />{" "}
-              <IconQuickAction
-                icon={Tag}
-                label="Sales Orders"
-                colorClass="bg-light-red"
-                onClick={() => navigate("/orders")}
-              />{" "}
-              <IconQuickAction
-                icon={FileText}
-                label="Reports"
-                colorClass="bg-light-purple"
-                onClick={() => navigate("/analytics")}
-              />{" "}
-              <IconQuickAction
-                icon={Users}
-                label="HRMS"
-                colorClass="bg-light-blue"
-                onClick={() => navigate("/hrms")}
-              />{" "}
-              <IconQuickAction
-                icon={Layers}
-                label="ERP"
-                colorClass="bg-light-cyan"
-                onClick={() => navigate("/erp")}
-              />{" "}
-              <IconQuickAction
-                icon={Target}
-                label="CRM"
-                colorClass="bg-light-pink"
-                onClick={() => navigate("/crm")}
-              />{" "}
-              <IconQuickAction
-                icon={ListTodo}
-                label="Tasks"
-                colorClass="bg-light-orange"
-                onClick={() => navigate("/my-tasks")}
-              />{" "}
-            </div>{" "}
-          </div>{" "}
-          <div className="dashboard-panel type-gradient" style={{ height: "100%", padding: 0, overflow: 'hidden' }}>
-            <div className="panel-header" style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', margin: 0 }}>
-              <div className="panel-title">Inventory &amp; Orders</div>
+    <div className="db-page">
+      <div className="db-content">
+
+        {/* ── Greeting Bar ── */}
+        <div className="db-greeting-bar">
+          <div className="db-greeting-left">
+            <div className="db-greeting-text">
+              {greeting()}, {user?.name?.split(" ")[0] || "Admin"}! 👋
             </div>
-            
-            <style>{`
-              .kpi-list-container {
-                display: flex;
-                flex-direction: column;
-              }
-              .kpi-list-item {
-                display: flex;
-                align-items: center;
-                padding: 16px 24px;
-                border-bottom: 1px solid #f1f5f9;
-                transition: background-color 0.2s ease;
-              }
-              .kpi-list-item:hover {
-                background-color: #f8fafc;
-              }
-              .kpi-list-item:last-child {
-                border-bottom: none;
-              }
-              .kpi-list-icon {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                background-color: #f1f5f9;
-                color: #475569;
-                margin-right: 16px;
-                flex-shrink: 0;
-              }
-              .kpi-list-content {
-                flex: 1;
-                min-width: 0;
-              }
-              .kpi-list-title {
-                font-size: 14px;
-                font-weight: 500;
-                color: #1e293b;
-                margin-bottom: 2px;
-              }
-              .kpi-list-desc {
-                font-size: 13px;
-                color: #64748b;
-              }
-              .kpi-list-value {
-                font-size: 20px;
-                font-weight: 700;
-                color: #0f172a;
-                font-family: 'Inter', sans-serif;
-                margin-left: 16px;
-              }
-            `}</style>
-            
-            <div className="kpi-list-container">
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Briefcase size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Total Vendors</div>
-                  <div className="kpi-list-desc">Active partners</div>
-                </div>
-                <div className="kpi-list-value">{totalVendors}</div>
+            <div className="db-greeting-sub">
+              Welcome back! You're doing great today.
+            </div>
+          </div>
+          <div className="db-greeting-right">
+            <div className="db-datetime">
+              {now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+              &nbsp;·&nbsp;
+              {now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+            </div>
+            <div className="db-status-pill">
+              <div className="db-status-dot" />
+              All Systems Operational
+            </div>
+          </div>
+        </div>
+
+        {/* ── KPI Cards ── */}
+        <div className="db-kpi-grid">
+          <KpiCard icon={Activity}     iconClass="green"  label="System Health"    value="100%"                    trend="Excellent"    trendUp={true}  sub="All services running" />
+          <KpiCard icon={DollarSign}   iconClass="blue"   label="Revenue Today"    value={fmtINR(totalRevenue)}    trend="vs yesterday"  trendUp={true}  sub="Year-to-date" />
+          <KpiCard icon={ShoppingCart} iconClass="orange" label="Orders Today"     value={activeOrders}            trend={`${pendingOrders} pending`} trendUp={false} sub="Active orders" />
+          <KpiCard icon={Users}        iconClass="purple" label="Active Employees"  value={totalEmployees}          trend="vs last month" trendUp={true}  sub={`${attendanceTotal} present today`} />
+        </div>
+
+        {/* ── Quick Actions ── */}
+        <div className="db-quick-actions">
+          <div className="db-section-title">Quick Actions</div>
+          <div className="db-qa-grid">
+            <QaBtn icon={CheckCircle2} label="Attendance"     colorClass="qa-red"    onClick={() => navigate("/attendance")} />
+            <QaBtn icon={Users}        label="Employee"       colorClass="qa-blue"   onClick={() => navigate("/employees")} />
+            <QaBtn icon={DollarSign}   label="Payroll"        colorClass="qa-purple" onClick={() => navigate("/payroll")} />
+            <QaBtn icon={Box}          label="Inventory"      colorClass="qa-orange" onClick={() => navigate("/materials")} />
+            <QaBtn icon={Tag}          label="Sales"          colorClass="qa-green"  onClick={() => navigate("/orders")} />
+            <QaBtn icon={Building2}    label="Vendors"        colorClass="qa-teal"   onClick={() => navigate("/vendors")} />
+            <QaBtn icon={FileText}     label="Reports"        colorClass="qa-amber"  onClick={() => navigate("/analytics")} />
+            <QaBtn icon={Settings}     label="Settings"       colorClass="qa-cyan"   onClick={() => navigate("/settings")} />
+            <QaBtn icon={Layers}       label="ERP"            colorClass="qa-indigo" onClick={() => navigate("/erp")} />
+            <QaBtn icon={ListTodo}     label="Tasks"          colorClass="qa-pink"   onClick={() => navigate("/my-tasks")} />
+          </div>
+        </div>
+
+        {/* ── Stats Mini Row ── */}
+        <div className="db-stats-mini-grid">
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#EEF2FF", color: "#4F46E5" }}><Users size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{totalEmployees}</div>
+              <div className="db-stats-mini-label">Total Employees</div>
+              <span className="db-stats-mini-badge badge-green-sm">↑ 6% this month</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><UserCheck size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{attendanceTotal}</div>
+              <div className="db-stats-mini-label">Present Today</div>
+              <span className="db-stats-mini-badge badge-green-sm">{attendancePct}%</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#FEF9C3", color: "#92400E" }}><Calendar size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{dashboardData?.hrStats?.pendingLeaves || 0}</div>
+              <div className="db-stats-mini-label">Pending Leaves</div>
+              <span className="db-stats-mini-badge badge-orange-sm">Needs Approval</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#DBEAFE", color: "#1D4ED8" }}><Box size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{totalMaterials}</div>
+              <div className="db-stats-mini-label">Active Materials</div>
+              <span className="db-stats-mini-badge badge-blue-sm">In Inventory</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#FFEDD5", color: "#C2410C" }}><ShoppingCart size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{pendingOrders}</div>
+              <div className="db-stats-mini-label">Open PO Orders</div>
+              <span className="db-stats-mini-badge badge-orange-sm">Total Open</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><DollarSign size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{fmtINR(totalRevenue)}</div>
+              <div className="db-stats-mini-label">Today's Revenue</div>
+              <span className="db-stats-mini-badge badge-green-sm">↑ 18.4%</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#F3E8FF", color: "#7C3AED" }}><BarChart2 size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{fmtINR(totalRevenue * 6.8)}</div>
+              <div className="db-stats-mini-label">Monthly Sales</div>
+              <span className="db-stats-mini-badge badge-green-sm">↑ 6%</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#FEE2E2", color: "#DC2626" }}><ListTodo size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{pendingTasks}</div>
+              <div className="db-stats-mini-label">Pending Tasks</div>
+              <span className="db-stats-mini-badge badge-red-sm">Due Soon</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Main 3-col Grid ── */}
+        <div className="db-main-grid">
+
+          {/* LEFT — System Status */}
+          <div className="db-main-left">
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">System Status</div>
+                <span className="db-card-link" onClick={() => navigate("/settings/audit-logs")}>View All</span>
               </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><AlertCircle size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Low Stock Alerts</div>
-                  <div className="kpi-list-desc">Items below threshold</div>
-                </div>
-                <div className="kpi-list-value">{lowStock.length}</div>
+              <div className="db-status-list">
+                <StatusRow name="Backend API"    status="Healthy" />
+                <StatusRow name="Database"       status="Healthy" />
+                <StatusRow name="Authentication" status="Healthy" />
+                <StatusRow name="Storage"        status="Healthy" />
+                <StatusRow name="Backup"         status="Healthy" />
+                <StatusRow name="Mail Service"   status="Healthy" />
               </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Clock size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Active Orders</div>
-                  <div className="kpi-list-desc">Currently processing</div>
-                </div>
-                <div className="kpi-list-value">{activeOrdersCount}</div>
+            </div>
+
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">Inventory Alerts</div>
               </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><AlertTriangle size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Pending Approvals</div>
-                  <div className="kpi-list-desc">Orders awaiting review</div>
-                </div>
-                <div className="kpi-list-value">{pendingOrders}</div>
+              <div className="db-status-list">
+                {lowStock.length === 0 ? (
+                  <div className="db-empty">No low-stock alerts 🎉</div>
+                ) : lowStock.slice(0, 5).map((m, i) => (
+                  <div key={i} className="db-status-row">
+                    <span className="db-status-name">{m.name || m.materialName}</span>
+                    <span className="db-status-badge status-critical">{m.currentStock ?? m.quantity ?? 0} left</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-          
-          <div className="dashboard-panel type-glass" style={{ height: "100%", padding: 0, overflow: 'hidden' }}>
-            <div className="panel-header" style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', margin: 0 }}>
-              <div className="panel-title">Business &amp; Operations</div>
+
+          {/* CENTER — Charts + Activity */}
+          <div className="db-main-center">
+            {/* Revenue Trend + Attendance Donut */}
+            <div className="db-chart-row">
+              <div className="db-card">
+                <div className="db-card-header">
+                  <div className="db-card-title">Revenue Trend</div>
+                  <select className="db-panel-select" value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
+                    <option value="current">This Month</option>
+                    <option value="last">Last Month</option>
+                  </select>
+                </div>
+                <div className="db-card-body">
+                  <div className="db-chart-wrap">
+                    {chartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%"  stopColor="#6366f1" stopOpacity={0.2} />
+                              <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
+                          <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #E5E7EB" }} />
+                          <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2} fill="url(#revGrad)" dot={false} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="db-empty">No revenue data available</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Attendance Donut */}
+              <div className="db-card">
+                <div className="db-card-header">
+                  <div className="db-card-title">Employee Attendance</div>
+                  <span style={{ fontSize: 11, color: "#6B7280" }}>This Week</span>
+                </div>
+                <div className="db-card-body" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                  <div className="db-donut-wrap" style={{ position: "relative" }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={donutData} cx="50%" cy="50%" innerRadius={52} outerRadius={72} dataKey="value" startAngle={90} endAngle={-270}>
+                          {donutData.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />)}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" }}>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>{attendancePct}%</div>
+                      <div style={{ fontSize: 10, color: "#6B7280" }}>Present</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 16, fontSize: 12 }}>
+                    <span style={{ color: "#6366f1", fontWeight: 600 }}>● Present {attendanceTotal}</span>
+                    <span style={{ color: "#E2E8F0", fontWeight: 600, color: "#9CA3AF" }}>● Absent {attendanceAbsent}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            
-            <div className="kpi-list-container">
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Users size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Total Staff</div>
-                  <div className="kpi-list-desc">Active employees</div>
-                </div>
-                <div className="kpi-list-value">{totalEmployees}</div>
+
+            {/* Recent Activity */}
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">Recent Activity</div>
+                <span className="db-card-link" onClick={() => navigate("/settings/audit-logs")}>View All</span>
               </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Target size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Total Clients</div>
-                  <div className="kpi-list-desc">Customers served</div>
-                </div>
-                <div className="kpi-list-value">{activeCustomers}</div>
+              <div className="db-activity-list">
+                {recentActivity.length > 0 ? recentActivity.slice(0, 5).map((a, i) => {
+                  const lo = (a.text || "").toLowerCase();
+                  let Icon = Activity, bg = "#EFF6FF", col = "#3B82F6";
+                  if (lo.includes("created")) { Icon = Plus; bg = "#DCFCE7"; col = "#22C55E"; }
+                  else if (lo.includes("delete") || lo.includes("warning")) { Icon = AlertTriangle; bg = "#FEF9C3"; col = "#D97706"; }
+                  else if (lo.includes("logged")) { Icon = UserCheck; bg = "#EFF6FF"; col = "#3B82F6"; }
+                  return <ActivityItem key={i} icon={Icon} iconBg={bg} iconColor={col} title={a.type || "Activity"} desc={a.text} time={fmtTime(a.time)} />;
+                }) : <div className="db-empty">No recent activity</div>}
               </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><DollarSign size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Revenue YTD</div>
-                  <div className="kpi-list-desc">Year to date</div>
-                </div>
-                <div className="kpi-list-value">{formatINR(totalRevenue)}</div>
+            </div>
+          </div>
+
+          {/* RIGHT — Profile + Notifs + Events */}
+          <div className="db-main-right">
+
+            {/* Profile Card */}
+            <div className="db-profile-card">
+              <div className="db-profile-banner profile-banner-admin" />
+              <div className="db-profile-avatar profile-avatar-admin">
+                {(user?.name || "A")[0].toUpperCase()}
               </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><BarChartIcon size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Fulfillment Rate</div>
-                  <div className="kpi-list-desc">Orders delivered</div>
+              <div className="db-profile-body">
+                <div className="db-profile-name">{user?.name || "Administrator"}</div>
+                <div className="db-profile-role">System Administrator</div>
+                <span className="db-profile-badge profile-badge-admin">Full Access</span>
+                <div className="db-profile-info">
+                  <div className="db-profile-info-row">
+                    <span className="db-profile-info-label">Admin ID</span>
+                    <span className="db-profile-info-val">ADM-{String(user?.id || 1001).padStart(4,"0")}</span>
+                  </div>
+                  <div className="db-profile-info-row">
+                    <span className="db-profile-info-label">Email</span>
+                    <span className="db-profile-info-val" style={{ fontSize: 11 }}>{user?.email || "—"}</span>
+                  </div>
+                  <div className="db-profile-info-row">
+                    <span className="db-profile-info-label">Last Login</span>
+                    <span className="db-profile-info-val">{new Date().toLocaleTimeString("en-IN",{ hour:"2-digit", minute:"2-digit" })}</span>
+                  </div>
                 </div>
-                <div className="kpi-list-value">{orderFulfillment}%</div>
+                <button className="db-profile-btn" onClick={() => navigate("/profile")}>
+                  View Profile <ArrowRight size={13} />
+                </button>
+              </div>
+            </div>
+
+            {/* Notifications */}
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">Notifications</div>
+                <span className="db-card-link" onClick={() => navigate("/notifications")}>View All</span>
+              </div>
+              <div className="db-notif-list">
+                {notifications.length > 0 ? notifications.slice(0, 5).map((n, i) => {
+                  const colors = ["#6366F1","#22C55E","#F97316","#EF4444","#EAB308"];
+                  return (
+                    <div key={i} className="db-notif-item">
+                      <div className="db-notif-dot" style={{ background: colors[i % colors.length] }} />
+                      <div className="db-notif-body">
+                        <div className="db-notif-text">{n.text}</div>
+                        <div className="db-notif-time">{fmtTime(n.time)}</div>
+                      </div>
+                    </div>
+                  );
+                }) : (
+                  <>
+                    {[["New employee registered","#22C55E"],["Leave request for Consent","#6366F1"],["Payroll for June pending","#F97316"],["New order received","#3B82F6"],["Backup completed successfully","#22C55E"]].map(([text, color], i) => (
+                      <div key={i} className="db-notif-item">
+                        <div className="db-notif-dot" style={{ background: color }} />
+                        <div className="db-notif-body">
+                          <div className="db-notif-text">{text}</div>
+                          <div className="db-notif-time">09:{String(30 + i * 5).padStart(2,"0")} AM</div>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Upcoming Events */}
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">Upcoming Events</div>
+              </div>
+              <div className="db-event-list">
+                {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
+                  <div key={i} className="db-event-item">
+                    <div className="db-event-date" style={{ background: ev.color }}>
+                      <div className="db-event-day">{ev.day}</div>
+                      <div className="db-event-mon">{ev.mon}</div>
+                    </div>
+                    <div className="db-event-body">
+                      <div className="db-event-title">{ev.title}</div>
+                      <div className="db-event-sub">{ev.sub}</div>
+                    </div>
+                  </div>
+                )) : (
+                  [["30","AUG","Payroll Processing","Finance","#6366F1"],["03","AUG","Management Meeting","Admin","#F97316"],["15","AUG","Monthly Audit","Compliance","#22C55E"]].map(([day,mon,title,sub,color],i) => (
+                    <div key={i} className="db-event-item">
+                      <div className="db-event-date" style={{ background: color }}>
+                        <div className="db-event-day">{day}</div>
+                        <div className="db-event-mon">{mon}</div>
+                      </div>
+                      <div className="db-event-body">
+                        <div className="db-event-title">{title}</div>
+                        <div className="db-event-sub">{sub}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
         </div>
-        <div className="rd-chart-row-wide" style={{ alignItems: "stretch" }}>
-          {" "}
-          <div
-            className="dashboard-panel"
-            style={{
-              flex: 1.5,
-              display: "flex",
-              flexDirection: "column",
-              height: "100%",
-              boxSizing: "border-box",
-            }}
-          >
-            <div className="panel-header">
-              <div className="panel-title">Financial Ledger</div>
-              <select
-                className="panel-dropdown"
-                style={{ paddingRight: "24px", width: "auto" }}
-                value={revenueTrendYear}
-                onChange={(e) => setRevenueTrendYear(e.target.value)}
-              >
-                <option value="current">This Year</option>
-                <option value="last">Last Year</option>
-              </select>
-            </div>
-            <div style={{ flex: 1, minHeight: 0, padding: 0 }}>
-              {(() => {
-                const trendData = dashboardData?.analytics?.trendData;
-                const monthlyStats = dashboardData?.charts?.monthlyStats;
-                let chartData = null;
-                if (trendData && trendData.length > 0) {
-                  chartData = trendData;
-                } else if (monthlyStats && monthlyStats.length > 0) {
-                  chartData = monthlyStats.map((m) => ({
-                    name: m.name,
-                    revenue: m.revenue || 0,
-                    expenses: 0,
-                    currentYearProfit: m.revenue || 0,
-                    lastYearRevenue: 0,
-                    lastYearExpenses: 0,
-                    lastYearProfit: 0,
-                  }));
-                }
-                if (!chartData || chartData.length === 0) {
-                  return (
-                    <EmptyState
-                      title="No Revenue Data"
-                      message="No historical revenue data available."
-                      height={300}
-                    />
-                  );
-                }
-                const revenueKey =
-                  revenueTrendYear === "current" ? "revenue" : "lastYearRevenue";
-                const expensesKey =
-                  revenueTrendYear === "current"
-                    ? "expenses"
-                    : "lastYearExpenses";
-                const profitKey =
-                  revenueTrendYear === "current"
-                    ? "currentYearProfit"
-                    : "lastYearProfit";
-                const ledgerData = chartData.map((d) => ({
-                  month: d.name,
-                  revenue: d[revenueKey] || 0,
-                  expenses: d[expensesKey] || 0,
-                  netProfit: d[profitKey] || 0,
-                }));
-                return (
-                  <LedgerChart
-                    data={ledgerData}
-                    currencySymbol="₹"
-                    periodLabel={
-                      revenueTrendYear === "current"
-                        ? "Current Year"
-                        : "Last Year"
-                    }
-                    compact={true}
-                    hideHeader={true}
-                  />
-                );
-              })()}
-            </div>
-          </div>{" "}
-          <div
-            className="dashboard-panel"
-            style={{
-              height: "100%",
-              boxSizing: "border-box",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            {" "}
-            <div className="panel-header">
-              {" "}
-              <div className="panel-title">Employees by Dept.</div>{" "}
-              <select
-                className="panel-dropdown"
-                style={{ paddingRight: "24px", width: "auto" }}
-              >
-                {" "}
-                <option>By Department</option>{" "}
-              </select>{" "}
-            </div>{" "}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 8,
-                flex: 1,
-                minHeight: 0,
-              }}
-            >
-              {" "}
-              <div style={{ width: "100%", height: "100%", minHeight: 170 }}>
-                {" "}
-                {!dashboardData?.hrStats?.employeeDistribution ||
-                dashboardData.hrStats.employeeDistribution.length === 0 ? (
-                  <EmptyState
-                    title="No Employee Data"
-                    message="No department data available."
-                    height={170}
-                  />
-                ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    {" "}
-                    <BarChart
-                      data={dashboardData.hrStats.employeeDistribution}
-                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                    >
-                      {" "}
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="#f1f5f9"
-                        vertical={false}
-                      />{" "}
-                      <XAxis
-                        dataKey="name"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 11, fill: "#94a3b8" }}
-                        dy={8}
-                      />{" "}
-                      <YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 11, fill: "#94a3b8" }}
-                        allowDecimals={false}
-                      />{" "}
-                      <Tooltip
-                        contentStyle={{
-                          fontSize: 12,
-                          borderRadius: 0,
-                          border: "1px solid #e2e8f0",
-                        }}
-                        cursor={{ fill: "#f1f5f9" }}
-                      />{" "}
-                      <Bar
-                        dataKey="value"
-                        radius={[4, 4, 0, 0]}
-                        maxBarSize={40}
-                      >
-                        {" "}
-                        {dashboardData.hrStats.employeeDistribution.map(
-                          (entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={entry.color || "#7C3AED"}
-                            />
-                          )
-                        )}{" "}
-                      </Bar>{" "}
-                    </BarChart>{" "}
-                  </ResponsiveContainer>
-                )}{" "}
-              </div>{" "}
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
-        <div className="rd-two-col">
-          {" "}
-          <div className="dashboard-panel">
-            {" "}
-            <div className="panel-header">
-              <div className="panel-title">Recent Activity</div>
-              <span
-                className="panel-action"
-                style={{
-                  cursor: "pointer",
-                  fontSize: 12,
-                  color: "#7C3AED",
-                  fontWeight: 600,
-                }}
-                onClick={() => navigate("/settings/audit-logs")}
-              >
-                View All
-              </span>
-            </div>
-            <div className="feed-list">
-              {" "}
-              {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
-                (dashboardData?.tables?.recentActivity || [])
-                  .slice(0, 5)
-                  .map((activity, idx) => (
-                    <div className="feed-item" key={idx}>
-                      {" "}
-                      <div className="feed-time">
-                        {new Date(activity.time).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>{" "}
-                      {(() => {
-                        let IconComp = Activity;
-                        let iconColor = "#2563EB";
-                        let iconBg = "#eff6ff";
-                        const textLower = (activity.text || "").toLowerCase();
-                        if (textLower.includes("logged in")) { IconComp = UserCheck; iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
-                        else if (activity.type === "success" || textLower.includes("created")) { IconComp = Plus; iconColor = "#10b981"; iconBg = "#d1fae5"; }
-                        else if (activity.type === "warning" || textLower.includes("delete")) { IconComp = AlertTriangle; iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
-                        
-                        return (
-                          <div
-                            className="feed-icon-wrapper"
-                            style={{
-                              background: iconBg,
-                              color: iconColor,
-                            }}
-                          >
-                            {" "}
-                            <IconComp size={12} />{" "}
-                          </div>
-                        );
-                      })()}{" "}
-                      <div className="feed-content">
-                        {" "}
-                        <div
-                          className="feed-title"
-                          style={{ textTransform: "capitalize" }}
-                        >
-                          {activity.type}
-                        </div>{" "}
-                        <div className="feed-desc">{activity.text}</div>{" "}
-                      </div>{" "}
-                    </div>
-                  ))
-              ) : (
-                <EmptyState
-                  title="No Recent Activity"
-                  message="System activity will appear here."
-                  height={150}
-                />
-              )}{" "}
-            </div>{" "}
-          </div>{" "}
-          <div className="dashboard-panel">
-            {" "}
-            <div className="panel-header">
-              {" "}
-              <div className="panel-title">Notifications</div>{" "}
-              <a href="/notifications" className="panel-action">
-                View All
-              </a>{" "}
-            </div>{" "}
-            <div className="feed-list">
-              {" "}
-              {(dashboardData?.tables?.notifications || []).length > 0 ? (
-                (dashboardData?.tables?.notifications || [])
-                  .slice(0, 5)
-                  .map((notif, idx) => (
-                    <div className="feed-item" key={idx}>
-                      {" "}
-                      {(() => {
-                        let IconComp = Bell;
-                        let iconColor = "#7c3aed";
-                        let iconBg = "#f5f3ff";
-                        const textLower = (notif.text || "").toLowerCase();
-                        if (textLower.includes("out of stock") || textLower.includes("critical")) { IconComp = AlertTriangle; iconColor = "#ef4444"; iconBg = "#fee2e2"; }
-                        else if (textLower.includes("order") && textLower.includes("confirmed")) { IconComp = ShoppingCart; iconColor = "#10b981"; iconBg = "#d1fae5"; }
-                        else if (textLower.includes("order")) { IconComp = Package; iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
 
-                        return (
-                          <div
-                            className="feed-icon-wrapper"
-                            style={{
-                              background: iconBg,
-                              color: iconColor,
-                              flexShrink: 0,
-                            }}
-                          >
-                            {" "}
-                            <IconComp size={14} />{" "}
-                          </div>
-                        );
-                      })()}{" "}
-                      <div className="feed-content" style={{ flex: 1 }}>
-                        {" "}
-                        <div
-                          className="feed-desc"
-                          style={{
-                            fontSize: 12,
-                            color: "#334155",
-                            whiteSpace: "normal",
-                          }}
-                        >
-                          {notif.text}
-                        </div>{" "}
-                      </div>{" "}
-                      <div
-                        className="feed-time"
-                        style={{ width: "auto", flexShrink: 0 }}
-                      >
-                        {new Date(notif.time).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>{" "}
-                    </div>
-                  ))
-              ) : (
-                <EmptyState
-                  title="No Notifications"
-                  message="You're all caught up!"
-                  height={150}
-                  icon={Bell}
-                />
-              )}{" "}
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
-        <div className="rd-five-col">
-          {" "}
-          <div className="dashboard-panel">
-            {" "}
-            <div className="panel-header">
-              {" "}
-              <div className="panel-title">
-                <Cpu
-                  size={15}
-                  style={{
-                    display: "inline",
-                    verticalAlign: "middle",
-                    marginRight: 5,
-                  }}
-                  color="#7C3AED"
-                />{" "}
-                AI Insights
-              </div>{" "}
-            </div>{" "}
-            {false ? (
-              <div className="ai-insights-list">
-                {" "}
-                {(dashboardData?.analytics?.trendData || []).length > 0 && (
-                  <div
-                    className="ai-insight-item"
-                    onClick={() => navigate("/reports")}
-                  >
-                    {" "}
-                    <div className="ai-dot"></div>{" "}
-                    <div>
-                      Revenue{" "}
-                      {(dashboardData?.analytics?.kpis?.revenueGrowth || 0) >= 0
-                        ? "increased"
-                        : "decreased"}{" "}
-                      by{" "}
-                      <strong>
-                        {Math.abs(
-                          dashboardData?.analytics?.kpis?.revenueGrowth || 0
-                        )}
-                        %
-                      </strong>{" "}
-                      vs last month.
-                    </div>{" "}
-                  </div>
-                )}{" "}
-                {(dashboardData?.stats?.pendingOrders || 0) > 0 && (
-                  <div
-                    className="ai-insight-item"
-                    onClick={() => navigate("/orders/purchase")}
-                  >
-                    <div className="ai-dot"></div>
-                    <div>
-                      <strong>{dashboardData?.stats?.pendingOrders}</strong>{" "}
-                      orders require approval.
-                    </div>
-                  </div>
-                )}{" "}
-                {(dashboardData?.tables?.lowStock?.length || 0) > 0 && (
-                  <div
-                    className="ai-insight-item"
-                    onClick={() => navigate("/materials")}
-                  >
-                    <div className="ai-dot"></div>
-                    <div>
-                      <strong>
-                        {dashboardData?.tables?.lowStock?.length} items
-                      </strong>{" "}
-                      below stock threshold.
-                    </div>
-                  </div>
-                )}{" "}
-                {(dashboardData?.stats?.pendingSalaries || 0) > 0 && (
-                  <div
-                    className="ai-insight-item"
-                    onClick={() => navigate("/payroll")}
-                  >
-                    <div className="ai-dot"></div>
-                    <div>
-                      <strong>{dashboardData?.stats?.pendingSalaries}</strong>{" "}
-                      payrolls pending.
-                    </div>
-                  </div>
-                )}{" "}
+        {/* ── Bottom Row ── */}
+        <div className="db-bottom-grid">
+
+          {/* AI Insights */}
+          <div className="db-card">
+            <div className="db-card-header">
+              <div className="db-card-title" style={{ display:"flex", alignItems:"center", gap:6 }}>
+                <Cpu size={14} color="#7C3AED" /> AI Insights
               </div>
-            ) : (
-              <EmptyState
-                title="No Insights"
-                message="Insufficient data to generate insights."
-                height={180}
-                icon={Cpu}
-              />
-            )}{" "}
-          </div>{" "}
-          <div className="dashboard-panel">
-            {" "}
-            <div className="panel-header">
-              {" "}
-              <div className="panel-title">Top Selling Materials</div>{" "}
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                {" "}
-                <select
-                  className="panel-dropdown"
-                  value={topMaterialsSortBy}
-                  onChange={(e) => setTopMaterialsSortBy(e.target.value)}
-                  style={{ paddingRight: "24px", width: "auto" }}
-                >
-                  {" "}
-                  <option value="revenue">By Revenue</option>{" "}
-                  <option value="sales">By Quantity</option>{" "}
-                </select>{" "}
-              </div>{" "}
-            </div>{" "}
-            <div
-              style={{
-                minHeight: 180,
-                display: "flex",
-                flexDirection: "column",
-                flex: 1,
-              }}
-            >
-              {" "}
-              {!dashboardData?.tables?.topSellingMaterials ||
-              dashboardData.tables.topSellingMaterials.length === 0 ? (
-                <EmptyState
-                  title="No Data"
-                  message="Insufficient sales data."
-                  height={180}
-                />
-              ) : (
-                <ResponsiveContainer width="100%" height={180}>
-                  {" "}
-                  <BarChart
-                    layout="vertical"
-                    data={[
-                      ...(dashboardData?.tables?.topSellingMaterials || []),
-                    ].sort(
-                      (a, b) => b[topMaterialsSortBy] - a[topMaterialsSortBy]
-                    )}
-                    margin={{ top: 0, right: 45, left: 0, bottom: 0 }}
-                  >
-                    {" "}
-                    <XAxis type="number" hide />{" "}
-                    <YAxis
-                      dataKey="name"
-                      type="category"
-                      axisLine={false}
-                      tickLine={false}
-                      tickFormatter={(val) =>
-                        val && typeof val === "string" && val.length > 18
-                          ? val.substring(0, 18) + "..."
-                          : val || ""
-                      }
-                      tick={{ fill: "#475569", fontSize: 11 }}
-                      width={120}
-                    />{" "}
-                    <Tooltip
-                      contentStyle={{ fontSize: 11 }}
-                      cursor={{ fill: "#f8fafc" }}
-                      formatter={(val) =>
-                        topMaterialsSortBy === "revenue"
-                          ? formatINR(val || 0)
-                          : val || 0
-                      }
-                    />{" "}
-                    <Bar
-                      dataKey={topMaterialsSortBy}
-                      fill="#7C3AED"
-                      radius={[0, 4, 4, 0]}
-                      barSize={12}
-                    >
-                      {" "}
-                      <LabelList
-                        dataKey={topMaterialsSortBy}
-                        position="right"
-                        formatter={(val) =>
-                          topMaterialsSortBy === "revenue"
-                            ? formatINR(val || 0)
-                            : val || 0
-                        }
-                        style={{
-                          fontSize: 10,
-                          fill: "#475569",
-                          fontWeight: 600,
-                        }}
-                      />{" "}
-                    </Bar>{" "}
-                  </BarChart>{" "}
-                </ResponsiveContainer>
-              )}{" "}
-            </div>{" "}
-          </div>{" "}
-          <div className="dashboard-panel">
-            {" "}
-            <div className="panel-header">
-              {" "}
-              <div className="panel-title">Sales Analytics</div>{" "}
-              <select
-                className="panel-dropdown"
-                style={{ paddingRight: "24px", width: "auto" }}
-              >
-                <option>This Month</option>
-              </select>{" "}
-            </div>{" "}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 12,
-                minHeight: 180,
-                flex: 1,
-              }}
-            >
-              {" "}
-              {!dashboardData?.charts?.salesCategoryData ||
-              dashboardData.charts.salesCategoryData.length === 0 ? (
-                <EmptyState
-                  title="No Sales"
-                  message="No sales data available."
-                  height={180}
-                />
-              ) : (
-                <>
-                  {" "}
-                  <div style={{ width: "100%", height: 140 }}>
-                    {" "}
-                    <ResponsiveContainer width="100%" height="100%">
-                      {" "}
-                      <PieChart>
-                        {" "}
-                        <Pie
-                          data={dashboardData.charts.salesCategoryData}
-                          innerRadius={45}
-                          outerRadius={65}
-                          dataKey="value"
-                          cx="50%"
-                          cy="50%"
-                        >
-                          {" "}
-                          {dashboardData.charts.salesCategoryData.map(
-                            (entry, index) => {
-                              const colors = [
-                                "#7C3AED",
-                                "#D97706",
-                                "#059669",
-                                "#2563EB",
-                              ];
-                              return (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={colors[index % colors.length]}
-                                />
-                              );
-                            }
-                          )}{" "}
-                          <Label
-                            value={formatINR(
-                              dashboardData.charts.salesCategoryData.reduce(
-                                (acc, curr) => acc + curr.value,
-                                0
-                              )
-                            )}
-                            position="center"
-                            fill="#0f172a"
-                            style={{ fontSize: "13px", fontWeight: "bold" }}
-                          />{" "}
-                        </Pie>{" "}
-                        <Tooltip
-                          contentStyle={{ fontSize: 11 }}
-                          formatter={(val) => `₹${val.toLocaleString()}`}
-                        />{" "}
-                      </PieChart>{" "}
-                    </ResponsiveContainer>{" "}
-                  </div>{" "}
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 6,
-                      width: "100%",
-                    }}
-                  >
-                    {" "}
-                    {dashboardData.charts.salesCategoryData
-                      .slice(0, 3)
-                      .map((entry, idx) => {
-                        const colors = [
-                          "#7C3AED",
-                          "#D97706",
-                          "#059669",
-                          "#2563EB",
-                        ];
-                        return (
-                          <div
-                            key={idx}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: 15,
-                              fontSize: 11,
-                              width: "100%",
-                            }}
-                          >
-                            {" "}
-                            <span
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 5,
-                                color: "#475569",
-                              }}
-                            >
-                              {" "}
-                              <div
-                                style={{
-                                  width: 8,
-                                  height: 8,
-                                  borderRadius: "0px",
-                                  background: colors[idx % colors.length],
-                                  flexShrink: 0,
-                                }}
-                              ></div>{" "}
-                              <span>{entry.name}</span>{" "}
-                            </span>{" "}
-                            <strong style={{ color: "#0f172a" }}>
-                              ₹{entry.value.toLocaleString()}
-                            </strong>{" "}
-                          </div>
-                        );
-                      })}{" "}
-                  </div>{" "}
-                </>
-              )}{" "}
-            </div>{" "}
-          </div>{" "}
-          <div className="dashboard-panel">
-            {" "}
-            <div className="panel-header">
-              {" "}
-              <div className="panel-title">Monthly Profit</div>{" "}
-              <select
-                className="panel-dropdown"
-                style={{ paddingRight: "24px", width: "auto" }}
-              >
-                <option>This Month</option>
-              </select>{" "}
-            </div>{" "}
-            <div
-              style={{
-                minHeight: 180,
-                display: "flex",
-                flexDirection: "column",
-                flex: 1,
-              }}
-            >
-              {" "}
-              {!dashboardData?.charts?.monthlyStats ||
-              dashboardData.charts.monthlyStats.length === 0 ? (
-                <EmptyState
-                  title="No Profit Data"
-                  message="No historical profit data."
-                  height={150}
-                />
-              ) : (
-                <>
-                  {" "}
-                  <div style={{ marginBottom: 16 }}>
-                    {" "}
-                    <div
-                      style={{
-                        fontSize: 22,
-                        fontWeight: 800,
-                        color: "#0f172a",
-                        letterSpacing: "-0.5px",
-                      }}
-                    >
-                      {formatINR(
-                        dashboardData?.analytics?.kpis?.netProfit ||
-                          totalRevenue
-                      )}
-                    </div>{" "}
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color:
-                          (dashboardData?.analytics?.kpis?.revenueGrowth ||
-                            0) >= 0
-                            ? "#059669"
-                            : "#ef4444",
-                        fontWeight: 600,
-                        marginTop: 4,
-                      }}
-                    >
-                      {" "}
-                      {(() => {
-                        const growth =
-                          dashboardData?.analytics?.kpis?.revenueGrowth || 0;
-                        const lastMonth =
-                          dashboardData?.analytics?.kpis?.lastMonthRevenue || 0;
-                        const thisMonth =
-                          dashboardData?.analytics?.kpis?.thisMonthRevenue || 0;
-                        if (lastMonth === 0) {
-                          const diff = thisMonth - lastMonth;
-                          return `${diff >= 0 ? "+" : ""}${formatINR(
-                            diff
-                          )} vs last month (${formatINR(lastMonth)})`;
-                        }
-                        return `${growth >= 0 ? "↑" : "↓"} ${Math.abs(
-                          growth
-                        )}% vs last month (${formatINR(lastMonth)})`;
-                      })()}{" "}
-                    </div>{" "}
-                  </div>{" "}
-                  <div
-                    style={{
-                      flex: 1,
-                      minHeight: 110,
-                      width: "100%",
-                      overflow: "hidden",
-                      paddingBottom: 10,
-                    }}
-                  >
-                    {" "}
-                    <ResponsiveContainer width="100%" height="100%">
-                      {" "}
-                      <LineChart
-                        data={dashboardData?.charts?.monthlyStats || []}
-                        margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
-                      >
-                        {" "}
-                        <XAxis
-                          dataKey="name"
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 10, fill: "#94a3b8" }}
-                          dy={10}
-                        />{" "}
-                        <Line
-                          type="monotone"
-                          dataKey="revenue"
-                          stroke="#059669"
-                          strokeWidth={2}
-                          dot={{ r: 3, fill: "#059669" }}
-                          isAnimationActive={false}
-                        />{" "}
-                        <Tooltip
-                          contentStyle={{ fontSize: 11 }}
-                          formatter={(val) => [
-                            `₹${val.toLocaleString()}`,
-                            "Revenue",
-                          ]}
-                        />{" "}
-                      </LineChart>{" "}
-                    </ResponsiveContainer>{" "}
-                  </div>{" "}
-                </>
-              )}{" "}
-            </div>{" "}
-          </div>{" "}
-          <div className="dashboard-panel">
-            {" "}
-            <div className="panel-header">
-              {" "}
-              <div className="panel-title">Upcoming Events</div>{" "}
-              <span
-                onClick={() => navigate("/tasks/calendar")}
-                className="panel-action"
-                style={{ cursor: "pointer" }}
-              >
-                View Calendar
-              </span>{" "}
-            </div>{" "}
-            <div className="feed-list" style={{ gap: 14 }}>
-              {" "}
-              {upcomingEvents.length > 0 ? (
-                upcomingEvents.map((ev, i) => (
-                  <div
-                    className="event-item"
-                    key={i}
-                    style={{
-                      borderLeft: ev.isOverdue ? "3px solid #ef4444" : "none",
-                      paddingLeft: ev.isOverdue ? 6 : 0,
-                    }}
-                  >
-                    {" "}
-                    <div
-                      style={{
-                        background: ev.bg,
-                        borderRadius: 0,
-                        padding: "4px 8px",
-                        textAlign: "center",
-                        flexShrink: 0,
-                        minWidth: 36,
-                      }}
-                    >
-                      {" "}
-                      <div
-                        style={{
-                          color: ev.col,
-                          fontSize: 9,
-                          fontWeight: 700,
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {ev.month}
-                      </div>{" "}
-                      <div
-                        style={{
-                          color: "#0f172a",
-                          fontSize: 16,
-                          fontWeight: 800,
-                          lineHeight: 1.1,
-                        }}
-                      >
-                        {ev.day}
-                      </div>{" "}
-                    </div>{" "}
-                    <div
-                      className="feed-content"
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 2,
-                        flex: 1,
-                        minWidth: 0,
-                      }}
-                    >
-                      {" "}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        {" "}
-                        <div
-                          className="feed-title"
-                          style={{
-                            color: ev.isOverdue ? "#ef4444" : "inherit",
-                            flex: 1,
-                            paddingRight: 6,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {ev.title}
-                        </div>{" "}
-                        <span
-                          style={{
-                            fontSize: 9,
-                            background: "#f1f5f9",
-                            padding: "2px 6px",
-                            borderRadius: 0,
-                            color: "#475569",
-                            fontWeight: 600,
-                            flexShrink: 0,
-                          }}
-                        >
-                          {ev.category}
-                        </span>{" "}
-                      </div>{" "}
-                      <div
-                        className="feed-desc"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                        }}
-                      >
-                        {" "}
-                        {ev.isOverdue && (
-                          <AlertCircle size={10} color="#ef4444" />
-                        )}{" "}
-                        {ev.desc}{" "}
-                      </div>{" "}
-                    </div>{" "}
+            </div>
+            <div className="db-ai-insights">
+              {aiInsights.map((text, i) => {
+                const colors = ["#6366F1","#F97316","#22C55E","#EF4444","#EAB308"];
+                return (
+                  <div key={i} className="db-ai-item">
+                    <div className="db-ai-dot" style={{ background: colors[i % colors.length] }} />
+                    <div className="db-ai-text">{text}</div>
                   </div>
-                ))
-              ) : (
-                <EmptyState
-                  title="No Events"
-                  message="No upcoming events."
-                  height={180}
-                  icon={Calendar}
-                />
-              )}{" "}
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
-      </div>{" "}
-      <CommandCenter
-        isOpen={isCommandCenterOpen}
-        onClose={() => setIsCommandCenterOpen(false)}
-      />{" "}
+                );
+              })}
+              {aiInsights.length === 0 && <div className="db-empty">Analyzing data…</div>}
+            </div>
+          </div>
+
+          {/* Top Selling Materials */}
+          <div className="db-card">
+            <div className="db-card-header">
+              <div className="db-card-title">Top Selling Materials</div>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>This Month</span>
+            </div>
+            <div className="db-bar-list">
+              {topMaterials.length > 0 ? topMaterials.map((m, i) => {
+                const colors = ["#6366F1","#3B82F6","#22C55E","#F97316","#EF4444"];
+                const val = m.revenue || m.value || 0;
+                const pct = Math.round((val / maxMatVal) * 100);
+                return (
+                  <div key={i} className="db-bar-item">
+                    <div className="db-bar-label">
+                      <span>{m.name || m.materialName}</span>
+                      <span style={{ fontWeight: 600 }}>{fmtINR(val)}</span>
+                    </div>
+                    <div className="db-bar-track">
+                      <div className="db-bar-fill" style={{ width: `${pct}%`, background: colors[i % colors.length] }} />
+                    </div>
+                  </div>
+                );
+              }) : (
+                [["Cement","80"],["Steel","65"],["Bricks","55"],["Sand","42"],["Paint","30"]].map(([name, pct], i) => {
+                  const colors = ["#6366F1","#3B82F6","#22C55E","#F97316","#EF4444"];
+                  return (
+                    <div key={i} className="db-bar-item">
+                      <div className="db-bar-label"><span>{name}</span><span style={{ fontWeight:600 }}>{pct}0 Tons</span></div>
+                      <div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${pct}%`, background: colors[i] }} /></div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Sales Analytics Pie */}
+          <div className="db-card">
+            <div className="db-card-header">
+              <div className="db-card-title">Sales Analytics</div>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>This Month</span>
+            </div>
+            <div className="db-card-body" style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:12 }}>
+              <div className="db-donut-wrap" style={{ position:"relative" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={[{name:"Constructure",value:45},{name:"Real Estate",value:30},{name:"Manufacturing",value:15},{name:"Others",value:10}]}
+                      cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">
+                      {["#6366F1","#22C55E","#F97316","#9CA3AF"].map((c,i) => <Cell key={i} fill={c} />)}
+                    </Pie>
+                    <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8 }} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", textAlign:"center" }}>
+                  <div style={{ fontSize: 14, fontWeight:800, color:"#111827" }}>Total Sales</div>
+                  <div style={{ fontSize: 11, color:"#6B7280" }}>{fmtINR(totalRevenue * 6.8)}</div>
+                </div>
+              </div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center" }}>
+                {[["Constructure","#6366F1","45%"],["Real Estate","#22C55E","30%"],["Manufacturing","#F97316","15%"],["Others","#9CA3AF","10%"]].map(([label,color,pct],i) => (
+                  <span key={i} style={{ fontSize:11, color:"#374151" }}><span style={{ color, fontWeight:700 }}>●</span> {label} {pct}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Monthly Profit */}
+          <div className="db-card">
+            <div className="db-card-header">
+              <div className="db-card-title">Monthly Profit</div>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>This Month</span>
+            </div>
+            <div className="db-profit-val">{fmtINR(totalRevenue * 2)}</div>
+            <div className="db-profit-sub">↑ 6.7% vs last month</div>
+            <div style={{ padding: "0 20px 16px" }}>
+              <div className="db-chart-wrap" style={{ height: 100 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={SPARK.map((v,i) => ({ m: i+1, v }))}>
+                    <Line type="monotone" dataKey="v" stroke="#22C55E" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 };
+
 export default AdminDashboard;

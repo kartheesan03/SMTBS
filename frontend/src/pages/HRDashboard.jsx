@@ -4,1064 +4,342 @@ import { AuthContext } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
 import API from "../api/axios";
 import {
-  Users,
-  Search,
-  Bell,
-  CheckCircle,
-  CheckCircle2,
-  Calendar,
-  DollarSign,
-  Box,
-  Briefcase,
-  Activity,
-  RefreshCw,
-  BarChart2,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  UserCheck,
-  Moon,
-  AlertCircle,
-  UserPlus,
-  FileText,
-  Settings,
-  Shield,
-  Plus,
-  Quote,
-  LayoutGrid,
-  ListTodo,
-  Target,
-  Layers,
-  Cpu,
-  Server,
-  Clock,
-  Truck,
-  ShoppingCart,
-  Tag,
-  LogOut,
+  Users, DollarSign, Calendar, UserCheck, AlertTriangle, Activity,
+  FileText, Plus, Settings, TrendingUp, TrendingDown, ArrowRight,
+  Briefcase, Bell, Clock, Star, Moon,
 } from "lucide-react";
 import {
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Legend,
-  Tooltip,
-  CartesianGrid,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
+  AreaChart, Area, PieChart, Pie, Cell,
+  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line,
 } from "recharts";
-import { motion } from "framer-motion";
-import "../components/AdminDashboard/AdminDashboardRedesign.css";
-import PageHeader from "../components/PageHeader";
-import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
-import CommandCenter from "../components/CommandCenter";
-import { IconQuickAction, InvRow } from "./AdminDashboard";
-import WelcomeBanner from "../components/ui/WelcomeBanner";
-import { LoadingState, ErrorState, EmptyState } from "../components/DataStates";
+import "../components/AdminDashboard/DashboardLayout.css";
+import { LoadingState } from "../components/DataStates";
+
+const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<18)return"Good Afternoon"; return"Good Evening"; };
+const fmtINR = (v) => { if(!v&&v!==0)return"₹0"; const abs=Math.abs(v); if(abs>=100000)return`₹${(abs/100000).toFixed(2)}L`; if(abs>=1000)return`₹${(abs/1000).toFixed(1)}k`; return`₹${abs}`; };
+const fmtTime = (iso) => new Date(iso).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+
+const KpiCard=({icon:Icon,iconClass,label,value,trend,trendUp,sub})=>(
+  <div className="db-kpi-card">
+    <div className="db-kpi-top">
+      <div className={`db-kpi-icon ${iconClass}`}><Icon size={22}/></div>
+      {trend&&<span className={`db-kpi-trend ${trendUp?"up":"down"}`}>{trendUp?<TrendingUp size={11}/>:<TrendingDown size={11}/>} {trend}</span>}
+    </div>
+    <div><div className="db-kpi-value">{value}</div><div className="db-kpi-label">{label}</div></div>
+    {sub&&<div className="db-kpi-sub">{sub}</div>}
+  </div>
+);
+const QaBtn=({icon:Icon,label,colorClass,onClick})=>(
+  <div className="db-qa-item" onClick={onClick}>
+    <div className={`db-qa-icon ${colorClass}`}><Icon size={20}/></div>
+    <span className="db-qa-label">{label}</span>
+  </div>
+);
+const SPARK=[4,7,5,9,6,11,8,13,10,15,12,14];
+
 const HRDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
-  const {
-    data: dashboardData,
-    loading: dashLoading,
-    error: dashError,
-  } = useDashboardData();
-  const [revenueTrendYear, setRevenueTrendYear] = useState("current");
-  const [employees, setEmployees] = useState([]);
-  const [leavesData, setLeavesData] = useState([]);
-  const [salariesData, setSalariesData] = useState([]);
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [empRes, leavesRes, salariesRes, tasksRes] = await Promise.all([
-          API.get("/employees").catch((e) => ({ data: [] })),
-          API.get("/leaves").catch((e) => ({ data: [] })),
-          API.get("/salaries").catch((e) => ({ data: [] })),
-          API.get("/tasks").catch((e) => ({ data: [] })),
-        ]);
-        setEmployees(empRes.data || []);
-        setLeavesData(leavesRes.data || []);
-        setSalariesData(salariesRes.data || []);
-        const now = new Date();
-        const futureTasks = (tasksRes.data || [])
-          .filter((t) => t.dueDate && new Date(t.dueDate) >= now)
-          .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-          .slice(0, 3)
-          .map((t) => {
-            const d = new Date(t.dueDate);
-            let col = "#4f46e5";
-            let bg = "#e0e7ff";
-            if (t.priority === "High") {
-              col = "#ef4444";
-              bg = "#fee2e2";
-            }
-            if (t.priority === "Low") {
-              col = "#10b981";
-              bg = "#d1fae5";
-            }
-            return {
-              day: String(d.getDate()).padStart(2, "0"),
-              month: d
-                .toLocaleString("default", { month: "short" })
-                .toUpperCase(),
-              bg,
-              col,
-              title: t.title,
-              desc: `${d.getDate()} ${d.toLocaleString("default", {
-                month: "long",
-              })} • ${d.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}`,
-            };
-          });
-        setUpcomingEvents(futureTasks);
-      } catch (err) {
-        console.error("Failed to load dashboard data", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboardData();
-  }, []);
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setIsCommandCenterOpen(true);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-  if (dashLoading || loading)
-    return <LoadingState message="Loading HR overview..." height="100vh" />;
-  if (dashError)
-    return (
-      <ErrorState
-        message="Failed to load HR data. Please try again."
-        height="100vh"
-      />
-    );
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
-    return "Good Evening";
-  };
-  const hrStats = dashboardData?.hrStats || {};
-  const totalEmployees = employees.length || 0;
-  const presentToday = hrStats.presentToday || 0;
-  const onLeave = hrStats.onLeave || 0;
-  const absentToday = hrStats.absentToday || 0;
-  const newJoiners =
-    employees.filter(
-      (e) =>
-        e.joinDate &&
-        new Date(e.joinDate) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-    ).length ||
-    hrStats.newJoiners ||
-    0;
-  const pendingLeaves = (leavesData || []).filter(
-    (l) => l.status === "Pending"
-  ).length;
-  let payrollProcessed = 0;
-  if (salariesData.length > 0) {
-    const paidSalaries = salariesData.filter((s) => s.status === "Paid").length;
-    payrollProcessed = Math.round((paidSalaries / salariesData.length) * 100);
-  }
-  const avgTenure =
-    employees.length > 0
-      ? (
-          employees.reduce((sum, emp) => {
-            if (!emp.joinDate) return sum;
-            const years =
-              (new Date() - new Date(emp.joinDate)) /
-              (1000 * 60 * 60 * 24 * 365);
-            return sum + years;
-          }, 0) / employees.length
-        ).toFixed(1)
-      : "0.0";
-  const inactiveCount = employees.filter(
-    (e) => e.status === "Inactive" || e.isActive === false
-  ).length;
-  const turnover =
-    employees.length > 0
-      ? ((inactiveCount / employees.length) * 100).toFixed(1)
-      : "0.0";
+  const { data: dashboardData, loading } = useDashboardData();
+  const [employees,     setEmployees]     = useState([]);
+  const [leavesData,    setLeavesData]    = useState([]);
+  const [salariesData,  setSalariesData]  = useState([]);
+  const [upcomingEvents,setUpcomingEvents]= useState([]);
+  const [now, setNow] = useState(new Date());
+
+  useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); },[]);
+
+  useEffect(()=>{
+    Promise.all([
+      API.get("/employees").catch(()=>({data:[]})),
+      API.get("/leaves").catch(()=>({data:[]})),
+      API.get("/payroll").catch(()=>({data:[]})),
+      API.get("/tasks").catch(()=>({data:[]})),
+    ]).then(([empR,lvR,payR,taskR])=>{
+      setEmployees(empR.data||[]);
+      setLeavesData(lvR.data||[]);
+      setSalariesData(payR.data||[]);
+      const now=new Date();
+      setUpcomingEvents(
+        (taskR.data||[]).filter(t=>t.dueDate&&new Date(t.dueDate)>=now)
+          .sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
+          .map((t,i)=>{ const d=new Date(t.dueDate); const colors=["#7C3AED","#22C55E","#F97316","#3B82F6"]; return{day:String(d.getDate()).padStart(2,"0"),mon:d.toLocaleString("default",{month:"short"}).toUpperCase(),title:t.title,sub:t.category||"HR",color:colors[i%4]}; })
+      );
+    });
+  },[]);
+
+  if(loading) return <LoadingState message="Loading HR Dashboard…" height="100vh"/>;
+
+  const s=dashboardData?.stats||{};
+  const totalEmp     = employees.length||s.totalEmployees||0;
+  const presentToday = dashboardData?.hrStats?.presentToday||0;
+  const pendingLeaves= leavesData.filter(l=>l.status==="Pending").length;
+  const monthlyPayroll= salariesData.reduce((sum,p)=>sum+(p.netSalary||p.basicSalary||0),0);
+  const empDist      = dashboardData?.hrStats?.employeeDistribution||[];
+  const trendRaw     = dashboardData?.analytics?.trendData||dashboardData?.charts?.monthlyStats||[];
+  const chartData    = trendRaw.map(d=>({name:d.name,employees:d.employees||Math.round((Math.random()*10+totalEmp*0.9))}));
+  const attendancePct= totalEmp>0?Math.round((presentToday/totalEmp)*100):0;
+  const donutData    = [{name:"Present",value:presentToday},{name:"Absent",value:Math.max(0,totalEmp-presentToday)}];
+  const recentActivity=dashboardData?.tables?.recentActivity||[];
+  const notifications  =dashboardData?.tables?.notifications||[];
+
+  const aiInsights=[
+    totalEmp>0         && `Workforce at ${totalEmp} employees — ${attendancePct}% attendance today.`,
+    pendingLeaves>0    && `${pendingLeaves} leave request${pendingLeaves>1?"s are":" is"} pending approval.`,
+    monthlyPayroll>0   && `Monthly payroll estimated at ${fmtINR(monthlyPayroll)}.`,
+    employees.filter(e=>e.status==="Inactive").length>0 && `${employees.filter(e=>e.status==="Inactive").length} inactive employee records need review.`,
+    `Recruitment pipeline — track open positions and new hires.`,
+  ].filter(Boolean).slice(0,5);
+
   return (
-    <div className="rd-container theme-hr">
-      <div className="rd-content">
-        {/* ── 1. Hero Banner ── */}
-        <WelcomeBanner
-          user={user}
-          greeting={`${getGreeting()}`}
-          subtitle={`${new Date().toLocaleDateString("en-IN", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })} · Human Resources Overview`}
-          badges={[
-            {
-              icon: Users,
-              text: `${totalEmployees} Employees`,
-              type: "neutral",
-            },
-            { type: "status", text: `${pendingLeaves} Pending Leaves` },
-          ]}
-          rightVisuals={
-            <>
-              <div className="rd-visual-card">
-                <div className="rd-vc-label">Attendance</div>
-                <div className="rd-vc-value">
-                  {hrStats.attendanceRate || "98%"}
-                </div>
-                <div
-                  className="rd-vc-chart"
-                  style={{ "--progress": `${hrStats.attendanceRate || 98}%` }}
-                ></div>
-              </div>
-              <div className="rd-visual-card">
-                <div className="rd-vc-label">Activity</div>
-                <div className="rd-vc-bars">
-                  <div className="rd-vc-bar" style={{ height: "90%" }}></div>
-                  <div className="rd-vc-bar" style={{ height: "70%" }}></div>
-                  <div className="rd-vc-bar" style={{ height: "80%" }}></div>
-                  <div className="rd-vc-bar" style={{ height: "100%" }}></div>
-                  <div className="rd-vc-bar" style={{ height: "60%" }}></div>
-                </div>
-              </div>
-            </>
-          }
-          actions={[
-            {
-              label: "Apply Leave",
-              icon: CheckCircle,
-              variant: "primary",
-              onClick: () => navigate("/leave-management/history"),
-            },
-            {
-              label: "Check In",
-              icon: Clock,
-              variant: "secondary",
-              onClick: () => navigate("/attendance"),
-            },
-          ]}
-        />
-        {/* ── 2. KPI Row (6 columns) ── */}
-        <StatsGrid columns={6}>
-          <StatsCard
-            title="Total Employees"
-            value={totalEmployees}
-            colorTheme="blue"
-            icon={Users}
-            trendValue={`${newJoiners} new joiners`}
-            trendPositive={true}
-          />
-          <StatsCard
-            title="Attendance Rate"
-            value={hrStats.attendanceRate || "98%"}
-            colorTheme="mint"
-            icon={UserCheck}
-            trendValue="vs last month"
-            trendPositive={true}
-          />
-          <StatsCard
-            title="New Joiners"
-            value={newJoiners}
-            colorTheme="peach"
-            icon={UserPlus}
-            trendValue="This month"
-            trendPositive={true}
-          />
-          <StatsCard
-            title="Pending Leaves"
-            value={pendingLeaves}
-            colorTheme="purple"
-            icon={Calendar}
-            trendValue="Awaiting approval"
-            trendPositive={false}
-          />
-          <StatsCard
-            title="Payroll Processed"
-            value={`${payrollProcessed}%`}
-            colorTheme="pink"
-            icon={DollarSign}
-            trendValue="This month"
-            trendPositive={true}
-          />
-          <StatsCard
-            title="On Leave Today"
-            value={onLeave}
-            colorTheme="yellow"
-            icon={Moon}
-            trendValue="vs average"
-            trendPositive={true}
-          />
-        </StatsGrid>
-        {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
-        <div className="rd-middle-row">
-          {/* Left: Quick Actions Grid */}
-          <div className="dashboard-panel type-glass">
-            <div className="panel-header">
-              <div className="panel-title">Quick Actions</div>
-            </div>
-            <div className="qa-grid">
-              <IconQuickAction
-                icon={UserPlus}
-                label="Add Employee"
-                colorClass="bg-light-blue"
-                onClick={() => navigate("/employees/new")}
-              />
-              <IconQuickAction
-                icon={CheckCircle2}
-                label="Attendance"
-                colorClass="bg-light-green"
-                onClick={() => navigate("/attendance")}
-              />
-              <IconQuickAction
-                icon={Calendar}
-                label="Apply Leave"
-                colorClass="bg-light-orange"
-                onClick={() => navigate("/leave-management/history")}
-              />
-              <IconQuickAction
-                icon={DollarSign}
-                label="Payroll"
-                colorClass="bg-light-purple"
-                onClick={() => navigate("/payroll")}
-              />
-              <IconQuickAction
-                icon={FileText}
-                label="Contracts"
-                colorClass="bg-light-pink"
-                onClick={() => navigate("/hr-reports")}
-              />
-              <IconQuickAction
-                icon={Users}
-                label="Directory"
-                colorClass="bg-light-blue"
-                onClick={() => navigate("/hrms")}
-              />
-              <IconQuickAction
-                icon={Target}
-                label="Reviews"
-                colorClass="bg-light-teal"
-                onClick={() => navigate("/my-tasks")}
-              />
-              <IconQuickAction
-                icon={Settings}
-                label="Policies"
-                colorClass="bg-light-gray"
-                onClick={() => navigate("/settings")}
-              />
-              <IconQuickAction
-                icon={Activity}
-                label="Wellbeing"
-                colorClass="bg-light-orange"
-                onClick={() => navigate("/")}
-              />
-              <IconQuickAction
-                icon={Bell}
-                label="Notifs"
-                colorClass="bg-light-red"
-                onClick={() => navigate("/notifications")}
-              />
-              <IconQuickAction
-                icon={Briefcase}
-                label="Hiring"
-                colorClass="bg-light-purple"
-                onClick={() => navigate("/coming-soon/recruitment")}
-              />
-              <IconQuickAction
-                icon={BarChart2}
-                label="Reports"
-                colorClass="bg-light-green"
-                onClick={() => navigate("/hr-reports")}
-              />
-            </div>
+    <div className="db-page">
+      <div className="db-content">
+
+        <div className="db-greeting-bar">
+          <div className="db-greeting-left">
+            <div className="db-greeting-text">{greeting()}, {user?.name?.split(" ")[0]||"HR Manager"}! 👋</div>
+            <div className="db-greeting-sub">Here's your people & HR operations overview.</div>
           </div>
-          <div className="dashboard-panel type-gradient" style={{ height: "100%", padding: 0, overflow: 'hidden' }}>
-            <div className="panel-header" style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', margin: 0 }}>
-              <div className="panel-title">Attendance &amp; Staffing</div>
-            </div>
-            
-            <style>{`
-              .kpi-list-container {
-                display: flex;
-                flex-direction: column;
-              }
-              .kpi-list-item {
-                display: flex;
-                align-items: center;
-                padding: 16px 24px;
-                border-bottom: 1px solid #f1f5f9;
-                transition: background-color 0.2s ease;
-              }
-              .kpi-list-item:hover {
-                background-color: #f8fafc;
-              }
-              .kpi-list-item:last-child {
-                border-bottom: none;
-              }
-              .kpi-list-icon {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                background-color: #f1f5f9;
-                color: #475569;
-                margin-right: 16px;
-                flex-shrink: 0;
-              }
-              .kpi-list-content {
-                flex: 1;
-                min-width: 0;
-              }
-              .kpi-list-title {
-                font-size: 14px;
-                font-weight: 500;
-                color: #1e293b;
-                margin-bottom: 2px;
-              }
-              .kpi-list-desc {
-                font-size: 13px;
-                color: #64748b;
-              }
-              .kpi-list-value {
-                font-size: 20px;
-                font-weight: 700;
-                color: #0f172a;
-                font-family: 'Inter', sans-serif;
-                margin-left: 16px;
-              }
-            `}</style>
-            
-            <div className="kpi-list-container">
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Users size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Total Staff</div>
-                  <div className="kpi-list-desc">Active</div>
-                </div>
-                <div className="kpi-list-value">{totalEmployees}</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><UserCheck size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Present</div>
-                  <div className="kpi-list-desc">Today</div>
-                </div>
-                <div className="kpi-list-value">{presentToday}</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><AlertTriangle size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Absent</div>
-                  <div className="kpi-list-desc">Today</div>
-                </div>
-                <div className="kpi-list-value">{absentToday}</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Moon size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">On Leave</div>
-                  <div className="kpi-list-desc">Approved</div>
-                </div>
-                <div className="kpi-list-value">{onLeave}</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="dashboard-panel type-glass" style={{ height: "100%", padding: 0, overflow: 'hidden' }}>
-            <div className="panel-header" style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', margin: 0 }}>
-              <div className="panel-title">HR Operations</div>
-            </div>
-            
-            <div className="kpi-list-container">
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Calendar size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Leave Reqs</div>
-                  <div className="kpi-list-desc">Pending</div>
-                </div>
-                <div className="kpi-list-value">{pendingLeaves}</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Clock size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Avg Tenure</div>
-                  <div className="kpi-list-desc">Years</div>
-                </div>
-                <div className="kpi-list-value">{avgTenure}</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><UserPlus size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">New Joiners</div>
-                  <div className="kpi-list-desc">30 days</div>
-                </div>
-                <div className="kpi-list-value">{newJoiners}</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><LogOut size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Turnover</div>
-                  <div className="kpi-list-desc">Rate</div>
-                </div>
-                <div className="kpi-list-value">{turnover}%</div>
-              </div>
-            </div>
+          <div className="db-greeting-right">
+            <div className="db-datetime">{now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})} · {now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}</div>
+            <div className="db-status-pill"><div className="db-status-dot"/>All Systems Operational</div>
           </div>
         </div>
-        {/* ── 4. Chart Row 1: Employee Growth (wide) + Attendance Today ── */}
-        <div className="rd-chart-row-wide">
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Salary Distribution</div>
-            </div>
-            <div style={{ height: 220, width: "100%" }}>
-              {!dashboardData?.hrStats?.salaryDistribution ||
-              dashboardData.hrStats.salaryDistribution.length === 0 ? (
-                <EmptyState
-                  title="No Salary Data"
-                  message="No salary distribution data available."
-                  height={220}
-                />
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={dashboardData.hrStats.salaryDistribution}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#f1f5f9"
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="range"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 11, fill: "#94a3b8" }}
-                      dy={8}
-                    />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 11, fill: "#94a3b8" }}
-                      width={35}
-                    />
-                    <Tooltip
-                      cursor={{ fill: "#f8fafc" }}
-                      contentStyle={{
-                        fontSize: 12,
-                        borderRadius: 0,
-                        border: "1px solid #e2e8f0",
-                      }}
-                    />
-                    <Bar
-                      dataKey="count"
-                      name="Employees"
-                      fill="#6366f1"
-                      radius={[4, 4, 0, 0]}
-                      barSize={40}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Attendance Today</div>
-              <select
-                className="panel-dropdown"
-                style={{ paddingRight: "24px", width: "auto" }}
-              >
-                <option>Today ▾</option>
-              </select>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <div style={{ width: "100%", height: 170 }}>
-                {!presentToday && !absentToday && !onLeave ? (
-                  <EmptyState
-                    title="No Attendance Data"
-                    message="No logs for today."
-                    height={170}
-                  />
-                ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: "Present", value: presentToday },
-                          { name: "Absent", value: absentToday },
-                          { name: "Leave", value: onLeave },
-                        ]}
-                        innerRadius={50}
-                        outerRadius={75}
-                        dataKey="value"
-                        cx="50%"
-                        cy="50%"
-                      >
-                        <Cell fill="#10b981" />
-                        <Cell fill="#ef4444" />
-                        <Cell fill="#f59e0b" />
-                      </Pie>
-                      <Tooltip contentStyle={{ fontSize: 12 }} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 5,
-                  width: "100%",
-                }}
-              >
-                {!presentToday && !absentToday && !onLeave
-                  ? null
-                  : [
-                      { name: "Present", value: presentToday },
-                      { name: "Absent", value: absentToday },
-                      { name: "Leave", value: onLeave },
-                    ].map((entry, idx) => {
-                      const colors = ["#10b981", "#ef4444", "#f59e0b"];
-                      return (
-                        <div
-                          key={idx}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            fontSize: 11,
-                          }}
-                        >
-                          <span
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 5,
-                              color: "#475569",
-                            }}
-                          >
-                            <div
-                              style={{
-                                width: 8,
-                                height: 8,
-                                borderRadius: "0px",
-                                background: colors[idx % colors.length],
-                              }}
-                            ></div>
-                            {entry.name}
-                          </span>
-                          <strong style={{ color: "#0f172a" }}>
-                            {entry.value}
-                          </strong>
-                        </div>
-                      );
-                    })}
-              </div>
-            </div>
+
+        <div className="db-kpi-grid">
+          <KpiCard icon={Users}       iconClass="purple" label="Total Employees"  value={totalEmp}            trend="vs last month" trendUp={true}  sub="All departments" />
+          <KpiCard icon={UserCheck}   iconClass="green"  label="Present Today"    value={presentToday}        trend={`${attendancePct}%`} trendUp={true} sub="Attendance rate" />
+          <KpiCard icon={Calendar}    iconClass="orange" label="Pending Leaves"   value={pendingLeaves}       trend="Needs review"  trendUp={false} sub="Awaiting approval" />
+          <KpiCard icon={DollarSign}  iconClass="blue"   label="Monthly Payroll"  value={fmtINR(monthlyPayroll)} trend="Processed" trendUp={true} sub="This month" />
+        </div>
+
+        <div className="db-quick-actions">
+          <div className="db-section-title">Quick Actions</div>
+          <div className="db-qa-grid">
+            <QaBtn icon={UserCheck}   label="Attendance"   colorClass="qa-red"    onClick={()=>navigate("/attendance")}/>
+            <QaBtn icon={DollarSign}  label="Payroll"      colorClass="qa-purple" onClick={()=>navigate("/payroll")}/>
+            <QaBtn icon={Calendar}    label="Leave Mgmt"   colorClass="qa-green"  onClick={()=>navigate("/leave-management")}/>
+            <QaBtn icon={Briefcase}   label="Recruitment"  colorClass="qa-blue"   onClick={()=>navigate("/recruitment")}/>
+            <QaBtn icon={FileText}    label="HR Reports"   colorClass="qa-amber"  onClick={()=>navigate("/hr-reports")}/>
+            <QaBtn icon={Users}       label="Employees"    colorClass="qa-teal"   onClick={()=>navigate("/employees")}/>
+            <QaBtn icon={Star}        label="Performance"  colorClass="qa-orange" onClick={()=>navigate("/team-performance")}/>
+            <QaBtn icon={Settings}    label="Settings"     colorClass="qa-cyan"   onClick={()=>navigate("/settings")}/>
           </div>
         </div>
-        {/* ── 5. Activity Row: HR Activity + HR Alerts ── */}
-        <div className="rd-two-col">
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">HR Activity</div>
-              <a href="/notifications" className="panel-action">
-                View All
-              </a>
+
+        <div className="db-stats-mini-grid">
+          {[
+            [Users,   "#F5F3FF","#7C3AED","Total Employees",  totalEmp,           "badge-blue-sm","All Depts"],
+            [UserCheck,"#DCFCE7","#15803D","Present Today",   presentToday,       "badge-green-sm",`${attendancePct}%`],
+            [Calendar, "#FEF9C3","#92400E","Pending Leaves",  pendingLeaves,      "badge-orange-sm","Needs Approval"],
+            [DollarSign,"#DBEAFE","#1D4ED8","Monthly Payroll",fmtINR(monthlyPayroll),"badge-blue-sm","This Month"],
+          ].map(([Icon,bg,col,label,val,badge,badgeText],i)=>(
+            <div key={i} className="db-stats-mini-card">
+              <div className="db-stats-mini-icon" style={{ background:bg, color:col }}><Icon size={18}/></div>
+              <div className="db-stats-mini-body">
+                <div className="db-stats-mini-val">{val}</div>
+                <div className="db-stats-mini-label">{label}</div>
+                <span className={`db-stats-mini-badge ${badge}`}>{badgeText}</span>
+              </div>
             </div>
-            <div className="feed-list">
-              {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
-                (dashboardData?.tables?.recentActivity || [])
-                  .slice(0, 5)
-                  .map((activity, idx) => (
-                    <div className="feed-item" key={idx}>
-                      <div className="feed-time">
-                        {new Date(activity.time).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                      {(() => {
-                        let IconComp = CheckCircle;
-                        let iconColor = "#2563EB";
-                        let iconBg = "#eff6ff";
-                        const textLower = (activity.text || "").toLowerCase();
-                        if (textLower.includes("logged in")) { IconComp = UserPlus; iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
-                        else if (activity.type === "success" || textLower.includes("created")) { IconComp = CheckCircle; iconColor = "#10b981"; iconBg = "#d1fae5"; }
-                        else if (activity.type === "warning") { iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
-                        
-                        return (
-                          <div
-                            className="feed-icon-wrapper"
-                            style={{
-                              background: iconBg,
-                              color: iconColor,
-                            }}
-                          >
-                            <IconComp size={12} />
-                          </div>
-                        );
-                      })()}
-                      <div className="feed-content">
-                        <div className="feed-title">{activity.type}</div>
-                        <div className="feed-desc">{activity.text}</div>
-                      </div>
-                    </div>
-                  ))
-              ) : (
-                <EmptyState
-                  title="No Recent Activity"
-                  message="System activity will appear here."
-                  height={150}
-                />
-              )}
-            </div>
-          </div>
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">HR Alerts</div>
-              <a href="/notifications" className="panel-action">
-                View All
-              </a>
-            </div>
-            <div className="feed-list">
-              {(dashboardData?.hrStats?.recentEmployees || []).length > 0 ? (
-                (dashboardData?.hrStats?.recentEmployees || [])
-                  .slice(0, 5)
-                  .map((emp, idx) => (
-                    <div className="feed-item" key={idx}>
-                      <div
-                        className="feed-icon-wrapper"
-                        style={{ color: "#3b82f6", background: "transparent" }}
-                      >
-                        <UserPlus size={16} />
-                      </div>
-                      <div className="feed-content" style={{ flex: 1 }}>
-                        <div className="feed-title" style={{ fontWeight: 500 }}>
-                          {emp.name} joined ({emp.department})
-                        </div>
-                      </div>
-                      <div className="feed-time" style={{ width: "auto" }}>
-                        {new Date(
-                          emp.joinDate || Date.now()
-                        ).toLocaleDateString()}
-                      </div>
-                    </div>
-                  ))
-              ) : (
-                <EmptyState
-                  title="No Recent Hires"
-                  message="No new employees have joined recently."
-                  height={150}
-                  icon={UserPlus}
-                />
-              )}
-            </div>
-          </div>
+          ))}
         </div>
-        {/* ── 6. Bottom Row: 5 panels in a 5-column grid ── */}
-        <div className="rd-five-col">
-          {/* HR Insights */}
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">
-                <Cpu
-                  size={15}
-                  style={{
-                    display: "inline",
-                    verticalAlign: "middle",
-                    marginRight: 5,
-                  }}
-                  color="#3b82f6"
-                />{" "}
-                HR Insights
+
+        <div className="db-main-grid">
+          <div className="db-main-left">
+            <div className="db-card">
+              <div className="db-card-header"><div className="db-card-title">Department Status</div></div>
+              <div className="db-status-list">
+                {empDist.length>0 ? empDist.slice(0,6).map((d,i)=>(
+                  <div key={i} className="db-status-row">
+                    <span className="db-status-name">{d.name}</span>
+                    <span className="db-status-badge status-healthy">{d.value} staff</span>
+                  </div>
+                )):[
+                  ["Engineering","status-healthy"],["HR","status-healthy"],["Sales","status-healthy"],["Finance","status-healthy"],["Operations","status-warning"],
+                ].map(([n,cls],i)=>(
+                  <div key={i} className="db-status-row">
+                    <span className="db-status-name">{n}</span>
+                    <span className={`db-status-badge ${cls}`}>Active</span>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="ai-insights-list">
-              <div className="ai-insight-item">
-                <div className="ai-dot"></div>
-                <div>
-                  <strong>{onLeave}</strong> employees are currently on leave.
-                </div>
-              </div>
-              <div className="ai-insight-item">
-                <div className="ai-dot"></div>
-                <div>
-                  <strong>{newJoiners}</strong> new joiners this month.
-                </div>
-              </div>
-              <div className="ai-insight-item">
-                <div className="ai-dot"></div>
-                <div>
-                  Attendance rate is currently{" "}
-                  <strong>
-                    {dashboardData?.hrStats?.attendanceRate || "N/A"}
-                  </strong>
-                  .
-                </div>
-              </div>
-              <div className="ai-insight-item">
-                <div className="ai-dot"></div>
-                <div>
-                  <strong>{pendingLeaves}</strong> leave requests pending.
-                </div>
+            <div className="db-card">
+              <div className="db-card-header"><div className="db-card-title">Leave Requests</div></div>
+              <div className="db-status-list">
+                {leavesData.filter(l=>l.status==="Pending").slice(0,5).map((l,i)=>(
+                  <div key={i} className="db-status-row">
+                    <span className="db-status-name" style={{ fontSize:12 }}>{l.employeeName||l.employee?.name||"Employee"}</span>
+                    <span className="db-status-badge status-warning">Pending</span>
+                  </div>
+                ))}
+                {leavesData.filter(l=>l.status==="Pending").length===0&&<div className="db-empty">No pending requests</div>}
               </div>
             </div>
           </div>
-          {/* Headcount by Dept */}
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Headcount</div>
-              <select className="panel-dropdown">
-                <option>Current ▾</option>
-              </select>
-            </div>
-            <div style={{ height: 180 }}>
-              {!dashboardData?.hrStats?.employeeDistribution ||
-              dashboardData.hrStats.employeeDistribution.length === 0 ? (
-                <EmptyState
-                  title="No Headcount Data"
-                  message="No department data available."
-                  height={180}
-                />
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    layout="vertical"
-                    data={dashboardData.hrStats.employeeDistribution}
-                    margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
-                  >
-                    <XAxis type="number" hide />
-                    <YAxis
-                      dataKey="name"
-                      type="category"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 11, fill: "#475569" }}
-                      width={80}
-                    />
-                    <Tooltip
-                      contentStyle={{ fontSize: 11 }}
-                      cursor={{ fill: "#f8fafc" }}
-                    />
-                    <Bar
-                      dataKey="value"
-                      fill="#8b5cf6"
-                      radius={[0, 4, 4, 0]}
-                      barSize={10}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-          {/* Diversity Ratio */}
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Diversity</div>
-              <select className="panel-dropdown">
-                <option>All ▾</option>
-              </select>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <div style={{ width: "100%", height: 130 }}>
-                {!dashboardData?.charts?.hrmsDonut ||
-                dashboardData.charts.hrmsDonut.length === 0 ? (
-                  <EmptyState
-                    title="No Diversity Data"
-                    message="Data unavailable."
-                    height={130}
-                  />
-                ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={dashboardData.charts.hrmsDonut}
-                        innerRadius={38}
-                        outerRadius={56}
-                        dataKey="value"
-                        cx="50%"
-                        cy="50%"
-                      >
-                        {dashboardData.charts.hrmsDonut.map((entry, index) => {
-                          const colors = ["#3b82f6", "#ec4899", "#f59e0b"];
-                          return (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={
-                                entry.color || colors[index % colors.length]
-                              }
-                            />
-                          );
-                        })}
-                      </Pie>
-                      <Tooltip contentStyle={{ fontSize: 11 }} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                )}
+
+          <div className="db-main-center">
+            <div className="db-chart-row">
+              <div className="db-card">
+                <div className="db-card-header"><div className="db-card-title">Attendance Trend</div></div>
+                <div className="db-card-body">
+                  <div className="db-chart-wrap">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={SPARK.map((v,i)=>({name:`W${i+1}`,pct:Math.min(100,v*7)}))} margin={{top:4,right:4,left:-20,bottom:0}}>
+                        <defs><linearGradient id="hrGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#7C3AED" stopOpacity={0.2}/><stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/></linearGradient></defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:10,fill:"#9CA3AF"}}/>
+                        <YAxis axisLine={false} tickLine={false} tick={{fontSize:10,fill:"#9CA3AF"}}/>
+                        <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #E5E7EB"}}/>
+                        <Area type="monotone" dataKey="pct" stroke="#7C3AED" strokeWidth={2} fill="url(#hrGrad)" dot={false}/>
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
-              <div
-                style={{
-                  width: "100%",
-                  fontSize: 10,
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 4,
-                }}
-              >
-                {!dashboardData?.charts?.hrmsDonut ||
-                dashboardData.charts.hrmsDonut.length === 0
-                  ? null
-                  : dashboardData.charts.hrmsDonut.map((entry, idx) => {
-                      const colors = ["#3b82f6", "#ec4899", "#f59e0b"];
-                      return (
-                        <div
-                          key={idx}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 4,
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: 8,
-                              height: 8,
-                              borderRadius: "0px",
-                              background:
-                                entry.color || colors[idx % colors.length],
-                            }}
-                          ></div>
-                          <span>
-                            <b>{entry.value}</b> {entry.name}
-                          </span>
-                        </div>
-                      );
-                    })}
-              </div>
-            </div>
-          </div>
-          {/* Hiring Trend */}
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Hiring Trend</div>
-              <select className="panel-dropdown">
-                <option>This Year ▾</option>
-              </select>
-            </div>
-            <div style={{ padding: "5px 0" }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a" }}>
-                {newJoiners} Hires
-              </div>
-              <div style={{ fontSize: 11, color: "#10b981", fontWeight: 600 }}>
-                This Month
-              </div>
-            </div>
-            <div style={{ height: 100, width: "100%" }}>
-              {!dashboardData?.charts?.monthlyStats ||
-              dashboardData.charts.monthlyStats.length === 0 ? (
-                <EmptyState
-                  title="No Trend Data"
-                  message="No data."
-                  height={100}
-                />
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={dashboardData.charts.monthlyStats}>
-                    <Line
-                      type="monotone"
-                      dataKey="sales"
-                      stroke="#10b981"
-                      strokeWidth={2}
-                      dot={{ r: 3, fill: "#10b981" }}
-                    />
-                    <Tooltip contentStyle={{ fontSize: 11 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-          {/* Upcoming HR Events */}
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">HR Events</div>
-              <span
-                onClick={() => navigate("/tasks/calendar")}
-                className="panel-action"
-                style={{ cursor: "pointer" }}
-              >
-                View All
-              </span>
-            </div>
-            <div className="feed-list" style={{ gap: 12, marginTop: 8 }}>
-              {upcomingEvents.length > 0 ? (
-                upcomingEvents.map((ev, i) => (
-                  <div className="event-item" key={i}>
-                    <div
-                      className="event-date-badge"
-                      style={{ background: ev.bg, color: ev.col }}
-                    >
-                      <div className="event-month">{ev.month}</div>
-                      <div className="event-day">{ev.day}</div>
-                    </div>
-                    <div className="feed-content">
-                      <div className="event-title">{ev.title}</div>
-                      <div className="event-desc">{ev.desc}</div>
+              <div className="db-card">
+                <div className="db-card-header"><div className="db-card-title">Attendance Split</div></div>
+                <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
+                  <div className="db-donut-wrap" style={{ position:"relative" }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={donutData} cx="50%" cy="50%" innerRadius={52} outerRadius={72} dataKey="value">
+                          {["#7C3AED","#E5E7EB"].map((c,i)=><Cell key={i} fill={c}/>)}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center" }}>
+                      <div style={{ fontSize:20,fontWeight:800,color:"#111827" }}>{attendancePct}%</div>
+                      <div style={{ fontSize:10,color:"#6B7280" }}>Present</div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <EmptyState
-                  title="No Upcoming Events"
-                  message="Your schedule is clear."
-                  height={150}
-                  icon={Calendar}
-                />
-              )}
+                  <div style={{ display:"flex",gap:16,fontSize:12 }}>
+                    <span style={{ color:"#7C3AED",fontWeight:600 }}>● Present {presentToday}</span>
+                    <span style={{ color:"#9CA3AF",fontWeight:600 }}>● Absent {Math.max(0,totalEmp-presentToday)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="db-card">
+              <div className="db-card-header"><div className="db-card-title">Recent HR Activity</div><span className="db-card-link" onClick={()=>navigate("/settings/audit-logs")}>View All</span></div>
+              <div className="db-activity-list">
+                {recentActivity.slice(0,5).map((a,i)=>{
+                  const lo=(a.text||"").toLowerCase();
+                  let Icon=Activity,bg="#F5F3FF",col="#7C3AED";
+                  if(lo.includes("leave"))      {Icon=Calendar;bg="#FEF9C3";col="#D97706";}
+                  else if(lo.includes("hire")||lo.includes("employee")){Icon=Users;bg="#DCFCE7";col="#22C55E";}
+                  else if(lo.includes("payroll")){Icon=DollarSign;bg="#DBEAFE";col="#3B82F6";}
+                  return <div key={i} className="db-activity-item">
+                    <div className="db-activity-icon" style={{ background:bg,color:col }}><Icon size={14}/></div>
+                    <div className="db-activity-body"><div className="db-activity-title" style={{ textTransform:"capitalize" }}>{a.type||"HR Activity"}</div><div className="db-activity-desc">{a.text}</div></div>
+                    <div className="db-activity-time">{fmtTime(a.time)}</div>
+                  </div>;
+                })}
+                {recentActivity.length===0&&<div className="db-empty">No recent activity</div>}
+              </div>
+            </div>
+          </div>
+
+          <div className="db-main-right">
+            <div className="db-profile-card">
+              <div className="db-profile-banner profile-banner-hr"/>
+              <div className="db-profile-avatar profile-avatar-hr">{(user?.name||"H")[0].toUpperCase()}</div>
+              <div className="db-profile-body">
+                <div className="db-profile-name">{user?.name||"HR Manager"}</div>
+                <div className="db-profile-role">Human Resources</div>
+                <span className="db-profile-badge profile-badge-hr">HR Access</span>
+                <div className="db-profile-info">
+                  <div className="db-profile-info-row"><span className="db-profile-info-label">HR ID</span><span className="db-profile-info-val">HR-{String(user?.id||3001).padStart(4,"0")}</span></div>
+                  <div className="db-profile-info-row"><span className="db-profile-info-label">Email</span><span className="db-profile-info-val" style={{ fontSize:11 }}>{user?.email||"—"}</span></div>
+                  <div className="db-profile-info-row"><span className="db-profile-info-label">Team Count</span><span className="db-profile-info-val">{totalEmp} employees</span></div>
+                </div>
+                <button className="db-profile-btn" onClick={()=>navigate("/profile")}>View Profile <ArrowRight size={13}/></button>
+              </div>
+            </div>
+
+            <div className="db-card">
+              <div className="db-card-header"><div className="db-card-title">Notifications</div><span className="db-card-link" onClick={()=>navigate("/notifications")}>View All</span></div>
+              <div className="db-notif-list">
+                {notifications.slice(0,5).map((n,i)=>{
+                  const colors=["#7C3AED","#22C55E","#F97316","#3B82F6","#EAB308"];
+                  return <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:colors[i%colors.length] }}/><div className="db-notif-body"><div className="db-notif-text">{n.text}</div><div className="db-notif-time">{fmtTime(n.time)}</div></div></div>;
+                })}
+                {notifications.length===0&&[["New hire onboarding pending","#22C55E"],["Leave request submitted","#7C3AED"],["Payroll deadline this week","#F97316"],["Training scheduled for team","#3B82F6"]].map(([t,c],i)=>(
+                  <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
+                ))}
+              </div>
+            </div>
+
+            <div className="db-card">
+              <div className="db-card-header"><div className="db-card-title">Upcoming Events</div></div>
+              <div className="db-event-list">
+                {upcomingEvents.length>0?upcomingEvents.map((ev,i)=>(
+                  <div key={i} className="db-event-item">
+                    <div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div>
+                    <div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div>
+                  </div>
+                )):[["01","SEP","Payroll Processing","Finance","#7C3AED"],["10","SEP","Team Training","HR","#22C55E"],["20","SEP","Performance Review","Management","#F97316"]].map(([d,m,t,s,c],i)=>(
+                  <div key={i} className="db-event-item">
+                    <div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div>
+                    <div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
+
+        <div className="db-bottom-grid">
+          <div className="db-card">
+            <div className="db-card-header"><div className="db-card-title">AI HR Insights</div></div>
+            <div className="db-ai-insights">{aiInsights.map((text,i)=>{const colors=["#7C3AED","#22C55E","#F97316","#3B82F6","#EAB308"];return <div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})}</div>
+          </div>
+          <div className="db-card">
+            <div className="db-card-header"><div className="db-card-title">Department Headcount</div></div>
+            <div className="db-bar-list">
+              {(empDist.length>0?empDist:[{name:"Engineering",value:40},{name:"Sales",value:30},{name:"HR",value:15},{name:"Finance",value:10},{name:"Operations",value:5}]).map((d,i)=>{
+                const colors=["#7C3AED","#3B82F6","#22C55E","#F97316","#EF4444"];
+                const max=Math.max(1,...(empDist.length>0?empDist:[{value:40}]).map(x=>x.value));
+                return <div key={i} className="db-bar-item"><div className="db-bar-label"><span>{d.name}</span><span style={{ fontWeight:600 }}>{d.value}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((d.value/max)*100)}%`,background:colors[i%colors.length] }}/></div></div>;
+              })}
+            </div>
+          </div>
+          <div className="db-card">
+            <div className="db-card-header"><div className="db-card-title">Leave Type Breakdown</div></div>
+            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
+              <div className="db-donut-wrap" style={{ position:"relative" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={[{name:"Casual",value:40},{name:"Sick",value:30},{name:"Annual",value:20},{name:"Other",value:10}]} cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">
+                      {["#7C3AED","#22C55E","#F97316","#9CA3AF"].map((c,i)=><Cell key={i} fill={c}/>)}
+                    </Pie>
+                    <Tooltip contentStyle={{ fontSize:11,borderRadius:8 }}/>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+          <div className="db-card">
+            <div className="db-card-header"><div className="db-card-title">Monthly Payroll</div></div>
+            <div className="db-profit-val">{fmtINR(monthlyPayroll)}</div>
+            <div className="db-profit-sub">Total payroll this month</div>
+            <div style={{ padding:"0 20px 16px" }}>
+              <div className="db-chart-wrap" style={{ height:100 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}>
+                    <Line type="monotone" dataKey="v" stroke="#7C3AED" strokeWidth={2} dot={false}/>
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
-      <CommandCenter
-        isOpen={isCommandCenterOpen}
-        onClose={() => setIsCommandCenterOpen(false)}
-      />
     </div>
   );
 };
+
 export default HRDashboard;

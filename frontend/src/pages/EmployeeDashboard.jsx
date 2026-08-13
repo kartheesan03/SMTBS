@@ -3,1062 +3,277 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import API from "../api/axios";
 import {
-  CheckCircle,
-  CheckCircle2,
-  Calendar,
-  FileText,
-  Clock,
-  UserCheck,
-  AlertCircle,
-  Quote,
-  Star,
-  Award,
-  Shield,
-  CheckSquare,
-  Activity,
-  Book,
-  MapPin,
-  Coffee,
-  MessageSquare,
-  LayoutGrid,
-  Bell,
-  Cpu,
-  Layers,
-  Server,
-  ListTodo,
-  AlertTriangle,
-  TrendingUp,
+  CheckCircle, Calendar, DollarSign, Clock, UserCheck, Activity,
+  FileText, Bell, AlertTriangle, Award, Star, TrendingUp, TrendingDown,
+  ArrowRight, MessageSquare, Coffee, Book, ListTodo,
 } from "lucide-react";
 import {
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Legend,
-  Tooltip,
-  CartesianGrid,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
+  AreaChart, Area, PieChart, Pie, Cell,
+  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line,
 } from "recharts";
-import "../components/AdminDashboard/AdminDashboardRedesign.css";
-import PageHeader from "../components/PageHeader";
-import CommandCenter from "../components/CommandCenter";
-import { IconQuickAction, InvRow } from "./AdminDashboard";
-import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
-import WelcomeBanner from "../components/ui/WelcomeBanner";
+import "../components/AdminDashboard/DashboardLayout.css";
+import { LoadingState } from "../components/DataStates";
+
+const greeting=()=>{const h=new Date().getHours();if(h<12)return"Good Morning";if(h<18)return"Good Afternoon";return"Good Evening";};
+const fmtINR=(v)=>{if(!v&&v!==0)return"₹0";const abs=Math.abs(v);if(abs>=100000)return`₹${(abs/100000).toFixed(2)}L`;if(abs>=1000)return`₹${(abs/1000).toFixed(1)}k`;return`₹${abs}`;};
+const fmtTime=(iso)=>new Date(iso).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+
+const KpiCard=({icon:Icon,iconClass,label,value,trend,trendUp,sub})=>(
+  <div className="db-kpi-card">
+    <div className="db-kpi-top">
+      <div className={`db-kpi-icon ${iconClass}`}><Icon size={22}/></div>
+      {trend&&<span className={`db-kpi-trend ${trendUp?"up":"down"}`}>{trendUp?<TrendingUp size={11}/>:<TrendingDown size={11}/>} {trend}</span>}
+    </div>
+    <div><div className="db-kpi-value">{value}</div><div className="db-kpi-label">{label}</div></div>
+    {sub&&<div className="db-kpi-sub">{sub}</div>}
+  </div>
+);
+const QaBtn=({icon:Icon,label,colorClass,onClick})=>(
+  <div className="db-qa-item" onClick={onClick}>
+    <div className={`db-qa-icon ${colorClass}`}><Icon size={20}/></div>
+    <span className="db-qa-label">{label}</span>
+  </div>
+);
+const SPARK=[5,8,6,11,7,13,9,14,11,16,13,15];
+
 const EmployeeDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
-  const [dashboardData, setDashboardData] = useState(null);
-  const [revenueTrendYear, setRevenueTrendYear] = useState("current");
-  const [myTasks, setMyTasks] = useState([]);
-  const [attendanceStats, setAttendanceStats] = useState({});
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [statsRes, tasksRes, attRes, allTasksRes] = await Promise.all([
-          API.get("/dashboard/stats").catch((e) => ({ data: {} })),
-          API.get("/tasks/my").catch((e) => ({ data: [] })),
-          API.get("/attendance/my-history").catch((e) => ({ data: [] })),
-          API.get("/tasks").catch((e) => ({ data: [] })),
-        ]);
-        setDashboardData(statsRes.data || {});
-        setMyTasks((tasksRes.data || []).slice(0, 5));
-        setAttendanceStats(attRes.data || {});
-        const now = new Date();
-        const futureTasks = (allTasksRes.data || [])
-          .filter((t) => t.dueDate && new Date(t.dueDate) >= now)
-          .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-          .slice(0, 3)
-          .map((t) => {
-            const d = new Date(t.dueDate);
-            let col = "#4f46e5";
-            let bg = "#e0e7ff";
-            if (t.priority === "High") {
-              col = "#ef4444";
-              bg = "#fee2e2";
-            }
-            if (t.priority === "Low") {
-              col = "#10b981";
-              bg = "#d1fae5";
-            }
-            return {
-              day: String(d.getDate()).padStart(2, "0"),
-              month: d
-                .toLocaleString("default", { month: "short" })
-                .toUpperCase(),
-              bg,
-              col,
-              title: t.title,
-              desc: `${d.getDate()} ${d.toLocaleString("default", {
-                month: "long",
-              })} • ${d.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}`,
-            };
-          });
-        setUpcomingEvents(futureTasks);
-      } catch (err) {
-        console.error("Failed to load dashboard data", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboardData();
-  }, []);
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setIsCommandCenterOpen(true);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          color: "#64748b",
-        }}
-      >
-        Loading your dashboard...
-      </div>
-    );
-  }
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
-    return "Good Evening";
-  };
-  const completedTasks = myTasks.filter(
-    (t) => t.status === "Completed" || t.status === "Done"
-  ).length;
-  const pendingTasks = myTasks.filter(
-    (t) => t.status !== "Completed" && t.status !== "Done"
-  ).length;
-  const employeeStats = dashboardData?.employeeStats || {};
-  const attendanceRate = attendanceStats?.attendanceRate ?? dashboardData?.hrStats?.attendanceRate ?? "N/A";
-  const leaveBalance = attendanceStats?.leaveBalance ?? "N/A";
-  const currentStreak = attendanceStats?.currentStreak ?? 0;
-  const leaveTaken = attendanceStats?.leaveTaken ?? 0;
-  const pendingLeaves = employeeStats.myPendingLeaves || 0;
-  const attendanceToday = employeeStats.attendanceToday || "-";
+  const [myTasks,      setMyTasks]      = useState([]);
+  const [attendStats,  setAttendStats]  = useState({});
+  const [salary,       setSalary]       = useState(null);
+  const [leaveBalance, setLeaveBalance] = useState(null);
+  const [upcomingEvents,setUpcomingEvents]=useState([]);
+  const [notifications, setNotifications]=useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [now, setNow] = useState(new Date());
+
+  useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); },[]);
+
+  useEffect(()=>{
+    Promise.all([
+      API.get("/tasks/my").catch(()=>({data:[]})),
+      API.get("/attendance/my-history").catch(()=>({data:[]})),
+      API.get("/payroll/my-salary").catch(()=>({data:null})),
+      API.get("/leaves/balance").catch(()=>({data:null})),
+      API.get("/notifications").catch(()=>({data:[]})),
+    ]).then(([taskR,attR,salR,lvR,notifR])=>{
+      const tasks=(taskR.data||[]);
+      setMyTasks(tasks.filter(t=>t.status!=="Completed").slice(0,5));
+      const attArr=attR.data||[];
+      const present=attArr.filter(a=>a.status==="Present"||a.checkIn).length;
+      setAttendStats({ total:attArr.length, present, pct: attArr.length>0?Math.round((present/attArr.length)*100):0 });
+      setSalary(salR.data);
+      setLeaveBalance(lvR.data);
+      setNotifications((notifR.data||[]).slice(0,5));
+      const n=new Date();
+      setUpcomingEvents(
+        tasks.filter(t=>t.dueDate&&new Date(t.dueDate)>=n)
+          .sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
+          .map((t,i)=>{ const d=new Date(t.dueDate); const colors=["#059669","#6366F1","#F97316","#EF4444"]; return{day:String(d.getDate()).padStart(2,"0"),mon:d.toLocaleString("default",{month:"short"}).toUpperCase(),title:t.title,sub:t.priority||"Task",color:colors[i%4]}; })
+      );
+    }).finally(()=>setLoading(false));
+  },[]);
+
+  if(loading) return <LoadingState message="Loading your Dashboard…" height="100vh"/>;
+
+  const taskDone   = myTasks.filter(t=>t.status==="Completed").length;
+  const taskTotal  = myTasks.length;
+  const taskPct    = taskTotal>0?Math.round((taskDone/taskTotal)*100):0;
+  const leaveBal   = leaveBalance?.remaining??leaveBalance?.balance??12;
+  const mySalary   = salary?.netSalary||salary?.basicSalary||0;
+  const attendPct  = attendStats.pct||0;
+
+  const donutData=[{name:"Done",value:taskDone||1},{name:"Pending",value:Math.max(0,taskTotal-taskDone)||0}];
+
+  const attTrend=SPARK.map((v,i)=>({name:`D${i+1}`,pct:Math.min(100,attendPct+v-8)}));
+
+  const aiInsights=[
+    myTasks.length>0   && `You have ${myTasks.filter(t=>t.status!=="Completed").length} task${myTasks.filter(t=>t.status!=="Completed").length!==1?"s":""} pending completion.`,
+    attendPct>0        && `Your attendance rate this month is ${attendPct}% — keep it up!`,
+    leaveBal>0         && `${leaveBal} leave days remaining in your balance.`,
+    mySalary>0         && `Your latest salary of ${fmtINR(mySalary)} is processed.`,
+    `Check in on time to maintain a healthy attendance record.`,
+  ].filter(Boolean).slice(0,5);
+
   return (
-    <div className="rd-container theme-employee">
-      <div className="rd-content">
-        {/* ── 1. Hero Banner ── */}
-        <WelcomeBanner
-          user={user}
-          greeting={`${getGreeting()}`}
-          subtitle={`${new Date().toLocaleDateString("en-IN", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })} · Your Daily Overview`}
-          badges={[
-            {
-              icon: Activity,
-              text: `${attendanceRate}% Attendance`,
-              type: "neutral",
-            },
-            { type: "status", text: `${leaveBalance} Leave Days Left` },
-          ]}
-          rightVisuals={
-            <>
-              <div className="rd-visual-card">
-                <div className="rd-vc-label">Performance</div>
-                <div className="rd-vc-value">{typeof attendanceRate === 'number' ? `${attendanceRate}%` : attendanceRate}</div>
-                <div
-                  className="rd-vc-chart"
-                  style={{ "--progress": `${typeof attendanceRate === 'number' ? attendanceRate : 0}%` }}
-                ></div>
-              </div>
-              <div className="rd-visual-card">
-                <div className="rd-vc-label">Activity</div>
-                <div className="rd-vc-bars">
-                  <div className="rd-vc-bar" style={{ height: "30%" }}></div>
-                  <div className="rd-vc-bar" style={{ height: "60%" }}></div>
-                  <div className="rd-vc-bar" style={{ height: "100%" }}></div>
-                  <div className="rd-vc-bar" style={{ height: "80%" }}></div>
-                  <div className="rd-vc-bar" style={{ height: "50%" }}></div>
-                </div>
-              </div>
-            </>
-          }
-          actions={[
-            {
-              label: "Apply Leave",
-              icon: CheckCircle,
-              variant: "primary",
-              onClick: () => navigate("/leave-management/history"),
-            },
-            {
-              label: "Check In",
-              icon: Clock,
-              variant: "secondary",
-              onClick: () => navigate("/attendance"),
-            },
-          ]}
-        />
-        {/* ── 2. KPI Row (6 columns) ── */}
-        <StatsGrid columns={6}>
-          <StatsCard
-            title="Completed Tasks"
-            value={completedTasks}
-            colorTheme="mint"
-            icon={CheckCircle}
-            trendValue="This week"
-            trendPositive={true}
-          />
-          <StatsCard
-            title="Pending Tasks"
-            value={pendingTasks}
-            colorTheme="peach"
-            icon={Clock}
-            trendValue="Requires attention"
-            trendPositive={false}
-          />
-          <StatsCard
-            title="Attendance Rate"
-            value={`${attendanceRate}%`}
-            colorTheme="blue"
-            icon={Activity}
-            trendValue="Excellent"
-            trendPositive={true}
-          />
-          <StatsCard
-            title="Leave Balance"
-            value={leaveBalance}
-            colorTheme="purple"
-            icon={Calendar}
-            trendValue="Days remaining"
-            trendPositive={true}
-          />
-          <StatsCard
-            title="Current Streak"
-            value={`${currentStreak} days`}
-            colorTheme="yellow"
-            icon={TrendingUp}
-            trendValue="Without absence"
-            trendPositive={true}
-          />
-          <StatsCard
-            title="Pending Leaves"
-            value={pendingLeaves}
-            colorTheme="pink"
-            icon={AlertCircle}
-            trendValue="Awaiting approval"
-            trendPositive={false}
-          />
-        </StatsGrid>
-        {/* ── 3. Middle Row (Quick Actions + Mini Stats) ── */}
-        <div className="rd-middle-row">
-          {/* Left: Quick Actions Grid */}
-          <div className="dashboard-panel type-glass">
-            <div className="panel-header">
-              <div className="panel-title">Quick Actions</div>
-            </div>
-            <div className="qa-grid">
-              <IconQuickAction
-                icon={CheckCircle2}
-                label="Check In"
-                colorClass="bg-light-green"
-                onClick={() => navigate("/attendance")}
-              />
-              <IconQuickAction
-                icon={Calendar}
-                label="Apply Leave"
-                colorClass="bg-light-orange"
-                onClick={() => navigate("/leave-management/history")}
-              />
-              <IconQuickAction
-                icon={FileText}
-                label="Pay Slips"
-                colorClass="bg-light-purple"
-                onClick={() => navigate("/coming-soon/payslips")}
-              />
-              <IconQuickAction
-                icon={CheckSquare}
-                label="My Tasks"
-                colorClass="bg-light-blue"
-                onClick={() => navigate("/my-tasks")}
-              />
-              <IconQuickAction
-                icon={Book}
-                label="Policies"
-                colorClass="bg-light-gray"
-                onClick={() => navigate("/coming-soon/policies")}
-              />
-              <IconQuickAction
-                icon={MessageSquare}
-                label="Messages"
-                colorClass="bg-light-pink"
-                onClick={() => navigate("/coming-soon/messages")}
-              />
-              <IconQuickAction
-                icon={Coffee}
-                label="Breaks"
-                colorClass="bg-light-teal"
-                onClick={() => navigate("/coming-soon/breaks")}
-              />
-              <IconQuickAction
-                icon={MapPin}
-                label="WFH Req."
-                colorClass="bg-light-blue"
-                onClick={() => navigate("/coming-soon/wfh")}
-              />
-              <IconQuickAction
-                icon={Activity}
-                label="Activity"
-                colorClass="bg-light-orange"
-                onClick={() => navigate("/coming-soon/activity")}
-              />
-              <IconQuickAction
-                icon={Bell}
-                label="Notifs"
-                colorClass="bg-light-red"
-                onClick={() => navigate("/notifications")}
-              />
-              <IconQuickAction
-                icon={Star}
-                label="Kudos"
-                colorClass="bg-light-purple"
-                onClick={() => navigate("/coming-soon/kudos")}
-              />
-              <IconQuickAction
-                icon={LayoutGrid}
-                label="Tasks"
-                colorClass="bg-light-green"
-                onClick={() => navigate("/my-tasks")}
-              />
-            </div>
+    <div className="db-page">
+      <div className="db-content">
+
+        <div className="db-greeting-bar">
+          <div className="db-greeting-left">
+            <div className="db-greeting-text">{greeting()}, {user?.name?.split(" ")[0]||"Employee"}! 👋</div>
+            <div className="db-greeting-sub">Here's your personal work overview for today.</div>
           </div>
-          <div className="dashboard-panel type-gradient" style={{ height: "100%", padding: 0, overflow: 'hidden' }}>
-            <div className="panel-header" style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', margin: 0 }}>
-              <div className="panel-title">Task Performance</div>
-            </div>
-            
-            <style>{`
-              .kpi-list-container {
-                display: flex;
-                flex-direction: column;
-              }
-              .kpi-list-item {
-                display: flex;
-                align-items: center;
-                padding: 16px 24px;
-                border-bottom: 1px solid #f1f5f9;
-                transition: background-color 0.2s ease;
-              }
-              .kpi-list-item:hover {
-                background-color: #f8fafc;
-              }
-              .kpi-list-item:last-child {
-                border-bottom: none;
-              }
-              .kpi-list-icon {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                background-color: #f1f5f9;
-                color: #475569;
-                margin-right: 16px;
-                flex-shrink: 0;
-              }
-              .kpi-list-content {
-                flex: 1;
-                min-width: 0;
-              }
-              .kpi-list-title {
-                font-size: 14px;
-                font-weight: 500;
-                color: #1e293b;
-                margin-bottom: 2px;
-              }
-              .kpi-list-desc {
-                font-size: 13px;
-                color: #64748b;
-              }
-              .kpi-list-value {
-                font-size: 20px;
-                font-weight: 700;
-                color: #0f172a;
-                font-family: 'Inter', sans-serif;
-                margin-left: 16px;
-              }
-            `}</style>
-            
-            <div className="kpi-list-container">
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><CheckSquare size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Total Tasks</div>
-                  <div className="kpi-list-desc">Assigned</div>
-                </div>
-                <div className="kpi-list-value">{myTasks.length}</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><AlertCircle size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Overdue</div>
-                  <div className="kpi-list-desc">Tasks</div>
-                </div>
-                <div className="kpi-list-value">0</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Star size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">On Time</div>
-                  <div className="kpi-list-desc">Delivery</div>
-                </div>
-                <div className="kpi-list-value">100%</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Clock size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Meetings</div>
-                  <div className="kpi-list-desc">Today</div>
-                </div>
-                <div className="kpi-list-value">2</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="dashboard-panel type-glass" style={{ height: "100%", padding: 0, overflow: 'hidden' }}>
-            <div className="panel-header" style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', margin: 0 }}>
-              <div className="panel-title">Engagement &amp; Growth</div>
-            </div>
-            
-            <div className="kpi-list-container">
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Calendar size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Leave Taken</div>
-                  <div className="kpi-list-desc">Days</div>
-                </div>
-                <div className="kpi-list-value">{leaveTaken}</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Award size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Kudos</div>
-                  <div className="kpi-list-desc">Received</div>
-                </div>
-                <div className="kpi-list-value">{dashboardData?.employeeStats?.kudos ?? "N/A"}</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Book size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Training</div>
-                  <div className="kpi-list-desc">Completed</div>
-                </div>
-                <div className="kpi-list-value">{dashboardData?.employeeStats?.trainingCompletion != null ? `${dashboardData.employeeStats.trainingCompletion}%` : "N/A"}</div>
-              </div>
-              <div className="kpi-list-item">
-                <div className="kpi-list-icon"><Activity size={18} /></div>
-                <div className="kpi-list-content">
-                  <div className="kpi-list-title">Perf Score</div>
-                  <div className="kpi-list-desc">/ 5.0</div>
-                </div>
-                <div className="kpi-list-value">{dashboardData?.employeeStats?.performanceScore ?? "N/A"}</div>
-              </div>
-            </div>
+          <div className="db-greeting-right">
+            <div className="db-datetime">{now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})} · {now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}</div>
+            <div className="db-status-pill"><div className="db-status-dot"/>Work Day Active</div>
           </div>
         </div>
-        {/* ── 4. Chart Row 1: Productivity (wide) + Task Distribution ── */}
-        <div className="rd-chart-row-wide">
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Productivity Trend</div>
-              <select
-                className="panel-dropdown"
-                style={{ paddingRight: "24px", width: "auto" }}
-                value={revenueTrendYear}
-                onChange={(e) => setRevenueTrendYear(e.target.value)}
-              >
-                <option value="current">This Year</option>
-                <option value="last">Last Year</option>
-              </select>
-            </div>
-            <div style={{ height: 220, width: "100%" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={dashboardData?.analytics?.employeeTrend || []}
-                  margin={{ top: 4, right: 10, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#f1f5f9"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="name"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                    dy={8}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                    width={48}
-                    tickFormatter={(val) =>
-                      val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val
-                    }
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      fontSize: 12,
-                      borderRadius: 0,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <Legend
-                    iconType="circle"
-                    wrapperStyle={{ fontSize: "12px" }}
-                    verticalAlign="top"
-                    height={36}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey={
-                      revenueTrendYear === "current"
-                        ? "tasksCompleted"
-                        : "lastTasksCompleted"
-                    }
-                    name="Tasks Completed"
-                    stroke="#3b82f6"
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey={
-                      revenueTrendYear === "current"
-                        ? "hoursLogged"
-                        : "lastHoursLogged"
-                    }
-                    name="Hours Logged"
-                    stroke="#f59e0b"
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey={
-                      revenueTrendYear === "current"
-                        ? "efficiency"
-                        : "lastEfficiency"
-                    }
-                    name="Efficiency (%)"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Task Distribution</div>
-              <select
-                className="panel-dropdown"
-                style={{ paddingRight: "24px", width: "auto" }}
-              >
-                <option>Current ▾</option>
-              </select>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <div style={{ width: "100%", height: 170 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={dashboardData?.charts?.erpDonut || []}
-                      innerRadius={50}
-                      outerRadius={75}
-                      dataKey="value"
-                      cx="50%"
-                      cy="50%"
-                    >
-                      {(dashboardData?.charts?.erpDonut || []).map(
-                        (entry, index) => {
-                          const colors = ["#3b82f6", "#f59e0b", "#8b5cf6"];
-                          return (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={colors[index % colors.length]}
-                            />
-                          );
-                        }
-                      )}
-                    </Pie>
-                    <Tooltip contentStyle={{ fontSize: 12 }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 5,
-                  width: "100%",
-                }}
-              >
-                {(dashboardData?.charts?.erpDonut || []).map((entry, idx) => {
-                  const colors = ["#3b82f6", "#f59e0b", "#8b5cf6"];
-                  return (
-                    <div
-                      key={idx}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        fontSize: 11,
-                      }}
-                    >
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 5,
-                          color: "#475569",
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: "0px",
-                            background: colors[idx % colors.length],
-                          }}
-                        ></div>
-                        {entry.name}
-                      </span>
-                      <strong style={{ color: "#0f172a" }}>
-                        {entry.value}
-                      </strong>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+
+        <div className="db-kpi-grid">
+          <KpiCard icon={ListTodo}  iconClass="green"  label="Tasks Due"       value={myTasks.filter(t=>t.status!=="Completed").length} trend="This week"  trendUp={false} sub="Pending tasks" />
+          <KpiCard icon={Calendar}  iconClass="blue"   label="Leave Balance"   value={leaveBal}                                         trend="Days left"  trendUp={true}  sub="Available days" />
+          <KpiCard icon={UserCheck} iconClass="teal"   label="Attendance"      value={`${attendPct}%`}                                  trend="This month" trendUp={true}  sub="Your rate" />
+          <KpiCard icon={DollarSign}iconClass="purple" label="My Salary"       value={fmtINR(mySalary)}                                 trend="Processed"  trendUp={true}  sub="Latest payslip" />
+        </div>
+
+        <div className="db-quick-actions">
+          <div className="db-section-title">Quick Actions</div>
+          <div className="db-qa-grid">
+            <QaBtn icon={ListTodo}     label="My Tasks"     colorClass="qa-green"  onClick={()=>navigate("/my-tasks")}/>
+            <QaBtn icon={Calendar}     label="Apply Leave"  colorClass="qa-blue"   onClick={()=>navigate("/apply-leave")}/>
+            <QaBtn icon={FileText}     label="My Payslip"   colorClass="qa-purple" onClick={()=>navigate("/my-salary")}/>
+            <QaBtn icon={UserCheck}    label="Attendance"   colorClass="qa-teal"   onClick={()=>navigate("/my-attendance")}/>
+            <QaBtn icon={MessageSquare}label="Support"      colorClass="qa-orange" onClick={()=>navigate("/support")}/>
+            <QaBtn icon={Award}        label="My Profile"   colorClass="qa-amber"  onClick={()=>navigate("/profile")}/>
           </div>
         </div>
-        {/* ── 5. Activity Row: Recent Activity + Tasks ── */}
-        <div className="rd-two-col">
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">My Recent Activity</div>
-              <a href="/notifications" className="panel-action">
-                View All
-              </a>
+
+        <div className="db-stats-mini-grid">
+          {[
+            [ListTodo, "#DCFCE7","#15803D","Tasks Pending", myTasks.filter(t=>t.status!=="Completed").length, "badge-red-sm","Due Soon"],
+            [Calendar, "#DBEAFE","#1D4ED8","Leave Balance",  leaveBal,                                          "badge-blue-sm","Days Left"],
+            [UserCheck,"#CCFBF1","#0D9488","Attendance",     `${attendPct}%`,                                   "badge-green-sm","This Month"],
+            [DollarSign,"#F3E8FF","#7C3AED","Last Salary",   fmtINR(mySalary),                                  "badge-blue-sm","Processed"],
+          ].map(([Icon,bg,col,label,val,badge,badgeText],i)=>(
+            <div key={i} className="db-stats-mini-card">
+              <div className="db-stats-mini-icon" style={{ background:bg,color:col }}><Icon size={18}/></div>
+              <div className="db-stats-mini-body">
+                <div className="db-stats-mini-val">{val}</div>
+                <div className="db-stats-mini-label">{label}</div>
+                <span className={`db-stats-mini-badge ${badge}`}>{badgeText}</span>
+              </div>
             </div>
-            <div className="feed-list">
-              {(dashboardData?.tables?.recentActivity || []).length > 0 ? (
-                (dashboardData?.tables?.recentActivity || [])
-                  .slice(0, 8)
-                  .map((activity, idx) => {
-                    // Derive icon and colors from iconType field set by backend
-                    let IconComp = Activity;
-                    let iconColor = "#6366f1";
-                    let iconBg = "#eef2ff";
-                    const iType = activity.iconType || "";
-                    if (iType === "checkin")          { IconComp = Clock;         iconColor = "#3b82f6"; iconBg = "#eff6ff"; }
-                    else if (iType === "checkout")    { IconComp = UserCheck;     iconColor = "#10b981"; iconBg = "#d1fae5"; }
-                    else if (iType === "task_done")   { IconComp = CheckCircle2;  iconColor = "#10b981"; iconBg = "#d1fae5"; }
-                    else if (iType === "task_assigned"){ IconComp = CheckSquare;  iconColor = "#4f46e5"; iconBg = "#e0e7ff"; }
-                    else if (iType === "leave")       { IconComp = Calendar;      iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
-                    else if (iType === "payslip")     { IconComp = FileText;      iconColor = "#8b5cf6"; iconBg = "#f3e8ff"; }
-                    else if (activity.type === "warning") { IconComp = AlertTriangle; iconColor = "#f59e0b"; iconBg = "#fef3c7"; }
-                    // Format timestamp
-                    const actDate = new Date(activity.time);
-                    const isToday = new Date().toDateString() === actDate.toDateString();
-                    const timeLabel = isToday
-                      ? actDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                      : actDate.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
-                    return (
-                      <div className="feed-item" key={activity.id || idx} style={{ alignItems: "flex-start" }}>
-                        <div className="feed-time" style={{ paddingTop: 2 }}>{timeLabel}</div>
-                        <div
-                          className="feed-icon-wrapper"
-                          style={{ background: iconBg, color: iconColor, flexShrink: 0 }}
-                        >
-                          <IconComp size={12} />
-                        </div>
-                        <div className="feed-content">
-                          <div className="feed-title" style={{ fontWeight: 600, color: "#1e293b" }}>
-                            {activity.title || activity.type}
-                          </div>
-                          <div className="feed-desc" style={{ marginTop: 2 }}>{activity.text}</div>
-                        </div>
-                      </div>
-                    );
-                  })
-              ) : (
-                <div
-                  style={{
-                    padding: "28px 16px",
-                    textAlign: "center",
-                    color: "#94a3b8",
-                  }}
-                >
-                  <Activity size={28} style={{ marginBottom: 8, opacity: 0.4, display: "block", margin: "0 auto 8px" }} />
-                  <div style={{ fontSize: "13px", fontWeight: 600 }}>No recent employee activities</div>
-                  <div style={{ fontSize: "12px", marginTop: 4, color: "#cbd5e1" }}>Your work events will appear here</div>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">My Tasks</div>
-              <a href="/tasks" className="panel-action">
-                View All
-              </a>
-            </div>
-            <div className="feed-list">
-              {myTasks && myTasks.length > 0 ? (
-                myTasks.slice(0, 5).map((task, idx) => {
-                  let col = "#4f46e5";
-                  let bg = "#e0e7ff";
-                  if (task.priority === "High") {
-                    col = "#ef4444";
-                    bg = "#fee2e2";
-                  }
-                  if (task.priority === "Low") {
-                    col = "#10b981";
-                    bg = "#d1fae5";
-                  }
-                  return (
-                    <div className="feed-item" key={idx}>
-                      <div
-                        className="feed-icon-wrapper"
-                        style={{ background: bg, color: col }}
-                      >
-                        <CheckSquare size={12} />
-                      </div>
-                      <div className="feed-content">
-                        <div className="feed-title">{task.title}</div>
-                        <div
-                          className="feed-desc"
-                          style={{
-                            display: "flex",
-                            gap: "8px",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span style={{ color: col, fontWeight: 500 }}>
-                            {task.status}
-                          </span>
-                          <span>•</span>
-                          <span>
-                            Due:{" "}
-                            {task.dueDate
-                              ? new Date(task.dueDate).toLocaleDateString()
-                              : "N/A"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div
-                  style={{
-                    padding: "20px",
-                    fontSize: "13px",
-                    color: "#94a3b8",
-                    textAlign: "center",
-                  }}
-                >
-                  No pending tasks.
-                </div>
-              )}
-            </div>
-          </div>
+          ))}
         </div>
-        {/* ── 6. Bottom Row: 5 panels in a 5-column grid ── */}
-        <div className="rd-five-col">
-          {/* Personal Insights */}
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">
-                <Cpu
-                  size={15}
-                  style={{
-                    display: "inline",
-                    verticalAlign: "middle",
-                    marginRight: 5,
-                  }}
-                  color="#3b82f6"
-                />{" "}
-                Personal Insights
+
+        <div className="db-main-grid">
+          <div className="db-main-left">
+            <div className="db-card">
+              <div className="db-card-header"><div className="db-card-title">My Task Status</div></div>
+              <div className="db-status-list">
+                {[["To Do",myTasks.filter(t=>t.status==="To Do").length,"status-warning"],["In Progress",myTasks.filter(t=>t.status==="In Progress").length,"status-healthy"],["Completed",myTasks.filter(t=>t.status==="Completed").length,"status-healthy"],["Overdue",myTasks.filter(t=>t.priority==="High"&&t.status!=="Completed").length,"status-critical"]].map(([n,v,cls],i)=>(
+                  <div key={i} className="db-status-row"><span className="db-status-name">{n}</span><span className={`db-status-badge ${cls}`}>{v}</span></div>
+                ))}
               </div>
             </div>
-            <div className="ai-insights-list">
-              <div className="ai-insight-item">
-                <div className="ai-dot"></div>
-                <div>
-                  Your attendance rate is <strong>{attendanceRate}</strong>.
+            <div className="db-card">
+              <div className="db-card-header"><div className="db-card-title">Upcoming Tasks</div></div>
+              <div className="db-status-list">
+                {myTasks.slice(0,5).map((t,i)=>(
+                  <div key={i} className="db-status-row"><span className="db-status-name" style={{ fontSize:12 }}>{t.title}</span><span className={`db-status-badge ${t.priority==="High"?"status-critical":"status-warning"}`}>{t.priority||"Normal"}</span></div>
+                ))}
+                {myTasks.length===0&&<div className="db-empty">No tasks assigned 🎉</div>}
+              </div>
+            </div>
+          </div>
+
+          <div className="db-main-center">
+            <div className="db-chart-row">
+              <div className="db-card">
+                <div className="db-card-header"><div className="db-card-title">My Attendance</div></div>
+                <div className="db-card-body">
+                  <div className="db-chart-wrap">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={attTrend} margin={{top:4,right:4,left:-20,bottom:0}}>
+                        <defs><linearGradient id="empGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#059669" stopOpacity={0.2}/><stop offset="95%" stopColor="#059669" stopOpacity={0}/></linearGradient></defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:10,fill:"#9CA3AF"}}/>
+                        <YAxis axisLine={false} tickLine={false} tick={{fontSize:10,fill:"#9CA3AF"}}/>
+                        <Tooltip contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #E5E7EB"}}/>
+                        <Area type="monotone" dataKey="pct" stroke="#059669" strokeWidth={2} fill="url(#empGrad)" dot={false}/>
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
-              <div className="ai-insight-item">
-                <div className="ai-dot"></div>
-                <div>
-                  You have taken <strong>{leaveTaken}</strong> leave days.
-                </div>
-              </div>
-              <div className="ai-insight-item">
-                <div className="ai-dot"></div>
-                <div>
-                  You have <strong>{myTasks.length}</strong> active tasks.
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Skills Progression */}
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Skills</div>
-              <select className="panel-dropdown">
-                <option>Current ▾</option>
-              </select>
-            </div>
-            <div style={{ height: 180 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={dashboardData?.charts?.categoryData || []}
-                  margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
-                >
-                  <XAxis type="number" hide />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 11, fill: "#475569" }}
-                    width={80}
-                  />
-                  <Tooltip
-                    contentStyle={{ fontSize: 11 }}
-                    cursor={{ fill: "#f8fafc" }}
-                  />
-                  <Bar
-                    dataKey="value"
-                    fill="#8b5cf6"
-                    radius={[0, 4, 4, 0]}
-                    barSize={10}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          {/* Time Allocation */}
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Time</div>
-              <select className="panel-dropdown">
-                <option>This Week ▾</option>
-              </select>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <div style={{ width: "100%", height: 130 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={dashboardData?.charts?.crmDonut || []}
-                      innerRadius={38}
-                      outerRadius={56}
-                      dataKey="value"
-                      cx="50%"
-                      cy="50%"
-                    >
-                      {(dashboardData?.charts?.crmDonut || []).map(
-                        (entry, index) => {
-                          const colors = ["#10b981", "#f59e0b", "#3b82f6"];
-                          return (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={colors[index % colors.length]}
-                            />
-                          );
-                        }
-                      )}
-                    </Pie>
-                    <Tooltip contentStyle={{ fontSize: 11 }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div
-                style={{
-                  width: "100%",
-                  fontSize: 10,
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 4,
-                }}
-              >
-                {(dashboardData?.charts?.crmDonut || []).map((entry, idx) => {
-                  const colors = ["#10b981", "#f59e0b", "#3b82f6"];
-                  return (
-                    <div
-                      key={idx}
-                      style={{ display: "flex", alignItems: "center", gap: 4 }}
-                    >
-                      <div
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: "0px",
-                          background: colors[idx % colors.length],
-                        }}
-                      ></div>
-                      <span>
-                        <b>{entry.value}</b> {entry.name}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-          {/* Work Hours */}
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Work Hours</div>
-              <select className="panel-dropdown">
-                <option>This Month ▾</option>
-              </select>
-            </div>
-            <div style={{ padding: "5px 0" }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "#0f172a" }}>
-                164 hrs
-              </div>
-              <div style={{ fontSize: 11, color: "#10b981", fontWeight: 600 }}>
-                On Track
-              </div>
-            </div>
-            <div style={{ height: 100, width: "100%" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dashboardData?.charts?.monthlyStats || []}>
-                  <Line
-                    type="monotone"
-                    dataKey="sales"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    dot={{ r: 3, fill: "#10b981" }}
-                  />
-                  <Tooltip contentStyle={{ fontSize: 11 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          {/* Upcoming Company Events */}
-          <div className="dashboard-panel">
-            <div className="panel-header">
-              <div className="panel-title">Company Events</div>
-              <span
-                onClick={() => navigate("/tasks/calendar")}
-                className="panel-action"
-                style={{ cursor: "pointer" }}
-              >
-                View All
-              </span>
-            </div>
-            <div className="feed-list" style={{ gap: 12, marginTop: 8 }}>
-              {upcomingEvents.length > 0 ? (
-                upcomingEvents.map((ev, i) => (
-                  <div className="event-item" key={i}>
-                    <div
-                      className="event-date"
-                      style={{
-                        background: ev.bg,
-                        color: ev.col,
-                        padding: "4px 6px",
-                      }}
-                    >
-                      <span className="event-month" style={{ fontSize: 10 }}>
-                        {ev.month}
-                      </span>
-                      <span
-                        className="event-day"
-                        style={{ color: ev.col, fontSize: 13 }}
-                      >
-                        {ev.day}
-                      </span>
-                    </div>
-                    <div className="feed-content">
-                      <div className="feed-title" style={{ fontSize: 13 }}>
-                        {ev.title}
-                      </div>
-                      <div className="feed-desc" style={{ fontSize: 11 }}>
-                        {ev.desc}
-                      </div>
+              <div className="db-card">
+                <div className="db-card-header"><div className="db-card-title">Task Progress</div></div>
+                <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
+                  <div className="db-donut-wrap" style={{ position:"relative" }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={donutData} cx="50%" cy="50%" innerRadius={52} outerRadius={72} dataKey="value">
+                          {["#059669","#E5E7EB"].map((c,i)=><Cell key={i} fill={c}/>)}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center" }}>
+                      <div style={{ fontSize:20,fontWeight:800,color:"#111827" }}>{taskPct}%</div>
+                      <div style={{ fontSize:10,color:"#6B7280" }}>Done</div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div
-                  style={{
-                    fontSize: "13px",
-                    color: "var(--text-muted)",
-                    textAlign: "center",
-                    padding: "20px 0",
-                  }}
-                >
-                  No upcoming events
+                  <div style={{ display:"flex",gap:16,fontSize:12 }}>
+                    <span style={{ color:"#059669",fontWeight:600 }}>● Done {taskDone}</span>
+                    <span style={{ color:"#9CA3AF",fontWeight:600 }}>● Pending {taskTotal-taskDone}</span>
+                  </div>
                 </div>
-              )}
+              </div>
+            </div>
+            <div className="db-card">
+              <div className="db-card-header"><div className="db-card-title">Recent Activity</div></div>
+              <div className="db-activity-list">
+                {notifications.slice(0,5).map((n,i)=>{
+                  return <div key={i} className="db-activity-item">
+                    <div className="db-activity-icon" style={{ background:"#DCFCE7",color:"#059669" }}><Activity size={14}/></div>
+                    <div className="db-activity-body"><div className="db-activity-title">Notification</div><div className="db-activity-desc">{n.text||n.message||"System notification"}</div></div>
+                    <div className="db-activity-time">{n.time?fmtTime(n.time):"Now"}</div>
+                  </div>;
+                })}
+                {notifications.length===0&&<div className="db-empty">No recent activity</div>}
+              </div>
+            </div>
+          </div>
+
+          <div className="db-main-right">
+            <div className="db-profile-card">
+              <div className="db-profile-banner profile-banner-employee"/>
+              <div className="db-profile-avatar profile-avatar-employee">{(user?.name||"E")[0].toUpperCase()}</div>
+              <div className="db-profile-body">
+                <div className="db-profile-name">{user?.name||"Employee"}</div>
+                <div className="db-profile-role">{user?.department||"Employee"}</div>
+                <span className="db-profile-badge profile-badge-employee">Employee</span>
+                <div className="db-profile-info">
+                  <div className="db-profile-info-row"><span className="db-profile-info-label">Emp ID</span><span className="db-profile-info-val">EMP-{String(user?.id||4001).padStart(4,"0")}</span></div>
+                  <div className="db-profile-info-row"><span className="db-profile-info-label">Email</span><span className="db-profile-info-val" style={{ fontSize:11 }}>{user?.email||"—"}</span></div>
+                  <div className="db-profile-info-row"><span className="db-profile-info-label">Attendance</span><span className="db-profile-info-val">{attendPct}% this month</span></div>
+                </div>
+                <button className="db-profile-btn" onClick={()=>navigate("/profile")}>View Profile <ArrowRight size={13}/></button>
+              </div>
+            </div>
+            <div className="db-card">
+              <div className="db-card-header"><div className="db-card-title">Notifications</div></div>
+              <div className="db-notif-list">
+                {notifications.length>0?notifications.map((n,i)=>{const colors=["#059669","#6366F1","#F97316","#3B82F6","#EAB308"];return<div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:colors[i%colors.length] }}/><div className="db-notif-body"><div className="db-notif-text">{n.text||n.message}</div><div className="db-notif-time">{n.time?fmtTime(n.time):"Now"}</div></div></div>;})
+                :[["Leave request submitted","#22C55E"],["Task assigned to you","#6366F1"],["Attendance marked","#059669"],["Payslip generated","#3B82F6"]].map(([t,c],i)=>(
+                  <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
+                ))}
+              </div>
+            </div>
+            <div className="db-card">
+              <div className="db-card-header"><div className="db-card-title">Upcoming Events</div></div>
+              <div className="db-event-list">
+                {upcomingEvents.length>0?upcomingEvents.map((ev,i)=>(
+                  <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
+                )):[["05","SEP","Task Deadline","Project","#059669"],["12","SEP","Team Meeting","General","#6366F1"],["20","SEP","Performance Review","HR","#F97316"]].map(([d,m,t,s,c],i)=>(
+                  <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
+
+        <div className="db-bottom-grid">
+          <div className="db-card"><div className="db-card-header"><div className="db-card-title">AI Insights</div></div><div className="db-ai-insights">{aiInsights.map((text,i)=>{const colors=["#059669","#6366F1","#F97316","#3B82F6","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})}</div></div>
+          <div className="db-card"><div className="db-card-header"><div className="db-card-title">My Task Breakdown</div></div><div className="db-bar-list">{[["To Do",myTasks.filter(t=>t.status==="To Do").length,"#F97316"],["In Progress",myTasks.filter(t=>t.status==="In Progress").length,"#3B82F6"],["Completed",myTasks.filter(t=>t.status==="Completed").length,"#22C55E"]].map(([label,val,color],i)=>{const max=Math.max(1,myTasks.length);return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{label}</span><span style={{ fontWeight:600 }}>{val}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((val/max)*100)}%`,background:color }}/></div></div>;})} </div></div>
+          <div className="db-card"><div className="db-card-header"><div className="db-card-title">Leave Summary</div></div><div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}><div className="db-donut-wrap" style={{ position:"relative" }}><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={[{name:"Used",value:30-leaveBal},{name:"Remaining",value:leaveBal}]} cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">{["#EF4444","#059669"].map((c,i)=><Cell key={i} fill={c}/>)}</Pie><Tooltip contentStyle={{ fontSize:11,borderRadius:8 }}/></PieChart></ResponsiveContainer></div></div></div>
+          <div className="db-card"><div className="db-card-header"><div className="db-card-title">Monthly Salary</div></div><div className="db-profit-val">{fmtINR(mySalary)}</div><div className="db-profit-sub">Net salary this month</div><div style={{ padding:"0 20px 16px" }}><div className="db-chart-wrap" style={{ height:100 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}><Line type="monotone" dataKey="v" stroke="#059669" strokeWidth={2} dot={false}/></LineChart></ResponsiveContainer></div></div></div>
+        </div>
+
       </div>
-      <CommandCenter
-        isOpen={isCommandCenterOpen}
-        onClose={() => setIsCommandCenterOpen(false)}
-      />
     </div>
   );
 };
+
 export default EmployeeDashboard;
