@@ -85,7 +85,7 @@ const createOrder = async (req, res) => {
             return res.status(403).json({ message: 'Access Denied. You do not have permission to create orders.' });
         }
         const { customer, customerModel, vendor, items, totalAmount, status, orderNumber, orderType, orderDate, expectedDeliveryDate, notes } = req.body;
-        const defaultWorkflow = [
+        const salesWorkflow = [
             { stage: 'Order Created', status: 'Completed', role: 'Customer/Vendor/Admin' },
             { stage: 'Admin/Manager Review', status: 'In Progress', role: 'Admin/Manager' },
             { stage: 'Employee Verification', status: 'Upcoming', role: 'Employee' },
@@ -95,6 +95,17 @@ const createOrder = async (req, res) => {
             { stage: 'Delivered', status: 'Upcoming', role: 'Sales/Admin' },
             { stage: 'Invoice Generated', status: 'Upcoming', role: 'System' }
         ];
+
+        const purchaseWorkflow = [
+            { stage: 'Order Created', status: 'Completed', role: 'Admin/Manager' },
+            { stage: 'Admin/Manager Review', status: 'In Progress', role: 'Admin/Manager' },
+            { stage: 'Vendor Supply', status: 'Upcoming', role: 'Vendor' },
+            { stage: 'Material Received', status: 'Upcoming', role: 'Vendor/Logistics' },
+            { stage: 'Delivered', status: 'Upcoming', role: 'Admin/Manager' },
+            { stage: 'Employee Verification', status: 'Upcoming', role: 'Employee' },
+            { stage: 'Inventory Updated', status: 'Upcoming', role: 'System' }
+        ];
+
         if ((!customer && !vendor) || !items || items.length === 0) {
             return res.status(400).json({ message: 'Please provide customer/vendor and items' });
         }
@@ -157,7 +168,7 @@ const createOrder = async (req, res) => {
                 updatedBy: req.user.name,
                 updatedById: req.user.id
             }],
-            workflow: defaultWorkflow
+            workflow: (orderType || (isSales ? 'sales' : 'purchase')) === 'sales' ? salesWorkflow : purchaseWorkflow
         });
         const salesFinalStates = ['Shipped', 'Completed'];
         const purchaseFinalStates = ['Delivered', 'Received', 'Completed'];
