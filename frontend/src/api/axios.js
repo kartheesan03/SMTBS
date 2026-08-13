@@ -1,9 +1,6 @@
 import axios from 'axios';
 
-let apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-if (apiBaseUrl && !apiBaseUrl.endsWith('/api')) {
-    apiBaseUrl = `${apiBaseUrl}/api`;
-}
+let apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://smtbs-backend.onrender.com/api';
 
 const API = axios.create({    
     baseURL: apiBaseUrl, 
