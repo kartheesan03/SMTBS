@@ -14,7 +14,6 @@ import {
   Package,
   Truck,
   Building2,
-  Calendar,
   Clock,
   User,
   Hash,
@@ -1260,25 +1259,27 @@ const TrackingDashboard = () => {
   };
 
   return (
-    <div className="db-page">
-      <div className="db-content">
-        <header className="page-header" style={{ marginBottom: 0 }}>
-          <PageHeader
-            title="Movement Tracking"
-            badge="MATERIAL"
-            subtitle="Track and trace all material movements in real-time."
-          />
-        </header>
-        
-        <div className="mcc-container">
-          {viewMode === "detail" && (
-            <div style={{ marginBottom: 16 }}>
-              <button className="mcc-btn" onClick={() => { setViewMode("table"); setSelectedMaterialId(null); }} style={{ background: "#f8fafc", color: "#0f172a", border: "1px solid #e2e8f0" }}>
-                ← Back to All Movements
-              </button>
-            </div>
-          )}
-      
+    <div className="page-container">
+      <header className="page-header" style={{ marginBottom: 24 }}>
+        <PageHeader
+          title="Movement Tracking"
+          badge="MATERIAL"
+          subtitle="Track and trace all material movements in real-time."
+        />
+      </header>
+
+      {viewMode === "detail" && (
+        <div style={{ marginBottom: 16 }}>
+          <button
+            className="mcc-btn"
+            onClick={() => { setViewMode("table"); setSelectedMaterialId(null); }}
+            style={{ background: "#f8fafc", color: "#0f172a", border: "1px solid #e2e8f0" }}
+          >
+            ← Back to All Movements
+          </button>
+        </div>
+      )}
+
       {viewMode === "table" ? renderTableView() : (
         !selectedMaterialId || !materialDetails ? (
           <div style={{ textAlign: "center", padding: "100px 0", color: "#94a3b8" }}>
@@ -1306,8 +1307,6 @@ const TrackingDashboard = () => {
           </>
         )
       )}
-    </div>
-      </div>
     </div>
   );
 };
