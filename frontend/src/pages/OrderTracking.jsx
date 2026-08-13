@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import PageHeader from "../components/PageHeader";
 import toast from "react-hot-toast";
 import "./OrderTracking.css";
+import { LoadingState } from "../components/DataStates";
 const formatDateTime = (dateValue) => {
   if (!dateValue) return "-";
   const date = new Date(dateValue);
@@ -201,13 +202,7 @@ const OrderTracking = () => {
       setSubmitting(false);
     }
   };
-  if (loading) {
-    return (
-      <div className="flex-center" style={{ minHeight: "100vh" }}>
-        <div className="loader"></div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   if (error || !order) {
     return (
       <div

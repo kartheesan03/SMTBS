@@ -15,6 +15,7 @@ import { canWrite } from "../utils/rbac";
 import { AuthContext } from "../context/AuthContext";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
+import { LoadingState } from "../components/DataStates";
 const Leads = () => {
   const navigate = useNavigate();
   const [leads, setLeads] = useState([]);
@@ -104,12 +105,7 @@ const Leads = () => {
       toast.info("Lead is already at the final stage.");
     }
   };
-  if (loading)
-    return (
-      <div className="flex-center" style={{ minHeight: "100vh" }}>
-        <div className="loader"></div>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

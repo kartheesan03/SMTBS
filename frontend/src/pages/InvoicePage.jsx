@@ -6,6 +6,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import "./InvoicePage.css";
 import PageHeader from "../components/PageHeader";
+import { LoadingState } from "../components/DataStates";
 const formatDateOnly = (dateValue) => {
   if (!dateValue) return "-";
   const date = new Date(dateValue);
@@ -44,13 +45,7 @@ const InvoicePage = () => {
       setLoading(false);
     }
   };
-  if (loading) {
-    return (
-      <div className="flex-center" style={{ height: "100vh" }}>
-        <div className="loader"></div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   if (error || !order) {
     return (
       <div

@@ -1,12 +1,14 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { AriaContext } from '../../context/AriaContext';
-import { X, Send, Sparkles, Square, Maximize2 } from 'lucide-react';
+import { X, Send, Sparkles, Paperclip } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import API from '../../api/axios';
 import { toast } from 'react-hot-toast';
 import './AriaSidePanel.css';
+import AriaVisualizer from './AriaVisualizer';
+
 const StreamingMessage = ({ content, isStreaming, onComplete }) => {
     const [displayedContent, setDisplayedContent] = useState(isStreaming ? '' : content);
     const indexRef = useRef(0);
@@ -34,213 +36,286 @@ const StreamingMessage = ({ content, isStreaming, onComplete }) => {
         </ReactMarkdown>
     );
 };
-const getSuggestions = (type) => {
-    switch(type) {
-        case 'Material':
-            return [
-                { title: "Show stock history", desc: "Show stock history" },
-                { title: "Which vendors supply this?", desc: "Which vendors supply this?" },
-                { title: "Set reorder alert", desc: "Set reorder alert" }
-            ];
-        case 'Vendor':
-            return [
-                { title: "Show delivery performance", desc: "Show delivery performance" },
-                { title: "List active orders", desc: "List active orders" },
-                { title: "Show contact info", desc: "Show contact info" }
-            ];
-        case 'Order':
-            return [
-                { title: "Show approval status", desc: "Show approval status" },
-                { title: "Who approved this?", desc: "Who approved this?" },
-                { title: "Generate order summary", desc: "Generate order summary" }
-            ];
-        default:
-            return [];
+
+// Route-aware suggestions
+const getContextualSuggestions = (pathname) => {
+    if (pathname.includes('/inventory') || pathname.includes('/materials')) {
+        return [
+            { title: "Show low stock products", desc: "Show low-stock products" },
+            { title: "Pending restock requests", desc: "Show pending restock requests" }
+        ];
     }
+    if (pathname.includes('/sales') || pathname.includes('/orders')) {
+        return [
+            { title: "Show today's sales", desc: "Show today's sales" },
+            { title: "Pending orders", desc: "Which orders are pending?" }
+        ];
+    }
+    if (pathname.includes('/hrms') || pathname.includes('/attendance')) {
+        return [
+            { title: "Pending leave requests", desc: "Who has pending leave requests?" },
+            { title: "Attendance summary", desc: "Show attendance summary" }
+        ];
+    }
+    return [
+        { title: "Show low-stock products", desc: "Show low-stock products." },
+        { title: "Which orders are pending?", desc: "Which orders are pending?" },
+        { title: "Today's revenue", desc: "Show today's revenue." }
+    ];
 };
+
 const AriaSidePanel = () => {
     const { isOpen, contextData, closeAria } = useContext(AriaContext);
-    const navigate = useNavigate();
+    const location = useLocation();
+    
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [isStreaming, setIsStreaming] = useState(false);
+    const [activeVisualData, setActiveVisualData] = useState(null);
+    const fileInputRef = useRef(null);
+
     const messagesEndRef = useRef(null);
     const textareaRef = useRef(null);
-    const sessionIdRef = useRef(null);
+
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [messages, isLoading]);
+
     useEffect(() => {
-        if (isOpen && contextData) {
-            const sid = Date.now().toString();
-            sessionIdRef.current = sid;
+        if (isOpen && messages.length === 0) {
             const initialMsg = {
                 id: Date.now(),
                 role: 'assistant',
-                content: `I've pulled up ${contextData.name} (Item #${contextData.id}). What would you like to know?`,
-                suggestions: getSuggestions(contextData.type),
+                content: "Hi! I'm Aria, your ERP Copilot. What can I help you find or accomplish today?",
+                suggestions: getContextualSuggestions(location.pathname),
                 isStreaming: true
             };
             setMessages([initialMsg]);
         }
-    }, [isOpen, contextData]);
-    useEffect(() => {
-        if (sessionIdRef.current && messages.length > 0) {
-            const stored = JSON.parse(localStorage.getItem('aria_sessions') || '[]');
-            const existingIdx = stored.findIndex(s => s.id === sessionIdRef.current);
-            const sessionObj = {
-                id: sessionIdRef.current,
-                title: contextData ? `Context: ${contextData.name}` : (messages[0]?.content.substring(0, 30) || 'New Chat'),
-                messages: messages,
-                updatedAt: Date.now()
-            };
-            if (existingIdx >= 0) {
-                stored[existingIdx] = sessionObj;
-            } else {
-                stored.unshift(sessionObj);
-            }
-            localStorage.setItem('aria_sessions', JSON.stringify(stored));
-        }
-    }, [messages, contextData]);
+    }, [isOpen, location.pathname, messages.length]);
+
     const handleSend = async (forcedText = null) => {
         const messageText = forcedText || input;
         if (!messageText.trim() || isLoading) return;
+        
         const userMsg = { role: 'user', content: messageText, id: Date.now() };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
         if (textareaRef.current) textareaRef.current.style.height = 'auto';
         setIsLoading(true);
+        setActiveVisualData(null); // Clear previous visual data on new query
+
         try {
             const res = await API.post('/chat', {
                 message: messageText,
                 history: messages,
                 context: contextData
             });
+
+            if (res.data.visualData) {
+                setActiveVisualData(res.data.visualData);
+            }
+
             const aiMsg = { 
                 role: 'assistant', 
-                content: res.data.reply || "I'm sorry, I couldn't process that.",
+                content: res.data.reply || "Done.",
                 id: Date.now() + 1,
                 isStreaming: true,
-                suggestions: res.data.suggestions || null
+                suggestions: res.data.suggestions || null,
+                hasVisual: !!res.data.visualData
             };
+            
             setMessages(prev => [...prev, aiMsg]);
-            setIsStreaming(true);
         } catch (error) {
             console.error('Chat error:', error);
             toast.error("Failed to connect to Aria.");
             setMessages(prev => [...prev, { 
                 role: 'assistant', 
-                content: "I'm having trouble connecting to my servers right now.",
+                content: "I'm having trouble connecting to the database.",
                 id: Date.now() + 1 
             }]);
         } finally {
             setIsLoading(false);
         }
     };
-    if (!isOpen && !contextData) return null;
+
+    const handleFileUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const userMsg = { role: 'user', content: `Attached document: ${file.name}`, id: Date.now() };
+        setMessages(prev => [...prev, userMsg]);
+        setIsLoading(true);
+        setActiveVisualData(null);
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await API.post('/ocr/extract', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            if (res.data && res.data.tables && res.data.tables.length > 0) {
+                // Assuming the backend OCR returns an array of tables where each table is an array of objects
+                setActiveVisualData({
+                    type: 'table',
+                    modelName: `Extracted from ${file.name}`,
+                    data: res.data.tables[0]
+                });
+                
+                setMessages(prev => [...prev, {
+                    role: 'assistant',
+                    content: "I've extracted the data from your document. Here it is:",
+                    id: Date.now() + 1,
+                    isStreaming: true,
+                    hasVisual: true
+                }]);
+            } else {
+                setMessages(prev => [...prev, {
+                    role: 'assistant',
+                    content: "I processed the document, but couldn't find any structured tables.",
+                    id: Date.now() + 1,
+                    isStreaming: true
+                }]);
+            }
+        } catch (error) {
+            console.error('OCR error:', error);
+            toast.error("Failed to process document.");
+            setMessages(prev => [...prev, { 
+                role: 'assistant', 
+                content: "I had trouble processing that document.",
+                id: Date.now() + 1 
+            }]);
+        } finally {
+            setIsLoading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    if (!isOpen) return null;
+
     return (
         <>
-            <div className={`aria-panel-backdrop ${isOpen ? 'open' : ''}`} onClick={closeAria}></div>
-            <div className={`aria-side-panel ${isOpen ? 'open' : ''}`}>
-                <div className="aria-sp-header">
-                    <div className="aria-sp-brand">
-                        <Sparkles size={18} className="aria-sp-icon" />
-                        <h2>Ask Aria</h2>
-                    </div>
-                    <div className="aria-sp-actions">
-                        <button onClick={() => { closeAria(); navigate('/ai-assistant'); }} title="Open in full screen">
-                            <Maximize2 size={16} />
-                        </button>
-                        <button onClick={closeAria} title="Close">
-                            <X size={20} />
-                        </button>
-                    </div>
-                </div>
-                {contextData && (
-                    <div className="aria-sp-context-chip">
-                        <div className="chip-content">
-                            <span className="chip-icon">📦</span>
-                            <span className="chip-text">Discussing: {contextData.name} (ID: {contextData.id})</span>
+            <div className={`aria-panel-backdrop open`} onClick={closeAria}></div>
+            <div className={`aria-side-panel open ${activeVisualData ? 'split-view' : ''}`}>
+                <div className="aria-sp-left">
+                    <div className="aria-sp-header">
+                        <div className="aria-sp-brand">
+                            <Sparkles size={18} className="aria-sp-icon" />
+                            <h2>Aria ERP Copilot</h2>
+                        </div>
+                        <div className="aria-sp-actions">
+                            <button onClick={closeAria} title="Close (ESC)">
+                                <X size={20} />
+                            </button>
                         </div>
                     </div>
-                )}
-                <div className="aria-sp-chat-area">
-                    <div className="aria-sp-messages">
-                        {messages.map((msg) => (
-                            <div key={msg.id} className={`aria-sp-msg-wrapper ${msg.role}`}>
-                                {msg.role === 'assistant' && (
-                                    <div className="aria-sp-avatar"><Sparkles size={14} /></div>
-                                )}
-                                <div className="aria-sp-msg-content">
-                                    {msg.role === 'assistant' ? (
-                                        <>
-                                            <StreamingMessage 
-                                                content={msg.content} 
-                                                isStreaming={msg.isStreaming}
-                                                onComplete={() => {
-                                                    setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, isStreaming: false } : m));
-                                                    setIsStreaming(false);
-                                                }}
-                                            />
-                                            {msg.suggestions && !msg.isStreaming && (
-                                                <div className="aria-sp-suggestions">
-                                                    {msg.suggestions.map((s, i) => (
-                                                        <button key={i} className="aria-sp-chip" onClick={() => handleSend(s.desc)}>
-                                                            {s.title}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <div className="aria-sp-user-bubble">
-                                            {msg.content}
-                                        </div>
+                    
+                    <div className="aria-sp-chat-area">
+                        <div className="aria-sp-messages">
+                            {messages.map((msg) => (
+                                <div key={msg.id} className={`aria-sp-msg-wrapper ${msg.role}`}>
+                                    {msg.role === 'assistant' && (
+                                        <div className="aria-sp-avatar"><Sparkles size={14} /></div>
                                     )}
+                                    <div className="aria-sp-msg-content">
+                                        {msg.role === 'assistant' ? (
+                                            <>
+                                                <StreamingMessage 
+                                                    content={msg.content} 
+                                                    isStreaming={msg.isStreaming}
+                                                    onComplete={() => {
+                                                        setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, isStreaming: false } : m));
+                                                    }}
+                                                />
+                                                {msg.hasVisual && (
+                                                    <div className="aria-sp-visual-chip">
+                                                        <span>Interactive data loaded</span>
+                                                    </div>
+                                                )}
+                                                {msg.suggestions && !msg.isStreaming && (
+                                                    <div className="aria-sp-suggestions">
+                                                        {msg.suggestions.map((s, i) => (
+                                                            <button key={i} className="aria-sp-chip" onClick={() => handleSend(s.desc)}>
+                                                                {s.title}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <div className="aria-sp-user-bubble">
+                                                {msg.content}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
-                        {isLoading && (
-                            <div className="aria-sp-msg-wrapper assistant">
-                                <div className="aria-sp-avatar"><Sparkles size={14} /></div>
-                                <div className="aria-sp-msg-content">
-                                    <div className="dot-typing"></div>
+                            ))}
+                            {isLoading && (
+                                <div className="aria-sp-msg-wrapper assistant">
+                                    <div className="aria-sp-avatar"><Sparkles size={14} /></div>
+                                    <div className="aria-sp-msg-content">
+                                        <div className="dot-typing"></div>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} />
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
+                    </div>
+
+                    <div className="aria-sp-input-area">
+                        <div className="aria-sp-input-wrapper">
+                            <input 
+                                type="file" 
+                                ref={fileInputRef} 
+                                style={{ display: 'none' }} 
+                                onChange={handleFileUpload}
+                                accept=".pdf,.png,.jpg,.jpeg"
+                            />
+                            <button 
+                                className="aria-sp-attach-btn" 
+                                title="Attach Document (OCR)"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <Paperclip size={18} />
+                            </button>
+                            <textarea
+                                ref={textareaRef}
+                                className="aria-sp-input"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSend();
+                                    }
+                                }}
+                                placeholder="Ask Aria or use /slash commands..."
+                                rows={1}
+                            />
+                            <button 
+                                className={`aria-sp-send-btn ${input.trim() ? 'active' : ''}`}
+                                onClick={() => handleSend()}
+                                disabled={!input.trim() || isLoading}
+                            >
+                                <Send size={16} />
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div className="aria-sp-input-area">
-                    <div className="aria-sp-input-wrapper">
-                        <textarea
-                            ref={textareaRef}
-                            className="aria-sp-input"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSend();
-                                }
-                            }}
-                            placeholder="Message Aria..."
-                            rows={1}
-                        />
-                        <button 
-                            className={`aria-sp-send-btn ${input.trim() ? 'active' : ''}`}
-                            onClick={() => handleSend()}
-                            disabled={!input.trim() || isLoading}
-                        >
-                            <Send size={16} />
-                        </button>
+
+                {/* Split-View Visualizer Right Panel */}
+                {activeVisualData && (
+                    <div className="aria-sp-right">
+                        <AriaVisualizer visualData={activeVisualData} />
                     </div>
-                </div>
+                )}
             </div>
         </>
     );
 };
+
 export default AriaSidePanel;

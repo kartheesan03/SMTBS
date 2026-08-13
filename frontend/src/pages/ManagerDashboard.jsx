@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { useAiInsights } from "../hooks/useAiInsights";
 import API from "../api/axios";
 import {
   Users, ShoppingCart, DollarSign, Box, FileText, Truck,
@@ -66,6 +67,8 @@ const ManagerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(new Date());
 
+  const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();
+
   useEffect(() => { const t = setInterval(() => setNow(new Date()), 60000); return () => clearInterval(t); }, []);
 
   useEffect(() => {
@@ -118,13 +121,15 @@ const ManagerDashboard = () => {
   const recentActivity = dashboardData?.tables?.recentActivity || [];
   const notifications  = dashboardData?.tables?.notifications  || [];
 
-  const aiInsights = [
+  const fallbackAiInsights = [
     openOrders > 0    && `${openOrders} orders are currently active and require attention.`,
     pendingTasks > 0  && `${pendingTasks} tasks are pending — review and assign priorities.`,
     totalRevenue > 0  && `Revenue is tracking at ${fmtINR(totalRevenue)} this period.`,
     pendingOrders > 0 && `${pendingOrders} purchase orders are awaiting approval.`,
     totalTeam > 0     && `Managing a team of ${totalTeam} employees.`,
   ].filter(Boolean).slice(0,5);
+
+  const displayInsights = (aiError || !fetchedAiInsights) ? fallbackAiInsights : fetchedAiInsights;
 
   return (
     <div className="db-page">
@@ -385,10 +390,19 @@ const ManagerDashboard = () => {
           <div className="db-card">
             <div className="db-card-header"><div className="db-card-title" style={{ display:"flex", alignItems:"center", gap:6 }}>AI Insights</div></div>
             <div className="db-ai-insights">
-              {aiInsights.map((text,i) => {
-                const colors=["#D97706","#6366F1","#22C55E","#EF4444","#3B82F6"];
-                return <div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;
-              })}
+              {aiLoading ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
+                  <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
+                  Generating insights...
+                </div>
+              ) : displayInsights && displayInsights.length > 0 ? (
+                displayInsights.map((text,i) => {
+                  const colors=["#D97706","#6366F1","#22C55E","#EF4444","#3B82F6"];
+                  return <div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;
+                })
+              ) : (
+                <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
+              )}
             </div>
           </div>
 

@@ -1,0 +1,129 @@
+/* AriaVisualizer.css */
+
+.aria-vis-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.aria-vis-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.aria-vis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.aria-vis-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.aria-vis-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.aria-vis-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: #64748b;
+}
+
+.aria-vis-search input {
+    border: none;
+    outline: none;
+    font-size: 0.85rem;
+    width: 150px;
+    color: #0f172a;
+}
+
+.aria-vis-search input::placeholder {
+    color: #94a3b8;
+}
+
+.aria-vis-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.aria-vis-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.aria-vis-table-wrapper {
+    flex: 1;
+    overflow: auto;
+    padding: 16px 24px;
+}
+
+.aria-vis-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 600px;
+}
+
+.aria-vis-table th {
+    position: sticky;
+    top: -16px;
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.aria-vis-table td {
+    padding: 12px 16px;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.aria-vis-table tr:hover td {
+    background: #f8fafc;
+}
+
+.aria-vis-footer {
+    padding: 12px 24px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: 0.85rem;
+    color: #64748b;
+    text-align: right;
+}

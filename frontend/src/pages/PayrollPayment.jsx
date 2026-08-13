@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import PageHeader from "../components/PageHeader";
+import { LoadingState } from "../components/DataStates";
 const PayrollPayment = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -126,20 +127,7 @@ const PayrollPayment = () => {
     Cheque: <FileText size={18} />,
     Cash: <Wallet size={18} />,
   };
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <Loader size={32} className="spin-icon" style={{ color: "#3b82f6" }} />
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   if (!salary) {
     return (
       <div style={{ padding: "30px" }}>

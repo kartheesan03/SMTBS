@@ -20,6 +20,7 @@ import DataTable from "../components/Dashboard/DataTable";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { LoadingState } from "../components/DataStates";
 const truckIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/2769/2769339.png",
   iconSize: [32, 32],
@@ -115,12 +116,7 @@ const OrderDetails = () => {
       );
     }
   };
-  if (loading)
-    return (
-      <div className="flex-center" style={{ minHeight: "100vh" }}>
-        <div className="loader"></div>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   if (!order) return null;
   const isSales = order.orderType === "sales";
   const entityName = isSales

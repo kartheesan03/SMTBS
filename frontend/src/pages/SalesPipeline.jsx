@@ -27,6 +27,7 @@ import "../components/AdminDashboard/AdminDashboardRedesign.css";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import toast from "react-hot-toast";
 import API from "../api/axios";
+import { LoadingState } from "../components/DataStates";
 const SalesPipeline = () => {
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -201,12 +202,7 @@ const SalesPipeline = () => {
     .slice(0, 4);
   const oppColors = ["#8b5cf6", "#f59e0b", "#0ea5e9", "#10b981"];
   const oppBgs = ["#faf5ff", "#fffbeb", "#f0f9ff", "#ecfdf5"];
-  if (loading)
-    return (
-      <div className="flex-center" style={{ minHeight: "100vh" }}>
-        <div className="loader"></div>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

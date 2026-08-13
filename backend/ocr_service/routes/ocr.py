@@ -50,9 +50,12 @@ async def ocr_endpoint(file: UploadFile = File(...)):
         structured_data = extract_text(file_path, ext)
         return JSONResponse(content=structured_data)
     except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        print(f"ERROR IN OCR:\n{tb}", flush=True)
         return JSONResponse(
             status_code=500,
-            content={"success": False, "error": f"OCR processing failed: {str(e)}"}
+            content={"success": False, "error": f"OCR processing failed: {str(e)}\n\n{tb}"}
         )
     finally:
         if os.path.exists(file_path):

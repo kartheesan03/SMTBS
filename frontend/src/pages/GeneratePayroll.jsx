@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PageHeader from "../components/PageHeader";
+import { LoadingState } from "../components/DataStates";
 /* ────── Inline Styles Object ────── */
 const s = {
   wrapper: {
@@ -440,16 +441,7 @@ const GeneratePayroll = () => {
       return dateStr;
     }
   };
-  if (loading) {
-    return (
-      <div
-        className="page-container flex-center"
-        style={{ minHeight: "100vh" }}
-      >
-        <Loader size={30} className="spin-icon" color="var(--primary)" />
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

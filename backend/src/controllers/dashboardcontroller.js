@@ -6,6 +6,8 @@ const Vendor = require("../models/Vendor");
 const Salary = require("../models/Salary");
 const Attendance = require("../models/Attendance");
 const Leave = require("../models/Leave");
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
 const computeDashboardStats = async (req, res) => {
   try {
     const role = req.user.role;
@@ -1478,6 +1480,60 @@ const getDashboardStats = async (req, res) => {
   });
 };
 
+const getAiInsights = async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const role = req.user.role;
+    let statsData = null;
+
+    if (cache.has(userId)) {
+      statsData = cache.get(userId).data;
+    } else {
+      statsData = await new Promise((resolve) => {
+        const dummyRes = {
+          json: (data) => resolve(data),
+          status: () => dummyRes
+        };
+        computeDashboardStats(req, dummyRes).catch(() => resolve({}));
+      });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+      return res.json([
+        "System is running in offline mode.",
+        "Real AI insights are disabled.",
+        "Add your Gemini API Key to enable."
+      ]);
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    const summary = JSON.stringify({
+      stats: statsData?.stats,
+      health: statsData?.analytics?.healthMetrics,
+      lowStock: statsData?.tables?.lowStock?.length
+    });
+
+    const prompt = `You are an AI ERP Copilot. Based on these dashboard stats for a ${role}, generate exactly 4 short, punchy bullet points of actionable insights or observations. 
+Return ONLY a raw JSON array of 4 strings. No markdown formatting, no code blocks, just the JSON array.
+Stats: ${summary}`;
+
+    const result = await model.generateContent(prompt);
+    let text = result.response.text();
+    text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+    let insightsArray = JSON.parse(text);
+    if (!Array.isArray(insightsArray)) insightsArray = [insightsArray];
+
+    return res.json(insightsArray.slice(0, 5));
+  } catch (error) {
+    console.error('AI Insights Error:', error);
+    return res.json(["Could not generate AI insights at this time."]);
+  }
+};
+
 module.exports = {
   getDashboardStats,
+  getAiInsights
 };

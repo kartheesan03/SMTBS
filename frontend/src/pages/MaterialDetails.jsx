@@ -38,6 +38,7 @@ import {
 import { AuthContext } from "../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { canWrite } from "../utils/rbac";
+import { LoadingState } from "../components/DataStates";
 const MaterialDetails = ({ embeddedId }) => {
   const navigate = useNavigate();
   const { id: paramId } = useParams();
@@ -70,24 +71,7 @@ const MaterialDetails = ({ embeddedId }) => {
     };
     fetchMaterialData();
   }, [id]);
-  if (loading)
-    return (
-      <div
-        style={{ display: "flex", justifyContent: "center", padding: "100px" }}
-      >
-        <div
-          className="loader"
-          style={{
-            width: 40,
-            height: 40,
-            border: "4px solid #f3f3f3",
-            borderTop: "4px solid #3b82f6",
-            borderRadius: "0px",
-            animation: "spin 1s linear infinite",
-          }}
-        />
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   if (error || !material) {
     return (
       <div

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
+import { useAiInsights } from "../hooks/useAiInsights";
 import API from "../api/axios";
 import {
   Users, ShoppingCart, DollarSign, Box, FileText, Truck,
@@ -95,6 +96,8 @@ const AdminDashboard = () => {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [revTrendYear, setRevTrendYear] = useState("current");
   const [now, setNow] = useState(new Date());
+  
+  const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 60000);
@@ -139,11 +142,23 @@ const AdminDashboard = () => {
   const notifications  = dashboardData?.tables?.notifications || [];
   const empDist        = dashboardData?.hrStats?.employeeDistribution || [];
   const trendRaw       = dashboardData?.analytics?.trendData || dashboardData?.charts?.monthlyStats || [];
-  const chartData      = trendRaw.map(d => ({
-    name: d.name,
-    revenue: revTrendYear === "current" ? (d.revenue||0) : (d.lastYearRevenue||0),
-    expenses: revTrendYear === "current" ? (d.expenses||0) : (d.lastYearExpenses||0),
-  }));
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const chartData      = trendRaw.map(d => {
+    let mName = d.name;
+    if (!isNaN(mName) && mName >= 1 && mName <= 12) mName = MONTHS[mName - 1];
+    return {
+      name: mName,
+      revenue: revTrendYear === "current" ? (d.revenue||0) : (d.lastYearRevenue||0),
+      expenses: revTrendYear === "current" ? (d.expenses||0) : (d.lastYearExpenses||0),
+    };
+  });
+
+  const purchaseCost = s.purchaseCost || 0;
+  const totalProfit = totalRevenue - purchaseCost;
+  const thisMonthRev = chartData.length > 0 ? chartData[chartData.length - 1].revenue : 0;
+  const lastMonthRev = chartData.length > 1 ? chartData[chartData.length - 2].revenue : 0;
+  const profitTrendPct = lastMonthRev ? (((thisMonthRev - lastMonthRev) / lastMonthRev) * 100).toFixed(1) : 0;
+  const sparkData = chartData.length > 0 ? chartData.map((d, i) => ({ i, v: d.revenue })) : [{i:0, v:0}];
 
   /* attendance donut */
   const attendanceTotal  = dashboardData?.hrStats?.presentToday || 0;
@@ -153,8 +168,7 @@ const AdminDashboard = () => {
     : [{ name: "No Data", value: 1 }];
   const attendancePct = totalEmployees > 0 ? Math.round((attendanceTotal / totalEmployees) * 100) : 0;
 
-  /* AI insights */
-  const aiInsights = [
+  const fallbackAiInsights = [
     totalRevenue > 0 && `Revenue is ${fmtINR(totalRevenue)} this period — tracking positively.`,
     lowStock.length > 0 && `${lowStock.length} material${lowStock.length > 1 ? "s are" : " is"} below reorder threshold.`,
     pendingOrders > 0 && `${pendingOrders} order${pendingOrders > 1 ? "s are" : " is"} pending approval.`,
@@ -162,11 +176,13 @@ const AdminDashboard = () => {
     pendingTasks > 0 && `${pendingTasks} task${pendingTasks > 1 ? "s are" : " is"} still pending completion.`,
   ].filter(Boolean).slice(0, 5);
 
+  const displayInsights = (aiError || !fetchedAiInsights) ? fallbackAiInsights : fetchedAiInsights;
+
   /* top materials */
   const topMaterials = (dashboardData?.tables?.topMaterials || []).slice(0, 5);
   const maxMatVal = topMaterials.reduce((m, d) => Math.max(m, d.revenue || d.value || 0), 1);
 
-  const DONUT_COLORS = ["#6366f1","#e2e8f0"];
+  const DONUT_COLORS = ["#4f46e5", "#e2e8f0"];
 
   return (
     <div className="db-page">
@@ -267,16 +283,18 @@ const AdminDashboard = () => {
             <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><DollarSign size={18} /></div>
             <div className="db-stats-mini-body">
               <div className="db-stats-mini-val">{fmtINR(totalRevenue)}</div>
-              <div className="db-stats-mini-label">Today's Revenue</div>
-              <span className="db-stats-mini-badge badge-green-sm">↑ 18.4%</span>
+              <div className="db-stats-mini-label">Total Revenue</div>
+              <span className="db-stats-mini-badge badge-green-sm">YTD</span>
             </div>
           </div>
           <div className="db-stats-mini-card">
             <div className="db-stats-mini-icon" style={{ background: "#F3E8FF", color: "#7C3AED" }}><BarChart2 size={18} /></div>
             <div className="db-stats-mini-body">
-              <div className="db-stats-mini-val">{fmtINR(totalRevenue * 6.8)}</div>
+              <div className="db-stats-mini-val">{fmtINR(thisMonthRev)}</div>
               <div className="db-stats-mini-label">Monthly Sales</div>
-              <span className="db-stats-mini-badge badge-green-sm">↑ 6%</span>
+              <span className={`db-stats-mini-badge ${profitTrendPct >= 0 ? 'badge-green-sm' : 'badge-red-sm'}`}>
+                {profitTrendPct >= 0 ? '↑' : '↓'} {Math.abs(profitTrendPct)}%
+              </span>
             </div>
           </div>
           <div className="db-stats-mini-card">
@@ -300,13 +318,13 @@ const AdminDashboard = () => {
               </div>
             </div>
             <div className="db-profile-body">
-              <div className="db-profile-name">{user?.name || "Karthik Raja"}</div>
+              <div className="db-profile-name">{user?.name || "Admin"}</div>
               <div className="db-profile-role">{user?.role || "System Administrator"}</div>
               <div className="db-profile-badge profile-badge-admin">Full Access</div>
               <div className="db-profile-info">
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Admin ID</span>
-                  <span className="db-profile-info-val">ADM-1001</span>
+                  <span className="db-profile-info-val">{user?.employeeId || user?.id || "SYS-01"}</span>
                 </div>
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Email</span>
@@ -332,32 +350,47 @@ const AdminDashboard = () => {
                 </div>
                 <div style={{ fontSize: 32, fontWeight: 900, color: "#0f172a", marginTop: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
                   {fmtINR(totalRevenue)}
-                  <span style={{ fontSize: 13, padding: "2px 8px", background: "#ecfdf5", color: "#10b981", borderRadius: 12, fontWeight: 700 }}>+12.5%</span>
+                  <span style={{ fontSize: 13, padding: "3px 10px", background: profitTrendPct >= 0 ? "#ecfdf5" : "#fef2f2", color: profitTrendPct >= 0 ? "#10b981" : "#ef4444", borderRadius: "12px", fontWeight: 700 }}>
+                    {profitTrendPct >= 0 ? '+' : '-'}{Math.abs(profitTrendPct)}%
+                  </span>
                 </div>
               </div>
-              <select className="db-panel-select" style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", outline: "none", padding: "6px 12px", borderRadius: "20px", fontWeight: 600, fontSize: 12 }} value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
+              <select className="db-panel-select" style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", outline: "none", padding: "6px 14px", borderRadius: "20px", fontWeight: 600, fontSize: 12, cursor: "pointer", transition: "all 0.2s" }} value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
                 <option value="current">This Year</option>
                 <option value="last">Last Year</option>
               </select>
             </div>
             
-            <div style={{ flex: 1, minHeight: "180px", marginTop: "20px" }}>
+            <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
               {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.5} />
+                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0.05} />
                       </linearGradient>
                     </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#94a3b8", fontWeight: 600 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#94a3b8", fontWeight: 600 }} dx={-10} tickFormatter={(val) => `₹${val/1000}k`} />
                     <Tooltip 
-                      cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }}
-                      contentStyle={{ backgroundColor: "#0f172a", border: "none", borderRadius: "8px", color: "#f8fafc", padding: "8px 12px", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.2)" }} 
-                      itemStyle={{ fontWeight: 700, color: "#6366f1" }} 
-                      labelStyle={{ color: "#94a3b8", fontSize: 12, marginBottom: 4 }}
+                      cursor={{ stroke: '#818cf8', strokeWidth: 2, strokeDasharray: '4 4' }}
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div style={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "12px 16px", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.4)" }}>
+                              <p style={{ color: "#94a3b8", fontSize: "12px", margin: "0 0 6px 0", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>{label}</p>
+                              <p style={{ color: "#fff", fontSize: "18px", margin: 0, fontWeight: 800 }}>
+                                {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(payload[0].value)}
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
                     />
-                    <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={4} fill="url(#colorRev)" />
+                    <Area type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={4} fill="url(#colorRev)" activeDot={{ r: 6, fill: "#fff", stroke: "#4f46e5", strokeWidth: 3 }} />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
@@ -372,22 +405,28 @@ const AdminDashboard = () => {
               <span style={{ fontSize: 11, color: "#6B7280" }}>This Week</span>
             </div>
             <div className="db-card-body" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-              <div className="db-donut-wrap" style={{ position: "relative" }}>
+              <div className="db-donut-wrap" style={{ position: "relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={donutData} cx="50%" cy="50%" innerRadius={52} outerRadius={72} dataKey="value" startAngle={90} endAngle={-270}>
+                    <Pie data={donutData} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" startAngle={90} endAngle={-270} stroke="none" cornerRadius={6}>
                       {donutData.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />)}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
-                <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" }}>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>{attendancePct}%</div>
-                  <div style={{ fontSize: 10, color: "#6B7280" }}>Present</div>
+                <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <span style={{ fontSize: 26, fontWeight: 900, color: "#1e293b", lineHeight: 1 }}>{attendancePct}%</span>
+                  <span style={{ fontSize: 12, color: "#64748b", fontWeight: 700, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>Present</span>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 16, fontSize: 12 }}>
-                <span style={{ color: "#6366f1", fontWeight: 600 }}>● Present {attendanceTotal}</span>
-                <span style={{ color: "#E2E8F0", fontWeight: 600 }}>● Absent {attendanceAbsent}</span>
+              <div style={{ display: "flex", gap: 24, fontSize: 13, marginTop: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: DONUT_COLORS[0] }} />
+                  <span style={{ color: "#64748b", fontWeight: 600 }}>Present <span style={{ color: "#0f172a", fontWeight: 800, marginLeft: 2 }}>{attendanceTotal}</span></span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: DONUT_COLORS[1] }} />
+                  <span style={{ color: "#64748b", fontWeight: 600 }}>Absent <span style={{ color: "#0f172a", fontWeight: 800, marginLeft: 2 }}>{attendanceAbsent}</span></span>
+                </div>
               </div>
             </div>
           </div>
@@ -396,7 +435,7 @@ const AdminDashboard = () => {
           <div className="db-card db-col-3">
             <div className="db-card-header">
               <div className="db-card-title">System Status</div>
-              <span className="db-card-link" onClick={() => navigate("/settings/audit-logs")}>View All</span>
+              <span className="db-card-link" onClick={() => navigate("/settings")}>View All</span>
             </div>
             <div className="db-status-list">
               <StatusRow name="Backend API" status="Healthy" />
@@ -424,7 +463,7 @@ const AdminDashboard = () => {
                 return (
                   <ActivityItem
                     key={i} icon={Icon} iconBg={bg} iconColor={col}
-                    title={a.user || "System"} desc={a.text} time={fmtTime(a.timestamp || new Date())}
+                    title={a.title || a.user || "System Event"} desc={a.text} time={fmtTime(a.time || a.createdAt || a.timestamp || new Date())}
                   />
                 );
               }) : (
@@ -436,7 +475,7 @@ const AdminDashboard = () => {
           <div className="db-card db-col-3">
             <div className="db-card-header">
               <div className="db-card-title">Notifications</div>
-              <span className="db-card-link" onClick={() => navigate("/settings")}>View All</span>
+              <span className="db-card-link" onClick={() => navigate("/notifications")}>View All</span>
             </div>
             <div className="db-notif-list">
               {notifications.length > 0 ? notifications.slice(0, 4).map((n, i) => {
@@ -445,8 +484,8 @@ const AdminDashboard = () => {
                   <div key={i} className="db-notif-item">
                     <div className="db-notif-dot" style={{ background: colors[i % colors.length] }} />
                     <div className="db-notif-body">
-                      <div className="db-notif-text">{n.message}</div>
-                      <div className="db-notif-time">{fmtTime(n.date)}</div>
+                      <div className="db-notif-text">{n.text || n.message}</div>
+                      <div className="db-notif-time">{fmtTime(n.time || n.date)}</div>
                     </div>
                   </div>
                 );
@@ -502,15 +541,22 @@ const AdminDashboard = () => {
             </div>
             <div className="db-ai-insights">
               <br/>
-              {aiInsights.length > 0 ? aiInsights.map((ins, i) => {
-                const colors = ["#6366f1", "#f97316", "#22c55e", "#ef4444"];
-                return (
-                  <div key={i} className="db-ai-item">
-                    <div className="db-ai-dot" style={{ background: colors[i % colors.length] }} />
-                    <div className="db-ai-text">{ins}</div>
-                  </div>
-                );
-              }) : (
+              {aiLoading ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
+                  <Cpu size={18} className="db-spin" style={{ marginBottom: '8px', color: '#8b5cf6' }} /><br />
+                  Generating insights...
+                </div>
+              ) : displayInsights && displayInsights.length > 0 ? (
+                displayInsights.map((ins, i) => {
+                  const colors = ["#6366f1", "#f97316", "#22c55e", "#ef4444"];
+                  return (
+                    <div key={i} className="db-ai-item">
+                      <div className="db-ai-dot" style={{ background: colors[i % colors.length] }} />
+                      <div className="db-ai-text">{ins}</div>
+                    </div>
+                  );
+                })
+              ) : (
                 <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
               )}
             </div>
@@ -522,12 +568,14 @@ const AdminDashboard = () => {
               <span style={{ fontSize: 11, color: "#6B7280" }}>This Month</span>
             </div>
             <div className="db-card-body" style={{ padding: 0 }}>
-              <div className="db-profit-val">₹1.50L</div>
-              <div className="db-profit-sub">↑ 6.7% vs last month</div>
+              <div className="db-profit-val">{fmtINR(totalProfit)}</div>
+              <div className="db-profit-sub">
+                {profitTrendPct >= 0 ? '↑' : '↓'} {Math.abs(profitTrendPct)}% vs last month
+              </div>
               <div style={{ width: "100%", height: "120px" }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={SPARK.map((v, i) => ({ i, v }))}>
-                    <Line type="monotone" dataKey="v" stroke="#22C55E" strokeWidth={3} dot={false} />
+                  <LineChart data={sparkData}>
+                    <Line type="monotone" dataKey="v" stroke={profitTrendPct >= 0 ? "#22C55E" : "#EF4444"} strokeWidth={3} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

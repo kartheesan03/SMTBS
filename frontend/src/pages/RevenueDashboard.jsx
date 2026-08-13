@@ -20,6 +20,7 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 import PageHeader from "../components/PageHeader";
+import { LoadingState } from "../components/DataStates";
 const RevenueDashboard = () => {
   const [ordersData, setOrdersData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,16 +37,7 @@ const RevenueDashboard = () => {
   useEffect(() => {
     fetchRevenueData();
   }, []);
-  if (loading) {
-    return (
-      <div
-        className="flex-center"
-        style={{ minHeight: "100vh", background: "#f8fafc" }}
-      >
-        <div className="loader"></div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   const salesOrders = ordersData.filter((o) => {
     const t = String(o.orderType || "").toUpperCase();
     return t.includes("SALES");

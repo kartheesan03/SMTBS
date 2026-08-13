@@ -398,7 +398,7 @@ const DocumentIntelligence = () => {
         <>
           <div className="doc-intel-header">
             <div className="doc-intel-header-left">
-              <h1>Document Intelligence</h1>
+              <h1>OCR Tool</h1>
               <p>Upload any supported document to extract and review structured data.</p>
             </div>
           </div>
@@ -432,7 +432,7 @@ const DocumentIntelligence = () => {
         <div className="doc-intel-main" style={{ padding: "0 32px 32px" }}>
           <div className="doc-intel-header">
             <div className="doc-intel-header-left">
-              <h1>Document Intelligence</h1>
+              <h1>OCR Tool</h1>
               <p>Extracting structured data from your document…</p>
             </div>
           </div>

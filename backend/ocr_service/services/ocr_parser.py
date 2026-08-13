@@ -115,6 +115,11 @@ def _is_header_candidate(line: List[Dict], next_lines: List[List[Dict]], min_col
     if numeric_count > len(line) / 2:
         return False
 
+    # Table headers almost never contain colons (which imply KV pairs)
+    colon_count = sum(1 for el in line if ":" in el['text'])
+    if colon_count > 0:
+        return False
+
     # Check alignment with subsequent data rows
     data_lines = [l for l in next_lines[:5] if l]
     if not data_lines:
@@ -148,7 +153,22 @@ def detect_all_tables(lines: List[List[Dict]]) -> List[Tuple[str, List[Dict], in
             if _is_header_candidate(candidate, next_lines, min_cols=2):
                 table_start_idx = i
                 seen_keys: Dict[str, int] = {}
-                for el in candidate:
+                
+                # Merge elements that are close together (gap < 30px) to avoid splitting multi-word headers
+                merged_candidate = []
+                for el in sorted(candidate, key=lambda x: x["x0"]):
+                    if not merged_candidate:
+                        merged_candidate.append(el.copy())
+                    else:
+                        last_el = merged_candidate[-1]
+                        gap = el["x0"] - last_el["x1"]
+                        if gap < 30:
+                            last_el["text"] = last_el["text"] + " " + el["text"]
+                            last_el["x1"] = max(last_el["x1"], el["x1"])
+                        else:
+                            merged_candidate.append(el.copy())
+
+                for el in merged_candidate:
                     key = el["text"].strip()
                     if not key:
                         continue
@@ -309,10 +329,10 @@ def extract_unstructured_text(lines: List[List[Dict]]) -> str:
 # ---------------------------------------------------------------------------
 
 def extract_totals(lines: List[List[Dict]]) -> Dict:
-    return None
+    return {}
 
 def extract_payroll_totals(lines: List[List[Dict]]) -> Dict:
-    return None
+    return {}
 
 
 # ---------------------------------------------------------------------------
@@ -445,6 +465,7 @@ def process_docx_document(file_path: str) -> Dict:
         raw_lines.append(text)
 
         # Try KV extraction
+        _KV_COLON = re.compile(r'^(?P<key>[^:]+):\s*(?P<val>.*)$')
         m = _KV_COLON.match(text)
         if m:
             key = m.group("key").strip()

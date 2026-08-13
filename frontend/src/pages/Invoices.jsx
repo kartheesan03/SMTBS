@@ -6,6 +6,7 @@ import DataTable from "../components/Dashboard/DataTable";
 import { FileText, Download } from "lucide-react";
 import jsPDF from "jspdf";
 import toast from "react-hot-toast";
+import { LoadingState } from "../components/DataStates";
 const Invoices = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
@@ -129,15 +130,7 @@ const Invoices = () => {
       render: (val) => (val ? new Date(val).toLocaleDateString() : "N/A"),
     },
   ];
-  if (loading)
-    return (
-      <div
-        className="flex-center"
-        style={{ height: "100vh", flexDirection: "column" }}
-      >
-        <div className="loader"></div>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return (
     <StandardPageLayout
       title="Invoices"

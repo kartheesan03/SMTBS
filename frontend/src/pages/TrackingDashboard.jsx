@@ -43,6 +43,7 @@ import "../components/AdminDashboard/AdminDashboardRedesign.css";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import { AuthContext } from "../context/AuthContext";
 import { CONSTANTS } from "../utils/constants";
+import { LoadingState } from "../components/DataStates";
 const TrackingDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -1123,30 +1124,7 @@ const TrackingDashboard = () => {
       </div>
     );
   };
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "60vh",
-        }}
-      >
-        <div
-          className="loader"
-          style={{
-            width: 40,
-            height: 40,
-            border: "4px solid #f3f3f3",
-            borderTop: "4px solid #3b82f6",
-            borderRadius: "0px",
-            animation: "spin 1s linear infinite",
-          }}
-        />
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
 
   const renderGlobalKPICards = () => {
     const inMovs = movements.filter((m) => String(m.type).toLowerCase() === "in").length;

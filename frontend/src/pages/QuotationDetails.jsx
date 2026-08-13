@@ -19,6 +19,7 @@ import {
 import { motion } from "framer-motion";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { LoadingState } from "../components/DataStates";
 const Badge = ({ children, type = "default" }) => (
   <span className={`ui-badge ${type}`}>{children}</span>
 );
@@ -126,10 +127,7 @@ const QuotationDetails = () => {
     }
     doc.save(`${quotation.quotationNumber}.pdf`);
   };
-  if (loading)
-    return (
-      <div style={{ textAlign: "center", padding: "100px" }}>Loading...</div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   if (!quotation) return null;
   const isConvertible =
     quotation.status === "Sent" ||

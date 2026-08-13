@@ -26,6 +26,7 @@ import { motion } from "framer-motion";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import toast from "react-hot-toast";
+import { LoadingState } from "../components/DataStates";
 const FinancialOperations = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -216,12 +217,7 @@ const FinancialOperations = () => {
     const matchStatus = statusFilter === "All" || inv.status === statusFilter;
     return matchType && matchStatus;
   });
-  if (loading)
-    return (
-      <div className="flex-center" style={{ minHeight: "100vh" }}>
-        <div className="loader"></div>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   const handleMarkPaid = async (orderId) => {
     try {
       await API.put(`/orders/${orderId}/payment-status`, {

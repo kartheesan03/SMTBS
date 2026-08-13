@@ -27,6 +27,7 @@ import {
 } from "../components/ui";
 import { motion } from "framer-motion";
 import PageHeader from "../components/PageHeader";
+import { LoadingState } from "../components/DataStates";
 const CustomerDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -64,10 +65,7 @@ const CustomerDetails = () => {
     };
     fetchCustomerData();
   }, [id, navigate]);
-  if (loading)
-    return (
-      <div style={{ textAlign: "center", padding: "100px" }}>Loading...</div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   if (!customer) return null;
   const badges = [
     {

@@ -14,6 +14,7 @@ import {
 import { generatePayslipPDF } from "../utils/pdfGenerator";
 import { motion } from "framer-motion";
 import PageHeader from "../components/PageHeader";
+import { LoadingState } from "../components/DataStates";
 const MySalaryPage = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,20 +57,7 @@ const MySalaryPage = () => {
       setDownloading(false);
     }
   };
-  if (loading)
-    return (
-      <div className="loading-state">
-        <Loader2 className="spin" />
-        <p>Loading your salary records...</p>
-        <style jsx="true">{`
-          .loading-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 400px;
-            gap: 15px;
-            color: var(--text-muted);
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
           }
           .spin {
             animation: spin 1s linear infinite;

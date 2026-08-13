@@ -9,13 +9,12 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from 'react-hot-toast';
 
 import ModuleLauncher from './components/ModuleLauncher';
-import CommandCenter from './components/CommandCenter';
 import AuditLogs from './pages/AuditLogs';
 import Warehouses from './pages/Warehouses';
 import MaterialReports from './pages/MaterialReports';
 
 import GlobalHeader from './components/GlobalHeader';
-import { AriaProvider } from './context/AriaContext';
+import { AriaProvider, AriaContext } from './context/AriaContext';
 import AriaSidePanel from './components/ui/AriaSidePanel';
 
 // Retry wrapper for lazy imports — handles stale chunks after Vercel redeploys
@@ -153,10 +152,10 @@ const AIAssistant = lazyRetry(() => import('./pages/AIAssistant'));
 const AuthMicrosoftCallback = lazyRetry(() => import('./pages/AuthMicrosoftCallback'));
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
+    const { isOpen: isAriaOpen, openAria, closeAria } = useContext(AriaContext);
     
-    // New Navigation States
+    // Navigation State
     const [isModuleLauncherOpen, setIsModuleLauncherOpen] = useState(false);
-    const [isCommandCenterOpen, setIsCommandCenterOpen] = useState(false);
 
     useEffect(() => {
         if (user) {
@@ -182,7 +181,11 @@ const AppContent = () => {
         const handleKeyDown = (e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
-                setIsCommandCenterOpen(true);
+                if (isAriaOpen) {
+                    closeAria();
+                } else {
+                    openAria();
+                }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -208,13 +211,9 @@ const AppContent = () => {
                             isOpen={isModuleLauncherOpen} 
                             onClose={() => setIsModuleLauncherOpen(false)} 
                         />
-                        <CommandCenter 
-                            isOpen={isCommandCenterOpen} 
-                            onClose={() => setIsCommandCenterOpen(false)} 
-                        />
                         <GlobalHeader 
                             onOpenModuleLauncher={() => setIsModuleLauncherOpen(true)}
-                            onOpenCommandCenter={() => setIsCommandCenterOpen(true)}
+                            onOpenCommandCenter={() => openAria()}
                         />
                     </>
                 )}
@@ -431,7 +430,6 @@ const AppContent = () => {
                     <Route path="/settings/attendance" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceSettings /></ProtectedRoute>} />
                     <Route path="/settings/leave" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><LeaveSettings /></ProtectedRoute>} />
                     <Route path="/settings/payroll" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><PayrollSettings /></ProtectedRoute>} />
-                    <Route path="/ai-assistant" element={<ProtectedRoute><AIAssistant /></ProtectedRoute>} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { useAiInsights } from "../hooks/useAiInsights";
 import API from "../api/axios";
 import {
   DollarSign, ShoppingCart, Users, Target, TrendingUp, TrendingDown,
@@ -48,6 +49,8 @@ const SalesDashboard = () => {
   const [loading,       setLoading]       = useState(true);
   const [now, setNow] = useState(new Date());
 
+  const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();
+
   useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); },[]);
 
   useEffect(()=>{
@@ -89,13 +92,14 @@ const SalesDashboard = () => {
   const recentActivity=dashboardData?.tables?.recentActivity||[];
   const notifications =dashboardData?.tables?.notifications||[];
 
-  const aiInsights=[
-    totalRevenue>0  && `Revenue this period: ${fmtINR(totalRevenue)} — tracking well.`,
+  const fallbackAiInsights=[
     newLeads>0      && `${newLeads} new lead${newLeads!==1?"s":""} in the pipeline. Follow up soon.`,
     closedDeals>0   && `${closedDeals} deal${closedDeals!==1?"s":""} closed — great work!`,
     openOrders>0    && `${openOrders} active order${openOrders!==1?"s":""} in progress.`,
-    `Customer base growing: ${activeCustomers} active customers.`,
+    `Focus on following up with "In Progress" leads to boost conversion.`,
   ].filter(Boolean).slice(0,5);
+
+  const displayInsights = (aiError || !fetchedAiInsights) ? fallbackAiInsights : fetchedAiInsights;
 
   return (
     <div className="db-page">
@@ -266,7 +270,18 @@ const SalesDashboard = () => {
         </div>
 
         <div className="db-bottom-grid">
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">AI Sales Insights</div></div><div className="db-ai-insights">{aiInsights.map((text,i)=>{const colors=["#DC2626","#22C55E","#6366F1","#F97316","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})}</div></div>
+          <div className="db-card"><div className="db-card-header"><div className="db-card-title">AI Sales Insights</div></div><div className="db-ai-insights">
+            {aiLoading ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
+                <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
+                Generating insights...
+              </div>
+            ) : displayInsights && displayInsights.length > 0 ? (
+              displayInsights.map((text,i)=>{const colors=["#DC2626","#22C55E","#6366F1","#F97316","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
+            ) : (
+              <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
+            )}
+          </div></div>
           <div className="db-card"><div className="db-card-header"><div className="db-card-title">Top Customers</div></div><div className="db-bar-list">{customers.slice(0,5).map((c,i)=>{const colors=["#DC2626","#F97316","#6366F1","#22C55E","#EAB308"];return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{c.name||c.companyName||`Customer ${i+1}`}</span><span style={{ fontWeight:600 }}>{c.totalOrders||i+1} orders</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${80-i*15}%`,background:colors[i] }}/></div></div>;})} {customers.length===0&&[["ABC Corp","#DC2626"],["XYZ Ltd","#F97316"],["PQR Inc","#6366F1"],["MNO Co","#22C55E"],["RST Pvt","#EAB308"]].map(([n,c],i)=><div key={i} className="db-bar-item"><div className="db-bar-label"><span>{n}</span><span style={{ fontWeight:600 }}>{5-i} orders</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${80-i*15}%`,background:c }}/></div></div>)}</div></div>
           <div className="db-card"><div className="db-card-header"><div className="db-card-title">Revenue by Segment</div></div><div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}><div className="db-donut-wrap" style={{ position:"relative" }}><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={[{name:"Enterprise",value:45},{name:"SMB",value:30},{name:"Retail",value:15},{name:"Other",value:10}]} cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">{["#DC2626","#F97316","#EAB308","#9CA3AF"].map((c,i)=><Cell key={i} fill={c}/>)}</Pie><Tooltip contentStyle={{ fontSize:11,borderRadius:8 }}/></PieChart></ResponsiveContainer></div></div></div>
           <div className="db-card"><div className="db-card-header"><div className="db-card-title">Monthly Revenue</div></div><div className="db-profit-val">{fmtINR(totalRevenue)}</div><div className="db-profit-sub">↑ 18.4% vs last month</div><div style={{ padding:"0 20px 16px" }}><div className="db-chart-wrap" style={{ height:100 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}><Line type="monotone" dataKey="v" stroke="#DC2626" strokeWidth={2} dot={false}/></LineChart></ResponsiveContainer></div></div></div>

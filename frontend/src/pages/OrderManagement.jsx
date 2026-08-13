@@ -29,6 +29,7 @@ import { motion } from "framer-motion";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import toast from "react-hot-toast";
+import { LoadingState } from "../components/DataStates";
 const OrderManagement = () => {
   const userInfo = JSON.parse(
     localStorage.getItem("userInfo") ||
@@ -249,12 +250,7 @@ const OrderManagement = () => {
     salesRevenue: Math.round(salesRevMap[month] || 0),
     purchaseCost: Math.round(purchaseCostMap[month] || 0),
   }));
-  if (loading)
-    return (
-      <div className="flex-center" style={{ minHeight: "100vh" }}>
-        <div className="loader"></div>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

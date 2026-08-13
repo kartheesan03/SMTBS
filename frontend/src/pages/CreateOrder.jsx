@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import StandardPageLayout from "../components/StandardPageLayout/StandardPageLayout";
 import toast from "react-hot-toast";
 import { User, Truck, Edit2, Plus, Trash2 } from "lucide-react";
+import { LoadingState } from "../components/DataStates";
 const CreateOrder = () => {
   const navigate = useNavigate();
   const { orderType } = useParams();
@@ -114,12 +115,7 @@ const CreateOrder = () => {
       toast.error(err.response?.data?.message || "Error creating order");
     }
   };
-  if (loading)
-    return (
-      <div className="flex-center" style={{ minHeight: "100vh" }}>
-        <div className="loader"></div>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   if (!selectedEntity) return null;
   return (
     <StandardPageLayout

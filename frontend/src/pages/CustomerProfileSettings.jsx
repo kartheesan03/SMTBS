@@ -21,6 +21,7 @@ import {
   Camera,
 } from "lucide-react";
 import CustomerForm from "../components/CustomerForm";
+import { LoadingState } from "../components/DataStates";
 const CustomerProfileSettings = () => {
   const { user, updateUser } = useContext(AuthContext);
   const [customerData, setCustomerData] = useState(null);
@@ -163,14 +164,7 @@ const CustomerProfileSettings = () => {
   const initials = formData.name
     ? formData.name.charAt(0).toUpperCase()
     : user?.name?.charAt(0).toUpperCase() || "C";
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loader"></div>
-        <p>Loading Profile...</p>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return (
     <div className="profile-page-wrapper">
       {/* Top Banner Card */}

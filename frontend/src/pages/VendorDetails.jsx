@@ -34,6 +34,7 @@ import { AuthContext } from "../context/AuthContext";
 import { AriaContext } from "../context/AriaContext";
 import { motion } from "framer-motion";
 import PageHeader from "../components/PageHeader";
+import { LoadingState } from "../components/DataStates";
 const VendorDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -121,10 +122,7 @@ const VendorDetails = () => {
     };
     fetchVendorData();
   }, [id, navigate]);
-  if (loading)
-    return (
-      <div style={{ textAlign: "center", padding: "100px" }}>Loading...</div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   if (!vendor) return null;
   const badges = [
     {

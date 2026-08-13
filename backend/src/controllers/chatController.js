@@ -14,7 +14,7 @@ Guidelines:
 - If the user asks for a report, use the 'generate_report' tool with the correct modelName.
 - If the request is ambiguous (e.g., "how many units are left" but no item specified), ask a clarifying question.
 - If the request targets a domain we don't have a model for, explain your limitations clearly.
-- Render results in clean markdown tables when returning lists of data. Bold key numbers.
+- DO NOT output the results in a markdown table. The system will automatically render a beautiful interactive table beside your chat. Just provide a brief conversational confirmation (e.g., "I found 12 items. Here they are:").
 - At the end of your response, you MUST provide exactly 3 relevant follow-up suggestions in a markdown list format starting with "Suggested Follow-ups:", so the frontend can extract them.
 - Example: 
   Suggested Follow-ups:
@@ -77,21 +77,39 @@ const chatWithGemini = async (req, res) => {
             systemInstruction: dynamicPrompt,
             tools: [aiToolsDeclarations]
         });
-        const chatHistory = history
-            .filter(msg => msg.role === 'user' || msg.role === 'assistant')
-            .map(msg => ({
-                role: msg.role === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.content }]
-            }));
-        const chat = model.startChat({ history: chatHistory });
+        let validHistory = history.filter(msg => msg.role === 'user' || msg.role === 'assistant');
+        
+        // Gemini requires history to start with a user message and strictly alternate.
+        let sanitizedHistory = [];
+        let expectedRole = 'user';
+        for (const msg of validHistory) {
+            const mappedRole = msg.role === 'user' ? 'user' : 'model';
+            if (mappedRole === expectedRole) {
+                sanitizedHistory.push({
+                    role: mappedRole,
+                    parts: [{ text: msg.content || ' ' }]
+                });
+                expectedRole = expectedRole === 'user' ? 'model' : 'user';
+            }
+        }
+
+        const chat = model.startChat({ history: sanitizedHistory });
         let result = await chat.sendMessage(message);
         let response = result.response;
         let fileMetadata = null;
+        let visualData = null;
         while (response.functionCalls && response.functionCalls().length > 0) {
             const call = response.functionCalls()[0];
             const toolResult = await executeAITool(call);
             if (call.name === 'generate_report' && toolResult.file) {
                 fileMetadata = toolResult.file;
+            }
+            if (call.name === 'query_database' && toolResult.results) {
+                visualData = {
+                    type: 'table',
+                    modelName: toolResult.modelQuery,
+                    data: toolResult.results
+                };
             }
             result = await chat.sendMessage([{
                 functionResponse: {
@@ -118,6 +136,7 @@ const chatWithGemini = async (req, res) => {
         return res.json({ 
             reply: replyText,
             file: fileMetadata,
+            visualData: visualData,
             suggestions: suggestions.length > 0 ? suggestions : null
         });
     } catch (error) {

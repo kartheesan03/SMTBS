@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import {
+import { LoadingState } from "../components/DataStates";
   ArrowLeft,
   ShoppingCart,
   Calendar,
@@ -119,14 +120,7 @@ const CustomerNewOrder = () => {
       setSubmitLoading(false);
     }
   };
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="loader"></div>
-        <p>Loading catalog details...</p>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return (
     <div className="page-container">
       {/* Header */}

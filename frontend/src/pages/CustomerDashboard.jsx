@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { useAiInsights } from "../hooks/useAiInsights";
 import API from "../api/axios";
 import {
   ShoppingCart, Package, Truck, CheckCircle, Plus, FileText,
@@ -44,6 +45,8 @@ const CustomerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(new Date());
 
+  const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();
+
   useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); },[]);
 
   useEffect(()=>{
@@ -78,13 +81,15 @@ const CustomerDashboard = () => {
     .slice(0,3)
     .map((o,i)=>{ const colors=["#1D4ED8","#22C55E","#F97316"]; const d=o.deliveryDate?new Date(o.deliveryDate):new Date(Date.now()+(i+1)*86400000*3); return{day:String(d.getDate()).padStart(2,"0"),mon:d.toLocaleString("default",{month:"short"}).toUpperCase(),title:`Order #${o.orderNumber||o._id?.slice(-4)||`00${i+1}`}`,sub:o.status,color:colors[i%3]}; });
 
-  const aiInsights=[
+  const fallbackAiInsights=[
     totalOrders>0   && `You have placed ${totalOrders} order${totalOrders!==1?"s":""} with us. Thank you!`,
     pendingOrders>0 && `${pendingOrders} order${pendingOrders!==1?"s":""} are currently being processed.`,
     deliveredOrds>0 && `${deliveredOrds} order${deliveredOrds!==1?"s":""} successfully delivered.`,
     totalSpend>0    && `Total amount spent: ${fmtINR(totalSpend)}.`,
-    `Track your orders in real time — stay updated on every delivery.`,
+    `Reach out to support for any queries regarding pending orders.`,
   ].filter(Boolean).slice(0,5);
+
+  const displayInsights = (aiError || !fetchedAiInsights) ? fallbackAiInsights : fetchedAiInsights;
 
   return (
     <div className="db-page">
@@ -256,7 +261,18 @@ const CustomerDashboard = () => {
         </div>
 
         <div className="db-bottom-grid">
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">AI Insights</div></div><div className="db-ai-insights">{aiInsights.map((text,i)=>{const colors=["#1D4ED8","#22C55E","#F97316","#6366F1","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})}</div></div>
+          <div className="db-card"><div className="db-card-header"><div className="db-card-title">AI Insights</div></div><div className="db-ai-insights">
+            {aiLoading ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
+                <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
+                Generating insights...
+              </div>
+            ) : displayInsights && displayInsights.length > 0 ? (
+              displayInsights.map((text,i)=>{const colors=["#1D4ED8","#22C55E","#F97316","#6366F1","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
+            ) : (
+              <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
+            )}
+          </div></div>
           <div className="db-card"><div className="db-card-header"><div className="db-card-title">Order History Breakdown</div></div><div className="db-bar-list">{[["Delivered",deliveredOrds,"#22C55E"],["Processing",orders.filter(o=>o.status==="Processing").length,"#3B82F6"],["Pending",pendingOrders,"#EAB308"],["Cancelled",orders.filter(o=>o.status==="Cancelled").length,"#EF4444"]].map(([label,val,color],i)=>{const max=Math.max(1,totalOrders);return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{label}</span><span style={{ fontWeight:600 }}>{val}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((val/max)*100)}%`,background:color }}/></div></div>;})} </div></div>
           <div className="db-card"><div className="db-card-header"><div className="db-card-title">Order Status</div></div><div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}><div className="db-donut-wrap" style={{ position:"relative" }}><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={statusData} cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">{["#EAB308","#3B82F6","#14B8A6","#22C55E","#EF4444"].map((c,i)=><Cell key={i} fill={c}/>)}</Pie><Tooltip contentStyle={{ fontSize:11,borderRadius:8 }}/></PieChart></ResponsiveContainer></div></div></div>
           <div className="db-card"><div className="db-card-header"><div className="db-card-title">Total Spend</div></div><div className="db-profit-val">{fmtINR(totalSpend)}</div><div className="db-profit-sub">Lifetime purchase value</div><div style={{ padding:"0 20px 16px" }}><div className="db-chart-wrap" style={{ height:100 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}><Line type="monotone" dataKey="v" stroke="#1D4ED8" strokeWidth={2} dot={false}/></LineChart></ResponsiveContainer></div></div></div>

@@ -18,6 +18,7 @@ import UserAvatar from "../components/UserAvatar";
 import EmailCell from "../components/ui/EmailCell";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import { AuthContext } from "../context/AuthContext";
+import { LoadingState } from "../components/DataStates";
 const HRMS = () => {
   const navigate = useNavigate();
   const { user } = React.useContext(AuthContext);
@@ -143,21 +144,7 @@ const HRMS = () => {
       alert(err.response?.data?.message || "Failed to delete employee");
     }
   };
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "60vh",
-          color: "#64748b",
-        }}
-      >
-        Loading employee data...
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

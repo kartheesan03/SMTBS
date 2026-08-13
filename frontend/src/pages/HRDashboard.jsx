@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
+import { useAiInsights } from "../hooks/useAiInsights";
 import API from "../api/axios";
 import {
   Users, DollarSign, Calendar, UserCheck, AlertTriangle, Activity,
@@ -47,6 +48,8 @@ const HRDashboard = () => {
   const [upcomingEvents,setUpcomingEvents]= useState([]);
   const [now, setNow] = useState(new Date());
 
+  const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();
+
   useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); },[]);
 
   useEffect(()=>{
@@ -83,13 +86,15 @@ const HRDashboard = () => {
   const recentActivity=dashboardData?.tables?.recentActivity||[];
   const notifications  =dashboardData?.tables?.notifications||[];
 
-  const aiInsights=[
+  const fallbackAiInsights=[
     totalEmp>0         && `Workforce at ${totalEmp} employees — ${attendancePct}% attendance today.`,
     pendingLeaves>0    && `${pendingLeaves} leave request${pendingLeaves>1?"s are":" is"} pending approval.`,
     monthlyPayroll>0   && `Monthly payroll estimated at ${fmtINR(monthlyPayroll)}.`,
     employees.filter(e=>e.status==="Inactive").length>0 && `${employees.filter(e=>e.status==="Inactive").length} inactive employee records need review.`,
-    `Recruitment pipeline — track open positions and new hires.`,
+    `Review upcoming performance appraisals for Q3.`,
   ].filter(Boolean).slice(0,5);
+
+  const displayInsights = (aiError || !fetchedAiInsights) ? fallbackAiInsights : fetchedAiInsights;
 
   return (
     <div className="db-page">
@@ -294,7 +299,18 @@ const HRDashboard = () => {
         <div className="db-bottom-grid">
           <div className="db-card">
             <div className="db-card-header"><div className="db-card-title">AI HR Insights</div></div>
-            <div className="db-ai-insights">{aiInsights.map((text,i)=>{const colors=["#7C3AED","#22C55E","#F97316","#3B82F6","#EAB308"];return <div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})}</div>
+            <div className="db-ai-insights">
+              {aiLoading ? (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
+                  <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
+                  Generating insights...
+                </div>
+              ) : displayInsights && displayInsights.length > 0 ? (
+                displayInsights.map((text,i)=>{const colors=["#7C3AED","#22C55E","#F97316","#3B82F6","#EAB308"];return <div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
+              ) : (
+                <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
+              )}
+            </div>
           </div>
           <div className="db-card">
             <div className="db-card-header"><div className="db-card-title">Department Headcount</div></div>

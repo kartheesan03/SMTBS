@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { useAiInsights } from "../hooks/useAiInsights";
 import API from "../api/axios";
 import {
   CheckCircle, Calendar, DollarSign, Clock, UserCheck, Activity,
@@ -48,6 +49,8 @@ const EmployeeDashboard = () => {
   const [loading,      setLoading]      = useState(true);
   const [now, setNow] = useState(new Date());
 
+  const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();
+
   useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); },[]);
 
   useEffect(()=>{
@@ -83,18 +86,23 @@ const EmployeeDashboard = () => {
   const leaveBal   = leaveBalance?.remaining??leaveBalance?.balance??12;
   const mySalary   = salary?.netSalary||salary?.basicSalary||0;
   const attendPct  = attendStats.pct||0;
+  const completedTask = myTasks.filter(t=>t.status==="Completed").length;
+  const pendingTask = myTasks.filter(t=>t.status!=="Completed").length;
+  const present = attendPct;
 
   const donutData=[{name:"Done",value:taskDone||1},{name:"Pending",value:Math.max(0,taskTotal-taskDone)||0}];
 
   const attTrend=SPARK.map((v,i)=>({name:`D${i+1}`,pct:Math.min(100,attendPct+v-8)}));
 
-  const aiInsights=[
-    myTasks.length>0   && `You have ${myTasks.filter(t=>t.status!=="Completed").length} task${myTasks.filter(t=>t.status!=="Completed").length!==1?"s":""} pending completion.`,
-    attendPct>0        && `Your attendance rate this month is ${attendPct}% — keep it up!`,
-    leaveBal>0         && `${leaveBal} leave days remaining in your balance.`,
-    mySalary>0         && `Your latest salary of ${fmtINR(mySalary)} is processed.`,
-    `Check in on time to maintain a healthy attendance record.`,
+  const fallbackAiInsights=[
+    present>0     && `Attendance tracking at ${present}% for the month.`,
+    completedTask>0&& `Great job! You have completed ${completedTask} tasks so far.`,
+    pendingTask>0 && `${pendingTask} task${pendingTask!==1?"s":""} remaining in your queue.`,
+    `Remember to check out at the end of your shift.`,
+    `Review your upcoming scheduled tasks to stay ahead.`,
   ].filter(Boolean).slice(0,5);
+
+  const displayInsights = (aiError || !fetchedAiInsights) ? fallbackAiInsights : fetchedAiInsights;
 
   return (
     <div className="db-page">
@@ -265,7 +273,18 @@ const EmployeeDashboard = () => {
         </div>
 
         <div className="db-bottom-grid">
-          <div className="db-card"><div className="db-card-header"><div className="db-card-title">AI Insights</div></div><div className="db-ai-insights">{aiInsights.map((text,i)=>{const colors=["#059669","#6366F1","#F97316","#3B82F6","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})}</div></div>
+          <div className="db-card"><div className="db-card-header"><div className="db-card-title">AI Insights</div></div><div className="db-ai-insights">
+            {aiLoading ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
+                <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
+                Generating insights...
+              </div>
+            ) : displayInsights && displayInsights.length > 0 ? (
+              displayInsights.map((text,i)=>{const colors=["#059669","#6366F1","#F97316","#3B82F6","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
+            ) : (
+              <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
+            )}
+          </div></div>
           <div className="db-card"><div className="db-card-header"><div className="db-card-title">My Task Breakdown</div></div><div className="db-bar-list">{[["To Do",myTasks.filter(t=>t.status==="To Do").length,"#F97316"],["In Progress",myTasks.filter(t=>t.status==="In Progress").length,"#3B82F6"],["Completed",myTasks.filter(t=>t.status==="Completed").length,"#22C55E"]].map(([label,val,color],i)=>{const max=Math.max(1,myTasks.length);return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{label}</span><span style={{ fontWeight:600 }}>{val}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((val/max)*100)}%`,background:color }}/></div></div>;})} </div></div>
           <div className="db-card"><div className="db-card-header"><div className="db-card-title">Leave Summary</div></div><div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}><div className="db-donut-wrap" style={{ position:"relative" }}><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={[{name:"Used",value:30-leaveBal},{name:"Remaining",value:leaveBal}]} cx="50%" cy="50%" innerRadius={45} outerRadius={68} dataKey="value">{["#EF4444","#059669"].map((c,i)=><Cell key={i} fill={c}/>)}</Pie><Tooltip contentStyle={{ fontSize:11,borderRadius:8 }}/></PieChart></ResponsiveContainer></div></div></div>
           <div className="db-card"><div className="db-card-header"><div className="db-card-title">Monthly Salary</div></div><div className="db-profit-val">{fmtINR(mySalary)}</div><div className="db-profit-sub">Net salary this month</div><div style={{ padding:"0 20px 16px" }}><div className="db-chart-wrap" style={{ height:100 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}><Line type="monotone" dataKey="v" stroke="#059669" strokeWidth={2} dot={false}/></LineChart></ResponsiveContainer></div></div></div>

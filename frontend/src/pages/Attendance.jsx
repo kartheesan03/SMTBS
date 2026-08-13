@@ -16,6 +16,8 @@ import {
   Download,
   AlertCircle,
   BarChart2,
+  MapPin,
+  CheckCircle2,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -31,6 +33,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import PageHeader from "../components/PageHeader";
+import { LoadingState } from "../components/DataStates";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import API from "../api/axios";
 /* ─────────────────────────── helpers ─────────────────────────── */
@@ -167,211 +170,195 @@ const StatusBadge = ({ status }) => {
 const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
   const isActive = status?.checkIn && !status?.checkOut;
   const isCompleted = status?.checkIn && status?.checkOut;
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       style={{
-        background: "#1E293B",
-        borderRadius: 0,
-        padding: "24px 28px",
-        color: "#fff",
-        position: "relative",
-        overflow: "hidden",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexWrap: "wrap",
-        gap: 20,
-        marginBottom: 24,
-        boxShadow: "none",
+          background: isActive ? 'linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%)' : '#ffffff',
+          border: isActive ? '1px solid #bae6fd' : '1px solid #e2e8f0',
+          borderRadius: '24px',
+          padding: '24px',
+          marginBottom: '24px',
+          boxShadow: isActive ? '0 10px 25px -5px rgba(56, 189, 248, 0.1)' : '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+          position: 'relative',
+          overflow: 'hidden',
+          transition: 'all 0.3s ease'
       }}
     >
-      <div style={{ position: "relative", zIndex: 1 }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 8,
-          }}
-        >
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 0,
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Timer size={16} />
-          </div>
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              opacity: 0.8,
-              textTransform: "uppercase",
-              letterSpacing: 0.5,
-            }}
-          >
-            {isCompleted
-              ? "Shift Completed"
-              : isActive
-              ? "Active Session"
-              : "Today's Attendance"}
-          </span>
-          {isActive && (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "4px 10px",
-                fontSize: 11,
-                fontWeight: 600,
-                color: "#EF4444",
-                background: "transparent",
-              }}
-            >
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "0px",
-                  background: "#EF4444",
-                  boxShadow: "0 0 0 2px rgba(239,68,68,0.2)",
-                }}
-              />{" "}
-              LIVE
-            </span>
-          )}
-        </div>
-        <div
-          style={{
-            fontSize: 32,
-            fontWeight: 500,
-            letterSpacing: "-1px",
-            lineHeight: 1,
-          }}
-        >
-          {timer}
-        </div>
-        <div
-          style={{ display: "flex", gap: 24, marginTop: 16, flexWrap: "wrap" }}
-        >
-          {[
-            { label: "Check In", val: fmtTime(status?.checkIn, status?.date) },
-            {
-              label: "Check Out",
-              val: fmtTime(status?.checkOut, status?.date),
-            },
-            { label: "Status", val: status?.status || "—" },
-          ].map((item, i, arr) => (
-            <React.Fragment key={item.label}>
-              <div>
-                <p
-                  style={{
-                    margin: "0 0 2px",
-                    fontSize: 11,
-                    opacity: 0.6,
-                    textTransform: "uppercase",
-                    letterSpacing: 0.5,
-                    fontWeight: 600,
-                  }}
-                >
-                  {item.label}
-                </p>
-                <p style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>
-                  {item.val}
-                </p>
+      {/* Background Decorative Element */}
+      {isActive && (
+          <div style={{
+              position: 'absolute',
+              top: '-50px',
+              right: '-50px',
+              width: '150px',
+              height: '150px',
+              background: 'radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(255,255,255,0) 70%)',
+              borderRadius: '50%',
+              zIndex: 0
+          }} />
+      )}
+
+      <div style={{ position: 'relative', zIndex: 1 }}>
+          {/* Header Section */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                  <div style={{
+                      width: '56px',
+                      height: '56px',
+                      borderRadius: '16px',
+                      background: isActive ? '#38bdf8' : isCompleted ? '#10b981' : '#f1f5f9',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: isActive || isCompleted ? '#fff' : '#64748b',
+                      boxShadow: isActive ? '0 8px 16px -4px rgba(56, 189, 248, 0.4)' : 'none'
+                  }}>
+                      {isCompleted ? <CheckCircle2 size={28} /> : <Timer size={28} />}
+                  </div>
+                  
+                  <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.5px', textTransform: 'uppercase', color: isActive ? '#0ea5e9' : '#64748b' }}>
+                              {isCompleted ? "Shift Completed" : isActive ? "Active Session" : "Today's Attendance"}
+                          </span>
+                          {isActive && (
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '800', color: '#ef4444', background: '#fef2f2', padding: '2px 8px', borderRadius: '12px' }}>
+                                  <div style={{ width: '6px', height: '6px', background: '#ef4444', borderRadius: '50%', animation: 'pulseLive 2s infinite' }}></div>
+                                  LIVE
+                              </span>
+                          )}
+                      </div>
+                      <h2 style={{ fontSize: '36px', fontWeight: '900', color: '#0f172a', margin: 0, letterSpacing: '-1px', lineHeight: '1.1' }}>
+                          {timer}
+                      </h2>
+                  </div>
               </div>
-              {i < arr.length - 1 && (
-                <div
-                  style={{ width: 1, background: "rgba(255,255,255,0.15)" }}
-                />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-      <div style={{ position: "relative", zIndex: 1 }}>
-        {!status?.checkIn ? (
-          <button
-            onClick={onCheckIn}
-            disabled={busy}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "10px 20px",
-              borderRadius: 0,
-              border: "1px solid transparent",
-              background: "#F1F3F5",
-              color: "#0F172A",
-              fontWeight: 600,
-              fontSize: 13,
-              cursor: busy ? "not-allowed" : "pointer",
-              opacity: busy ? 0.7 : 1,
-              transition: "all 0.2s ease",
-            }}
-          >
-            <Play size={15} fill="currentColor" />{" "}
-            {busy ? "Processing…" : "Check In"}
-          </button>
-        ) : !status?.checkOut ? (
-          <button
-            onClick={onCheckOut}
-            disabled={busy}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "10px 20px",
-              borderRadius: 0,
-              border: "1px solid rgba(255,255,255,0.15)",
-              background: "rgba(255,255,255,0.05)",
-              color: "rgba(255,255,255,0.9)",
-              fontWeight: 600,
-              fontSize: 13,
-              cursor: busy ? "not-allowed" : "pointer",
-              opacity: busy ? 0.7 : 1,
-              transition: "all 0.2s ease",
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "0px",
-                background: "#EF4444",
-              }}
-            />{" "}
-            {busy ? "Processing…" : "Check Out"}
-          </button>
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "10px 20px",
-              borderRadius: 0,
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              fontWeight: 600,
-              fontSize: 13,
-            }}
-          >
-            <CheckCircle size={15} /> Shift Done!
+
+              {/* Action Button */}
+              <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                  {!status?.checkIn ? (
+                      <button 
+                          onClick={onCheckIn}
+                          disabled={busy}
+                          style={{
+                              background: '#0f172a',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: '12px',
+                              padding: '12px 24px',
+                              fontSize: '15px',
+                              fontWeight: '600',
+                              cursor: busy ? 'not-allowed' : 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              boxShadow: '0 4px 6px -1px rgba(15, 23, 42, 0.2)',
+                              transition: 'all 0.2s',
+                              opacity: busy ? 0.7 : 1
+                          }}
+                          onMouseOver={(e) => !busy && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                          onMouseOut={(e) => !busy && (e.currentTarget.style.transform = 'none')}
+                      >
+                          <Play size={18} fill="currentColor" /> {busy ? 'Processing...' : 'Check In Now'}
+                      </button>
+                  ) : !status?.checkOut ? (
+                      <button 
+                          onClick={onCheckOut} 
+                          disabled={busy}
+                          style={{
+                              background: '#ef4444',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: '12px',
+                              padding: '12px 24px',
+                              fontSize: '15px',
+                              fontWeight: '600',
+                              cursor: busy ? 'not-allowed' : 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              boxShadow: '0 4px 6px -1px rgba(239, 68, 68, 0.3)',
+                              transition: 'all 0.2s',
+                              opacity: busy ? 0.7 : 1
+                          }}
+                          onMouseOver={(e) => !busy && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                          onMouseOut={(e) => !busy && (e.currentTarget.style.transform = 'none')}
+                      >
+                          <Square size={18} fill="currentColor" /> {busy ? 'Processing...' : 'Check Out'}
+                      </button>
+                  ) : (
+                      <div style={{
+                          background: '#f0fdf4',
+                          color: '#166534',
+                          padding: '12px 20px',
+                          borderRadius: '12px',
+                          fontWeight: '700',
+                          fontSize: '14px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          border: '1px solid #bbf7d0'
+                      }}>
+                          <CheckCircle2 size={18} /> Shift Logged
+                      </div>
+                  )}
+              </div>
           </div>
-        )}
+
+          {/* Details Section */}
+          <div style={{ 
+              display: 'flex', 
+              gap: '40px', 
+              marginTop: '24px', 
+              paddingTop: '20px', 
+              borderTop: isActive ? '1px solid rgba(56, 189, 248, 0.2)' : '1px solid #f1f5f9',
+              flexWrap: 'wrap'
+          }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: isActive ? 'rgba(255,255,255,0.6)' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                      <Clock size={16} />
+                  </div>
+                  <div>
+                      <span style={{ fontSize: '12px', color: '#64748b', display: 'block', fontWeight: '700' }}>CHECK IN</span>
+                      <span style={{ color: '#0f172a', fontWeight: '800', fontSize: '15px' }}>{fmtTime(status?.checkIn, status?.date) || '-'}</span>
+                  </div>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: isActive ? 'rgba(255,255,255,0.6)' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                      <Clock size={16} />
+                  </div>
+                  <div>
+                      <span style={{ fontSize: '12px', color: '#64748b', display: 'block', fontWeight: '700' }}>CHECK OUT</span>
+                      <span style={{ color: '#0f172a', fontWeight: '800', fontSize: '15px' }}>{fmtTime(status?.checkOut, status?.date) || '-'}</span>
+                  </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: isActive ? 'rgba(255,255,255,0.6)' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                      <MapPin size={16} />
+                  </div>
+                  <div>
+                      <span style={{ fontSize: '12px', color: '#64748b', display: 'block', fontWeight: '700' }}>STATUS</span>
+                      <span style={{ color: '#0f172a', fontWeight: '800', fontSize: '15px' }}>
+                          {status?.checkIn && !status?.checkOut ? 'Present (Active)' : status?.checkOut ? 'Present (Completed)' : 'Not Started'}
+                      </span>
+                  </div>
+              </div>
+          </div>
       </div>
+      
+      <style>{`
+          @keyframes pulseLive {
+              0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+              70% { transform: scale(1); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+              100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+          }
+      `}</style>
     </motion.div>
   );
 };
@@ -1271,34 +1258,7 @@ const Attendance = () => {
       setBusy(false);
     }
   };
-  if (loading)
-    return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "60vh",
-          flexDirection: "column",
-          gap: 14,
-        }}
-      >
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            border: "3px solid #e2e8f0",
-            borderTopColor: "#3b82f6",
-            borderRadius: "0px",
-            animation: "spin 0.8s linear infinite",
-          }}
-        />
-        <p style={{ color: "#64748b", fontSize: 14, margin: 0 }}>
-          Loading your attendance…
-        </p>
-        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading your attendance…" height="60vh" />;
   const tabs = [
     { id: "daily", label: "Daily View", icon: Calendar },
     { id: "monthly", label: "Monthly View", icon: TrendingUp },

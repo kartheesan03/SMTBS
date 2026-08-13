@@ -15,6 +15,7 @@ import { generatePayslipPDF } from "../utils/pdfGenerator";
 import { motion } from "framer-motion";
 import PageHeader from "../components/PageHeader";
 import { useLocation } from "react-router-dom";
+import { LoadingState } from "../components/DataStates";
 const Payslips = () => {
   const location = useLocation();
   const isPersonal = location.pathname === "/my-salary";
@@ -59,33 +60,7 @@ const Payslips = () => {
       setDownloading(false);
     }
   };
-  if (loading)
-    return (
-      <div className="loading-state flex-center" style={{ minHeight: "100vh" }}>
-        <Loader2 size={32} className="spin text-primary" />
-        <p>Loading payslip records...</p>
-        <style jsx="true">{`
-          .loading-state {
-            flex-direction: column;
-            min-height: 400px;
-            gap: 15px;
-            color: var(--text-muted);
-            font-weight: 500;
-          }
-          .spin {
-            animation: spin 1s linear infinite;
-          }
-          .text-primary {
-            color: var(--primary);
-          }
-          @keyframes spin {
-            to {
-              transform: rotate(360deg);
-            }
-          }
-        `}</style>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

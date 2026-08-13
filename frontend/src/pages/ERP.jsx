@@ -20,6 +20,7 @@ import "../components/AdminDashboard/AdminDashboardRedesign.css";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import jsPDF from "jspdf";
 import toast from "react-hot-toast";
+import { LoadingState } from "../components/DataStates";
 const ERP = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
@@ -308,12 +309,7 @@ const ERP = () => {
       );
     });
   };
-  if (loading)
-    return (
-      <div className="flex-center" style={{ minHeight: "100vh" }}>
-        <div className="loader"></div>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

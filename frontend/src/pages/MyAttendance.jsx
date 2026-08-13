@@ -32,6 +32,7 @@ import { AuthContext } from "../context/AuthContext";
 import "./MyAttendance.css";
 import PageHeader from "../components/PageHeader";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
+import { LoadingState } from "../components/DataStates";
 
 const MyAttendance = () => {
   const navigate = useNavigate();
@@ -218,8 +219,7 @@ const MyAttendance = () => {
   };
   const isShiftActive = status?.checkIn && !status?.checkOut;
   const isShiftCompleted = status?.checkIn && status?.checkOut;
-  if (loading)
-    return <div className="attendance-page-container">Loading...</div>;
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   const calDays = Array.from({ length: 14 }).map((_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - 7 + i);

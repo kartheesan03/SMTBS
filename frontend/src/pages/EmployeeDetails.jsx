@@ -4,6 +4,7 @@ import API from "../api/axios";
 import StandardPageLayout from "../components/StandardPageLayout/StandardPageLayout";
 import toast from "react-hot-toast";
 import {
+import { LoadingState } from "../components/DataStates";
   Mail,
   Phone,
   MapPin,
@@ -38,12 +39,7 @@ const EmployeeDetails = () => {
     };
     fetchEmployee();
   }, [id, navigate]);
-  if (loading)
-    return (
-      <div className="flex-center" style={{ minHeight: "100vh" }}>
-        <div className="loader"></div>
-      </div>
-    );
+  if (loading) return <LoadingState message="Loading..." height="100vh" />;
   if (!employee) return null;
   const userInfo = JSON.parse(
     localStorage.getItem("userInfo") ||
