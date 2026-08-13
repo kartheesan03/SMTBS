@@ -203,7 +203,7 @@ const DocumentIntelligence = () => {
     try {
       const response = await API.post("/ocr/extract", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 180000,
+        timeout: 300000,
       });
       if (response.data && response.data.success !== false) {
         let data = response.data;

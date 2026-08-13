@@ -33,7 +33,7 @@ const extractText = async (req, res) => {
             },
             maxContentLength: Infinity,
             maxBodyLength: Infinity,
-            timeout: 120000 // 2 minutes
+            timeout: 300000 // 5 minutes (Render Free tier is slow)
         });
 
         // Clean up the temp file
