@@ -1,7 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 .landing-container {
-    background-color: #08010f;
+    background-color: #050510;
+    background-image: url('/smtbms-auth-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     height: 100vh;
     width: 100%;
     color: #ffffff;
@@ -49,7 +54,7 @@ body.landing-page-active .app-layout .app-main {
 
 body.landing-page-active .app-content {
     padding: 0 !important;
-    background: #08010f !important;
+    background: transparent !important;
     width: 100% !important;
     overflow-x: hidden !important;
 }
@@ -119,7 +124,7 @@ body.landing-page-active *::-webkit-scrollbar {
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 100;
-    background: rgba(8, 1, 15, 0.92);
+    background: rgba(5, 5, 16, 0.75);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -127,7 +132,7 @@ body.landing-page-active *::-webkit-scrollbar {
 }
 
 .landing-nav.scrolled {
-    background: rgba(8, 1, 15, 0.97);
+    background: rgba(5, 5, 16, 0.95);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -234,19 +239,14 @@ body.landing-page-active *::-webkit-scrollbar {
     min-height: 100dvh;
     scroll-snap-align: start;
     box-sizing: border-box;
-    background-color: #08010f;
-    background-image: 
-        linear-gradient(rgba(124, 58, 237, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124, 58, 237, 0.05) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-position: center;
+    background: transparent;
 }
 
 .hero-section::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(5, 5, 15, 0.55);
+    background: rgba(5, 5, 16, 0.52);
     z-index: 0;
     pointer-events: none;
 }
@@ -623,9 +623,6 @@ body.landing-page-active *::-webkit-scrollbar {
     z-index: 1;
 }
 
-/* Features section — supply chain node bg */
-.features-section {
-}
 
 /* Workflow section — pipeline bg */
 .workflow-section {
@@ -635,9 +632,6 @@ body.landing-page-active *::-webkit-scrollbar {
     background: rgba(5, 2, 15, 0.65);
 }
 
-/* AI section — stats/hexagonal bg */
-.ai-section {
-}
 
 /* =========================================
    Scroll Fade Wrapper — right-edge gradient & arrows
