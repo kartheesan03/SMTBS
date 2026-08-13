@@ -58,18 +58,7 @@ const MySalaryPage = () => {
     }
   };
   if (loading) return <LoadingState message="Loading..." height="100vh" />;
-          }
-          .spin {
-            animation: spin 1s linear infinite;
-          }
-          @keyframes spin {
-            to {
-              transform: rotate(360deg);
-            }
-          }
-        `}</style>
-      </div>
-    );
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

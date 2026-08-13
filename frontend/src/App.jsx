@@ -148,7 +148,7 @@ const SupportWrapper = () => {
     return <Support />;
 };
 
-const AIAssistant = lazyRetry(() => import('./pages/AIAssistant'));
+
 const AuthMicrosoftCallback = lazyRetry(() => import('./pages/AuthMicrosoftCallback'));
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);

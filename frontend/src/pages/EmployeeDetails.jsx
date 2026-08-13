@@ -3,8 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import API from "../api/axios";
 import StandardPageLayout from "../components/StandardPageLayout/StandardPageLayout";
 import toast from "react-hot-toast";
-import {
 import { LoadingState } from "../components/DataStates";
+import {
   Mail,
   Phone,
   MapPin,
