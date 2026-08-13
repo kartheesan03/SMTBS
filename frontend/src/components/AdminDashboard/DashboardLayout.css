@@ -828,3 +828,46 @@
   color: var(--text-muted);
   padding: 0 20px 12px;
 }
+
+/* ═══════════════════════════════════════
+   BENTO GRID SYSTEM
+   ═══════════════════════════════════════ */
+.db-bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--db-gap);
+  align-items: stretch;
+}
+
+.db-bento > .db-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.db-bento > .db-card > .db-card-body,
+.db-bento > .db-card > .db-status-list,
+.db-bento > .db-card > .db-activity-list,
+.db-bento > .db-card > .db-notif-list {
+  flex: 1;
+}
+
+.db-col-3 { grid-column: span 3; }
+.db-col-4 { grid-column: span 4; }
+.db-col-5 { grid-column: span 5; }
+.db-col-6 { grid-column: span 6; }
+.db-col-7 { grid-column: span 7; }
+.db-col-8 { grid-column: span 8; }
+.db-col-9 { grid-column: span 9; }
+.db-col-12 { grid-column: span 12; }
+
+@media (max-width: 1400px) {
+  .db-col-3 { grid-column: span 4; }
+  .db-col-4 { grid-column: span 6; }
+  .db-col-5, .db-col-6, .db-col-7 { grid-column: span 6; }
+  .db-col-8, .db-col-9 { grid-column: span 12; }
+}
+
+@media (max-width: 900px) {
+  .db-col-3, .db-col-4, .db-col-5, .db-col-6, .db-col-7, .db-col-8, .db-col-9, .db-col-12 { grid-column: span 12; }
+}
