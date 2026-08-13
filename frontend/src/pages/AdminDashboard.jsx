@@ -201,13 +201,126 @@ const AdminDashboard = () => {
           <KpiCard icon={Users}        iconClass="purple" label="Active Employees"  value={totalEmployees}          trend="vs last month" trendUp={true}  sub={`${attendanceTotal} present today`} />
         </div>
 
-        
+        {/* ── Quick Actions ── */}
+        <div className="db-quick-actions">
+          <div className="db-section-title">Quick Actions</div>
+          <div className="db-qa-grid">
+            <QaBtn icon={CheckCircle2} label="Attendance"     colorClass="qa-red"    onClick={() => navigate("/attendance")} />
+            <QaBtn icon={Users}        label="Employee"       colorClass="qa-blue"   onClick={() => navigate("/employees")} />
+            <QaBtn icon={DollarSign}   label="Payroll"        colorClass="qa-purple" onClick={() => navigate("/payroll")} />
+            <QaBtn icon={Box}          label="Inventory"      colorClass="qa-orange" onClick={() => navigate("/materials")} />
+            <QaBtn icon={Tag}          label="Sales"          colorClass="qa-green"  onClick={() => navigate("/orders")} />
+            <QaBtn icon={Building2}    label="Vendors"        colorClass="qa-teal"   onClick={() => navigate("/vendors")} />
+            <QaBtn icon={FileText}     label="Reports"        colorClass="qa-amber"  onClick={() => navigate("/analytics")} />
+            <QaBtn icon={Settings}     label="Settings"       colorClass="qa-cyan"   onClick={() => navigate("/settings")} />
+            <QaBtn icon={Layers}       label="ERP"            colorClass="qa-indigo" onClick={() => navigate("/erp")} />
+            <QaBtn icon={ListTodo}     label="Tasks"          colorClass="qa-pink"   onClick={() => navigate("/my-tasks")} />
+          </div>
+        </div>
+
+        {/* ── Stats Mini Row ── */}
+        <div className="db-stats-mini-grid">
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#EEF2FF", color: "#4F46E5" }}><Users size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{totalEmployees}</div>
+              <div className="db-stats-mini-label">Total Employees</div>
+              <span className="db-stats-mini-badge badge-green-sm">↑ 6% this month</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><UserCheck size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{attendanceTotal}</div>
+              <div className="db-stats-mini-label">Present Today</div>
+              <span className="db-stats-mini-badge badge-green-sm">{attendancePct}%</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#FEF9C3", color: "#92400E" }}><Calendar size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{dashboardData?.hrStats?.pendingLeaves || 0}</div>
+              <div className="db-stats-mini-label">Pending Leaves</div>
+              <span className="db-stats-mini-badge badge-orange-sm">Needs Approval</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#DBEAFE", color: "#1D4ED8" }}><Box size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{totalMaterials}</div>
+              <div className="db-stats-mini-label">Active Materials</div>
+              <span className="db-stats-mini-badge badge-blue-sm">In Inventory</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#FFEDD5", color: "#C2410C" }}><ShoppingCart size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{pendingOrders}</div>
+              <div className="db-stats-mini-label">Open PO Orders</div>
+              <span className="db-stats-mini-badge badge-orange-sm">Total Open</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><DollarSign size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{fmtINR(totalRevenue)}</div>
+              <div className="db-stats-mini-label">Today's Revenue</div>
+              <span className="db-stats-mini-badge badge-green-sm">↑ 18.4%</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#F3E8FF", color: "#7C3AED" }}><BarChart2 size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{fmtINR(totalRevenue * 6.8)}</div>
+              <div className="db-stats-mini-label">Monthly Sales</div>
+              <span className="db-stats-mini-badge badge-green-sm">↑ 6%</span>
+            </div>
+          </div>
+          <div className="db-stats-mini-card">
+            <div className="db-stats-mini-icon" style={{ background: "#FEE2E2", color: "#DC2626" }}><ListTodo size={18} /></div>
+            <div className="db-stats-mini-body">
+              <div className="db-stats-mini-val">{pendingTasks}</div>
+              <div className="db-stats-mini-label">Pending Tasks</div>
+              <span className="db-stats-mini-badge badge-red-sm">Due Soon</span>
+            </div>
+          </div>
+        </div>
+
         
         {/* ── Bento Grid ── */}
         <div className="db-bento">
-          
-          {/* Row 1: Main Charts */}
-          <div className="db-card db-col-8">
+          {/* Row 1 */}
+          <div className="db-card db-col-3">
+            <div className="db-profile-banner profile-banner-admin">
+              <div className="db-profile-avatar profile-avatar-admin">
+                {user?.name?.charAt(0) || "A"}
+              </div>
+            </div>
+            <div className="db-profile-body">
+              <div className="db-profile-name">{user?.name || "Karthik Raja"}</div>
+              <div className="db-profile-role">{user?.role || "System Administrator"}</div>
+              <div className="db-profile-badge profile-badge-admin">Full Access</div>
+              <div className="db-profile-info">
+                <div className="db-profile-info-row">
+                  <span className="db-profile-info-label">Admin ID</span>
+                  <span className="db-profile-info-val">ADM-1001</span>
+                </div>
+                <div className="db-profile-info-row">
+                  <span className="db-profile-info-label">Email</span>
+                  <span className="db-profile-info-val">{user?.email || "admin@smtbms.com"}</span>
+                </div>
+                <div className="db-profile-info-row">
+                  <span className="db-profile-info-label">Last Login</span>
+                  <span className="db-profile-info-val">{fmtTime(new Date())}</span>
+                </div>
+              </div>
+              <button className="db-profile-btn" onClick={() => navigate("/profile")}>
+                View Profile <ArrowRight size={14} />
+              </button>
+            </div>
+          </div>
+
+          <div className="db-card db-col-6">
             <div className="db-card-header">
               <div className="db-card-title">Revenue Trend</div>
               <select className="db-panel-select" value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
@@ -240,7 +353,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="db-card db-col-4">
+          <div className="db-card db-col-3">
             <div className="db-card-header">
               <div className="db-card-title">Employee Attendance</div>
               <span style={{ fontSize: 11, color: "#6B7280" }}>This Week</span>
@@ -266,8 +379,23 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Row 2: Activity and Profile */}
-          <div className="db-card db-col-8">
+          {/* Row 2 */}
+          <div className="db-card db-col-3">
+            <div className="db-card-header">
+              <div className="db-card-title">System Status</div>
+              <span className="db-card-link" onClick={() => navigate("/settings/audit-logs")}>View All</span>
+            </div>
+            <div className="db-status-list">
+              <StatusRow name="Backend API" status="Healthy" />
+              <StatusRow name="Database" status="Healthy" />
+              <StatusRow name="Authentication" status="Healthy" />
+              <StatusRow name="Storage" status="Healthy" />
+              <StatusRow name="Backup" status="Healthy" />
+              <StatusRow name="Mail Service" status="Healthy" />
+            </div>
+          </div>
+
+          <div className="db-card db-col-6">
             <div className="db-card-header">
               <div className="db-card-title">Recent Activity</div>
               <span className="db-card-link" onClick={() => navigate("/settings/audit-logs")}>View All</span>
@@ -292,68 +420,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="db-card db-col-4">
-            <div className="db-profile-banner profile-banner-admin">
-              <div className="db-profile-avatar profile-avatar-admin">
-                {user?.name?.charAt(0) || "A"}
-              </div>
-            </div>
-            <div className="db-profile-body">
-              <div className="db-profile-name">{user?.name || "Karthik Raja"}</div>
-              <div className="db-profile-role">{user?.role || "System Administrator"}</div>
-              <div className="db-profile-badge profile-badge-admin">Full Access</div>
-              <div className="db-profile-info">
-                <div className="db-profile-info-row">
-                  <span className="db-profile-info-label">Admin ID</span>
-                  <span className="db-profile-info-val">ADM-1001</span>
-                </div>
-                <div className="db-profile-info-row">
-                  <span className="db-profile-info-label">Email</span>
-                  <span className="db-profile-info-val">{user?.email || "admin@smtbms.com"}</span>
-                </div>
-                <div className="db-profile-info-row">
-                  <span className="db-profile-info-label">Last Login</span>
-                  <span className="db-profile-info-val">{fmtTime(new Date())}</span>
-                </div>
-              </div>
-              <button className="db-profile-btn" onClick={() => navigate("/profile")}>
-                View Profile <ArrowRight size={14} />
-              </button>
-            </div>
-          </div>
-
-          {/* Row 3: Status, Alerts, Notifications */}
-          <div className="db-card db-col-4">
-            <div className="db-card-header">
-              <div className="db-card-title">System Status</div>
-              <span className="db-card-link" onClick={() => navigate("/settings/audit-logs")}>View All</span>
-            </div>
-            <div className="db-status-list">
-              <StatusRow name="Backend API" status="Healthy" />
-              <StatusRow name="Database" status="Healthy" />
-              <StatusRow name="Authentication" status="Healthy" />
-              <StatusRow name="Storage" status="Healthy" />
-              <StatusRow name="Backup" status="Healthy" />
-            </div>
-          </div>
-
-          <div className="db-card db-col-4">
-            <div className="db-card-header">
-              <div className="db-card-title">Inventory Alerts</div>
-            </div>
-            <div className="db-status-list">
-              {lowStock.length === 0 ? (
-                <div className="db-empty">No low-stock alerts 🎉</div>
-              ) : lowStock.slice(0, 5).map((m, i) => (
-                <div key={i} className="db-status-row">
-                  <span className="db-status-name">{m.name || m.materialName}</span>
-                  <span className="db-status-badge status-critical">{m.currentStock ?? m.quantity ?? 0} left</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="db-card db-col-4">
+          <div className="db-card db-col-3">
             <div className="db-card-header">
               <div className="db-card-title">Notifications</div>
               <span className="db-card-link" onClick={() => navigate("/settings")}>View All</span>
@@ -376,26 +443,24 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Row 4: Analytics */}
-          <div className="db-card db-col-4">
+          {/* Row 3 */}
+          <div className="db-card db-col-3">
             <div className="db-card-header">
-              <div className="db-card-title">Monthly Profit</div>
-              <span style={{ fontSize: 11, color: "#6B7280" }}>This Month</span>
+              <div className="db-card-title">Inventory Alerts</div>
             </div>
-            <div className="db-card-body" style={{ padding: 0 }}>
-              <div className="db-profit-val">₹1.50L</div>
-              <div className="db-profit-sub">↑ 6.7% vs last month</div>
-              <div style={{ width: "100%", height: "120px" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={SPARK.map((v, i) => ({ i, v }))}>
-                    <Line type="monotone" dataKey="v" stroke="#22C55E" strokeWidth={3} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+            <div className="db-status-list">
+              {lowStock.length === 0 ? (
+                <div className="db-empty">No low-stock alerts 🎉</div>
+              ) : lowStock.slice(0, 5).map((m, i) => (
+                <div key={i} className="db-status-row">
+                  <span className="db-status-name">{m.name || m.materialName}</span>
+                  <span className="db-status-badge status-critical">{m.currentStock ?? m.quantity ?? 0} left</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="db-card db-col-4">
+          <div className="db-card db-col-3">
             <div className="db-card-header">
               <div className="db-card-title">Upcoming Events</div>
             </div>
@@ -418,7 +483,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="db-card db-col-4">
+          <div className="db-card db-col-3">
             <div className="db-card-header">
               <div className="db-card-title"><Cpu size={16} style={{display:"inline", color:"#8b5cf6"}}/> AI Insights</div>
             </div>
@@ -438,10 +503,27 @@ const AdminDashboard = () => {
             </div>
           </div>
 
+          <div className="db-card db-col-3">
+            <div className="db-card-header">
+              <div className="db-card-title">Monthly Profit</div>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>This Month</span>
+            </div>
+            <div className="db-card-body" style={{ padding: 0 }}>
+              <div className="db-profit-val">₹1.50L</div>
+              <div className="db-profit-sub">↑ 6.7% vs last month</div>
+              <div style={{ width: "100%", height: "120px" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={SPARK.map((v, i) => ({ i, v }))}>
+                    <Line type="monotone" dataKey="v" stroke="#22C55E" strokeWidth={3} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
         </div>
     
       </div>
     </div>
   );
-};
-export default AdminDashboard;
+};export default AdminDashboard; 

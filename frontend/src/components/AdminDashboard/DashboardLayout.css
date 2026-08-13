@@ -7,13 +7,13 @@
 
 /* ── Design Tokens ── */
 :root {
-  --db-bg: #F4F7FE;
+  --db-bg: #F0F2F5;
   --db-card: #FFFFFF;
-  --db-border: rgba(226, 232, 240, 0.4);
-  --db-shadow: 0px 4px 24px rgba(0, 0, 0, 0.02), 0px 1px 3px rgba(0, 0, 0, 0.01);
-  --db-shadow-hover: 0px 8px 30px rgba(0, 0, 0, 0.04);
-  --db-radius: 16px;
-  --db-gap: 24px;
+  --db-border: #E8ECF1;
+  --db-shadow: 0 1px 4px rgba(15,23,42,0.07), 0 4px 16px rgba(15,23,42,0.04);
+  --db-shadow-hover: 0 4px 20px rgba(15,23,42,0.12);
+  --db-radius: 12px;
+  --db-gap: 20px;
 
   /* KPI card accent colours */
   --kpi-green-bg:  linear-gradient(135deg,#22c55e,#16a34a);
@@ -53,13 +53,6 @@
   width: 100%;
   color: var(--text-body);
   box-sizing: border-box;
-}
-
-.db-card-body {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
 }
 
 .db-content {
@@ -359,6 +352,7 @@
   flex-shrink: 0;
 }
 
+.db-stats-mini-body {}
 .db-stats-mini-val {
   font-size: 22px;
   font-weight: 800;
@@ -414,15 +408,10 @@
    ═══════════════════════════════════════ */
 .db-card {
   background: var(--db-card);
-  border-radius: var(--db-radius);
   border: 1px solid var(--db-border);
+  border-radius: var(--db-radius);
   box-shadow: var(--db-shadow);
   overflow: hidden;
-  transition: all 0.2s ease;
-}
-.db-card:hover {
-  box-shadow: var(--db-shadow-hover);
-  transform: translateY(-2px);
 }
 
 .db-card-header {
@@ -746,6 +735,7 @@
 
 /* Top items bar list (within chart card) */
 .db-bar-list { display: flex; flex-direction: column; gap: 10px; padding: 0 20px 16px; }
+.db-bar-item {}
 .db-bar-label {
   display: flex;
   justify-content: space-between;
@@ -769,8 +759,8 @@
 /* ═══════════════════════════════════════
    RECHARTS OVERRIDES
    ═══════════════════════════════════════ */
-.db-chart-wrap { width: 100%; flex: 1; min-height: 260px; display: flex; align-items: flex-end; }
-.db-donut-wrap { width: 100%; height: 240px; margin: auto; }
+.db-chart-wrap { width: 100%; height: 260px; }
+.db-donut-wrap { width: 100%; height: 240px; }
 
 /* ═══════════════════════════════════════
    ROLE-SPECIFIC PROFILE BANNER GRADIENTS
@@ -872,12 +862,162 @@
 .db-col-12 { grid-column: span 12; }
 
 @media (max-width: 1400px) {
-  .db-col-3 { grid-column: span 6; }
-  .db-col-4 { grid-column: span 12; }
-  .db-col-5, .db-col-6, .db-col-7 { grid-column: span 12; }
+  .db-col-3 { grid-column: span 4; }
+  .db-col-4 { grid-column: span 6; }
+  .db-col-5, .db-col-6, .db-col-7 { grid-column: span 6; }
   .db-col-8, .db-col-9 { grid-column: span 12; }
 }
 
 @media (max-width: 900px) {
   .db-col-3, .db-col-4, .db-col-5, .db-col-6, .db-col-7, .db-col-8, .db-col-9, .db-col-12 { grid-column: span 12; }
+}
+
+/* ═══════════════════════════════════════
+   PERFECT MASTER LAYOUT GRID
+   ═══════════════════════════════════════ */
+.db-master-grid {
+  display: grid;
+  grid-template-columns: 9fr 3fr;
+  gap: var(--db-gap);
+  margin-bottom: var(--db-gap);
+}
+
+.db-left-pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--db-gap);
+}
+
+.db-right-pane {
+  display: flex;
+  flex-direction: column;
+}
+
+.db-bottom-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--db-gap);
+}
+
+/* ═══════════════════════════════════════
+   BENTO COLUMNS
+   ═══════════════════════════════════════ */
+.db-col-2 { grid-column: span 2; }
+.db-col-3 { grid-column: span 3; }
+.db-col-4 { grid-column: span 4; }
+.db-col-6 { grid-column: span 6; }
+.db-col-8 { grid-column: span 8; }
+.db-col-9 { grid-column: span 9; }
+.db-col-12 { grid-column: span 12; }
+
+@media (max-width: 1400px) {
+  .db-master-grid { grid-template-columns: 1fr; }
+  .db-bottom-grid { grid-template-columns: repeat(6, 1fr); }
+  .db-col-2 { grid-column: span 3; }
+  .db-col-3 { grid-column: span 3; }
+}
+
+@media (max-width: 1024px) {
+  .db-bottom-grid { grid-template-columns: 1fr; }
+  .db-col-2, .db-col-3, .db-col-4, .db-col-6, .db-col-8, .db-col-9 { grid-column: span 12; }
+}
+
+/* Fix flex stretching */
+.db-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.db-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.db-chart-wrap {
+  flex: 1;
+  min-height: 220px;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.db-donut-wrap {
+  width: 100%;
+  height: 200px;
+  margin: auto;
+}
+
+/* ═══════════════════════════════════════
+   PERFECT MASTER LAYOUT GRID
+   ═══════════════════════════════════════ */
+.db-master-grid {
+  display: grid;
+  grid-template-columns: 9fr 3fr;
+  gap: var(--db-gap);
+  margin-bottom: var(--db-gap);
+}
+
+.db-left-pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--db-gap);
+}
+
+.db-right-pane {
+  display: flex;
+  flex-direction: column;
+}
+
+.db-bottom-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--db-gap);
+}
+
+/* ═══════════════════════════════════════
+   BENTO COLUMNS
+   ═══════════════════════════════════════ */
+.db-col-2 { grid-column: span 2; }
+.db-col-3 { grid-column: span 3; }
+.db-col-4 { grid-column: span 4; }
+.db-col-6 { grid-column: span 6; }
+.db-col-8 { grid-column: span 8; }
+.db-col-9 { grid-column: span 9; }
+.db-col-12 { grid-column: span 12; }
+
+@media (max-width: 1400px) {
+  .db-master-grid { grid-template-columns: 1fr; }
+  .db-bottom-grid { grid-template-columns: repeat(6, 1fr); }
+  .db-col-2 { grid-column: span 3; }
+  .db-col-3 { grid-column: span 3; }
+}
+
+@media (max-width: 1024px) {
+  .db-bottom-grid { grid-template-columns: 1fr; }
+  .db-col-2, .db-col-3, .db-col-4, .db-col-6, .db-col-8, .db-col-9 { grid-column: span 12; }
+}
+
+/* Fix flex stretching */
+.db-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.db-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.db-chart-wrap {
+  flex: 1;
+  min-height: 220px;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.db-donut-wrap {
+  width: 100%;
+  height: 200px;
+  margin: auto;
 }
