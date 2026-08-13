@@ -14,6 +14,7 @@ import {
 import {
   AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar,
   ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line,
+  ComposedChart
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
 import { LoadingState, ErrorState } from "../components/DataStates";
@@ -322,46 +323,56 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          <div className="db-card db-col-6" style={{ background: "linear-gradient(145deg, #0f172a, #1e293b)", color: "white", border: "1px solid #334155", boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.5)" }}>
-            <div className="db-card-header" style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-              <div className="db-card-title" style={{ color: "white", display: "flex", alignItems: "center", gap: 8 }}>
-                <TrendingUp size={20} color="#8b5cf6" />
-                Financial Overview
+          <div className="db-card db-col-6" style={{ background: "#ffffff", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", position: "relative", overflow: "hidden" }}>
+            {/* Background Accent */}
+            <div style={{ position: "absolute", top: -50, right: -50, width: 150, height: 150, background: "radial-gradient(circle, rgba(99,102,241,0.1) 0%, rgba(255,255,255,0) 70%)", borderRadius: "50%" }} />
+            
+            <div className="db-card-header" style={{ borderBottom: "none", paddingBottom: 0 }}>
+              <div>
+                <div className="db-card-title" style={{ color: "#0f172a", fontSize: 16, display: "flex", alignItems: "center", gap: 8 }}>
+                  <TrendingUp size={18} color="#6366f1" />
+                  Revenue Analytics
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", marginTop: 8 }}>
+                  {fmtINR(totalRevenue)}
+                </div>
+                <div style={{ fontSize: 12, color: "#64748b", display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+                  <div style={{ padding: "2px 6px", background: "#dcfce7", color: "#16a34a", borderRadius: 10, fontWeight: 600 }}>+12.5%</div> vs last month
+                </div>
               </div>
-              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                <div style={{ fontSize: 12, display: "flex", gap: 4, alignItems: "center" }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: "#8b5cf6" }}/> Revenue</div>
-                <div style={{ fontSize: 12, display: "flex", gap: 4, alignItems: "center" }}><div style={{ width: 8, height: 8, borderRadius: "50%", background: "#f43f5e" }}/> Expenses</div>
-                <select className="db-panel-select" style={{ background: "#334155", color: "white", border: "none", outline: "none", padding: "4px 8px", borderRadius: "6px" }} value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
-                  <option value="current">This Month</option>
-                  <option value="last">Last Month</option>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12 }}>
+                <select className="db-panel-select" style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", outline: "none", padding: "6px 12px", borderRadius: "8px", fontWeight: 500 }} value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
+                  <option value="current">This Year</option>
+                  <option value="last">Last Year</option>
                 </select>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <div style={{ fontSize: 11, display: "flex", gap: 4, alignItems: "center", color: "#64748b", fontWeight: 500 }}><div style={{ width: 8, height: 8, borderRadius: 2, background: "#6366f1" }}/> Revenue</div>
+                  <div style={{ fontSize: 11, display: "flex", gap: 4, alignItems: "center", color: "#64748b", fontWeight: 500 }}><div style={{ width: 8, height: 8, borderRadius: 2, background: "#f1f5f9", border: "1px solid #cbd5e1" }}/> Expenses</div>
+                </div>
               </div>
             </div>
-            <div className="db-card-body">
-              <div className="db-chart-wrap">
+            <div className="db-card-body" style={{ paddingTop: 10 }}>
+              <div className="db-chart-wrap" style={{ height: "220px", marginTop: "10px" }}>
                 {chartData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <defs>
-                        <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.8} />
-                          <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.8} />
-                          <stop offset="100%" stopColor="#f43f5e" stopOpacity={0} />
+                        <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#818cf8" stopOpacity={0.9} />
+                          <stop offset="100%" stopColor="#4f46e5" stopOpacity={0.9} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }} />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: "#1e293b", border: "none", borderRadius: "8px", color: "#f8fafc", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.5)" }} 
-                        itemStyle={{ color: "#f8fafc", fontWeight: 600 }} 
+                        cursor={{ fill: "#f8fafc" }}
+                        contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)", padding: "12px" }} 
+                        itemStyle={{ fontWeight: 600 }} 
                       />
-                      <Area type="monotone" dataKey="revenue" stroke="#8b5cf6" strokeWidth={3} fill="url(#revGrad)" dot={{ r: 4, fill: "#8b5cf6", strokeWidth: 2, stroke: "#1e293b" }} activeDot={{ r: 6 }} />
-                      <Area type="monotone" dataKey="expenses" stroke="#f43f5e" strokeWidth={3} fill="url(#expGrad)" dot={{ r: 4, fill: "#f43f5e", strokeWidth: 2, stroke: "#1e293b" }} activeDot={{ r: 6 }} />
-                    </AreaChart>
+                      <Bar dataKey="expenses" fill="#f1f5f9" radius={[6, 6, 0, 0]} barSize={32} />
+                      <Bar dataKey="revenue" fill="url(#barGrad)" radius={[6, 6, 0, 0]} barSize={32} />
+                    </ComposedChart>
                   </ResponsiveContainer>
                 ) : (
                   <div className="db-empty" style={{ color: "#94a3b8" }}>No financial data available</div>
