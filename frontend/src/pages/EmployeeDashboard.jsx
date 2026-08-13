@@ -172,8 +172,7 @@ const EmployeeDashboard = () => {
           {/* Row 1 */}
           <div className="db-card db-col-3">
             <div className="db-profile-banner profile-banner-employee"/>
-            <div className="db-profile-avatar profile-avatar-employee">{(user?.name||"E")[0].toUpperCase()}</div>
-            <div className="db-profile-body">
+            <div className="db-profile-body" style={{ paddingTop: '20px' }}>
               <div className="db-profile-name">{user?.name||"Employee"}</div>
               <div className="db-profile-role">{user?.department||"Employee"}</div>
               <span className="db-profile-badge profile-badge-employee">Employee</span>

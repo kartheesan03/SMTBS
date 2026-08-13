@@ -144,7 +144,7 @@ const CustomerDashboard = () => {
           {/* Row 1 */}
           <div className="db-card db-col-3">
             <div className="db-profile-banner profile-banner-customer"/>
-            <div className="db-profile-avatar profile-avatar-customer">{(profile?.name||user?.name||"C")[0].toUpperCase()}</div>
+
             <div className="db-profile-body">
               <div className="db-profile-name">{profile?.name||user?.name||"Customer"}</div>
               <div className="db-profile-role">{profile?.type||"Customer"} Account</div>

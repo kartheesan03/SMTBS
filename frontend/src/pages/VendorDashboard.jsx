@@ -135,7 +135,7 @@ const VendorDashboard = () => {
           {/* Row 1 */}
           <div className="db-card db-col-3">
             <div className="db-profile-banner profile-banner-vendor"/>
-            <div className="db-profile-avatar profile-avatar-vendor">{(profile?.name||user?.name||"V")[0].toUpperCase()}</div>
+
             <div className="db-profile-body">
               <div className="db-profile-name">{profile?.name||user?.name||"Vendor"}</div>
               <div className="db-profile-role">{profile?.company||"Vendor Company"}</div>

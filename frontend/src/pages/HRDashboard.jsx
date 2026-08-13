@@ -155,7 +155,7 @@ const HRDashboard = () => {
           {/* Row 1 */}
           <div className="db-card db-col-3">
             <div className="db-profile-banner profile-banner-hr"/>
-            <div className="db-profile-avatar profile-avatar-hr">{(user?.name||"H")[0].toUpperCase()}</div>
+
             <div className="db-profile-body">
               <div className="db-profile-name">{user?.name||"HR Manager"}</div>
               <div className="db-profile-role">Human Resources</div>

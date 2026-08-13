@@ -211,7 +211,7 @@ const ManagerDashboard = () => {
           {/* Row 1 */}
           <div className="db-card db-col-3">
             <div className="db-profile-banner profile-banner-manager"/>
-            <div className="db-profile-avatar profile-avatar-manager">{(user?.name||"M")[0].toUpperCase()}</div>
+
             <div className="db-profile-body">
               <div className="db-profile-name">{user?.name||"Manager"}</div>
               <div className="db-profile-role">Operations Manager</div>

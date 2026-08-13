@@ -156,7 +156,7 @@ const SalesDashboard = () => {
           {/* Row 1 */}
           <div className="db-card db-col-3">
             <div className="db-profile-banner profile-banner-sales"/>
-            <div className="db-profile-avatar profile-avatar-sales">{(user?.name||"S")[0].toUpperCase()}</div>
+
             <div className="db-profile-body">
               <div className="db-profile-name">{user?.name||"Sales Rep"}</div>
               <div className="db-profile-role">Sales Executive</div>
