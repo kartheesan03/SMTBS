@@ -116,12 +116,12 @@ const CustomerDashboard = () => {
         <div className="db-quick-actions">
           <div className="db-section-title">Quick Actions</div>
           <div className="db-qa-grid">
-            <QaBtn icon={Plus}         label="New Order"    colorClass="qa-blue"   onClick={()=>navigate("/orders/new")}/>
-            <QaBtn icon={Truck}        label="Track Order"  colorClass="qa-orange" onClick={()=>navigate("/my-orders")}/>
+            <QaBtn icon={Plus}         label="New Order"    colorClass="qa-blue"   onClick={()=>navigate("/orders")}/>
+            <QaBtn icon={Truck}        label="Track Order"  colorClass="qa-orange" onClick={()=>navigate("/tracking-overview")}/>
             <QaBtn icon={FileText}     label="Invoices"     colorClass="qa-purple" onClick={()=>navigate("/invoices")}/>
             <QaBtn icon={Bell}         label="Support"      colorClass="qa-teal"   onClick={()=>navigate("/support")}/>
             <QaBtn icon={User}         label="My Profile"   colorClass="qa-green"  onClick={()=>navigate("/profile")}/>
-            <QaBtn icon={ExternalLink} label="Catalog"      colorClass="qa-amber"  onClick={()=>navigate("/catalog")}/>
+            <QaBtn icon={ExternalLink} label="Catalog"      colorClass="qa-amber"  onClick={()=>navigate("/materials")}/>
           </div>
         </div>
 
@@ -175,7 +175,7 @@ const CustomerDashboard = () => {
             </div>
             <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={orderTrend} margin={{top:4,right:4,left:-20,bottom:0}}>
+                <AreaChart data={orderTrend} margin={{top:4,right:4,left:0,bottom:0}}>
                   <defs>
                     <linearGradient id="custGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#1D4ED8" stopOpacity={0.4}/>
@@ -184,7 +184,7 @@ const CustomerDashboard = () => {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dy={10}/>
-                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dx={-10}/>
+                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} width={40}/>
                   <Tooltip cursor={{ stroke: '#bfdbfe', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
                   <Area type="monotone" dataKey="orders" stroke="#1D4ED8" strokeWidth={4} fill="url(#custGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#1d4ed8", strokeWidth: 3 }}/>
                 </AreaChart>
@@ -251,9 +251,7 @@ const CustomerDashboard = () => {
           <div className="db-card db-col-3">
             <div className="db-card-header"><div className="db-card-title">Notifications</div></div>
             <div className="db-notif-list">
-              {[["Your order is being processed","#1D4ED8"],["New order shipped","#14B8A6"],["Delivery confirmed","#22C55E"],["Invoice generated","#6366F1"],["Special offer available","#F97316"]].map(([t,c],i)=>(
-                <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
-              ))}
+              <div className="db-empty">No new notifications</div>
             </div>
           </div>
 
@@ -274,9 +272,7 @@ const CustomerDashboard = () => {
               <br/>
               {upcomingDeliveries.length>0?upcomingDeliveries.map((ev,i)=>(
                 <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
-              )):[["05","SEP","Order #7001","Delivery Expected","#1D4ED8"],["12","SEP","Order #7002","Processing","#22C55E"]].map(([d,m,t,s,c],i)=>(
-                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
-              ))}
+              )) : <div className="db-empty">No upcoming deliveries</div>}
             </div>
           </div>
 
@@ -330,11 +326,13 @@ const CustomerDashboard = () => {
               <div className="db-profit-val">{fmtINR(totalSpend)}</div>
               <div className="db-profit-sub">Lifetime purchase value</div>
               <div style={{ width: "100%", height: "120px" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}>
-                    <Line type="monotone" dataKey="v" stroke="#1D4ED8" strokeWidth={3} dot={false}/>
-                  </LineChart>
-                </ResponsiveContainer>
+                {orderTrend && orderTrend.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={orderTrend}>
+                      <Line type="monotone" dataKey="orders" stroke="#1D4ED8" strokeWidth={3} dot={false}/>
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : <div className="db-empty" style={{ paddingTop: "40px" }}>No spend trend data</div>}
               </div>
             </div>
           </div>

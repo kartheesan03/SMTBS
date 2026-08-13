@@ -121,13 +121,13 @@ const HRDashboard = () => {
         <div className="db-quick-actions">
           <div className="db-section-title">Quick Actions</div>
           <div className="db-qa-grid">
-            <QaBtn icon={UserCheck}   label="Attendance"   colorClass="qa-red"    onClick={()=>navigate("/attendance")}/>
-            <QaBtn icon={DollarSign}  label="Payroll"      colorClass="qa-purple" onClick={()=>navigate("/payroll")}/>
-            <QaBtn icon={Calendar}    label="Leave Mgmt"   colorClass="qa-green"  onClick={()=>navigate("/leave-management")}/>
-            <QaBtn icon={Briefcase}   label="Recruitment"  colorClass="qa-blue"   onClick={()=>navigate("/recruitment")}/>
-            <QaBtn icon={FileText}    label="HR Reports"   colorClass="qa-amber"  onClick={()=>navigate("/hr-reports")}/>
-            <QaBtn icon={Users}       label="Employees"    colorClass="qa-teal"   onClick={()=>navigate("/employees")}/>
-            <QaBtn icon={Star}        label="Performance"  colorClass="qa-orange" onClick={()=>navigate("/team-performance")}/>
+            <QaBtn icon={UserCheck}   label="Attendance"   colorClass="qa-red"    onClick={()=>navigate("/hr/attendance")}/>
+            <QaBtn icon={DollarSign}  label="Payroll"      colorClass="qa-purple" onClick={()=>navigate("/hr/payroll")}/>
+            <QaBtn icon={Calendar}    label="Leave Mgmt"   colorClass="qa-green"  onClick={()=>navigate("/hr/leave")}/>
+            <QaBtn icon={Briefcase}   label="Recruitment"  colorClass="qa-blue"   onClick={()=>navigate("/hr/employees")}/>
+            <QaBtn icon={FileText}    label="HR Reports"   colorClass="qa-amber"  onClick={()=>navigate("/analytics")}/>
+            <QaBtn icon={Users}       label="Employees"    colorClass="qa-teal"   onClick={()=>navigate("/hr/employees")}/>
+            <QaBtn icon={Star}        label="Performance"  colorClass="qa-orange" onClick={()=>navigate("/hr/employees")}/>
             <QaBtn icon={Settings}    label="Settings"     colorClass="qa-cyan"   onClick={()=>navigate("/settings")}/>
           </div>
         </div>
@@ -187,11 +187,11 @@ const HRDashboard = () => {
             
             <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={SPARK.map((v,i)=>({name:`W${i+1}`,pct:Math.min(100,v*7)}))} margin={{top:4,right:4,left:-20,bottom:0}}>
+                <AreaChart data={SPARK.map((v,i)=>({name:`W${i+1}`,pct:Math.min(100,v*7)}))} margin={{top:4,right:4,left:0,bottom:0}}>
                   <defs><linearGradient id="hrGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#7C3AED" stopOpacity={0.4}/><stop offset="95%" stopColor="#7C3AED" stopOpacity={0.05}/></linearGradient></defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dy={10}/>
-                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dx={-10}/>
+                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} width={40}/>
                   <Tooltip cursor={{ stroke: '#c4b5fd', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
                   <Area type="monotone" dataKey="pct" stroke="#7C3AED" strokeWidth={4} fill="url(#hrGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#7c3aed", strokeWidth: 3 }}/>
                 </AreaChart>
@@ -237,14 +237,7 @@ const HRDashboard = () => {
                   <span className="db-status-name">{d.name}</span>
                   <span className="db-status-badge status-healthy">{d.value} staff</span>
                 </div>
-              )):[
-                ["Engineering","status-healthy"],["HR","status-healthy"],["Sales","status-healthy"],["Finance","status-healthy"],["Operations","status-warning"],
-              ].map(([n,cls],i)=>(
-                <div key={i} className="db-status-row">
-                  <span className="db-status-name">{n}</span>
-                  <span className={`db-status-badge ${cls}`}>Active</span>
-                </div>
-              ))}
+              )) : <div className="db-empty">No department data</div>}
             </div>
           </div>
 
@@ -274,9 +267,7 @@ const HRDashboard = () => {
                 const colors=["#7C3AED","#22C55E","#F97316","#3B82F6","#EAB308"];
                 return <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:colors[i%colors.length] }}/><div className="db-notif-body"><div className="db-notif-text">{n.text}</div><div className="db-notif-time">{fmtTime(n.time)}</div></div></div>;
               })}
-              {notifications.length===0&&[["New hire onboarding pending","#22C55E"],["Leave request submitted","#7C3AED"],["Payroll deadline this week","#F97316"],["Training scheduled for team","#3B82F6"]].map(([t,c],i)=>(
-                <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
-              ))}
+              {notifications.length===0&&<div className="db-empty">No new notifications</div>}
             </div>
           </div>
 
@@ -303,12 +294,7 @@ const HRDashboard = () => {
                   <div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div>
                   <div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div>
                 </div>
-              )):[["01","SEP","Payroll Processing","Finance","#7C3AED"],["10","SEP","Team Training","HR","#22C55E"],["20","SEP","Performance Review","Management","#F97316"]].map(([d,m,t,s,c],i)=>(
-                <div key={i} className="db-event-item">
-                  <div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div>
-                  <div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div>
-                </div>
-              ))}
+              )) : <div className="db-empty">No upcoming events</div>}
             </div>
           </div>
 
@@ -333,11 +319,11 @@ const HRDashboard = () => {
             <div className="db-card-header"><div className="db-card-title">Department Headcount</div></div>
             <div className="db-bar-list">
               <br/>
-              {(empDist.length>0?empDist:[{name:"Engineering",value:40},{name:"Sales",value:30},{name:"HR",value:15},{name:"Finance",value:10},{name:"Operations",value:5}]).map((d,i)=>{
+              {empDist.length>0?empDist.map((d,i)=>{
                 const colors=["#7C3AED","#3B82F6","#22C55E","#F97316","#EF4444"];
-                const max=Math.max(1,...(empDist.length>0?empDist:[{value:40}]).map(x=>x.value));
+                const max=Math.max(1,...empDist.map(x=>x.value));
                 return <div key={i} className="db-bar-item"><div className="db-bar-label"><span>{d.name}</span><span style={{ fontWeight:600 }}>{d.value}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((d.value/max)*100)}%`,background:colors[i%colors.length] }}/></div></div>;
-              })}
+              }) : <div className="db-empty">No headcount data</div>}
             </div>
           </div>
           <div className="db-card db-col-3">
@@ -346,7 +332,7 @@ const HRDashboard = () => {
               <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={[{name:"Casual",value:40},{name:"Sick",value:30},{name:"Annual",value:20},{name:"Other",value:10}]} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
+                    <Pie data={[]} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
                       {["#7C3AED","#22C55E","#F97316","#9CA3AF"].map((c,i)=><Cell key={i} fill={c}/>)}
                     </Pie>
                     <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
@@ -365,7 +351,7 @@ const HRDashboard = () => {
               <div className="db-profit-sub">Total payroll this month</div>
               <div style={{ width: "100%", height: "120px" }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}>
+                  <LineChart data={[]}>
                     <Line type="monotone" dataKey="v" stroke="#7C3AED" strokeWidth={3} dot={false}/>
                   </LineChart>
                 </ResponsiveContainer>

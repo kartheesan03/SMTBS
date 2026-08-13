@@ -129,10 +129,10 @@ const EmployeeDashboard = () => {
         <div className="db-quick-actions">
           <div className="db-section-title">Quick Actions</div>
           <div className="db-qa-grid">
-            <QaBtn icon={ListTodo}     label="My Tasks"     colorClass="qa-green"  onClick={()=>navigate("/my-tasks")}/>
-            <QaBtn icon={Calendar}     label="Apply Leave"  colorClass="qa-blue"   onClick={()=>navigate("/apply-leave")}/>
-            <QaBtn icon={FileText}     label="My Payslip"   colorClass="qa-purple" onClick={()=>navigate("/my-salary")}/>
-            <QaBtn icon={UserCheck}    label="Attendance"   colorClass="qa-teal"   onClick={()=>navigate("/my-attendance")}/>
+            <QaBtn icon={ListTodo}     label="My Tasks"     colorClass="qa-green"  onClick={()=>navigate("/tasks")}/>
+            <QaBtn icon={Calendar}     label="Apply Leave"  colorClass="qa-blue"   onClick={()=>navigate("/hr/leave")}/>
+            <QaBtn icon={FileText}     label="My Payslip"   colorClass="qa-purple" onClick={()=>navigate("/hr/payroll")}/>
+            <QaBtn icon={UserCheck}    label="Attendance"   colorClass="qa-teal"   onClick={()=>navigate("/hr/attendance")}/>
             <QaBtn icon={MessageSquare}label="Support"      colorClass="qa-orange" onClick={()=>navigate("/support")}/>
             <QaBtn icon={Award}        label="My Profile"   colorClass="qa-amber"  onClick={()=>navigate("/profile")}/>
           </div>
@@ -192,7 +192,7 @@ const EmployeeDashboard = () => {
             </div>
             <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={attTrend} margin={{top:4,right:4,left:-20,bottom:0}}>
+                <AreaChart data={attTrend} margin={{top:4,right:4,left:0,bottom:0}}>
                   <defs>
                     <linearGradient id="empGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#059669" stopOpacity={0.4}/>
@@ -201,7 +201,7 @@ const EmployeeDashboard = () => {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dy={10}/>
-                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dx={-10}/>
+                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} width={40}/>
                   <Tooltip cursor={{ stroke: '#6ee7b7', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
                   <Area type="monotone" dataKey="pct" stroke="#059669" strokeWidth={4} fill="url(#empGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#059669", strokeWidth: 3 }}/>
                 </AreaChart>
@@ -266,9 +266,7 @@ const EmployeeDashboard = () => {
             <div className="db-card-header"><div className="db-card-title">Notifications</div></div>
             <div className="db-notif-list">
               {notifications.length>0?notifications.map((n,i)=>{const colors=["#059669","#6366F1","#F97316","#3B82F6","#EAB308"];return<div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:colors[i%colors.length] }}/><div className="db-notif-body"><div className="db-notif-text">{n.text||n.message}</div><div className="db-notif-time">{n.time?fmtTime(n.time):"Now"}</div></div></div>;})
-              :[["Leave request submitted","#22C55E"],["Task assigned to you","#6366F1"],["Attendance marked","#059669"],["Payslip generated","#3B82F6"]].map(([t,c],i)=>(
-                <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
-              ))}
+              : <div className="db-empty">No new notifications</div>}
             </div>
           </div>
 
@@ -289,9 +287,7 @@ const EmployeeDashboard = () => {
               <br/>
               {upcomingEvents.length>0?upcomingEvents.map((ev,i)=>(
                 <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
-              )):[["05","SEP","Task Deadline","Project","#059669"],["12","SEP","Team Meeting","General","#6366F1"],["20","SEP","Performance Review","HR","#F97316"]].map(([d,m,t,s,c],i)=>(
-                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
-              ))}
+              )) : <div className="db-empty">No upcoming events</div>}
             </div>
           </div>
 
@@ -346,7 +342,7 @@ const EmployeeDashboard = () => {
               <div className="db-profit-sub">Net salary this month</div>
               <div style={{ width: "100%", height: "120px" }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}>
+                  <LineChart data={[]}>
                     <Line type="monotone" dataKey="v" stroke="#059669" strokeWidth={3} dot={false}/>
                   </LineChart>
                 </ResponsiveContainer>

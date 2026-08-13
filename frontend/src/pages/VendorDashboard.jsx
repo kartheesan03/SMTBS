@@ -107,11 +107,11 @@ const VendorDashboard = () => {
         <div className="db-quick-actions">
           <div className="db-section-title">Quick Actions</div>
           <div className="db-qa-grid">
-            <QaBtn icon={ShoppingBag} label="My Orders"   colorClass="qa-blue"   onClick={()=>navigate("/vendor/orders")}/>
-            <QaBtn icon={Package}     label="Catalog"     colorClass="qa-orange" onClick={()=>navigate("/vendor/materials")}/>
-            <QaBtn icon={Truck}       label="Deliveries"  colorClass="qa-teal"   onClick={()=>navigate("/vendor/deliveries")}/>
-            <QaBtn icon={FileText}    label="Invoices"    colorClass="qa-purple" onClick={()=>navigate("/vendor/invoices")}/>
-            <QaBtn icon={User}        label="My Profile"  colorClass="qa-green"  onClick={()=>navigate("/vendor/profile")}/>
+            <QaBtn icon={ShoppingBag} label="My Orders"   colorClass="qa-blue"   onClick={()=>navigate("/orders")}/>
+            <QaBtn icon={Package}     label="Catalog"     colorClass="qa-orange" onClick={()=>navigate("/my-materials")}/>
+            <QaBtn icon={Truck}       label="Deliveries"  colorClass="qa-teal"   onClick={()=>navigate("/tracking-overview")}/>
+            <QaBtn icon={FileText}    label="Invoices"    colorClass="qa-purple" onClick={()=>navigate("/invoices")}/>
+            <QaBtn icon={User}        label="My Profile"  colorClass="qa-green"  onClick={()=>navigate("/profile")}/>
             <QaBtn icon={Bell}        label="Support"     colorClass="qa-amber"  onClick={()=>navigate("/support")}/>
           </div>
         </div>
@@ -166,7 +166,7 @@ const VendorDashboard = () => {
             </div>
             <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={orderTrend} margin={{top:4,right:4,left:-20,bottom:0}}>
+                <AreaChart data={orderTrend} margin={{top:4,right:4,left:0,bottom:0}}>
                   <defs>
                     <linearGradient id="vendGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#14B8A6" stopOpacity={0.4}/>
@@ -175,7 +175,7 @@ const VendorDashboard = () => {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dy={10}/>
-                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dx={-10}/>
+                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} width={40}/>
                   <Tooltip cursor={{ stroke: '#99f6e4', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
                   <Area type="monotone" dataKey="orders" stroke="#14B8A6" strokeWidth={4} fill="url(#vendGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#14b8a6", strokeWidth: 3 }}/>
                 </AreaChart>
@@ -240,9 +240,7 @@ const VendorDashboard = () => {
           <div className="db-card db-col-3">
             <div className="db-card-header"><div className="db-card-title">Recent Notifications</div></div>
             <div className="db-notif-list">
-              {[["New PO received","#14B8A6"],["Payment processed","#22C55E"],["Delivery confirmation required","#F97316"],["Catalog updated successfully","#6366F1"],["New contact message","#3B82F6"]].map(([t,c],i)=>(
-                <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
-              ))}
+              <div className="db-empty">No new notifications</div>
             </div>
           </div>
 
@@ -269,9 +267,7 @@ const VendorDashboard = () => {
                   <div className="db-event-body"><div className="db-event-title">Order #{o.orderNumber||o._id?.slice(-4)||`00${i+1}`}</div><div className="db-event-sub">{o.status}</div></div>
                 </div>;
               })}
-              {orders.filter(o=>["Processing","Shipped"].includes(o.status)).length===0&&[["10","SEP","PO #VND-001","Dispatch","#14B8A6"],["18","SEP","PO #VND-002","Delivery","#6366F1"]].map(([d,m,t,s,c],i)=>(
-                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
-              ))}
+              {orders.filter(o=>["Processing","Shipped"].includes(o.status)).length===0&&<div className="db-empty">No upcoming deliveries</div>}
             </div>
           </div>
 
@@ -296,7 +292,8 @@ const VendorDashboard = () => {
             <div className="db-card-header"><div className="db-card-title">Top Materials</div></div>
             <div className="db-bar-list">
               <br/>
-              {materials.slice(0,5).map((m,i)=>{const colors=["#14B8A6","#3B82F6","#22C55E","#F97316","#EF4444"];const max=Math.max(1,...materials.map(x=>x.stock||x.quantity||1));return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{m.name||m.materialName}</span><span style={{ fontWeight:600 }}>{m.stock||m.quantity||0}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round(((m.stock||m.quantity||0)/max)*100)}%`,background:colors[i%colors.length] }}/></div></div>;})} {materials.length===0&&[["Cement","#14B8A6"],["Steel","#3B82F6"],["Bricks","#22C55E"],["Sand","#F97316"]].map(([n,c],i)=><div key={i} className="db-bar-item"><div className="db-bar-label"><span>{n}</span><span style={{ fontWeight:600 }}>{80-i*20} units</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${80-i*20}%`,background:c }}/></div></div>)}
+              {materials.slice(0,5).map((m,i)=>{const colors=["#14B8A6","#3B82F6","#22C55E","#F97316","#EF4444"];const max=Math.max(1,...materials.map(x=>x.stock||x.quantity||1));return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{m.name||m.materialName}</span><span style={{ fontWeight:600 }}>{m.stock||m.quantity||0}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round(((m.stock||m.quantity||0)/max)*100)}%`,background:colors[i%colors.length] }}/></div></div>;})} 
+              {materials.length===0&&<div className="db-empty">No materials listed</div>}
             </div>
           </div>
 
@@ -325,11 +322,13 @@ const VendorDashboard = () => {
               <div className="db-profit-val">{fmtINR(revenue)}</div>
               <div className="db-profit-sub">Total fulfilled order revenue</div>
               <div style={{ width: "100%", height: "120px" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}>
-                    <Line type="monotone" dataKey="v" stroke="#14B8A6" strokeWidth={3} dot={false}/>
-                  </LineChart>
-                </ResponsiveContainer>
+                {orderTrend && orderTrend.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={orderTrend}>
+                      <Line type="monotone" dataKey="orders" stroke="#14B8A6" strokeWidth={3} dot={false}/>
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : <div className="db-empty" style={{ paddingTop: "40px" }}>No revenue trend data</div>}
               </div>
             </div>
           </div>

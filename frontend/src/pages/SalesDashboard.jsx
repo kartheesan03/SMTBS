@@ -126,13 +126,13 @@ const SalesDashboard = () => {
         <div className="db-quick-actions">
           <div className="db-section-title">Quick Actions</div>
           <div className="db-qa-grid">
-            <QaBtn icon={Plus}         label="New Order"    colorClass="qa-red"    onClick={()=>navigate("/orders/new")}/>
+            <QaBtn icon={Plus}         label="New Order"    colorClass="qa-red"    onClick={()=>navigate("/orders/select-type")}/>
             <QaBtn icon={Crosshair}    label="Leads"        colorClass="qa-blue"   onClick={()=>navigate("/crm/leads")}/>
             <QaBtn icon={FileText}     label="Quotations"   colorClass="qa-purple" onClick={()=>navigate("/quotations")}/>
             <QaBtn icon={Users}        label="Customers"    colorClass="qa-green"  onClick={()=>navigate("/customers")}/>
             <QaBtn icon={BarChart2}    label="Reports"      colorClass="qa-amber"  onClick={()=>navigate("/analytics")}/>
             <QaBtn icon={Target}       label="Pipeline"     colorClass="qa-orange" onClick={()=>navigate("/crm/pipeline")}/>
-            <QaBtn icon={PhoneCall}    label="Follow-ups"   colorClass="qa-teal"   onClick={()=>navigate("/crm/activities")}/>
+            <QaBtn icon={PhoneCall}    label="Follow-ups"   colorClass="qa-teal"   onClick={()=>navigate("/crm/follow-ups")}/>
             <QaBtn icon={ShoppingCart} label="Orders"       colorClass="qa-cyan"   onClick={()=>navigate("/orders")}/>
           </div>
         </div>
@@ -188,7 +188,7 @@ const SalesDashboard = () => {
             <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
               {chartData.length>0?(
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{top:4,right:4,left:-20,bottom:0}}>
+                  <AreaChart data={chartData} margin={{top:4,right:4,left:0,bottom:0}}>
                     <defs>
                       <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#DC2626" stopOpacity={0.4}/>
@@ -197,7 +197,7 @@ const SalesDashboard = () => {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dy={10}/>
-                    <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dx={-10}/>
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} width={40} tickFormatter={(value) => value >= 1000 ? `${value / 1000}k` : value}/>
                     <Tooltip cursor={{ stroke: '#fca5a5', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
                     <Area type="monotone" dataKey="revenue" stroke="#DC2626" strokeWidth={4} fill="url(#salesGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#dc2626", strokeWidth: 3 }}/>
                   </AreaChart>
@@ -259,9 +259,7 @@ const SalesDashboard = () => {
             <div className="db-card-header"><div className="db-card-title">Notifications</div><span className="db-card-link" onClick={()=>navigate("/notifications")}>View All</span></div>
             <div className="db-notif-list">
               {notifications.slice(0,5).map((n,i)=>{const colors=["#DC2626","#22C55E","#6366F1","#F97316","#EAB308"];return<div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:colors[i%colors.length] }}/><div className="db-notif-body"><div className="db-notif-text">{n.text}</div><div className="db-notif-time">{fmtTime(n.time)}</div></div></div>;}) }
-              {notifications.length===0&&[["New lead assigned to you","#DC2626"],["Order #1234 confirmed","#22C55E"],["Follow-up reminder: Client A","#F97316"],["Quote accepted by Customer B","#6366F1"]].map(([t,c],i)=>(
-                <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:c }}/><div className="db-notif-body"><div className="db-notif-text">{t}</div><div className="db-notif-time">09:{String(30+i*5).padStart(2,"0")} AM</div></div></div>
-              ))}
+              {notifications.length===0&&<div className="db-empty">No new notifications</div>}
             </div>
           </div>
 
@@ -280,9 +278,7 @@ const SalesDashboard = () => {
               <br/>
               {upcomingEvents.length>0?upcomingEvents.map((ev,i)=>(
                 <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
-              )):[["02","SEP","Sales Call","Client A","#DC2626"],["08","SEP","Product Demo","Client B","#6366F1"],["15","SEP","Quarter Review","Management","#22C55E"]].map(([d,m,t,s,c],i)=>(
-                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div><div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div></div>
-              ))}
+              )) : <div className="db-empty">No upcoming events</div>}
             </div>
           </div>
 
@@ -307,7 +303,8 @@ const SalesDashboard = () => {
             <div className="db-card-header"><div className="db-card-title">Top Customers</div></div>
             <div className="db-bar-list">
               <br/>
-              {customers.slice(0,5).map((c,i)=>{const colors=["#DC2626","#F97316","#6366F1","#22C55E","#EAB308"];return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{c.name||c.companyName||`Customer ${i+1}`}</span><span style={{ fontWeight:600 }}>{c.totalOrders||i+1} orders</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${80-i*15}%`,background:colors[i] }}/></div></div>;})} {customers.length===0&&[["ABC Corp","#DC2626"],["XYZ Ltd","#F97316"],["PQR Inc","#6366F1"],["MNO Co","#22C55E"],["RST Pvt","#EAB308"]].map(([n,c],i)=><div key={i} className="db-bar-item"><div className="db-bar-label"><span>{n}</span><span style={{ fontWeight:600 }}>{5-i} orders</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${80-i*15}%`,background:c }}/></div></div>)}
+              {customers.slice(0,5).map((c,i)=>{const colors=["#DC2626","#F97316","#6366F1","#22C55E","#EAB308"];return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{c.name||c.companyName||`Customer ${i+1}`}</span><span style={{ fontWeight:600 }}>{c.totalOrders||i+1} orders</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${80-i*15}%`,background:colors[i] }}/></div></div>;})} 
+              {customers.length===0&&<div className="db-empty">No customers found</div>}
             </div>
           </div>
 
@@ -315,14 +312,16 @@ const SalesDashboard = () => {
             <div className="db-card-header"><div className="db-card-title">Revenue by Segment</div></div>
             <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
               <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={[{name:"Enterprise",value:45},{name:"SMB",value:30},{name:"Retail",value:15},{name:"Other",value:10}]} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
-                      {["#DC2626","#F97316","#EAB308","#9CA3AF"].map((c,i)=><Cell key={i} fill={c}/>)}
-                    </Pie>
-                    <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
-                  </PieChart>
-                </ResponsiveContainer>
+                {dashboardData?.analytics?.segmentData ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={dashboardData.analytics.segmentData} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
+                        {["#DC2626","#F97316","#EAB308","#9CA3AF"].map((c,i)=><Cell key={i} fill={c}/>)}
+                      </Pie>
+                      <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : <div className="db-empty" style={{ paddingTop: "60px" }}>No segment data</div>}
               </div>
             </div>
           </div>
@@ -336,11 +335,13 @@ const SalesDashboard = () => {
               <div className="db-profit-val">{fmtINR(totalRevenue)}</div>
               <div className="db-profit-sub">↑ 18.4% vs last month</div>
               <div style={{ width: "100%", height: "120px" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={SPARK.map((v,i)=>({m:i+1,v}))}>
-                    <Line type="monotone" dataKey="v" stroke="#DC2626" strokeWidth={3} dot={false}/>
-                  </LineChart>
-                </ResponsiveContainer>
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData}>
+                      <Line type="monotone" dataKey="revenue" stroke="#DC2626" strokeWidth={3} dot={false}/>
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : <div className="db-empty" style={{ paddingTop: "40px" }}>No revenue data</div>}
               </div>
             </div>
           </div>

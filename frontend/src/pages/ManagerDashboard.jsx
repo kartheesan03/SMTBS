@@ -161,11 +161,11 @@ const ManagerDashboard = () => {
           <div className="db-qa-grid">
             <QaBtn icon={ShoppingCart} label="Orders"        colorClass="qa-blue"   onClick={() => navigate("/orders")} />
             <QaBtn icon={Box}          label="Inventory"     colorClass="qa-orange" onClick={() => navigate("/materials")} />
-            <QaBtn icon={Users}        label="My Team"       colorClass="qa-purple" onClick={() => navigate("/employees")} />
+            <QaBtn icon={Users}        label="My Team"       colorClass="qa-purple" onClick={() => navigate("/hr/employees")} />
             <QaBtn icon={FileText}     label="Reports"       colorClass="qa-amber"  onClick={() => navigate("/analytics")} />
             <QaBtn icon={Quote}        label="Quotations"    colorClass="qa-green"  onClick={() => navigate("/quotations")} />
-            <QaBtn icon={ListTodo}     label="Tasks"         colorClass="qa-red"    onClick={() => navigate("/my-tasks")} />
-            <QaBtn icon={Calendar}     label="Schedule"      colorClass="qa-teal"   onClick={() => navigate("/attendance")} />
+            <QaBtn icon={ListTodo}     label="Tasks"         colorClass="qa-red"    onClick={() => navigate("/tasks")} />
+            <QaBtn icon={Calendar}     label="Schedule"      colorClass="qa-teal"   onClick={() => navigate("/hr/attendance")} />
             <QaBtn icon={Settings}     label="Settings"      colorClass="qa-cyan"   onClick={() => navigate("/settings")} />
           </div>
         </div>
@@ -242,7 +242,7 @@ const ManagerDashboard = () => {
             </div>
             <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top:4, right:4, left:-20, bottom:0 }}>
+                <AreaChart data={chartData} margin={{ top:4, right:4, left:0, bottom:0 }}>
                   <defs>
                     <linearGradient id="mgrGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%"  stopColor="#D97706" stopOpacity={0.4}/>
@@ -251,7 +251,7 @@ const ManagerDashboard = () => {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize:12, fill:"#94a3b8", fontWeight: 600 }} dy={10}/>
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize:12, fill:"#94a3b8", fontWeight: 600 }} dx={-10}/>
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize:12, fill:"#94a3b8", fontWeight: 600 }} width={40} tickFormatter={(value) => value >= 1000 ? `${value / 1000}k` : value}/>
                   <Tooltip cursor={{ stroke: '#fcd34d', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
                   <Area type="monotone" dataKey="revenue" stroke="#D97706" strokeWidth={4} fill="url(#mgrGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#d97706", strokeWidth: 3 }}/>
                 </AreaChart>
@@ -378,12 +378,7 @@ const ManagerDashboard = () => {
                   <div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div>
                   <div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div>
                 </div>
-              )):[["30","AUG","Team Review","Operations","#D97706"],["05","SEP","Inventory Check","Warehouse","#6366F1"]].map(([d,m,t,s,c],i)=>(
-                <div key={i} className="db-event-item">
-                  <div className="db-event-date" style={{ background:c }}><div className="db-event-day">{d}</div><div className="db-event-mon">{m}</div></div>
-                  <div className="db-event-body"><div className="db-event-title">{t}</div><div className="db-event-sub">{s}</div></div>
-                </div>
-              ))}
+              )) : <div className="db-empty">No upcoming events</div>}
             </div>
           </div>
 
@@ -430,7 +425,7 @@ const ManagerDashboard = () => {
               <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={[{name:"Operations",value:40},{name:"Sales",value:25},{name:"HR",value:20},{name:"Finance",value:15}]} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
+                    <Pie data={[]} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
                       {["#D97706","#3B82F6","#A855F7","#22C55E"].map((c,i)=><Cell key={i} fill={c}/>)}
                     </Pie>
                     <Tooltip contentStyle={{ fontSize:11, borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
@@ -450,7 +445,7 @@ const ManagerDashboard = () => {
               <div className="db-profit-sub">Task completion rate this month</div>
               <div style={{ width: "100%", height: "120px" }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={SPARK.map((v,i)=>({ m:i+1, v }))}>
+                  <LineChart data={[]}>
                     <Line type="monotone" dataKey="v" stroke="#D97706" strokeWidth={3} dot={false}/>
                   </LineChart>
                 </ResponsiveContainer>
