@@ -32,17 +32,21 @@ const chatWithGemini = async (req, res) => {
             let toolResult;
             let replyText = "I'm currently running in offline mode without an API key, so my natural language understanding is limited. I will try my best to match your keyword to a table!";
             let fileMetadata = null;
+            let visualData = null;
             const msgLower = message.toLowerCase();
             let modelNameMatch = null;
+            
             if (msgLower.includes('inventory') || msgLower.includes('stock') || msgLower.includes('material')) modelNameMatch = 'Material';
             else if (msgLower.includes('vendor')) modelNameMatch = 'Vendor';
             else if (msgLower.includes('order')) modelNameMatch = 'Order';
             else if (msgLower.includes('employee') || msgLower.includes('staff')) modelNameMatch = 'Employee';
-            else if (msgLower.includes('attendance')) modelNameMatch = 'Attendance';
+            else if (msgLower.includes('attendance') || msgLower.includes('today')) modelNameMatch = 'Attendance';
             else if (msgLower.includes('leave')) modelNameMatch = 'Leave';
             else if (msgLower.includes('customer')) modelNameMatch = 'Customer';
             else if (msgLower.includes('task')) modelNameMatch = 'Task';
             else if (msgLower.includes('user')) modelNameMatch = 'User';
+            else if (msgLower.includes('sales')) modelNameMatch = 'Order';
+
             if (msgLower.includes('report') && modelNameMatch) {
                 toolResult = await executeAITool({ name: 'generate_report', args: { modelName: modelNameMatch } });
                 if (toolResult && toolResult.file) {
@@ -52,19 +56,23 @@ const chatWithGemini = async (req, res) => {
             } else if (modelNameMatch) {
                 toolResult = await executeAITool({ name: 'query_database', args: { modelName: modelNameMatch } });
                 if (toolResult && toolResult.results && toolResult.results.length > 0) {
-                    const headers = Object.keys(toolResult.results[0]).slice(0, 5);
-                    let table = `| ${headers.join(' | ')} |\n|${headers.map(() => '---').join('|')}|\n`;
-                    toolResult.results.forEach(row => {
-                        table += `| ${headers.map(h => String(row[h]).substring(0, 20)).join(' | ')} |\n`;
-                    });
-                    replyText = `Here is the data for **${modelNameMatch}** (Offline Mode):\n\n${table}`;
+                    visualData = {
+                        type: 'table',
+                        modelName: modelNameMatch,
+                        data: toolResult.results
+                    };
+                    replyText = `I found ${toolResult.results.length} records for **${modelNameMatch}** (Offline Mode). Here is the data:`;
                 } else {
                     replyText = `I queried the **${modelNameMatch}** table, but no records were found.`;
                 }
             }
+            
             return res.json({
                 reply: replyText,
-                file: fileMetadata
+                file: fileMetadata,
+                visualData: visualData,
+                metrics: modelNameMatch ? [`Matched Table: ${modelNameMatch}`] : [],
+                whyItMatters: "Running locally means faster responses, but limited natural language processing."
             });
         }
         let dynamicPrompt = SMTBMS_SYSTEM_PROMPT;
@@ -98,7 +106,10 @@ const chatWithGemini = async (req, res) => {
         let response = result.response;
         let fileMetadata = null;
         let visualData = null;
-        while (response.functionCalls && response.functionCalls().length > 0) {
+        let callCount = 0;
+        const MAX_CALLS = 3;
+        while (response.functionCalls && response.functionCalls().length > 0 && callCount < MAX_CALLS) {
+            callCount++;
             const call = response.functionCalls()[0];
             const toolResult = await executeAITool(call);
             if (call.name === 'generate_report' && toolResult.file) {

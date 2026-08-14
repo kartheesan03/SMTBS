@@ -1,67 +1,77 @@
-/* AriaVisualizer.css */
+/* AriaVisualizer.css - Claude Artifact Style */
 
 .aria-vis-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    width: 100%;
     background: #ffffff;
+    border: 1px solid #e5e7eb; /* Claude-like subtle border */
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     overflow: hidden;
+    font-family: 'Manrope', system-ui, sans-serif;
 }
 
 .aria-vis-empty {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    color: #64748b;
+    padding: 3rem;
+    color: #6b7280;
     font-size: 0.95rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
 }
 
 .aria-vis-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 24px;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f8fafc;
+    padding: 10px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fafafa;
 }
 
 .aria-vis-header h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    color: #0f172a;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', 'Manrope', sans-serif;
 }
 
 .aria-vis-actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 .aria-vis-search {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     background: #ffffff;
-    border: 1px solid #cbd5e1;
+    border: 1px solid #d1d5db;
     border-radius: 6px;
-    padding: 6px 12px;
-    color: #64748b;
+    padding: 4px 8px;
+    color: #6b7280;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .aria-vis-search input {
     border: none;
     outline: none;
-    font-size: 0.85rem;
-    width: 150px;
-    color: #0f172a;
+    font-size: 0.8rem;
+    width: 120px;
+    color: #374151;
 }
 
 .aria-vis-search input::placeholder {
-    color: #94a3b8;
+    color: #9ca3af;
 }
 
 .aria-vis-btn {
@@ -69,61 +79,70 @@
     align-items: center;
     justify-content: center;
     background: #ffffff;
-    border: 1px solid #cbd5e1;
-    color: #475569;
-    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    color: #4b5563;
+    padding: 5px 8px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .aria-vis-btn:hover {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 .aria-vis-table-wrapper {
     flex: 1;
-    overflow: auto;
-    padding: 16px 24px;
+    overflow-x: auto;
+    background: #ffffff;
 }
 
 .aria-vis-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     min-width: 600px;
 }
 
 .aria-vis-table th {
     position: sticky;
-    top: -16px;
-    background: #f8fafc;
-    color: #475569;
+    top: 0;
+    background: #ffffff;
+    color: #6b7280;
     font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.025em;
     text-align: left;
     padding: 12px 16px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 1px solid #e5e7eb;
     white-space: nowrap;
     z-index: 10;
 }
 
 .aria-vis-table td {
     padding: 12px 16px;
-    color: #1e293b;
-    border-bottom: 1px solid #f1f5f9;
+    color: #111827;
+    border-bottom: 1px solid #f3f4f6;
     vertical-align: middle;
 }
 
+.aria-vis-table tr:last-child td {
+    border-bottom: none;
+}
+
 .aria-vis-table tr:hover td {
-    background: #f8fafc;
+    background: #f9fafb;
 }
 
 .aria-vis-footer {
-    padding: 12px 24px;
-    border-top: 1px solid #e2e8f0;
-    background: #f8fafc;
-    font-size: 0.85rem;
-    color: #64748b;
+    padding: 10px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: #fafafa;
+    font-size: 0.75rem;
+    color: #6b7280;
     text-align: right;
+    font-family: 'Inter', 'Manrope', sans-serif;
 }

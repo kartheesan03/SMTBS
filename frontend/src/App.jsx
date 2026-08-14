@@ -15,7 +15,6 @@ import MaterialReports from './pages/MaterialReports';
 
 import GlobalHeader from './components/GlobalHeader';
 import { AriaProvider, AriaContext } from './context/AriaContext';
-import AriaSidePanel from './components/ui/AriaSidePanel';
 
 // Retry wrapper for lazy imports — handles stale chunks after Vercel redeploys
 const lazyRetry = (importFn) => {
@@ -138,7 +137,7 @@ const HolidayCalendar = lazyRetry(() => import('./pages/HolidayCalendar'));
 const Recruitment = lazyRetry(() => import('./pages/Recruitment'));
 const LeaveBalance = lazyRetry(() => import('./pages/LeaveBalance'));
 const LandingPage = lazyRetry(() => import('./pages/LandingPage'));
-
+const AriaCommandCenter = lazyRetry(() => import('./pages/AriaCommandCenter'));
 const SupportWrapper = () => {
     const { user } = React.useContext(AuthContext);
     const role = (user?.role || '').toLowerCase();
@@ -436,6 +435,9 @@ const AppContent = () => {
                 </Routes>
                 </div>
                 </React.Suspense>
+                
+                {/* Global Aria AI Assistant Window */}
+                {user && <AriaCommandCenter />}
             </main>
         </div>
     );
@@ -447,13 +449,12 @@ const App = () => {
             <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
                 <AuthProvider>
                     <NotificationProvider>
-                        <AriaProvider>
-                            <Router>
+                        <Router>
+                            <AriaProvider>
                                 <Toaster position="top-right" />
                                 <AppContent />
-                                <AriaSidePanel />
-                            </Router>
-                        </AriaProvider>
+                            </AriaProvider>
+                        </Router>
                     </NotificationProvider>
                 </AuthProvider>
             </GoogleOAuthProvider>

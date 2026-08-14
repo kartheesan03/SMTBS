@@ -1,0 +1,643 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+/* ARIA INTELLIGENCE CONSOLE */
+/* Premium Enterprise UI - 3 Zone Architecture */
+
+.aria-console-layout {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    font-family: 'Manrope', sans-serif;
+    color: #111827;
+    overflow: hidden;
+    position: fixed;
+    z-index: 9999;
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+}
+
+.aria-console-layout.aria-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.aria-floating {
+    bottom: 24px;
+    right: 24px;
+    width: 420px;
+    height: 650px;
+    max-height: calc(100vh - 48px);
+}
+
+.aria-maximized {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    transform: none !important;
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+}
+
+.aria-maximized .aria-app-header {
+    border-radius: 0;
+}
+
+/* Application Header */
+.aria-app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 12px 12px 0 0;
+    flex-shrink: 0;
+}
+
+.aria-app-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.aria-app-header-left h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: #111827;
+}
+
+.aria-app-header-left span {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #0F8B8D;
+    letter-spacing: 0.1em;
+}
+
+.aria-app-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.aria-header-btn {
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.aria-header-btn:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+.aria-header-btn.close-btn:hover {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+
+/* Inner layout adjustments */
+.aria-console-inner {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.aria-floating .aria-console-sidebar {
+    display: none;
+}
+
+.aria-floating .aria-console-main {
+    min-width: 100%;
+}
+
+
+/* ==========================================================================
+   LEFT ZONE: Navigation
+   ========================================================================== */
+.aria-console-sidebar {
+    width: 240px;
+    background-color: #f9fafb;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    overflow-y: auto;
+}
+
+.aria-console-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    padding-left: 0.5rem;
+}
+
+.aria-console-brand h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.brand-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #0F8B8D;
+    letter-spacing: 0.1em;
+}
+
+.aria-console-new-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #ffffff;
+    color: #111827;
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    margin-bottom: 2rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.aria-console-new-btn:hover {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.aria-console-nav-section {
+    margin-bottom: 2rem;
+}
+
+.aria-console-nav-section h3 {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #6b7280;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.75rem 0.5rem;
+}
+
+.aria-console-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: transparent;
+    border: none;
+    color: #4b5563;
+    padding: 0.5rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    width: 100%;
+}
+
+.nav-item:hover {
+    background-color: #e5e7eb;
+    color: #111827;
+}
+
+.section-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.section-header-flex h3 {
+    margin-bottom: 0;
+}
+
+.clear-all-btn {
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.clear-all-btn:hover {
+    color: #ef4444;
+}
+
+.recent-list {
+    gap: 0.1rem;
+}
+
+.empty-recent {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.recent-item {
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+.recent-item-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 0.4rem 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    cursor: pointer;
+}
+
+.delete-recent-btn {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 0.4rem;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.recent-item:hover .delete-recent-btn {
+    opacity: 1;
+}
+
+.delete-recent-btn:hover {
+    color: #ef4444;
+}
+
+.recent-item.active {
+    background-color: #e5e7eb;
+    color: #111827;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   CENTER ZONE: Main Console
+   ========================================================================== */
+.aria-console-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-color: #ffffff;
+    min-width: 0; /* Changed from 600px to allow compact view */
+    min-height: 0;
+}
+
+.aria-console-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    min-height: 0;
+}
+
+/* Empty State */
+.aria-console-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+}
+
+.hero-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Chat Messages Layout */
+.aria-console-threads {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1.5rem 2rem 1.5rem;
+}
+
+.intelligence-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.chat-message {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%;
+}
+
+.chat-message.user {
+    align-self: flex-end;
+    background-color: #f3f4f6;
+    padding: 1rem 1.25rem;
+    border-radius: 12px 12px 0 12px;
+}
+
+.chat-message.user h3 {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111827;
+    margin: 0;
+}
+
+.chat-message.bot {
+    align-self: flex-start;
+    background-color: transparent;
+    padding: 0;
+}
+
+.thread-loading {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #6b7280;
+    font-weight: 500;
+    padding: 1rem 0;
+    align-self: flex-start;
+}
+
+.loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #0F8B8D;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.thread-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    align-self: center;
+}
+
+/* The Report Format */
+.intelligence-report {
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.report-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.report-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6b7280;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.live-data-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #0F8B8D;
+    background-color: #f0fdfa;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+}
+
+.live-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #0F8B8D;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.report-metrics {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.analysis-block p {
+    margin: 0;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.action-block {
+    margin-top: 0.5rem;
+}
+
+.primary-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #111827;
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.primary-action-btn:hover {
+    background-color: #000000;
+}
+
+
+/* ==========================================================================
+   COMPOSER (Bottom)
+   ========================================================================== */
+.aria-console-composer-wrapper {
+    padding: 1.5rem;
+    background-color: #ffffff;
+    border-top: 1px solid #f3f4f6;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.aria-console-composer {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.2s;
+}
+
+.aria-console-composer:focus-within {
+    border-color: #111827;
+}
+
+.composer-attach-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 4px;
+    margin-bottom: 2px;
+}
+
+.composer-attach-btn:hover:not(:disabled) {
+    color: #111827;
+    background-color: #f3f4f6;
+}
+
+.composer-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: 1rem;
+    color: #111827;
+    padding: 0.5rem 0;
+    resize: none;
+    outline: none;
+    max-height: 120px;
+    overflow-y: auto;
+    line-height: 1.5;
+}
+
+.composer-input::placeholder {
+    color: #9ca3af;
+}
+
+.composer-send-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    border: none;
+    cursor: not-allowed;
+    transition: all 0.2s;
+    margin-bottom: 2px;
+}
+
+.composer-send-btn.active {
+    background-color: #111827;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.composer-send-btn.active:hover {
+    background-color: #000000;
+}
+
+.composer-commands {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    max-width: 900px;
+    margin: 0.75rem auto 0;
+}
+
+.composer-commands button {
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.composer-commands button:hover {
+    color: #111827;
+    background-color: #f3f4f6;
+}
+

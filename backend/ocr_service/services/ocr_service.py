@@ -16,12 +16,16 @@ logger = logging.getLogger(__name__)
 
 from services.ocr_parser import process_document
 
-import pytesseract
+import easyocr
+
+_reader_instance = None
 
 def _init_reader():
-    logger.info("Initializing Tesseract OCR reader...")
-    # Tesseract doesn't need to be instantiated like EasyOCR, just configured.
-    return pytesseract
+    global _reader_instance
+    if _reader_instance is None:
+        logger.info("Initializing EasyOCR reader...")
+        _reader_instance = easyocr.Reader(['en'], gpu=False)
+    return _reader_instance
 
 import re
 
@@ -71,22 +75,14 @@ def _ocr_image_elements(img_path: str, page_num: int = 1) -> list:
     r = _init_reader()
     t0 = time.time()
     
-    # Use image_to_data to get bounding boxes and text
-    import cv2
-    img = cv2.imread(img_path)
-    if img is None:
-        logger.error(f"Could not read image {img_path}")
-        return []
-        
-    data = r.image_to_data(img, output_type=r.Output.DICT)
-    
-    logger.info(f"[TIMING] Tesseract OCR page {page_num}: {time.time()-t0:.1f}s")
+    logger.info(f"[TIMING] EasyOCR page {page_num}: starting...")
+    data = r.readtext(img_path)
+    logger.info(f"[TIMING] EasyOCR page {page_num}: {time.time()-t0:.1f}s")
     
     elements = []
     
-    n_boxes = len(data['level'])
-    for i in range(n_boxes):
-        text = data['text'][i]
+    for i in range(len(data)):
+        bbox, text, conf = data[i]
         if not text or not text.strip():
             continue
             
@@ -94,21 +90,20 @@ def _ocr_image_elements(img_path: str, page_num: int = 1) -> list:
         if not text:
             continue
             
-        # Tesseract confidence is 0-100, normalize to 0-1
-        conf = float(data['conf'][i]) / 100.0 if float(data['conf'][i]) > 0 else 0.0
-        
-        x = data['left'][i]
-        y = data['top'][i]
-        w = data['width'][i]
-        h = data['height'][i]
+        # bbox is [[x0, y0], [x1, y1], [x2, y2], [x3, y3]]
+        # where tl = [0], tr = [1], br = [2], bl = [3]
+        x0 = float(bbox[0][0])
+        y0 = float(bbox[0][1])
+        x1 = float(bbox[2][0])
+        y1 = float(bbox[2][1])
         
         elements.append({
             "text": text,
-            "confidence": conf,
-            "x0": x,
-            "y0": y,
-            "x1": x + w,
-            "y1": y + h,
+            "confidence": float(conf),
+            "x0": x0,
+            "y0": y0,
+            "x1": x1,
+            "y1": y1,
             "page": page_num
         })
     return elements
