@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "seed": "node seed.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migrate-db": "node migrate-db.js"
+    "migrate-db": "node migrate-db.js",
+    "postinstall": "npm rebuild sqlite3 --build-from-source"
   },
   "engines": {
     "node": ">=20.0.0"
