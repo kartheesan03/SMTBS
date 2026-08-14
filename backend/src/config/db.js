@@ -278,7 +278,10 @@ const connectDB = async () => {
 
         await sequelize.sync();
         console.log(`${dbName} Database tables synchronized.`);
-        await syncAndRepairDatabase();
+        
+        // Run heavy data sync asynchronously so we don't block Railway's port binding timeout
+        syncAndRepairDatabase().catch(err => console.error('[Sync] Background repair failed:', err));
+        
         return true;
     } catch (error) {
         console.error('\n******************************************************************************');
