@@ -120,24 +120,40 @@ const startServer = async () => {
     try {
         await connectDB();
         const gpsSimulator = require('./src/services/gpsSimulator');
-        app.listen(PORT, () => {
+        app.listen(PORT, '0.0.0.0', () => {
             console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
             
-            gpsSimulator.start();
+            try {
+                gpsSimulator.start();
+            } catch (gpsErr) {
+                console.error('GPS Simulator failed to start:', gpsErr);
+            }
 
             const cron = require('node-cron');
             cron.schedule('0 18 * * *', () => {
                 console.log('Running autoMarkAbsent cron job');
-                autoMarkAbsent();
+                if (typeof autoMarkAbsent === 'function') autoMarkAbsent();
             }, {
                 scheduled: true,
                 timezone: "Asia/Kolkata"
             });
         });
     } catch (error) {
-        console.error(`Failed to start server: ${error.message}`);
-        process.exit(1);
+        console.error(`Failed to start server normally: ${error.message}`);
+        // Fallback to ensure Railway port binds even if DB completely fails
+        app.get('*', (req, res) => res.status(500).send(`Startup Error: ${error.message}`));
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`Fallback server running on port ${PORT}`);
+        });
     }
 };
+
+process.on('uncaughtException', (err) => {
+    console.error('CRITICAL: Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('CRITICAL: Unhandled Rejection at:', promise, 'reason:', reason);
+});
 
 startServer();
