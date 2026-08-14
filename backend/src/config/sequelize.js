@@ -48,15 +48,30 @@ if (process.env.MYSQL_URL) {
         }
     });
 } else {
-    sequelize = new Sequelize({
-        dialect: 'sqlite',
-        storage: path.join(__dirname, '../../database.sqlite'),
-        logging: process.env.NODE_ENV === 'development' ? console.log : false,
-        define: {
-            timestamps: true,
-            freezeTableName: true
-        }
-    });
+    try {
+        sequelize = new Sequelize({
+            dialect: 'sqlite',
+            storage: path.join(__dirname, '../../database.sqlite'),
+            logging: false,
+            pool: { acquire: 5000 },
+            define: {
+                timestamps: true,
+                freezeTableName: true
+            }
+        });
+    } catch (sqliteErr) {
+        console.error('FATAL ERROR: Failed to initialize SQLite.', sqliteErr.message);
+        console.error('If you are deploying to Railway, please provision a PostgreSQL or MySQL database and set DATABASE_URL or MYSQL_URL.');
+        // Create a dummy sequelize instance so the app doesn't crash on require
+        sequelize = {
+            define: () => ({}),
+            models: {},
+            getDialect: () => 'sqlite',
+            authenticate: async () => { throw new Error('SQLite binary failed to load.'); },
+            sync: async () => {},
+            query: async () => []
+        };
+    }
 }
 
-module.exports = sequelize;
+module.exports = sequelize;

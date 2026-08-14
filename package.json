@@ -8,7 +8,7 @@
     "install-frontend": "npm install --prefix frontend",
     "postinstall": "npm run install-backend",
     "build": "npm run install-backend",
-    "start": "npm start --prefix backend"
+    "start": "node backend/server.js"
   },
   "author": "",
   "license": "ISC"
