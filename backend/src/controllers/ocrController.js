@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const FormData = require('form-data');
 
-const FASTAPI_URL = process.env.OCR_SERVICE_URL || process.env.FASTAPI_URL || 'https://smtbs-production.up.railway.app';
+const FASTAPI_URL = process.env.OCR_SERVICE_URL || process.env.FASTAPI_URL || 'http://localhost:8000';
 
 const extractText = async (req, res) => {
     if (!req.file) {
