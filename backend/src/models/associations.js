@@ -91,6 +91,10 @@ function setupAssociations() {
     const SocialConnection = require('./SocialConnection');
     const SocialMessage = require('./SocialMessage');
 
+    const Post = require('./Post');
+    const PostLike = require('./PostLike');
+    const PostComment = require('./PostComment');
+
     SocialPost.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'authorId', as: 'author' });
     User.sequelizeModel.hasMany(SocialPost.sequelizeModel, { foreignKey: 'authorId', as: 'posts' });
 
@@ -110,5 +114,11 @@ function setupAssociations() {
 
     SocialMessage.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'senderId', as: 'sender' });
     SocialMessage.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'receiverId', as: 'receiver' });
+
+    Post.sequelizeModel.belongsTo(User.sequelizeModel, { as: 'author', foreignKey: 'authorId' });
+    Post.sequelizeModel.hasMany(PostComment.sequelizeModel, { foreignKey: 'postId', as: 'comments' });
+    Post.sequelizeModel.hasMany(PostLike.sequelizeModel, { foreignKey: 'postId', as: 'likes' });
+    PostComment.sequelizeModel.belongsTo(User.sequelizeModel, { as: 'author', foreignKey: 'authorId' });
+    PostLike.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
 }
 module.exports = setupAssociations;

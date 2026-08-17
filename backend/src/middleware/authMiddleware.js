@@ -73,6 +73,7 @@ const protect = async (req, res, next) => {
                                               path.includes('/api/auth') ||
                                               path.includes('/api/employees/me') ||
                                               path.includes('/api/stock-requests') ||
+                                              path.includes('/api/feed') ||
                                               (path.includes('/api/orders') && (path.includes('employee-check') || path.includes('inventory-verification') || path.includes('employee-final-approval')));
                         const isScannerUpdate = path.includes('/api/materials') && reqMethod === 'PUT';
                         if (!isSelfService && !isScannerUpdate) {
@@ -94,6 +95,7 @@ const protect = async (req, res, next) => {
                                                path.includes('/api/notifications') ||
                                                path.includes('/api/communications') ||
                                                path.includes('/api/auth') ||
+                                               path.includes('/api/feed') ||
                                                path.includes('/api/employees/me');
                         if (!isSalesAllowed) {
                             return res.status(403).json({ message: `Access Denied: ${user.role} role cannot modify this resource.` });

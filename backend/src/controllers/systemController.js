@@ -6,6 +6,12 @@ const navigationConfig = [
         permission: 'view_dashboard'
     },
     {
+        title: 'Company Feed',
+        icon: 'Globe',
+        path: '/feed',
+        permission: ''
+    },
+    {
         title: 'Attendance',
         icon: 'CalendarCheck',
         path: '/attendance',
@@ -139,6 +145,12 @@ const hrNavigationConfig = [
         title: 'Dashboard',
         icon: 'LayoutDashboard',
         path: '/',
+        permission: ''
+    },
+    {
+        title: 'Company Feed',
+        icon: 'Globe',
+        path: '/feed',
         permission: ''
     },
     {

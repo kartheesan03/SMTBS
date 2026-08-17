@@ -145,6 +145,7 @@ const SocialHub = lazyRetry(() => import('./pages/social/SocialHub'));
 const SocialProfile = lazyRetry(() => import('./pages/social/SocialProfile'));
 const MyNetwork = lazyRetry(() => import('./pages/social/MyNetwork'));
 const SocialMessages = lazyRetry(() => import('./pages/social/SocialMessages'));
+const Feed = lazyRetry(() => import('./pages/social/Feed'));
 
 const SupportWrapper = () => {
     const { user } = React.useContext(AuthContext);
@@ -452,6 +453,7 @@ const AppContent = () => {
                     <Route path="/social/network" element={<ProtectedRoute><SocialLayout><MyNetwork /></SocialLayout></ProtectedRoute>} />
                     <Route path="/social/messages" element={<ProtectedRoute><SocialLayout><SocialMessages /></SocialLayout></ProtectedRoute>} />
                     <Route path="/social/profile/:id" element={<ProtectedRoute><SocialLayout><SocialProfile /></SocialLayout></ProtectedRoute>} />
+                    <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />
