@@ -10,10 +10,11 @@ const SocialHub = () => {
     const [loading, setLoading] = useState(true);
     const [newPostContent, setNewPostContent] = useState('');
 
+    const [activeTab, setActiveTab] = useState('For You');
+
     useEffect(() => {
         const fetchFeed = async () => {
             try {
-                // Fetch from API, but add mock categories for the UI
                 const { data } = await API.get('/social/feed');
                 const postsWithCategories = (Array.isArray(data) ? data : []).map((post, i) => ({
                     ...post,
@@ -41,6 +42,14 @@ const SocialHub = () => {
         }
     };
 
+    const filteredPosts = posts.filter(post => {
+        if (activeTab === 'For You') return true;
+        if (activeTab === 'Following') return true; // Mock: show all for now
+        if (activeTab === 'My Department') return post.author?.department === user?.department;
+        if (activeTab === 'Company') return true;
+        return true;
+    });
+
     return (
         <div className="social-hub-container">
             {/* Center Column: Feed */}
@@ -49,7 +58,7 @@ const SocialHub = () => {
                     <div className="composer-top">
                         <div className="composer-avatar-wrapper">
                             <div className="composer-avatar">
-                                {user?.username?.charAt(0).toUpperCase() || 'U'}
+                                {user?.username?.charAt(0).toUpperCase() || user?.name?.charAt(0).toUpperCase() || 'U'}
                             </div>
                             <span className="presence-dot online"></span>
                         </div>
@@ -58,6 +67,7 @@ const SocialHub = () => {
                             placeholder="What's happening?" 
                             value={newPostContent}
                             onChange={(e) => setNewPostContent(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handlePostSubmit()}
                         />
                     </div>
                     <div className="composer-actions">
@@ -70,32 +80,37 @@ const SocialHub = () => {
                 </div>
 
                 <div className="feed-filters">
-                    <button className="feed-filter-btn active">For You</button>
-                    <button className="feed-filter-btn">Following</button>
-                    <button className="feed-filter-btn">My Department</button>
-                    <button className="feed-filter-btn">Company</button>
+                    {['For You', 'Following', 'My Department', 'Company'].map(tab => (
+                        <button 
+                            key={tab}
+                            className={`feed-filter-btn ${activeTab === tab ? 'active' : ''}`}
+                            onClick={() => setActiveTab(tab)}
+                        >
+                            {tab}
+                        </button>
+                    ))}
                 </div>
 
                 <div className="feed-stream">
                     {loading ? (
                         <div className="feed-loading">Loading feed...</div>
-                    ) : posts.length === 0 ? (
+                    ) : filteredPosts.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '40px', color: '#8C9BB3' }}>
-                            <p>No posts to show yet. Be the first to post!</p>
+                            <p>No posts to show in this view yet. Be the first to post!</p>
                         </div>
                     ) : (
-                        posts.map(post => (
+                        filteredPosts.map(post => (
                             <div key={post.id} className={`post-card category-${(post.category || 'update').toLowerCase()}`}>
                                 <div className="post-header">
                                     <div className="post-author-wrapper">
                                         <div className="post-author-avatar">
-                                            {post.author?.username?.charAt(0).toUpperCase()}
+                                            {post.author?.username?.charAt(0).toUpperCase() || post.author?.name?.charAt(0).toUpperCase() || 'U'}
                                         </div>
                                         <span className={`presence-dot ${post.authorPresence || 'offline'}`}></span>
                                     </div>
                                     <div className="post-author-info">
-                                        <h4>{post.author?.username}</h4>
-                                        <span>{post.author?.department || 'Marketing'} • 2h ago</span>
+                                        <h4>{post.author?.username || post.author?.name || 'Unknown User'}</h4>
+                                        <span>{post.author?.department || 'Marketing'} • Just now</span>
                                     </div>
                                     <div className="post-meta-right">
                                         <span className="post-category-tag">{post.category || 'Update'}</span>
