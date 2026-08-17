@@ -1,28 +1,30 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
 import Avatar from './Avatar';
 import { createPost } from '../../../api/posts';
-import { X, Image as ImageIcon, FileText, Smile, HelpCircle } from 'lucide-react';
+import { X, Image as ImageIcon, FileText, Smile, HelpCircle, UploadCloud } from 'lucide-react';
 
 const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
     const { user } = useContext(AuthContext);
     const [text, setText] = useState('');
-    const [imageUrl, setImageUrl] = useState('');
+    const [previewUrl, setPreviewUrl] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showImageInput, setShowImageInput] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const fileInputRef = useRef(null);
 
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!text.trim()) return;
+        if (!text.trim() && !previewUrl) return;
 
         setIsSubmitting(true);
         try {
-            const newPost = await createPost(text, imageUrl || null);
+            const newPost = await createPost(text, previewUrl || null);
             console.log('POST /api/feed response:', newPost);
             setText('');
-            setImageUrl('');
+            setPreviewUrl('');
             setShowImageInput(false);
             if (onPostCreated) onPostCreated(newPost);
             onClose();
@@ -31,6 +33,30 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            processFile(file);
+        }
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files?.[0];
+        if (file && file.type.startsWith('image/')) {
+            processFile(file);
+        }
+    };
+
+    const processFile = (file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setPreviewUrl(reader.result);
+        };
+        reader.readAsDataURL(file);
     };
 
     return (
@@ -116,25 +142,72 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                         }}
                     />
 
-                    {showImageInput && (
-                        <input
-                            type="text"
-                            value={imageUrl}
-                            onChange={(e) => setImageUrl(e.target.value)}
-                            placeholder="Paste image URL here..."
+                    {showImageInput && !previewUrl && (
+                        <div 
+                            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                            onDragLeave={() => setIsDragging(false)}
+                            onDrop={handleDrop}
+                            onClick={() => fileInputRef.current?.click()}
                             style={{
                                 width: '100%',
                                 boxSizing: 'border-box',
-                                backgroundColor: '#0F172A',
-                                border: '1px solid #3B82F6',
-                                borderRadius: '8px',
-                                padding: '12px',
-                                color: '#F8FAFC',
-                                fontSize: '14px',
-                                outline: 'none',
-                                marginBottom: '16px'
+                                backgroundColor: isDragging ? 'rgba(59, 130, 246, 0.05)' : '#0F172A',
+                                border: `2px dashed ${isDragging ? '#3B82F6' : '#334155'}`,
+                                borderRadius: '12px',
+                                padding: '32px 20px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                marginBottom: '16px',
+                                transition: 'all 0.2s'
                             }}
-                        />
+                        >
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                style={{ display: 'none' }} 
+                                ref={fileInputRef}
+                                onChange={handleFileSelect}
+                            />
+                            <div style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '50%', marginBottom: '12px' }}>
+                                <UploadCloud size={24} color="#94A3B8" />
+                            </div>
+                            <p style={{ margin: '0 0 4px 0', color: '#E2E8F0', fontSize: '15px', fontWeight: '500' }}>
+                                Click to upload or drag and drop
+                            </p>
+                            <p style={{ margin: 0, color: '#64748B', fontSize: '13px' }}>
+                                PNG, JPG, GIF up to 10MB
+                            </p>
+                        </div>
+                    )}
+
+                    {previewUrl && (
+                        <div style={{ position: 'relative', marginBottom: '16px', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#0F172A', border: '1px solid #334155' }}>
+                            <button 
+                                onClick={() => setPreviewUrl('')}
+                                style={{
+                                    position: 'absolute',
+                                    top: '8px',
+                                    right: '8px',
+                                    backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                                    color: '#F8FAFC',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: '28px',
+                                    height: '28px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    backdropFilter: 'blur(4px)'
+                                }}
+                            >
+                                <X size={16} />
+                            </button>
+                            <img src={previewUrl} alt="Upload preview" style={{ width: '100%', maxHeight: '300px', objectFit: 'contain', display: 'block' }} />
+                        </div>
                     )}
                 </div>
 
@@ -177,23 +250,34 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
 
                     <button
                         onClick={handleSubmit}
-                        disabled={isSubmitting || !text.trim()}
+                        disabled={isSubmitting || (!text.trim() && !previewUrl)}
                         style={{
-                            backgroundColor: (isSubmitting || !text.trim()) ? '#334155' : '#3B82F6',
-                            color: (isSubmitting || !text.trim()) ? '#64748B' : 'white',
+                            backgroundColor: (isSubmitting || (!text.trim() && !previewUrl)) ? '#334155' : '#3B82F6',
+                            color: (isSubmitting || (!text.trim() && !previewUrl)) ? '#64748B' : 'white',
                             border: 'none',
                             borderRadius: '24px',
                             padding: '8px 20px',
                             fontWeight: '600',
                             fontSize: '15px',
-                            cursor: (isSubmitting || !text.trim()) ? 'not-allowed' : 'pointer',
-                            transition: 'background-color 0.2s'
+                            cursor: (isSubmitting || (!text.trim() && !previewUrl)) ? 'not-allowed' : 'pointer',
+                            transition: 'background-color 0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
                         }}
                     >
-                        {isSubmitting ? 'Posting...' : 'Post'}
+                        {isSubmitting ? (
+                            <>
+                                <span style={{ width: '14px', height: '14px', border: '2px solid #64748B', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
+                                Uploading...
+                            </>
+                        ) : 'Post'}
                     </button>
                 </div>
             </div>
+            <style>{`
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            `}</style>
         </div>
     );
 };

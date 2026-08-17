@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
 import Avatar from './Avatar';
 import CreatePostModal from './CreatePostModal';
-import { Image as ImageIcon, FileText, Calendar, AlignLeft } from 'lucide-react';
+import { Image as ImageIcon, Video, Calendar, AlignLeft } from 'lucide-react';
 
 const CreatePost = ({ onPostCreated, isModalOpen, setIsModalOpen }) => {
     const { user } = useContext(AuthContext);
@@ -44,17 +44,37 @@ const CreatePost = ({ onPostCreated, isModalOpen, setIsModalOpen }) => {
                 <div style={{ width: '100%', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.06)', marginBottom: '16px' }}></div>
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 8px' }}>
-                    <button onClick={() => setIsModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '4px 8px', fontSize: '13px', fontWeight: '500', transition: 'color 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.color = '#F8FAFC'; }} onMouseOut={(e) => { e.currentTarget.style.color = '#94A3B8'; }}>
-                        <ImageIcon size={18} /> Media
+                    <button 
+                        onClick={() => setIsModalOpen(true)} 
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '8px 12px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', transition: 'background-color 0.2s' }} 
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; }} 
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                    >
+                        <ImageIcon size={20} color="#3B82F6" /> Photo
                     </button>
-                    <button onClick={() => setIsModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '4px 8px', fontSize: '13px', fontWeight: '500', transition: 'color 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.color = '#F8FAFC'; }} onMouseOut={(e) => { e.currentTarget.style.color = '#94A3B8'; }}>
-                        <FileText size={18} /> Document
+                    <button 
+                        onClick={() => setIsModalOpen(true)} 
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '8px 12px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', transition: 'background-color 0.2s' }} 
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; }} 
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                    >
+                        <Video size={20} color="#10B981" /> Video
                     </button>
-                    <button onClick={() => setIsModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '4px 8px', fontSize: '13px', fontWeight: '500', transition: 'color 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.color = '#F8FAFC'; }} onMouseOut={(e) => { e.currentTarget.style.color = '#94A3B8'; }}>
-                        <Calendar size={18} /> Event
+                    <button 
+                        onClick={() => setIsModalOpen(true)} 
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '8px 12px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', transition: 'background-color 0.2s' }} 
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; }} 
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                    >
+                        <Calendar size={20} color="#F59E0B" /> Event
                     </button>
-                    <button onClick={() => setIsModalOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '4px 8px', fontSize: '13px', fontWeight: '500', transition: 'color 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.color = '#F8FAFC'; }} onMouseOut={(e) => { e.currentTarget.style.color = '#94A3B8'; }}>
-                        <AlignLeft size={18} /> Article
+                    <button 
+                        onClick={() => setIsModalOpen(true)} 
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', padding: '8px 12px', borderRadius: '8px', fontSize: '14px', fontWeight: '500', transition: 'background-color 0.2s' }} 
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; }} 
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                    >
+                        <AlignLeft size={20} color="#EF4444" /> Write article
                     </button>
                 </div>
             </div>

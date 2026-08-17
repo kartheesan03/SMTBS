@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { ThumbsUp, MessageSquare, Trash2, MoreHorizontal } from 'lucide-react';
+import { ThumbsUp, MessageSquare, Trash2, MoreHorizontal, Globe, Repeat, Send } from 'lucide-react';
 import Avatar from './Avatar';
 import CommentSection from './CommentSection';
 import { toggleLike, deletePost } from '../../../api/posts';
@@ -53,9 +53,22 @@ const PostCard = ({ post, onDelete }) => {
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <Avatar user={post.author} size={48} />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <h4 style={{ margin: 0, color: '#F8FAFC', fontSize: '15px', fontWeight: '600', lineHeight: '1.2' }}>{post.author?.name}</h4>
-                        <span style={{ color: '#94A3B8', fontSize: '12px', marginTop: '2px' }}>{post.author?.role}</span>
-                        <span style={{ color: '#64748B', fontSize: '12px', marginTop: '2px' }}>{getRelativeTime(post.createdAt)}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <h4 
+                                style={{ margin: 0, color: '#F8FAFC', fontSize: '15px', fontWeight: '600', lineHeight: '1.2', cursor: 'pointer' }}
+                                onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                                onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}
+                            >
+                                {post.author?.name}
+                            </h4>
+                            <span style={{ color: '#94A3B8', fontSize: '14px' }}>· 1st</span>
+                        </div>
+                        <span style={{ color: '#94A3B8', fontSize: '13px', marginTop: '2px' }}>{post.author?.role || 'Software Engineer at SMTBMS'}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#64748B', fontSize: '12px', marginTop: '2px' }}>
+                            <span>{getRelativeTime(post.createdAt)}</span>
+                            <span>·</span>
+                            <Globe size={12} />
+                        </div>
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '4px' }}>
@@ -91,62 +104,123 @@ const PostCard = ({ post, onDelete }) => {
                 </div>
             )}
 
-            {(likesCount > 0 || commentsCount > 0) && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', fontSize: '13px', color: '#94A3B8' }}>
-                    <span>{likesCount > 0 ? `${likesCount} like${likesCount !== 1 ? 's' : ''}` : ''}</span>
-                    <span>{commentsCount > 0 ? `${commentsCount} comment${commentsCount !== 1 ? 's' : ''}` : ''}</span>
-                </div>
-            )}
+            <div style={{ width: '100%', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.06)', margin: '12px 0 8px 0' }}></div>
 
-            <div style={{ width: '100%', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.06)', margin: '16px 0' }}></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', fontSize: '13px', color: '#94A3B8' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#3B82F6' }}>
+                        <ThumbsUp size={10} color="#FFFFFF" fill="#FFFFFF" />
+                    </div>
+                    <span>{likesCount > 0 ? (likesCount === 1 ? '1 person' : `You and ${likesCount - 1} others`) : 'Be the first to like this'}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#94A3B8'}>{commentsCount} comments</span>
+                    <span>·</span>
+                    <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#94A3B8'}>3 reposts</span>
+                </div>
+            </div>
+
+            <div style={{ width: '100%', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.06)', margin: '8px 0' }}></div>
 
             {/* Action Buttons */}
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <button 
                     onClick={handleLike}
                     disabled={isLiking}
                     style={{
+                        flex: 1,
                         display: 'flex',
                         alignItems: 'center',
+                        justifyContent: 'center',
                         gap: '8px',
                         background: 'none',
                         border: 'none',
                         color: isLiked ? '#3B82F6' : '#94A3B8',
                         cursor: 'pointer',
-                        padding: '8px 16px',
+                        padding: '12px 0',
                         borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '500',
+                        fontSize: '14px',
+                        fontWeight: '600',
                         transition: 'all 0.2s'
                     }}
-                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; e.currentTarget.style.color = isLiked ? '#60A5FA' : '#F8FAFC'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = isLiked ? '#3B82F6' : '#94A3B8'; }}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
                 >
-                    <ThumbsUp size={18} fill={isLiked ? '#3B82F6' : 'none'} />
+                    <ThumbsUp size={20} fill={isLiked ? '#3B82F6' : 'none'} />
                     Like
                 </button>
                 
                 <button 
                     onClick={() => setShowComments(!showComments)}
                     style={{
+                        flex: 1,
                         display: 'flex',
                         alignItems: 'center',
+                        justifyContent: 'center',
                         gap: '8px',
                         background: 'none',
                         border: 'none',
                         color: showComments ? '#F8FAFC' : '#94A3B8',
                         cursor: 'pointer',
-                        padding: '8px 16px',
+                        padding: '12px 0',
                         borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '500',
+                        fontSize: '14px',
+                        fontWeight: '600',
                         transition: 'all 0.2s'
                     }}
                     onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; e.currentTarget.style.color = '#F8FAFC'; }}
                     onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = showComments ? '#F8FAFC' : '#94A3B8'; }}
                 >
-                    <MessageSquare size={18} fill={showComments ? 'rgba(255,255,255,0.1)' : 'none'} />
+                    <MessageSquare size={20} fill={showComments ? 'rgba(255,255,255,0.1)' : 'none'} />
                     Comment
+                </button>
+
+                <button 
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        background: 'none',
+                        border: 'none',
+                        color: '#94A3B8',
+                        cursor: 'pointer',
+                        padding: '12px 0',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; e.currentTarget.style.color = '#F8FAFC'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#94A3B8'; }}
+                >
+                    <Repeat size={20} />
+                    Repost
+                </button>
+
+                <button 
+                    style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        background: 'none',
+                        border: 'none',
+                        color: '#94A3B8',
+                        cursor: 'pointer',
+                        padding: '12px 0',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; e.currentTarget.style.color = '#F8FAFC'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#94A3B8'; }}
+                >
+                    <Send size={20} />
+                    Send
                 </button>
             </div>
 

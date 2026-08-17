@@ -1,5 +1,6 @@
 import React from 'react';
-import { Calendar, Briefcase, FileText, Pin, Clock } from 'lucide-react';
+import { Calendar, Briefcase, FileText, Pin, Clock, Plus, Info } from 'lucide-react';
+import Avatar from './Avatar';
 
 const WidgetCard = ({ title, children }) => (
     <div style={{
@@ -69,20 +70,80 @@ const FeedWidgets = () => {
                 </div>
             </WidgetCard>
 
-            {/* Quick Links */}
-            <WidgetCard title="Quick Links">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: '0 -8px' }}>
-                    <a href="/attendance" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94A3B8', textDecoration: 'none', fontSize: '13px', padding: '8px', borderRadius: '6px', transition: 'all 0.2s' }} onMouseOver={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = '#F8FAFC'; }} onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#94A3B8'; }}>
-                        <Calendar size={16} color="#64748B" /> <span style={{ fontWeight: '500' }}>My Attendance</span>
-                    </a>
-                    <a href="/leaves" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94A3B8', textDecoration: 'none', fontSize: '13px', padding: '8px', borderRadius: '6px', transition: 'all 0.2s' }} onMouseOver={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = '#F8FAFC'; }} onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#94A3B8'; }}>
-                        <Briefcase size={16} color="#64748B" /> <span style={{ fontWeight: '500' }}>Apply for Leave</span>
-                    </a>
-                    <a href="/salary" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#94A3B8', textDecoration: 'none', fontSize: '13px', padding: '8px', borderRadius: '6px', transition: 'all 0.2s' }} onMouseOver={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = '#F8FAFC'; }} onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#94A3B8'; }}>
-                        <FileText size={16} color="#64748B" /> <span style={{ fontWeight: '500' }}>Payslips</span>
-                    </a>
+            {/* Add to your feed */}
+            <WidgetCard title="Add to your feed">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#1E293B', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Avatar user={{ name: 'John Doe', profilePic: null }} size={40} />
+                        </div>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <h4 style={{ margin: 0, color: '#F8FAFC', fontSize: '14px', fontWeight: '600' }}>Design Team</h4>
+                            <span style={{ color: '#94A3B8', fontSize: '12px' }}>Company Updates</span>
+                            <button style={{ 
+                                marginTop: '4px',
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                gap: '4px', 
+                                backgroundColor: 'transparent',
+                                color: '#E2E8F0',
+                                border: '1px solid #E2E8F0',
+                                borderRadius: '16px',
+                                padding: '4px 12px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                width: 'fit-content',
+                                transition: 'all 0.2s'
+                            }} onMouseOver={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderWidth = '2px'; e.currentTarget.style.padding = '3px 11px'; }} onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.borderWidth = '1px'; e.currentTarget.style.padding = '4px 12px'; }}>
+                                <Plus size={16} /> Follow
+                            </button>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#1E293B', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Avatar user={{ name: 'Engineering', profilePic: null }} size={40} />
+                        </div>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <h4 style={{ margin: 0, color: '#F8FAFC', fontSize: '14px', fontWeight: '600' }}>Engineering</h4>
+                            <span style={{ color: '#94A3B8', fontSize: '12px' }}>Tech Updates</span>
+                            <button style={{ 
+                                marginTop: '4px',
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                gap: '4px', 
+                                backgroundColor: 'transparent',
+                                color: '#E2E8F0',
+                                border: '1px solid #E2E8F0',
+                                borderRadius: '16px',
+                                padding: '4px 12px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                width: 'fit-content',
+                                transition: 'all 0.2s'
+                            }} onMouseOver={e => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderWidth = '2px'; e.currentTarget.style.padding = '3px 11px'; }} onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.borderWidth = '1px'; e.currentTarget.style.padding = '4px 12px'; }}>
+                                <Plus size={16} /> Follow
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </WidgetCard>
+
+            {/* Footer Mini-links */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px', padding: '0 16px', marginTop: '8px', color: '#64748B', fontSize: '12px' }}>
+                <a href="#" style={{ color: '#64748B', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#64748B'}>About</a>
+                <a href="#" style={{ color: '#64748B', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#64748B'}>Accessibility</a>
+                <a href="#" style={{ color: '#64748B', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#64748B'}>Help Center</a>
+                <a href="#" style={{ color: '#64748B', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#64748B'}>Privacy & Terms</a>
+                <a href="#" style={{ color: '#64748B', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#64748B'}>Ad Choices</a>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%', justifyContent: 'center', marginTop: '4px' }}>
+                    <span style={{ fontWeight: '600' }}>SMTBMS</span> 
+                    <span>Corporation © 2026</span>
+                </div>
+            </div>
 
         </div>
     );

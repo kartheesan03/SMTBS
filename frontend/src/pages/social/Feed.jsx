@@ -56,7 +56,40 @@ const Feed = () => {
     };
 
     return (
-        <div style={{ backgroundColor: '#0F172A', minHeight: '100vh', padding: '24px 0', color: '#F8FAFC', overflowX: 'hidden' }}>
+        <div style={{ backgroundColor: '#0F172A', minHeight: '100vh', paddingBottom: '24px', color: '#F8FAFC', overflowX: 'hidden' }}>
+            {/* Top Sticky Sub-Header */}
+            <div style={{ 
+                position: 'sticky', 
+                top: 0, 
+                backgroundColor: '#1E293B', 
+                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                zIndex: 40,
+                marginBottom: '24px'
+            }}>
+                <div style={{ maxWidth: '1128px', margin: '0 auto', padding: '0 24px', display: 'flex', gap: '32px' }}>
+                    {['Feed', 'My Posts', 'Saved', 'Analytics'].map((tab, idx) => (
+                        <button 
+                            key={tab}
+                            style={{ 
+                                background: 'none', 
+                                border: 'none', 
+                                borderBottom: idx === 0 ? '2px solid #3B82F6' : '2px solid transparent',
+                                color: idx === 0 ? '#3B82F6' : '#94A3B8',
+                                padding: '16px 0',
+                                fontSize: '14px',
+                                fontWeight: idx === 0 ? '600' : '500',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                            onMouseOver={idx !== 0 ? (e) => e.currentTarget.style.color = '#E2E8F0' : undefined}
+                            onMouseOut={idx !== 0 ? (e) => e.currentTarget.style.color = '#94A3B8' : undefined}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             <style>{`
                 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
                 .feed-container {
@@ -102,12 +135,25 @@ const Feed = () => {
                     />
 
                     {error && (
-                        <div style={{ backgroundColor: '#7F1D1D', color: '#FECACA', padding: '12px 16px', borderRadius: '8px', marginBottom: '24px' }}>
+                        <div style={{ backgroundColor: '#7F1D1D', color: '#FECACA', padding: '12px 16px', borderRadius: '8px', marginBottom: '16px' }}>
                             {error}
                         </div>
                     )}
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {/* Feed Filter Bar */}
+                    {posts.length > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <span style={{ width: '100px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.08)', marginRight: '8px' }}></span>
+                                <span style={{ color: '#94A3B8', fontSize: '12px' }}>Sort by:</span>
+                                <button style={{ background: 'none', border: 'none', color: '#F8FAFC', fontSize: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                    Top <span style={{ marginLeft: '4px', fontSize: '10px' }}>▼</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {posts.map(post => (
                             <PostCard key={post.id} post={post} onDelete={handlePostDeleted} />
                         ))}
@@ -132,21 +178,21 @@ const Feed = () => {
                             flexDirection: 'column',
                             alignItems: 'center'
                         }}>
-                            <div style={{ width: '48px', height: '48px', borderRadius: '8px', backgroundColor: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                                <MessageSquarePlus size={24} color="#60A5FA" />
+                            <div style={{ width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'rgba(59, 130, 246, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                                <MessageSquarePlus size={48} color="#3B82F6" opacity={0.8} />
                             </div>
-                            <h3 style={{ margin: '0 0 8px 0', color: '#F8FAFC', fontSize: '16px', fontWeight: '600' }}>No posts yet</h3>
-                            <p style={{ margin: '0 0 20px 0', fontSize: '14px', maxWidth: '300px', lineHeight: '1.5' }}>Welcome to the Company Feed! Share updates, ideas, or announcements with your team.</p>
+                            <h3 style={{ margin: '0 0 8px 0', color: '#F8FAFC', fontSize: '20px', fontWeight: '600' }}>No posts yet</h3>
+                            <p style={{ margin: '0 0 24px 0', fontSize: '14px', maxWidth: '300px', lineHeight: '1.5', color: '#94A3B8' }}>Your feed is currently empty. Be the first to share an update, idea, or milestone with your network!</p>
                             <button 
                                 onClick={() => setIsModalOpen(true)} 
                                 style={{ 
                                     backgroundColor: '#3B82F6', 
                                     color: 'white', 
                                     border: 'none', 
-                                    padding: '8px 20px', 
-                                    borderRadius: '8px', 
-                                    fontWeight: '500', 
-                                    fontSize: '14px', 
+                                    padding: '10px 24px', 
+                                    borderRadius: '24px', 
+                                    fontWeight: '600', 
+                                    fontSize: '15px', 
                                     cursor: 'pointer', 
                                     transition: 'all 0.2s',
                                     boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
