@@ -128,14 +128,17 @@ const FeedWidgets = () => {
             </WidgetCard>
 
             {/* Footer Mini-links */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', rowGap: '8px', columnGap: '16px', padding: '0 24px', margin: '16px 0 32px 0', color: 'var(--feed-text-muted)', fontSize: '12px', textAlign: 'center', lineHeight: '1.5' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', rowGap: '8px', columnGap: '8px', padding: '0 16px', margin: '16px 0 32px 0', color: 'var(--feed-text-muted)', fontSize: '12px', textAlign: 'center', lineHeight: '1.5' }}>
                 <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline' ; e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none' ; e.currentTarget.style.color = 'var(--feed-text-muted)'}>About</a>
+                <span>·</span>
                 <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline' ; e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none' ; e.currentTarget.style.color = 'var(--feed-text-muted)'}>Accessibility</a>
+                <span>·</span>
                 <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline' ; e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none' ; e.currentTarget.style.color = 'var(--feed-text-muted)'}>Help Center</a>
                 <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '2px' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline' ; e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none' ; e.currentTarget.style.color = 'var(--feed-text-muted)'}>
                     Privacy & Terms
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginTop: '1px' }}><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </a>
+                <span>·</span>
                 <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline' ; e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none' ; e.currentTarget.style.color = 'var(--feed-text-muted)'}>Ad Choices</a>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%', justifyContent: 'center', marginTop: '8px' }}>
                     <span style={{ color: 'var(--feed-accent-blue)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
