@@ -123,21 +123,37 @@ const Feed = () => {
                     {!loading && posts.length === 0 && !error && (
                         <div style={{ 
                             textAlign: 'center', 
-                            padding: '80px 20px', 
+                            padding: '60px 20px', 
                             color: '#94A3B8', 
-                            backgroundColor: '#1E293B', 
-                            borderRadius: '12px', 
-                            border: '1px solid #334155',
+                            backgroundColor: 'rgba(255, 255, 255, 0.02)', 
+                            borderRadius: '10px', 
+                            border: '1px dashed rgba(255, 255, 255, 0.1)',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center'
                         }}>
-                            <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                                <MessageSquarePlus size={32} color="#3B82F6" />
+                            <div style={{ width: '48px', height: '48px', borderRadius: '8px', backgroundColor: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                                <MessageSquarePlus size={24} color="#60A5FA" />
                             </div>
-                            <h3 style={{ margin: '0 0 12px 0', color: '#F8FAFC', fontSize: '20px' }}>No posts yet</h3>
-                            <p style={{ margin: '0 0 24px 0', fontSize: '15px', maxWidth: '300px', lineHeight: '1.5' }}>Welcome to the Company Feed! Share updates, ideas, or announcements with your team.</p>
-                            <button onClick={() => setIsModalOpen(true)} style={{ backgroundColor: '#3B82F6', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '24px', fontWeight: '600', fontSize: '15px', cursor: 'pointer', transition: 'background-color 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#2563EB'} onMouseOut={e => e.currentTarget.style.backgroundColor = '#3B82F6'}>
+                            <h3 style={{ margin: '0 0 8px 0', color: '#F8FAFC', fontSize: '16px', fontWeight: '600' }}>No posts yet</h3>
+                            <p style={{ margin: '0 0 20px 0', fontSize: '14px', maxWidth: '300px', lineHeight: '1.5' }}>Welcome to the Company Feed! Share updates, ideas, or announcements with your team.</p>
+                            <button 
+                                onClick={() => setIsModalOpen(true)} 
+                                style={{ 
+                                    backgroundColor: '#3B82F6', 
+                                    color: 'white', 
+                                    border: 'none', 
+                                    padding: '8px 20px', 
+                                    borderRadius: '8px', 
+                                    fontWeight: '500', 
+                                    fontSize: '14px', 
+                                    cursor: 'pointer', 
+                                    transition: 'all 0.2s',
+                                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                                }} 
+                                onMouseOver={e => { e.currentTarget.style.backgroundColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'; e.currentTarget.style.transform = 'translateY(-1px)'; }} 
+                                onMouseOut={e => { e.currentTarget.style.backgroundColor = '#3B82F6'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.1)'; e.currentTarget.style.transform = 'none'; }}
+                            >
                                 Create the first post
                             </button>
                         </div>

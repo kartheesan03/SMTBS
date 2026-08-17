@@ -14,46 +14,55 @@ const FeedProfileCard = () => {
 
     return (
         <div style={{
-            backgroundColor: '#1E293B',
-            borderRadius: '12px',
-            border: '1px solid #334155',
+            background: 'linear-gradient(180deg, #1A2436 0%, #161F32 100%)',
+            borderRadius: '10px',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
             overflow: 'hidden',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             marginBottom: '16px'
         }}>
             {/* Cover Photo Area (Mock) */}
             <div style={{
                 height: '60px',
-                backgroundColor: '#3B82F6',
-                backgroundImage: 'linear-gradient(to right, #3B82F6, #1D4ED8)'
+                background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(59, 130, 246, 0.15) 100%)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.04)'
             }}></div>
             
-            <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ marginTop: '-24px', marginBottom: '12px', border: '3px solid #1E293B', borderRadius: '50%', backgroundColor: '#1E293B' }}>
+            <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ 
+                    marginTop: '-28px', 
+                    marginBottom: '12px', 
+                    borderRadius: '50%', 
+                    padding: '3px',
+                    background: '#1A2436',
+                    display: 'inline-block'
+                }}>
                     <Avatar user={user} size={64} />
                 </div>
                 
-                <h3 style={{ margin: '0 0 4px', color: '#F8FAFC', fontSize: '16px', fontWeight: '600' }}>
+                <h3 style={{ margin: '0 0 4px', color: '#F8FAFC', fontSize: '15px', fontWeight: '600', letterSpacing: '-0.01em' }}>
                     {user?.name || 'Loading...'}
                 </h3>
-                <p style={{ margin: '0 0 16px', color: '#94A3B8', fontSize: '13px', textAlign: 'center' }}>
+                <p style={{ margin: '0 0 20px', color: '#94A3B8', fontSize: '13px', textAlign: 'center', fontWeight: '400' }}>
                     {user?.role || 'Team Member'}
                 </p>
 
-                <div style={{ width: '100%', height: '1px', backgroundColor: '#334155', marginBottom: '16px' }}></div>
+                <div style={{ width: '100%', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.06)', marginBottom: '16px' }}></div>
 
-                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                        <span style={{ color: '#94A3B8' }}>Connections</span>
-                        <span style={{ color: '#3B82F6', fontWeight: '600' }}>{stats.connections}</span>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                        <span style={{ color: '#64748B', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px', fontWeight: '500' }}>Connections</span>
+                        <span style={{ color: '#F8FAFC', fontSize: '14px', fontWeight: '600' }}>{stats.connections}</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                        <span style={{ color: '#94A3B8' }}>Posts</span>
-                        <span style={{ color: '#E2E8F0', fontWeight: '600' }}>{stats.posts}</span>
+                    <div style={{ width: '1px', height: '24px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}></div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                        <span style={{ color: '#64748B', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px', fontWeight: '500' }}>Posts</span>
+                        <span style={{ color: '#F8FAFC', fontSize: '14px', fontWeight: '600' }}>{stats.posts}</span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                        <span style={{ color: '#94A3B8' }}>Team Size</span>
-                        <span style={{ color: '#E2E8F0', fontWeight: '600' }}>{stats.teamSize}</span>
+                    <div style={{ width: '1px', height: '24px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}></div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                        <span style={{ color: '#64748B', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px', fontWeight: '500' }}>Team</span>
+                        <span style={{ color: '#F8FAFC', fontSize: '14px', fontWeight: '600' }}>{stats.teamSize}</span>
                     </div>
                 </div>
             </div>

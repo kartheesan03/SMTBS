@@ -41,8 +41,15 @@ const PostCard = ({ post, onDelete }) => {
     const isAuthor = user.id === post.authorId || user.role === 'Admin' || user.role === 'Super Admin';
 
     return (
-        <div style={{ backgroundColor: '#1E293B', borderRadius: '12px', padding: '16px', marginBottom: '16px', border: '1px solid #334155', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+        <div style={{ 
+            background: 'linear-gradient(180deg, #1A2436 0%, #161F32 100%)', 
+            borderRadius: '10px', 
+            padding: '20px', 
+            marginBottom: '16px', 
+            border: '1px solid rgba(255, 255, 255, 0.06)', 
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' 
+        }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <Avatar user={post.author} size={48} />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -55,18 +62,18 @@ const PostCard = ({ post, onDelete }) => {
                     {isAuthor && (
                         <button 
                             onClick={handleDelete}
-                            style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '8px', borderRadius: '50%', transition: 'background-color 0.2s' }}
+                            style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '8px', borderRadius: '50%', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             title="Delete Post"
-                            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#334155'; e.currentTarget.style.color = '#F87171'; }}
+                            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)'; e.currentTarget.style.color = '#EF4444'; }}
                             onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#64748B'; }}
                         >
                             <Trash2 size={18} />
                         </button>
                     )}
                     <button 
-                        style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '8px', borderRadius: '50%', transition: 'background-color 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '8px', borderRadius: '50%', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                         title="More options"
-                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#334155'; e.currentTarget.style.color = '#F8FAFC'; }}
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; e.currentTarget.style.color = '#F8FAFC'; }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#64748B'; }}
                     >
                         <MoreHorizontal size={20} />
@@ -74,7 +81,7 @@ const PostCard = ({ post, onDelete }) => {
                 </div>
             </div>
 
-            <p style={{ color: '#E2E8F0', fontSize: '15px', lineHeight: '1.6', marginBottom: post.imageUrl ? '16px' : '20px', whiteSpace: 'pre-wrap' }}>
+            <p style={{ color: '#E2E8F0', fontSize: '14px', lineHeight: '1.6', marginBottom: post.imageUrl ? '16px' : '20px', whiteSpace: 'pre-wrap' }}>
                 {post.text}
             </p>
 
@@ -91,56 +98,54 @@ const PostCard = ({ post, onDelete }) => {
                 </div>
             )}
 
-            <div style={{ height: '1px', backgroundColor: '#334155', margin: '0 0 8px 0' }}></div>
+            <div style={{ width: '100%', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.06)', margin: '16px 0' }}></div>
 
+            {/* Action Buttons */}
             <div style={{ display: 'flex', gap: '8px' }}>
                 <button 
                     onClick={handleLike}
-                    style={{ 
-                        flex: 1,
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        gap: '8px', 
-                        background: 'none', 
-                        border: 'none', 
-                        color: isLiked ? '#3B82F6' : '#94A3B8', 
+                    disabled={isLiking}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        background: 'none',
+                        border: 'none',
+                        color: isLiked ? '#3B82F6' : '#94A3B8',
                         cursor: 'pointer',
-                        padding: '10px 0',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        fontWeight: '600',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '500',
                         transition: 'all 0.2s'
                     }}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#334155'}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; e.currentTarget.style.color = isLiked ? '#60A5FA' : '#F8FAFC'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = isLiked ? '#3B82F6' : '#94A3B8'; }}
                 >
-                    <ThumbsUp size={20} fill={isLiked ? '#3B82F6' : 'none'} />
+                    <ThumbsUp size={18} fill={isLiked ? '#3B82F6' : 'none'} />
                     Like
                 </button>
                 
                 <button 
                     onClick={() => setShowComments(!showComments)}
-                    style={{ 
-                        flex: 1,
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        gap: '8px', 
-                        background: 'none', 
-                        border: 'none', 
-                        color: '#94A3B8', 
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        background: 'none',
+                        border: 'none',
+                        color: showComments ? '#F8FAFC' : '#94A3B8',
                         cursor: 'pointer',
-                        padding: '10px 0',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        fontWeight: '600',
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '500',
                         transition: 'all 0.2s'
                     }}
-                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#334155'}
-                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'; e.currentTarget.style.color = '#F8FAFC'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = showComments ? '#F8FAFC' : '#94A3B8'; }}
                 >
-                    <MessageSquare size={20} />
+                    <MessageSquare size={18} fill={showComments ? 'rgba(255,255,255,0.1)' : 'none'} />
                     Comment
                 </button>
             </div>
