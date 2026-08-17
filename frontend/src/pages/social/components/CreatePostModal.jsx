@@ -79,6 +79,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                 borderRadius: '12px',
                 width: '100%',
                 maxWidth: '550px',
+                maxHeight: 'calc(100vh - 120px)',
                 border: '1px solid var(--feed-border-card)',
                 boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)',
                 display: 'flex',
@@ -115,7 +116,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                 </div>
 
                 {/* Content */}
-                <div style={{ padding: '16px 24px' }}>
+                <div style={{ padding: '16px 24px', flex: 1, overflowY: 'auto' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                         <Avatar user={user} size={48} />
                         <div>
