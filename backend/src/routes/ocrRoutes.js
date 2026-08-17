@@ -5,7 +5,6 @@ const path = require('path');
 const os = require('os');
 const { extractText, exportDocx, exportTxt, exportPdf } = require('../controllers/ocrController');
 
-// Store uploads in the OS temp directory so we never leave files on disk
 const upload = multer({
     dest: os.tmpdir(),
     limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
@@ -24,13 +23,23 @@ const upload = multer({
         if (allowed.includes(file.mimetype) || validExtensions.includes(fileExt)) {
             cb(null, true);
         } else {
-            cb(new Error(`Unsupported file type: ${file.mimetype} (ext: ${fileExt})`));
+            cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE', `Unsupported file type (ext: ${fileExt})`));
         }
     },
 });
 
+const handleUpload = (req, res, next) => {
+    const uploadSingle = upload.single('file');
+    uploadSingle(req, res, (err) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err.message || 'File upload error' });
+        }
+        next();
+    });
+};
+
 // POST /api/ocr/extract
-router.post('/extract', upload.single('file'), extractText);
+router.post('/extract', handleUpload, extractText);
 
 // POST /api/ocr/export/docx
 router.post('/export/docx', exportDocx);

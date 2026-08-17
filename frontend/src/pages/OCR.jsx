@@ -164,7 +164,7 @@ const DocumentIntelligence = () => {
     const imageExtensions = ['png', 'jpg', 'jpeg', 'tiff', 'tif', 'bmp', 'webp', 'gif', 'jfif'];
 
     if (!ALL_SUPPORTED_TYPES.includes(selectedFile.type) && !validExtensions.includes(fileExt)) { 
-        toast.error("Unsupported file type."); 
+        toast.error(`Unsupported file type: ${selectedFile.type || 'none'} (ext: ${fileExt})`); 
         return; 
     }
     
