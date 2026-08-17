@@ -219,9 +219,9 @@ const AppContent = () => {
 
     return (
         <div className="app-layout">
-            {user && !isSocialRoute && <FarmakuSidebar />}
+            {user && <FarmakuSidebar />}
             <main className="app-main">
-                {user && !isSocialRoute && (
+                {user && (
                     <>
                         <ModuleLauncher 
                             isOpen={isModuleLauncherOpen} 

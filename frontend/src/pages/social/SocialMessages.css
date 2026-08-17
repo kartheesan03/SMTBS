@@ -8,53 +8,54 @@
 .messages-layout {
     display: flex;
     height: 100%;
-    background: #FFFFFF;
-    border-radius: 8px;
-    border: 1px solid #E3E5EC;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
     overflow: hidden;
 }
 
 /* Left Sidebar: Conversations */
 .messages-sidebar {
     width: 320px;
-    border-right: 1px solid #E3E5EC;
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    background: #FFFFFF;
+    background: var(--surface);
 }
 
 .messages-header {
     padding: 20px 24px;
-    border-bottom: 1px solid #E3E5EC;
+    border-bottom: 1px solid var(--border);
 }
 
 .messages-header h2 {
     margin: 0;
     font-size: 18px;
-    color: #182849;
+    color: var(--primary);
 }
 
 .messages-search {
     padding: 16px;
     position: relative;
-    border-bottom: 1px solid #E3E5EC;
+    border-bottom: 1px solid var(--border);
 }
 
 .messages-search input {
     width: 100%;
     padding: 8px 16px 8px 36px;
     border: 1px solid transparent;
-    border-radius: 6px;
+    border-radius: var(--radius);
     font-size: 13px;
-    background: #F2F3F7;
+    background: var(--bg);
     outline: none;
     transition: all 0.2s;
     font-family: 'Inter', sans-serif;
+    color: var(--primary);
 }
 
 .messages-search input:focus {
-    background: #FFFFFF;
-    border-color: #3E6AE1;
+    background: var(--surface);
+    border-color: var(--teal);
 }
 
 .messages-search svg {
@@ -62,7 +63,7 @@
     left: 28px;
     top: 50%;
     transform: translateY(-50%);
-    color: #8C9BB3;
+    color: var(--muted);
 }
 
 .conversation-list {
@@ -75,18 +76,18 @@
     align-items: center;
     gap: 12px;
     padding: 16px;
-    border-bottom: 1px solid #F2F3F7;
+    border-bottom: 1px solid var(--bg);
     cursor: pointer;
     transition: background 0.2s;
 }
 
 .conversation-item:hover {
-    background: #F8F9FB;
+    background: var(--bg);
 }
 
 .conversation-item.active {
-    background: rgba(62, 106, 225, 0.05);
-    border-left: 3px solid #3E6AE1;
+    background: var(--teal-soft);
+    border-left: 3px solid var(--teal);
 }
 
 .conv-avatar-wrapper {
@@ -99,9 +100,9 @@
 .conv-avatar {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
-    background: #F2F3F7;
-    color: #182849;
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -110,12 +111,12 @@
 }
 
 .conv-avatar-wrapper .presence-dot {
-    border-color: #FFFFFF;
+    border-color: var(--surface);
 }
 
 .conv-info {
     flex: 1;
-    min-width: 0; /* Important for text truncation */
+    min-width: 0;
 }
 
 .conv-name-time {
@@ -128,7 +129,7 @@
 .conv-name-time h4 {
     margin: 0;
     font-size: 14px;
-    color: #182849;
+    color: var(--primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -136,7 +137,7 @@
 
 .conv-name-time span {
     font-size: 11px;
-    color: #8C9BB3;
+    color: var(--muted);
 }
 
 .conv-last-msg {
@@ -149,24 +150,24 @@
 .conv-last-msg p {
     margin: 0;
     font-size: 13px;
-    color: #8C9BB3;
+    color: var(--muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .conv-last-msg p.unread {
-    color: #182849;
+    color: var(--primary);
     font-weight: 600;
 }
 
 .unread-badge {
-    background: #3E6AE1;
-    color: #FFFFFF;
+    background: var(--teal);
+    color: var(--surface);
     font-size: 10px;
     font-weight: bold;
     padding: 2px 6px;
-    border-radius: 10px;
+    border-radius: var(--radius);
 }
 
 /* Main Chat Area */
@@ -174,14 +175,14 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #F8F9FB;
+    background: var(--bg);
 }
 
 .chat-header {
     height: 72px;
     padding: 0 24px;
-    border-bottom: 1px solid #E3E5EC;
-    background: #FFFFFF;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -202,9 +203,9 @@
 .chat-avatar {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
-    background: #F2F3F7;
-    color: #182849;
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -212,18 +213,18 @@
 }
 
 .chat-avatar-wrapper .presence-dot {
-    border-color: #FFFFFF;
+    border-color: var(--surface);
 }
 
 .chat-recipient-info h3 {
     margin: 0 0 4px 0;
     font-size: 15px;
-    color: #182849;
+    color: var(--primary);
 }
 
 .chat-status {
     font-size: 12px;
-    color: #8C9BB3;
+    color: var(--muted);
 }
 
 .chat-actions {
@@ -234,10 +235,10 @@
 .chat-actions button {
     background: none;
     border: none;
-    color: #8C9BB3;
+    color: var(--muted);
     cursor: pointer;
     padding: 8px;
-    border-radius: 50%;
+    border-radius: var(--radius);
     transition: all 0.2s;
     display: flex;
     align-items: center;
@@ -245,8 +246,8 @@
 }
 
 .chat-actions button:hover {
-    background: #F2F3F7;
-    color: #182849;
+    background: var(--bg);
+    color: var(--primary);
 }
 
 /* Chat History */
@@ -261,7 +262,7 @@
 
 .chat-empty {
     margin: auto;
-    color: #8C9BB3;
+    color: var(--muted);
     font-size: 14px;
 }
 
@@ -282,10 +283,10 @@
 .chat-message-avatar {
     width: 32px;
     height: 32px;
-    border-radius: 50%;
-    background: #FFFFFF;
-    border: 1px solid #E3E5EC;
-    color: #182849;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -311,47 +312,46 @@
     font-size: 14px;
     line-height: 1.5;
     position: relative;
+    border-radius: var(--radius);
 }
 
 .chat-bubble-wrapper.received .chat-bubble {
-    background: #FFFFFF;
-    color: #182849;
-    border: 1px solid #E3E5EC;
-    border-radius: 12px 12px 12px 2px;
+    background: var(--surface);
+    color: var(--primary);
+    border: 1px solid var(--border);
 }
 
 .chat-bubble-wrapper.sent .chat-bubble {
-    background: #3E6AE1;
-    color: #FFFFFF;
-    border-radius: 12px 12px 2px 12px;
+    background: var(--teal);
+    color: var(--surface);
 }
 
 .chat-time {
     font-size: 11px;
-    color: #8C9BB3;
+    color: var(--muted);
 }
 
 /* Input Area */
 .chat-input-area {
     padding: 20px 24px;
-    background: #FFFFFF;
-    border-top: 1px solid #E3E5EC;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
 }
 
 .chat-input-wrapper {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #F2F3F7;
-    border-radius: 24px;
+    background: var(--bg);
+    border-radius: var(--radius);
     padding: 6px 6px 6px 16px;
     border: 1px solid transparent;
     transition: all 0.2s;
 }
 
 .chat-input-wrapper:focus-within {
-    background: #FFFFFF;
-    border-color: #3E6AE1;
+    background: var(--surface);
+    border-color: var(--teal);
 }
 
 .chat-input-wrapper input {
@@ -361,35 +361,35 @@
     outline: none;
     font-size: 14px;
     font-family: 'Inter', sans-serif;
-    color: #182849;
+    color: var(--primary);
     padding: 8px 0;
 }
 
 .icon-btn {
     background: none;
     border: none;
-    color: #8C9BB3;
+    color: var(--muted);
     cursor: pointer;
     padding: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    border-radius: var(--radius);
     transition: all 0.2s;
 }
 
 .icon-btn:hover {
-    color: #182849;
-    background: #E3E5EC;
+    color: var(--primary);
+    background: var(--border);
 }
 
 .send-btn {
-    background: #E3E5EC;
-    color: #8C9BB3;
+    background: var(--border);
+    color: var(--muted);
     border: none;
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: var(--radius);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -398,18 +398,18 @@
 }
 
 .send-btn.active {
-    background: #3E6AE1;
-    color: #FFFFFF;
+    background: var(--primary);
+    color: var(--surface);
 }
 
 .send-btn.active:hover {
-    background: #2b52b8;
+    background: var(--primary-dark);
 }
 
 .chat-placeholder {
     margin: auto;
     text-align: center;
-    color: #8C9BB3;
+    color: var(--muted);
 }
 
 .placeholder-icon {
@@ -419,7 +419,7 @@
 
 .chat-placeholder h3 {
     margin: 0 0 8px 0;
-    color: #182849;
+    color: var(--primary);
 }
 
 .chat-placeholder p {
@@ -435,6 +435,4 @@
     .messages-main {
         display: none;
     }
-    
-    /* When active conv is selected on mobile, would hide sidebar and show main */
 }

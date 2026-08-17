@@ -15,10 +15,10 @@
 }
 
 .network-stat-card {
-    background: #FFFFFF;
-    border-radius: 8px;
+    background: var(--surface);
+    border-radius: var(--radius);
     padding: 20px;
-    border: 1px solid #E3E5EC;
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 16px;
@@ -34,33 +34,34 @@
 .stat-icon-wrapper {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
+    border-radius: var(--radius);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.stat-icon-wrapper.blue { background: rgba(62, 106, 225, 0.1); color: #3E6AE1; }
-.stat-icon-wrapper.amber { background: rgba(255, 176, 32, 0.1); color: #FFB020; }
-.stat-icon-wrapper.teal { background: rgba(0, 184, 217, 0.1); color: #00B8D9; }
+.stat-icon-wrapper.blue { background: var(--teal-soft); color: var(--teal); }
+.stat-icon-wrapper.amber { background: var(--accent-soft); color: var(--accent); }
+.stat-icon-wrapper.teal { background: var(--bg); color: var(--primary); }
 
 .stat-info h3 {
     margin: 0 0 4px 0;
     font-size: 24px;
-    color: #182849;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--primary);
 }
 
 .stat-info span {
     font-size: 13px;
-    color: #8C9BB3;
+    color: var(--muted);
     font-weight: 500;
 }
 
 /* Main Panel */
 .network-main-panel {
-    background: #FFFFFF;
-    border-radius: 8px;
-    border: 1px solid #E3E5EC;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
     display: flex;
     flex-direction: column;
 }
@@ -70,13 +71,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px 24px;
-    border-bottom: 1px solid #E3E5EC;
+    border-bottom: 1px solid var(--border);
 }
 
 .network-header h2 {
     margin: 0;
     font-size: 18px;
-    color: #182849;
+    color: var(--primary);
 }
 
 .network-actions {
@@ -93,18 +94,18 @@
 .network-search input {
     width: 100%;
     padding: 8px 16px 8px 36px;
-    border: 1px solid #E3E5EC;
-    border-radius: 6px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     font-size: 13px;
-    background: #F2F3F7;
+    background: var(--bg);
     outline: none;
     transition: all 0.2s;
     font-family: 'Inter', sans-serif;
 }
 
 .network-search input:focus {
-    background: #FFFFFF;
-    border-color: #3E6AE1;
+    background: var(--surface);
+    border-color: var(--teal);
 }
 
 .network-search svg {
@@ -112,18 +113,18 @@
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #8C9BB3;
+    color: var(--muted);
 }
 
 .filter-btn {
     display: flex;
     align-items: center;
     gap: 6px;
-    background: #FFFFFF;
-    border: 1px solid #E3E5EC;
-    color: #182849;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--primary);
     padding: 8px 16px;
-    border-radius: 6px;
+    border-radius: var(--radius);
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
@@ -131,7 +132,7 @@
 }
 
 .filter-btn:hover {
-    background: #F2F3F7;
+    background: var(--bg);
 }
 
 /* Table List */
@@ -149,16 +150,16 @@
     padding: 12px 24px;
     font-size: 12px;
     font-weight: 600;
-    color: #8C9BB3;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-bottom: 1px solid #E3E5EC;
-    background: #F8F9FB;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
 }
 
 .network-table td {
     padding: 16px 24px;
-    border-bottom: 1px solid #E3E5EC;
+    border-bottom: 1px solid var(--border);
     vertical-align: middle;
 }
 
@@ -167,7 +168,7 @@
 }
 
 .network-table tr:hover td {
-    background: #F8F9FB;
+    background: var(--bg);
 }
 
 /* Table Cells */
@@ -187,9 +188,9 @@
 .table-avatar {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
-    background: #F2F3F7;
-    color: #182849;
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -197,12 +198,12 @@
 }
 
 .table-avatar-wrapper .presence-dot {
-    border-color: #FFFFFF;
+    border-color: var(--surface);
 }
 
 .table-user-name strong {
     font-size: 14px;
-    color: #182849;
+    color: var(--primary);
 }
 
 .table-role-cell {
@@ -210,17 +211,17 @@
     flex-direction: column;
     gap: 4px;
     font-size: 13px;
-    color: #182849;
+    color: var(--primary);
 }
 
 .table-department {
     font-size: 12px;
-    color: #8C9BB3;
+    color: var(--muted);
 }
 
 .table-date {
     font-size: 13px;
-    color: #8C9BB3;
+    color: var(--muted);
 }
 
 /* Actions */
@@ -234,10 +235,10 @@
     align-items: center;
     gap: 6px;
     background: none;
-    border: 1px solid #E3E5EC;
-    color: #182849;
+    border: 1px solid var(--border);
+    color: var(--primary);
     padding: 6px 16px;
-    border-radius: 16px;
+    border-radius: var(--radius);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -245,8 +246,8 @@
 }
 
 .message-btn-outline:hover, .connect-btn-outline:hover {
-    border-color: #3E6AE1;
-    color: #3E6AE1;
+    border-color: var(--teal);
+    color: var(--teal);
 }
 
 .request-actions {
@@ -255,40 +256,40 @@
 }
 
 .accept-btn {
-    background: #3E6AE1;
-    color: #FFFFFF;
+    background: var(--teal);
+    color: var(--surface);
     border: none;
     padding: 6px 16px;
-    border-radius: 16px;
+    border-radius: var(--radius);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
 }
 
 .accept-btn:hover {
-    background: #2b52b8;
+    background: var(--primary);
 }
 
 .reject-btn {
-    background: #F2F3F7;
-    color: #182849;
+    background: var(--bg);
+    color: var(--primary);
     border: none;
     padding: 6px 16px;
-    border-radius: 16px;
+    border-radius: var(--radius);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
 }
 
 .reject-btn:hover {
-    background: #E3E5EC;
+    background: var(--border);
 }
 
 /* Empty State */
 .network-loading, .network-empty {
     padding: 48px;
     text-align: center;
-    color: #8C9BB3;
+    color: var(--muted);
     font-size: 14px;
 }
 

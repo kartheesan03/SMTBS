@@ -246,7 +246,7 @@
 .farmaku-subnav-item.active {
     color: #60A5FA;
     font-weight: 600;
-    background: transparent;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .farmaku-subnav-item.active::before {

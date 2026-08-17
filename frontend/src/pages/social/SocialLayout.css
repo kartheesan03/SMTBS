@@ -1,114 +1,33 @@
+:root {
+    --bg: #F1F3F6;
+    --surface: #FFFFFF;
+    --primary: #16283F;
+    --primary-dark: #0D1B2E;
+    --accent: #7A6A4F;
+    --accent-soft: #EFEBE3;
+    --teal: #3E5A73;
+    --teal-soft: #E7ECF1;
+    --ink: #1A2029;
+    --muted: #697180;
+    --border: #DDE1E7;
+    --radius: 4px;
+}
+
 .social-layout {
     display: flex;
-    height: 100vh;
-    width: 100vw;
-    background-color: #F2F3F7;
+    height: calc(100vh - 60px); /* Adjust for GlobalHeader */
+    width: 100%;
+    background-color: var(--bg);
     font-family: 'Inter', sans-serif;
     overflow: hidden;
 }
 
 /* Typography Overrides */
 .social-layout h1, .social-layout h2, .social-layout h3, .social-layout h4, .social-layout h5, .social-layout h6 {
-    font-family: 'Lexend', sans-serif;
-    color: #182849;
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--primary);
     margin-top: 0;
 }
-
-/* Global Layout Overrides for Social Route */
-body.social-route-active .app-main {
-    margin-left: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-body.social-route-active .app-content {
-    padding: 0 !important;
-    margin: 0 !important;
-    max-width: 100% !important;
-}
-
-/* Left Icon Rail */
-.social-rail {
-    width: 76px;
-    background-color: #182849;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem 0;
-    z-index: 100;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-}
-
-.rail-nav {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    width: 100%;
-}
-
-.rail-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #8C9BB3;
-    text-decoration: none;
-    font-size: 0.65rem;
-    font-weight: 500;
-    padding: 0.5rem 0;
-    gap: 0.3rem;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border-left: 3px solid transparent;
-}
-
-.rail-item:hover {
-    color: #FFFFFF;
-}
-
-.rail-item.active {
-    color: #FFFFFF;
-    border-left-color: #3E6AE1;
-    background-color: rgba(62, 106, 225, 0.1);
-}
-
-.rail-item.bottom-pinned {
-    margin-top: auto;
-    border-left: none;
-}
-
-.rail-avatar-wrapper {
-    position: relative;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #3E6AE1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #FFF;
-    font-weight: 600;
-    font-family: 'Lexend', sans-serif;
-}
-
-/* Presence Indicators */
-.presence-dot {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid #FFFFFF;
-}
-.rail-avatar-wrapper .presence-dot {
-    border-color: #182849;
-}
-.presence-dot.online { background-color: #2ECA7A; }
-.presence-dot.away { background-color: #FFB020; }
-.presence-dot.offline { background-color: #8C9BB3; }
 
 /* Main Content Area */
 .social-main-area {
@@ -116,113 +35,7 @@ body.social-route-active .app-content {
     display: flex;
     flex-direction: column;
     min-width: 0;
-}
-
-/* Top Bar */
-.social-topbar {
-    height: 60px;
-    background-color: #FFFFFF;
-    border-bottom: 1px solid #E3E5EC;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 1.5rem;
-    z-index: 10;
-}
-
-.topbar-search {
-    position: relative;
-    width: 320px;
-}
-
-.topbar-search input {
-    width: 100%;
-    padding: 0.5rem 1rem 0.5rem 2.5rem;
-    border: 1px solid #E3E5EC;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    background-color: #F2F3F7;
-    outline: none;
-    transition: border-color 0.2s;
-    font-family: 'Inter', sans-serif;
-}
-
-.topbar-search input:focus {
-    border-color: #3E6AE1;
-    background-color: #FFFFFF;
-}
-
-.topbar-search .search-icon {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #8C9BB3;
-}
-
-.topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.topbar-actions {
-    position: relative;
-    color: #182849;
-    cursor: pointer;
-}
-
-.notification-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background-color: #E74C3C;
-    color: #FFF;
-    font-size: 0.6rem;
-    font-weight: bold;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.topbar-profile {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.topbar-profile-info {
-    display: flex;
-    flex-direction: column;
-    text-align: right;
-}
-
-.topbar-name {
-    font-family: 'Lexend', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #182849;
-}
-
-.topbar-role {
-    font-size: 0.7rem;
-    color: #8C9BB3;
-}
-
-.topbar-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: #3E6AE1;
-    color: #FFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    position: relative;
+    height: 100%;
 }
 
 /* Page Content Container */

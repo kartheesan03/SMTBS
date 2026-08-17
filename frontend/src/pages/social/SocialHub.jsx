@@ -54,6 +54,21 @@ const SocialHub = () => {
         <div className="social-hub-container">
             {/* Center Column: Feed */}
             <div className="social-center-col">
+                <div className="momentum-bar">
+                    <div className="momentum-stat">
+                        <span className="momentum-value">3</span>
+                        <span className="momentum-label">New Deals</span>
+                    </div>
+                    <div className="momentum-stat">
+                        <span className="momentum-value">12</span>
+                        <span className="momentum-label">Active Projects</span>
+                    </div>
+                    <div className="momentum-stat">
+                        <span className="momentum-value">5</span>
+                        <span className="momentum-label">New Hires</span>
+                    </div>
+                </div>
+
                 <div className="post-composer">
                     <div className="composer-top">
                         <div className="composer-avatar-wrapper">
@@ -71,10 +86,12 @@ const SocialHub = () => {
                         />
                     </div>
                     <div className="composer-actions">
-                        <button className="composer-action-btn"><Image size={16} /> Photo</button>
-                        <button className="composer-action-btn"><FileText size={16} /> Document</button>
-                        <button className="composer-action-btn"><Award size={16} /> Achievement</button>
-                        <button className="composer-action-btn"><Calendar size={16} /> Event</button>
+                        <div className="composer-action-chips">
+                            <button className="composer-action-btn">Photo</button>
+                            <button className="composer-action-btn">Document</button>
+                            <button className="composer-action-btn">Achievement</button>
+                            <button className="composer-action-btn">Event</button>
+                        </div>
                         <button className="composer-submit-btn" onClick={handlePostSubmit}>Post</button>
                     </div>
                 </div>

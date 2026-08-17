@@ -135,7 +135,7 @@ const SocialMessages = () => {
 
                             <div className="chat-history">
                                 {messages.length === 0 ? (
-                                    <div className="chat-empty">No messages yet. Say hello!</div>
+                                    <div className="chat-empty">No messages yet. Start the conversation.</div>
                                 ) : (
                                     messages.map((msg, idx) => {
                                         const isOutgoing = msg.senderId === 1;
