@@ -9,6 +9,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded }) =
     const [comments, setComments] = useState(initialComments || []);
     const [text, setText] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(2);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -94,7 +95,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded }) =
             </form>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {comments.map((comment) => (
+                {comments.slice(0, visibleCount).map((comment) => (
                     <div key={comment.id} style={{ display: 'flex', gap: '8px' }}>
                         <Avatar user={comment.author} size={40} />
                         <div style={{ flex: 1 }}>
@@ -118,6 +119,17 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded }) =
                     </div>
                 ))}
             </div>
+
+            {comments.length > visibleCount && (
+                <div 
+                    onClick={() => setVisibleCount(prev => prev + 5)}
+                    style={{ marginTop: '12px', color: '#94A3B8', fontSize: '13px', fontWeight: '600', cursor: 'pointer', display: 'inline-block' }}
+                    onMouseOver={e => e.currentTarget.style.color = '#F8FAFC'}
+                    onMouseOut={e => e.currentTarget.style.color = '#94A3B8'}
+                >
+                    Load more comments
+                </div>
+            )}
             <style>{`
                 .comment-action {
                     padding: 2px 4px;
