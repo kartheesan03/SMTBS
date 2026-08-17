@@ -77,7 +77,8 @@ const Feed = () => {
                                 borderBottom: idx === 0 ? '2px solid var(--feed-accent-blue)' : '2px solid transparent',
                                 color: idx === 0 ? 'var(--feed-accent-blue)' : 'var(--feed-text-muted)',
                                 padding: '16px 0',
-                                fontSize: '14px',
+                                marginBottom: '-1px',
+                                fontSize: '15px',
                                 fontWeight: idx === 0 ? '600' : '500',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s'
