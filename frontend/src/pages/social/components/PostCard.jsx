@@ -74,7 +74,14 @@ const PostCard = ({ post, onDelete }) => {
                 </div>
             )}
 
-            <div style={{ height: '1px', backgroundColor: '#334155', margin: '16px 0 8px 0' }}></div>
+            {(likesCount > 0 || commentsCount > 0) && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', fontSize: '13px', color: '#94A3B8' }}>
+                    <span>{likesCount > 0 ? `${likesCount} like${likesCount !== 1 ? 's' : ''}` : ''}</span>
+                    <span>{commentsCount > 0 ? `${commentsCount} comment${commentsCount !== 1 ? 's' : ''}` : ''}</span>
+                </div>
+            )}
+
+            <div style={{ height: '1px', backgroundColor: '#334155', margin: '0 0 8px 0' }}></div>
 
             <div style={{ display: 'flex', gap: '8px' }}>
                 <button 
@@ -99,7 +106,7 @@ const PostCard = ({ post, onDelete }) => {
                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                     <ThumbsUp size={20} fill={isLiked ? '#3B82F6' : 'none'} />
-                    Like {likesCount > 0 && <span style={{ marginLeft: '4px' }}>{likesCount}</span>}
+                    Like
                 </button>
                 
                 <button 
@@ -124,7 +131,7 @@ const PostCard = ({ post, onDelete }) => {
                     onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                     <MessageSquare size={20} />
-                    Comment {commentsCount > 0 && <span style={{ marginLeft: '4px' }}>{commentsCount}</span>}
+                    Comment
                 </button>
             </div>
 

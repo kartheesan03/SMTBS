@@ -18,6 +18,7 @@ const CreatePost = ({ onPostCreated }) => {
         setIsSubmitting(true);
         try {
             const newPost = await createPost(text, imageUrl || null);
+            console.log('POST /api/feed response:', newPost);
             setText('');
             setImageUrl('');
             if (onPostCreated) onPostCreated(newPost);

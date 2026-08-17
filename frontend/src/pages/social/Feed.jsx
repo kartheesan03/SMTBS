@@ -14,6 +14,7 @@ const Feed = () => {
         try {
             setLoading(true);
             const data = await getPosts(pageNum, 10);
+            console.log('GET /api/feed response:', data);
             
             if (append) {
                 setPosts(prev => [...prev, ...data.posts]);
