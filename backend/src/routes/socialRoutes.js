@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const socialController = require('../controllers/socialController');
-const { protect } = require('../middlewares/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
 router.use(protect); // All social routes require authentication
 
