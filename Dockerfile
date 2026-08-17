@@ -18,4 +18,4 @@ COPY backend/ocr_service/ .
 EXPOSE 8000
 
 # Start the FastAPI application using uvicorn
-CMD uvicorn main:app --host 0.0.0.0 --port $PORT
+CMD ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port $PORT"]
