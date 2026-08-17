@@ -140,6 +140,7 @@ const LandingPage = lazyRetry(() => import('./pages/LandingPage'));
 const AriaCommandCenter = lazyRetry(() => import('./pages/AriaCommandCenter'));
 
 // Social Network Pages
+const SocialLayout = lazyRetry(() => import('./pages/social/SocialLayout'));
 const SocialHub = lazyRetry(() => import('./pages/social/SocialHub'));
 const SocialProfile = lazyRetry(() => import('./pages/social/SocialProfile'));
 const MyNetwork = lazyRetry(() => import('./pages/social/MyNetwork'));
@@ -159,6 +160,8 @@ const AuthMicrosoftCallback = lazyRetry(() => import('./pages/AuthMicrosoftCallb
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     const { isOpen: isAriaOpen, openAria, closeAria } = useContext(AriaContext);
+    const location = useLocation();
+    const isSocialRoute = location.pathname.startsWith('/social');
     
     // Navigation State
     const [isModuleLauncherOpen, setIsModuleLauncherOpen] = useState(false);
@@ -209,9 +212,9 @@ const AppContent = () => {
 
     return (
         <div className="app-layout">
-            {user && <FarmakuSidebar />}
+            {user && !isSocialRoute && <FarmakuSidebar />}
             <main className="app-main">
-                {user && (
+                {user && !isSocialRoute && (
                     <>
                         <ModuleLauncher 
                             isOpen={isModuleLauncherOpen} 
@@ -437,11 +440,11 @@ const AppContent = () => {
                     <Route path="/settings/leave" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><LeaveSettings /></ProtectedRoute>} />
                     <Route path="/settings/payroll" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><PayrollSettings /></ProtectedRoute>} />
 
-                    {/* Social Network Routes */}
-                    <Route path="/social" element={<ProtectedRoute><SocialHub /></ProtectedRoute>} />
-                    <Route path="/social/network" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
-                    <Route path="/social/messages" element={<ProtectedRoute><SocialMessages /></ProtectedRoute>} />
-                    <Route path="/social/profile/:id" element={<ProtectedRoute><SocialProfile /></ProtectedRoute>} />
+                    {/* Social Network Routes wrapped in SocialLayout */}
+                    <Route path="/social" element={<ProtectedRoute><SocialLayout><SocialHub /></SocialLayout></ProtectedRoute>} />
+                    <Route path="/social/network" element={<ProtectedRoute><SocialLayout><MyNetwork /></SocialLayout></ProtectedRoute>} />
+                    <Route path="/social/messages" element={<ProtectedRoute><SocialLayout><SocialMessages /></SocialLayout></ProtectedRoute>} />
+                    <Route path="/social/profile/:id" element={<ProtectedRoute><SocialLayout><SocialProfile /></SocialLayout></ProtectedRoute>} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />
