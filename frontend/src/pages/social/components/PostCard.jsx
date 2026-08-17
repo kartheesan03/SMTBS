@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { ThumbsUp, MessageSquare, Trash2 } from 'lucide-react';
+import { ThumbsUp, MessageSquare, Trash2, MoreHorizontal } from 'lucide-react';
 import Avatar from './Avatar';
 import CommentSection from './CommentSection';
 import { toggleLike, deletePost } from '../../../api/posts';
@@ -41,7 +41,7 @@ const PostCard = ({ post, onDelete }) => {
     const isAuthor = user.id === post.authorId || user.role === 'Admin' || user.role === 'Super Admin';
 
     return (
-        <div style={{ backgroundColor: '#1E293B', borderRadius: '12px', padding: '16px 20px 20px', marginBottom: '16px', border: '1px solid #334155', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
+        <div style={{ backgroundColor: '#1E293B', borderRadius: '12px', padding: '16px', marginBottom: '16px', border: '1px solid #334155', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <Avatar user={post.author} size={48} />
@@ -51,17 +51,27 @@ const PostCard = ({ post, onDelete }) => {
                         <span style={{ color: '#64748B', fontSize: '12px', marginTop: '2px' }}>{getRelativeTime(post.createdAt)}</span>
                     </div>
                 </div>
-                {isAuthor && (
+                <div style={{ display: 'flex', gap: '4px' }}>
+                    {isAuthor && (
+                        <button 
+                            onClick={handleDelete}
+                            style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '8px', borderRadius: '50%', transition: 'background-color 0.2s' }}
+                            title="Delete Post"
+                            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#334155'; e.currentTarget.style.color = '#F87171'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#64748B'; }}
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    )}
                     <button 
-                        onClick={handleDelete}
-                        style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '8px', borderRadius: '50%', transition: 'background-color 0.2s' }}
-                        title="Delete Post"
-                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#334155'; e.currentTarget.style.color = '#F87171'; }}
+                        style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '8px', borderRadius: '50%', transition: 'background-color 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        title="More options"
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#334155'; e.currentTarget.style.color = '#F8FAFC'; }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#64748B'; }}
                     >
-                        <Trash2 size={18} />
+                        <MoreHorizontal size={20} />
                     </button>
-                )}
+                </div>
             </div>
 
             <p style={{ color: '#E2E8F0', fontSize: '15px', lineHeight: '1.6', marginBottom: post.imageUrl ? '16px' : '20px', whiteSpace: 'pre-wrap' }}>
