@@ -51,7 +51,10 @@ const Feed = () => {
 
     return (
         <div style={{ backgroundColor: '#0F172A', minHeight: '100vh', padding: '24px', color: '#F8FAFC' }}>
-            <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+            <style>{`
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+            `}</style>
+            <div style={{ maxWidth: '600px', margin: '0 auto' }}>
                 <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '24px', color: '#F8FAFC' }}>Company Feed</h2>
                 
                 <CreatePost onPostCreated={handlePostCreated} />
@@ -68,15 +71,17 @@ const Feed = () => {
                     ))}
                 </div>
 
-                {loading && (
-                    <div style={{ textAlign: 'center', padding: '20px', color: '#94A3B8' }}>
-                        Loading posts...
+                {loading && posts.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                        <div className="loader" style={{ width: '32px', height: '32px', border: '3px solid #334155', borderTopColor: '#3B82F6', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                        <span>Loading feed...</span>
                     </div>
                 )}
 
                 {!loading && posts.length === 0 && !error && (
-                    <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94A3B8', backgroundColor: '#1E293B', borderRadius: '12px' }}>
-                        No posts yet. Be the first to share something!
+                    <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94A3B8', backgroundColor: '#1E293B', borderRadius: '12px', border: '1px solid #334155' }}>
+                        <h3 style={{ margin: '0 0 8px 0', color: '#E2E8F0', fontSize: '18px' }}>No posts yet</h3>
+                        <p style={{ margin: 0, fontSize: '14px' }}>Be the first to share something with the team!</p>
                     </div>
                 )}
 

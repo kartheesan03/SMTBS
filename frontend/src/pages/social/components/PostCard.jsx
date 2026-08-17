@@ -4,6 +4,7 @@ import Avatar from './Avatar';
 import CommentSection from './CommentSection';
 import { toggleLike, deletePost } from '../../../api/posts';
 import { AuthContext } from '../../../context/AuthContext';
+import { getRelativeTime } from '../../../utils/timeUtils';
 
 const PostCard = ({ post, onDelete }) => {
     const { user } = useContext(AuthContext);
@@ -40,20 +41,23 @@ const PostCard = ({ post, onDelete }) => {
     const isAuthor = user.id === post.authorId || user.role === 'Admin' || user.role === 'Super Admin';
 
     return (
-        <div style={{ backgroundColor: '#1E293B', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+        <div style={{ backgroundColor: '#1E293B', borderRadius: '12px', padding: '16px 20px 20px', marginBottom: '16px', border: '1px solid #334155', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                     <Avatar user={post.author} size={48} />
-                    <div>
-                        <h4 style={{ margin: 0, color: '#F8FAFC', fontSize: '16px', fontWeight: '600' }}>{post.author?.name}</h4>
-                        <span style={{ color: '#94A3B8', fontSize: '13px' }}>{post.author?.role} • {new Date(post.createdAt).toLocaleDateString()}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <h4 style={{ margin: 0, color: '#F8FAFC', fontSize: '15px', fontWeight: '600', lineHeight: '1.2' }}>{post.author?.name}</h4>
+                        <span style={{ color: '#94A3B8', fontSize: '12px', marginTop: '2px' }}>{post.author?.role}</span>
+                        <span style={{ color: '#64748B', fontSize: '12px', marginTop: '2px' }}>{getRelativeTime(post.createdAt)}</span>
                     </div>
                 </div>
                 {isAuthor && (
                     <button 
                         onClick={handleDelete}
-                        style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}
+                        style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '8px', borderRadius: '50%', transition: 'background-color 0.2s' }}
                         title="Delete Post"
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#334155'; e.currentTarget.style.color = '#F87171'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#64748B'; }}
                     >
                         <Trash2 size={18} />
                     </button>
@@ -65,46 +69,62 @@ const PostCard = ({ post, onDelete }) => {
             </p>
 
             {post.imageUrl && (
-                <div style={{ marginBottom: '20px', borderRadius: '8px', overflow: 'hidden' }}>
-                    <img src={post.imageUrl} alt="Post attachment" style={{ width: '100%', maxHeight: '400px', objectFit: 'cover' }} />
+                <div style={{ marginBottom: '16px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #334155', backgroundColor: '#0F172A' }}>
+                    <img src={post.imageUrl} alt="Post attachment" style={{ width: '100%', maxHeight: '500px', objectFit: 'cover', display: 'block' }} />
                 </div>
             )}
 
-            <div style={{ display: 'flex', gap: '24px', borderTop: '1px solid #2A3649', paddingTop: '16px' }}>
+            <div style={{ height: '1px', backgroundColor: '#334155', margin: '16px 0 8px 0' }}></div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
                 <button 
                     onClick={handleLike}
                     style={{ 
+                        flex: 1,
                         display: 'flex', 
                         alignItems: 'center', 
+                        justifyContent: 'center',
                         gap: '8px', 
                         background: 'none', 
                         border: 'none', 
                         color: isLiked ? '#3B82F6' : '#94A3B8', 
                         cursor: 'pointer',
+                        padding: '10px 0',
+                        borderRadius: '8px',
                         fontSize: '14px',
-                        fontWeight: '500'
+                        fontWeight: '600',
+                        transition: 'all 0.2s'
                     }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
-                    <ThumbsUp size={18} fill={isLiked ? '#3B82F6' : 'none'} />
-                    {likesCount} Likes
+                    <ThumbsUp size={20} fill={isLiked ? '#3B82F6' : 'none'} />
+                    Like {likesCount > 0 && <span style={{ marginLeft: '4px' }}>{likesCount}</span>}
                 </button>
                 
                 <button 
                     onClick={() => setShowComments(!showComments)}
                     style={{ 
+                        flex: 1,
                         display: 'flex', 
                         alignItems: 'center', 
+                        justifyContent: 'center',
                         gap: '8px', 
                         background: 'none', 
                         border: 'none', 
                         color: '#94A3B8', 
                         cursor: 'pointer',
+                        padding: '10px 0',
+                        borderRadius: '8px',
                         fontSize: '14px',
-                        fontWeight: '500'
+                        fontWeight: '600',
+                        transition: 'all 0.2s'
                     }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#334155'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
-                    <MessageSquare size={18} />
-                    {commentsCount} Comments
+                    <MessageSquare size={20} />
+                    Comment {commentsCount > 0 && <span style={{ marginLeft: '4px' }}>{commentsCount}</span>}
                 </button>
             </div>
 
