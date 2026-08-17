@@ -12,6 +12,7 @@ const Feed = () => {
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const loadPosts = async (pageNum, append = false) => {
         try {
@@ -47,6 +48,7 @@ const Feed = () => {
 
     const handlePostCreated = (newPost) => {
         setPosts([newPost, ...posts]);
+        setIsModalOpen(false);
     };
 
     const handlePostDeleted = (postId) => {
@@ -93,7 +95,11 @@ const Feed = () => {
 
                 {/* Center Column */}
                 <div className="feed-center-col">
-                    <CreatePost onPostCreated={handlePostCreated} />
+                    <CreatePost 
+                        onPostCreated={handlePostCreated} 
+                        isModalOpen={isModalOpen}
+                        setIsModalOpen={setIsModalOpen}
+                    />
 
                     {error && (
                         <div style={{ backgroundColor: '#7F1D1D', color: '#FECACA', padding: '12px 16px', borderRadius: '8px', marginBottom: '24px' }}>
@@ -131,7 +137,7 @@ const Feed = () => {
                             </div>
                             <h3 style={{ margin: '0 0 12px 0', color: '#F8FAFC', fontSize: '20px' }}>No posts yet</h3>
                             <p style={{ margin: '0 0 24px 0', fontSize: '15px', maxWidth: '300px', lineHeight: '1.5' }}>Welcome to the Company Feed! Share updates, ideas, or announcements with your team.</p>
-                            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ backgroundColor: '#3B82F6', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '24px', fontWeight: '600', fontSize: '15px', cursor: 'pointer', transition: 'background-color 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#2563EB'} onMouseOut={e => e.currentTarget.style.backgroundColor = '#3B82F6'}>
+                            <button onClick={() => setIsModalOpen(true)} style={{ backgroundColor: '#3B82F6', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '24px', fontWeight: '600', fontSize: '15px', cursor: 'pointer', transition: 'background-color 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#2563EB'} onMouseOut={e => e.currentTarget.style.backgroundColor = '#3B82F6'}>
                                 Create the first post
                             </button>
                         </div>

@@ -1,12 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
 import Avatar from './Avatar';
 import CreatePostModal from './CreatePostModal';
 import { Image as ImageIcon, FileText, Calendar, AlignLeft } from 'lucide-react';
 
-const CreatePost = ({ onPostCreated }) => {
+const CreatePost = ({ onPostCreated, isModalOpen, setIsModalOpen }) => {
     const { user } = useContext(AuthContext);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     return (
         <>
             <div style={{ backgroundColor: '#1E293B', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px', border: '1px solid #334155', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)' }}>
