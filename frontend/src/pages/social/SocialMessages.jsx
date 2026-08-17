@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../api/axios';
-import { Search, Edit, Send, Phone, Video, MoreVertical, Image as ImageIcon, Paperclip, Smile } from 'lucide-react';
+import { Search, Edit, Send, Phone, Video, MoreVertical, Image as ImageIcon, Paperclip, Smile, MessageSquare } from 'lucide-react';
 import './SocialMessages.css';
 
 const SocialMessages = () => {
