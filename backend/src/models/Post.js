@@ -17,7 +17,7 @@ const PostSequelize = sequelize.define('Post', {
         allowNull: false
     },
     imageUrl: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT('long'),
         allowNull: true
     }
 }, {
