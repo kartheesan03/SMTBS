@@ -56,15 +56,16 @@ const Feed = () => {
     };
 
     return (
-        <div style={{ backgroundColor: '#0F172A', minHeight: '100vh', paddingBottom: '24px', color: '#F8FAFC', overflowX: 'hidden' }}>
+        <div style={{ backgroundColor: 'var(--feed-bg-page)', minHeight: '100vh', paddingBottom: '24px', color: 'var(--feed-text-primary)', overflowX: 'hidden', transition: 'background-color 0.2s' }}>
             {/* Top Sticky Sub-Header */}
             <div style={{ 
                 position: 'sticky', 
-                top: 0, 
-                backgroundColor: '#1E293B', 
-                borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                top: '0', 
+                backgroundColor: 'var(--feed-bg-card)', 
+                borderBottom: '1px solid var(--feed-border-card)',
                 zIndex: 40,
-                marginBottom: '24px'
+                marginBottom: '24px',
+                transition: 'background-color 0.2s'
             }}>
                 <div style={{ maxWidth: '1128px', margin: '0 auto', padding: '0 24px', display: 'flex', gap: '32px' }}>
                     {['Feed', 'My Posts', 'Saved', 'Analytics'].map((tab, idx) => (
@@ -73,16 +74,16 @@ const Feed = () => {
                             style={{ 
                                 background: 'none', 
                                 border: 'none', 
-                                borderBottom: idx === 0 ? '2px solid #3B82F6' : '2px solid transparent',
-                                color: idx === 0 ? '#3B82F6' : '#94A3B8',
+                                borderBottom: idx === 0 ? '2px solid var(--feed-accent-blue)' : '2px solid transparent',
+                                color: idx === 0 ? 'var(--feed-accent-blue)' : 'var(--feed-text-muted)',
                                 padding: '16px 0',
                                 fontSize: '14px',
                                 fontWeight: idx === 0 ? '600' : '500',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s'
                             }}
-                            onMouseOver={idx !== 0 ? (e) => e.currentTarget.style.color = '#E2E8F0' : undefined}
-                            onMouseOut={idx !== 0 ? (e) => e.currentTarget.style.color = '#94A3B8' : undefined}
+                            onMouseOver={idx !== 0 ? (e) => e.currentTarget.style.color = 'var(--feed-text-primary)' : undefined}
+                            onMouseOut={idx !== 0 ? (e) => e.currentTarget.style.color = 'var(--feed-text-muted)' : undefined}
                         >
                             {tab}
                         </button>
@@ -100,6 +101,15 @@ const Feed = () => {
                     gap: 24px;
                     padding: 0 24px;
                     justify-content: center;
+                    align-items: start;
+                }
+                .feed-left-col {
+                    position: sticky;
+                    top: 80px;
+                }
+                .feed-right-col {
+                    position: sticky;
+                    top: 80px;
                 }
                 @media (max-width: 1024px) {
                     .feed-container {
@@ -144,9 +154,9 @@ const Feed = () => {
                     {posts.length > 0 && (
                         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <span style={{ width: '100px', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.08)', marginRight: '8px' }}></span>
-                                <span style={{ color: '#94A3B8', fontSize: '12px' }}>Sort by:</span>
-                                <button style={{ background: 'none', border: 'none', color: '#F8FAFC', fontSize: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                                <span style={{ width: '100px', height: '1px', backgroundColor: 'var(--feed-border-card)', marginRight: '8px' }}></span>
+                                <span style={{ color: 'var(--feed-text-muted)', fontSize: '12px' }}>Sort by:</span>
+                                <button style={{ background: 'none', border: 'none', color: 'var(--feed-text-primary)', fontSize: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                                     Top <span style={{ marginLeft: '4px', fontSize: '10px' }}>▼</span>
                                 </button>
                             </div>
@@ -160,8 +170,8 @@ const Feed = () => {
                     </div>
 
                     {loading && posts.length === 0 && (
-                        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94A3B8', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                            <div className="loader" style={{ width: '32px', height: '32px', border: '3px solid #334155', borderTopColor: '#3B82F6', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                        <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--feed-text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                            <div className="loader" style={{ width: '32px', height: '32px', border: '3px solid var(--feed-border-card)', borderTopColor: 'var(--feed-accent-blue)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
                             <span>Loading your feed...</span>
                         </div>
                     )}
@@ -170,23 +180,23 @@ const Feed = () => {
                         <div style={{ 
                             textAlign: 'center', 
                             padding: '60px 20px', 
-                            color: '#94A3B8', 
-                            backgroundColor: 'rgba(255, 255, 255, 0.02)', 
-                            borderRadius: '10px', 
-                            border: '1px dashed rgba(255, 255, 255, 0.1)',
+                            color: 'var(--feed-text-muted)', 
+                            backgroundColor: 'var(--feed-bg-card)', 
+                            borderRadius: '8px', 
+                            border: '1px solid var(--feed-border-card)',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center'
                         }}>
-                            <div style={{ width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'rgba(59, 130, 246, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-                                <MessageSquarePlus size={48} color="#3B82F6" opacity={0.8} />
+                            <div style={{ width: '120px', height: '120px', borderRadius: '50%', backgroundColor: 'var(--feed-bg-page)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                                <MessageSquarePlus size={48} color="var(--feed-accent-blue)" opacity={0.8} />
                             </div>
-                            <h3 style={{ margin: '0 0 8px 0', color: '#F8FAFC', fontSize: '20px', fontWeight: '600' }}>No posts yet</h3>
-                            <p style={{ margin: '0 0 24px 0', fontSize: '14px', maxWidth: '300px', lineHeight: '1.5', color: '#94A3B8' }}>Your feed is currently empty. Be the first to share an update, idea, or milestone with your network!</p>
+                            <h3 style={{ margin: '0 0 8px 0', color: 'var(--feed-text-primary)', fontSize: '20px', fontWeight: '600' }}>No posts yet</h3>
+                            <p style={{ margin: '0 0 24px 0', fontSize: '14px', maxWidth: '300px', lineHeight: '1.5', color: 'var(--feed-text-muted)' }}>Your feed is currently empty. Be the first to share an update, idea, or milestone with your network!</p>
                             <button 
                                 onClick={() => setIsModalOpen(true)} 
                                 style={{ 
-                                    backgroundColor: '#3B82F6', 
+                                    backgroundColor: 'var(--feed-accent-blue)', 
                                     color: 'white', 
                                     border: 'none', 
                                     padding: '10px 24px', 
@@ -195,10 +205,9 @@ const Feed = () => {
                                     fontSize: '15px', 
                                     cursor: 'pointer', 
                                     transition: 'all 0.2s',
-                                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
                                 }} 
-                                onMouseOver={e => { e.currentTarget.style.backgroundColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'; e.currentTarget.style.transform = 'translateY(-1px)'; }} 
-                                onMouseOut={e => { e.currentTarget.style.backgroundColor = '#3B82F6'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.1)'; e.currentTarget.style.transform = 'none'; }}
+                                onMouseOver={e => { e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'; e.currentTarget.style.color = 'var(--feed-text-primary)'; }} 
+                                onMouseOut={e => { e.currentTarget.style.backgroundColor = 'var(--feed-accent-blue)'; e.currentTarget.style.color = 'white'; }}
                             >
                                 Create the first post
                             </button>
@@ -211,16 +220,16 @@ const Feed = () => {
                                 onClick={handleLoadMore}
                                 style={{
                                     backgroundColor: 'transparent',
-                                    color: '#3B82F6',
-                                    border: '1px solid #3B82F6',
+                                    color: 'var(--feed-accent-blue)',
+                                    border: '1px solid var(--feed-accent-blue)',
                                     borderRadius: '20px',
                                     padding: '8px 24px',
                                     fontWeight: '600',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s'
                                 }}
-                                onMouseOver={(e) => { e.target.style.backgroundColor = '#1E3A8A'; e.target.style.color = '#EFF6FF'; }}
-                                onMouseOut={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.color = '#3B82F6'; }}
+                                onMouseOver={(e) => { e.target.style.backgroundColor = 'var(--feed-btn-hover)'; }}
+                                onMouseOut={(e) => { e.target.style.backgroundColor = 'transparent'; }}
                             >
                                 Load More
                             </button>

@@ -73,9 +73,29 @@
   --radius-lg: 0px;
   --radius-xl: 0px;
   --radius-2xl: 0px;
+
+  /* --- Feed Specific Variables (Light/LinkedIn Mode) --- */
+  --feed-bg-page: #F4F2EE;
+  --feed-bg-card: #FFFFFF;
+  --feed-border-card: #E7E5E1;
+  --feed-text-primary: rgba(0, 0, 0, 0.87);
+  --feed-text-muted: rgba(0, 0, 0, 0.6);
+  --feed-accent-blue: #0A66C2;
+  --feed-btn-hover: rgba(0, 0, 0, 0.08);
+  --feed-avatar-ring: #FFFFFF;
 }
 
-:root.dark-theme, .dark-theme {
+:root.dark-theme, .dark-theme, :root[data-theme='dark'] {
+  /* --- Feed Specific Variables (Dark Mode) --- */
+  --feed-bg-page: #0F1729;
+  --feed-bg-card: #1B2434;
+  --feed-border-card: rgba(255, 255, 255, 0.08);
+  --feed-text-primary: #E8EAED;
+  --feed-text-muted: #94A3B8;
+  --feed-accent-blue: #3B82F6;
+  --feed-btn-hover: rgba(255, 255, 255, 0.05);
+  --feed-avatar-ring: rgba(255, 255, 255, 0.15);
+
   /* ─── Neutrals & Surfaces (Dark) ─── */
   --bg-app: #0f172a;        /* Slate 900 */
   --bg-surface: #1e293b;    /* Slate 800 */

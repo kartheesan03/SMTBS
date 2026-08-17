@@ -15,6 +15,7 @@ import MaterialReports from './pages/MaterialReports';
 
 import GlobalHeader from './components/GlobalHeader';
 import { AriaProvider, AriaContext } from './context/AriaContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Retry wrapper for lazy imports — handles stale chunks after Vercel redeploys
 const lazyRetry = (importFn) => {
@@ -472,16 +473,18 @@ const App = () => {
     return (
         <ErrorBoundary>
             <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-                <AuthProvider>
-                    <NotificationProvider>
-                        <Router>
-                            <AriaProvider>
-                                <Toaster position="top-right" />
-                                <AppContent />
-                            </AriaProvider>
-                        </Router>
-                    </NotificationProvider>
-                </AuthProvider>
+                <ThemeProvider>
+                    <AuthProvider>
+                        <NotificationProvider>
+                            <Router>
+                                <AriaProvider>
+                                    <Toaster position="top-right" />
+                                    <AppContent />
+                                </AriaProvider>
+                            </Router>
+                        </NotificationProvider>
+                    </AuthProvider>
+                </ThemeProvider>
             </GoogleOAuthProvider>
         </ErrorBoundary>
     );

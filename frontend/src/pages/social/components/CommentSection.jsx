@@ -50,10 +50,10 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded }) =
                             width: '100%',
                             boxSizing: 'border-box',
                             backgroundColor: 'transparent',
-                            border: '1px solid #334155',
+                            border: '1px solid var(--feed-border-card)',
                             borderRadius: '24px',
                             padding: '10px 16px',
-                            color: '#F8FAFC',
+                            color: 'var(--feed-text-primary)',
                             fontSize: '14px',
                             outline: 'none',
                             resize: 'none',
@@ -63,8 +63,8 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded }) =
                             overflow: 'hidden',
                             transition: 'border-color 0.2s'
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#3B82F6'}
-                        onBlur={(e) => e.target.style.borderColor = '#334155'}
+                        onFocus={(e) => e.target.style.borderColor = 'var(--feed-accent-blue)'}
+                        onBlur={(e) => e.target.style.borderColor = 'var(--feed-border-card)'}
                         rows={1}
                     />
                     {text.trim() && (
@@ -73,7 +73,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded }) =
                                 type="submit"
                                 disabled={submitting}
                                 style={{
-                                    backgroundColor: '#3B82F6',
+                                    backgroundColor: 'var(--feed-accent-blue)',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '16px',
@@ -84,8 +84,8 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded }) =
                                     opacity: submitting ? 0.5 : 1,
                                     transition: 'background-color 0.2s'
                                 }}
-                                onMouseOver={(e) => { if (!submitting) e.target.style.backgroundColor = '#2563EB'; }}
-                                onMouseOut={(e) => { if (!submitting) e.target.style.backgroundColor = '#3B82F6'; }}
+                                onMouseOver={(e) => { if (!submitting) e.target.style.backgroundColor = 'var(--feed-btn-hover)'; e.target.style.color = 'var(--feed-text-primary)'; }}
+                                onMouseOut={(e) => { if (!submitting) e.target.style.backgroundColor = 'var(--feed-accent-blue)'; e.target.style.color = 'white'; }}
                             >
                                 Post
                             </button>
@@ -99,21 +99,21 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded }) =
                     <div key={comment.id} style={{ display: 'flex', gap: '8px' }}>
                         <Avatar user={comment.author} size={40} />
                         <div style={{ flex: 1 }}>
-                            <div style={{ backgroundColor: '#1E293B', padding: '8px 12px', borderRadius: '0 8px 8px 8px', display: 'inline-block', maxWidth: '100%' }}>
+                            <div style={{ backgroundColor: 'var(--feed-bg-page)', padding: '8px 12px', borderRadius: '0 8px 8px 8px', display: 'inline-block', maxWidth: '100%' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px', gap: '12px' }}>
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <span style={{ fontWeight: '600', fontSize: '14px', color: '#F8FAFC', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.textDecoration='underline'} onMouseOut={e => e.currentTarget.style.textDecoration='none'}>{comment.author?.name}</span>
-                                        <span style={{ fontSize: '12px', color: '#94A3B8' }}>{comment.author?.role}</span>
+                                        <span style={{ fontWeight: '600', fontSize: '14px', color: 'var(--feed-text-primary)', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.textDecoration='underline'} onMouseOut={e => e.currentTarget.style.textDecoration='none'}>{comment.author?.name}</span>
+                                        <span style={{ fontSize: '12px', color: 'var(--feed-text-muted)' }}>{comment.author?.role}</span>
                                     </div>
-                                    <span style={{ fontSize: '12px', color: '#64748B' }}>
+                                    <span style={{ fontSize: '12px', color: 'var(--feed-text-muted)' }}>
                                         {getRelativeTime(comment.createdAt)}
                                     </span>
                                 </div>
-                                <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#E2E8F0', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{comment.text}</p>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: 'var(--feed-text-primary)', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{comment.text}</p>
                             </div>
-                            <div style={{ display: 'flex', gap: '12px', paddingLeft: '12px', marginTop: '4px', fontSize: '12px', color: '#64748B', fontWeight: '600' }}>
-                                <span style={{ cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.backgroundColor='rgba(255,255,255,0.05)'} onMouseOut={e => e.currentTarget.style.backgroundColor='transparent'} className="comment-action">Like</span>
-                                <span style={{ cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.backgroundColor='rgba(255,255,255,0.05)'} onMouseOut={e => e.currentTarget.style.backgroundColor='transparent'} className="comment-action">Reply</span>
+                            <div style={{ display: 'flex', gap: '12px', paddingLeft: '12px', marginTop: '4px', fontSize: '12px', color: 'var(--feed-text-muted)', fontWeight: '600' }}>
+                                <span style={{ cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.backgroundColor='var(--feed-btn-hover)'} onMouseOut={e => e.currentTarget.style.backgroundColor='transparent'} className="comment-action">Like</span>
+                                <span style={{ cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.backgroundColor='var(--feed-btn-hover)'} onMouseOut={e => e.currentTarget.style.backgroundColor='transparent'} className="comment-action">Reply</span>
                             </div>
                         </div>
                     </div>
@@ -123,9 +123,9 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded }) =
             {comments.length > visibleCount && (
                 <div 
                     onClick={() => setVisibleCount(prev => prev + 5)}
-                    style={{ marginTop: '12px', color: '#94A3B8', fontSize: '13px', fontWeight: '600', cursor: 'pointer', display: 'inline-block' }}
-                    onMouseOver={e => e.currentTarget.style.color = '#F8FAFC'}
-                    onMouseOut={e => e.currentTarget.style.color = '#94A3B8'}
+                    style={{ marginTop: '12px', color: 'var(--feed-text-muted)', fontSize: '13px', fontWeight: '600', cursor: 'pointer', display: 'inline-block' }}
+                    onMouseOver={e => e.currentTarget.style.color = 'var(--feed-text-primary)'}
+                    onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}
                 >
                     Load more comments
                 </div>

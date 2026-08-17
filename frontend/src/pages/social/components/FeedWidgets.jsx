@@ -4,14 +4,13 @@ import Avatar from './Avatar';
 
 const WidgetCard = ({ title, children }) => (
     <div style={{
-        background: 'linear-gradient(180deg, #1A2436 0%, #161F32 100%)',
-        borderRadius: '10px',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
-        padding: '20px',
+        backgroundColor: 'var(--feed-bg-card)',
+        borderRadius: '8px',
+        border: '1px solid var(--feed-border-card)',
+        padding: '16px 20px',
         marginBottom: '16px',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
     }}>
-        <h3 style={{ margin: '0 0 16px', color: '#94A3B8', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <h3 style={{ margin: '0 0 16px', color: 'var(--feed-text-primary)', fontSize: '16px', fontWeight: '600' }}>
             {title}
         </h3>
         {children}
@@ -23,24 +22,20 @@ const FeedWidgets = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
             
             {/* Company Announcements */}
-            <WidgetCard title="Company Announcements">
+            <WidgetCard title="Company News">
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', paddingBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
-                        <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: 'rgba(59, 130, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <Pin size={14} color="#60A5FA" />
-                        </div>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', paddingBottom: '12px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--feed-accent-blue)', marginTop: '6px' }}></div>
                         <div>
-                            <p style={{ margin: '0 0 2px', fontSize: '13px', color: '#E2E8F0', lineHeight: '1.4', fontWeight: '500' }}>Q3 All-Hands Meeting Scheduled</p>
-                            <span style={{ fontSize: '11px', color: '#64748B' }}>2 days ago</span>
+                            <p style={{ margin: '0 0 2px', fontSize: '14px', color: 'var(--feed-text-primary)', lineHeight: '1.4', fontWeight: '600' }}>Q3 All-Hands Meeting Scheduled</p>
+                            <span style={{ fontSize: '12px', color: 'var(--feed-text-muted)' }}>2 days ago</span>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', paddingTop: '12px' }}>
-                        <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <Pin size={14} color="#34D399" />
-                        </div>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', paddingTop: '4px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--feed-text-muted)', marginTop: '6px' }}></div>
                         <div>
-                            <p style={{ margin: '0 0 2px', fontSize: '13px', color: '#E2E8F0', lineHeight: '1.4', fontWeight: '500' }}>New HR Policy Update</p>
-                            <span style={{ fontSize: '11px', color: '#64748B' }}>5 days ago</span>
+                            <p style={{ margin: '0 0 2px', fontSize: '14px', color: 'var(--feed-text-primary)', lineHeight: '1.4', fontWeight: '600' }}>New HR Policy Update</p>
+                            <span style={{ fontSize: '12px', color: 'var(--feed-text-muted)' }}>5 days ago</span>
                         </div>
                     </div>
                 </div>
@@ -133,12 +128,12 @@ const FeedWidgets = () => {
             </WidgetCard>
 
             {/* Footer Mini-links */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px', padding: '0 16px', marginTop: '8px', color: '#64748B', fontSize: '12px' }}>
-                <a href="#" style={{ color: '#64748B', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#64748B'}>About</a>
-                <a href="#" style={{ color: '#64748B', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#64748B'}>Accessibility</a>
-                <a href="#" style={{ color: '#64748B', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#64748B'}>Help Center</a>
-                <a href="#" style={{ color: '#64748B', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#64748B'}>Privacy & Terms</a>
-                <a href="#" style={{ color: '#64748B', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = '#3B82F6'} onMouseOut={e => e.currentTarget.style.color = '#64748B'}>Ad Choices</a>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px', padding: '0 16px', marginTop: '8px', color: 'var(--feed-text-muted)', fontSize: '12px' }}>
+                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}>About</a>
+                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}>Accessibility</a>
+                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}>Help Center</a>
+                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}>Privacy & Terms</a>
+                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}>Ad Choices</a>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%', justifyContent: 'center', marginTop: '4px' }}>
                     <span style={{ fontWeight: '600' }}>SMTBMS</span> 
                     <span>Corporation © 2026</span>

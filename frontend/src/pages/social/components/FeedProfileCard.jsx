@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
 import Avatar from './Avatar';
-import { Camera, Bookmark, Users } from 'lucide-react';
+import { Camera, Bookmark, Users, Mail, Calendar, Compass } from 'lucide-react';
 
 const FeedProfileCard = () => {
     const { user } = useContext(AuthContext);
@@ -16,109 +16,145 @@ const FeedProfileCard = () => {
 
     return (
         <div style={{
-            background: 'linear-gradient(180deg, #1A2436 0%, #161F32 100%)',
-            borderRadius: '10px',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
+            backgroundColor: 'var(--feed-bg-card)',
+            borderRadius: '8px',
+            border: '1px solid var(--feed-border-card)',
             overflow: 'hidden',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            marginBottom: '16px'
+            marginBottom: '16px',
+            display: 'flex',
+            flexDirection: 'column'
         }}>
-            {/* Cover Photo Area (Mock) */}
+            {/* Cover Photo Area */}
             <div 
-                onMouseOver={() => setHoverCover(true)}
-                onMouseOut={() => setHoverCover(false)}
                 style={{
-                    height: '60px',
-                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(59, 130, 246, 0.15) 100%)',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                    position: 'relative',
-                    cursor: 'pointer'
+                    height: '55px',
+                    backgroundColor: '#A0B4CB', /* Standard LinkedIn default cover color */
+                    position: 'relative'
                 }}
             >
-                {hoverCover && (
-                    <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(15, 23, 42, 0.6)', padding: '6px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Camera size={16} color="#F8FAFC" />
-                    </div>
-                )}
             </div>
             
-            <div style={{ padding: '0 0 16px 0', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0 16px 16px 16px', position: 'relative' }}>
                 <div 
-                    onMouseOver={() => setHoverAvatar(true)}
-                    onMouseOut={() => setHoverAvatar(false)}
                     style={{ 
                         marginTop: '-36px', 
-                        marginLeft: '20px',
                         marginBottom: '12px', 
                         borderRadius: '50%', 
-                        padding: '2px',
-                        background: '#1A2436',
-                        display: 'inline-block',
-                        width: 'max-content',
-                        position: 'relative',
-                        cursor: 'pointer'
+                        border: '3px solid var(--feed-avatar-ring)',
+                        backgroundColor: 'var(--feed-bg-card)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '76px', /* 72 + border */
+                        height: '76px'
                     }}
                 >
-                    <Avatar user={user} size={68} />
-                    {hoverAvatar && (
-                        <div style={{ position: 'absolute', top: '2px', left: '2px', width: '68px', height: '68px', borderRadius: '50%', backgroundColor: 'rgba(15, 23, 42, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Camera size={24} color="#F8FAFC" />
-                        </div>
-                    )}
+                    <Avatar user={user} size={70} />
                 </div>
                 
-                <div style={{ padding: '0 20px' }}>
-                    <h3 style={{ margin: '0 0 4px', color: '#F8FAFC', fontSize: '18px', fontWeight: '600' }}>
-                        {user?.name || 'Loading...'}
-                    </h3>
-                    <p style={{ margin: '0 0 4px', color: '#94A3B8', fontSize: '14px', fontWeight: '400' }}>
-                        {user?.role || 'Employee'}
+                <h3 style={{ margin: '0 0 4px', color: 'var(--feed-text-primary)', fontSize: '16px', fontWeight: '600', textAlign: 'center', lineHeight: '1.25' }}>
+                    {user?.name || 'Loading...'}
+                </h3>
+                <p style={{ margin: '0 0 4px', color: 'var(--feed-text-muted)', fontSize: '13px', fontWeight: '400', textAlign: 'center', lineHeight: '1.4' }}>
+                    {user?.role || 'Employee'} {user?.department ? `at ${user.department}` : ''}
+                </p>
+                {user?.location && (
+                    <p style={{ margin: '0 0 12px', color: 'var(--feed-text-muted)', fontSize: '12px', fontWeight: '400', textAlign: 'center' }}>
+                        {user.location}
                     </p>
-                    <p style={{ margin: '0 0 16px', color: '#64748B', fontSize: '12px', fontWeight: '400' }}>
-                        {user?.department ? `${user.department}` : ''}{user?.location ? ` · ${user.location}` : ''}
-                    </p>
+                )}
+
+                <button style={{
+                    backgroundColor: 'transparent',
+                    border: '1px solid var(--feed-text-muted)',
+                    borderRadius: '24px',
+                    color: 'var(--feed-text-muted)',
+                    padding: '4px 12px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    marginTop: '4px',
+                    transition: 'all 0.2s'
+                }}
+                onMouseOver={e => { e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'; e.currentTarget.style.border = '1px solid var(--feed-text-primary)'; e.currentTarget.style.color = 'var(--feed-text-primary)'; }}
+                onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.border = '1px solid var(--feed-text-muted)'; e.currentTarget.style.color = 'var(--feed-text-muted)'; }}
+                >
+                    + Experience
+                </button>
+            </div>
+
+            <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--feed-border-card)' }}></div>
+
+            {/* Promo Banner Block */}
+            <div style={{ padding: '12px 16px', cursor: 'pointer', transition: 'background-color 0.2s' }}
+                 onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'}
+                 onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ color: 'var(--feed-text-muted)', fontSize: '12px', marginBottom: '2px' }}>Explore company resources</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Compass size={14} color="#F59E0B" />
+                        <span style={{ color: 'var(--feed-text-primary)', fontSize: '13px', fontWeight: '600' }}>Access Employee Portal</span>
+                    </div>
                 </div>
+            </div>
 
-                <div style={{ width: '100%', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}></div>
+            <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--feed-border-card)' }}></div>
 
-                <div style={{ padding: '12px 0' }}>
-                    <div 
-                        style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 20px', cursor: 'pointer', transition: 'background-color 0.2s' }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                        <span style={{ color: '#94A3B8', fontSize: '13px', fontWeight: '600' }}>Connections</span>
-                        <span style={{ color: '#3B82F6', fontSize: '13px', fontWeight: '600' }}>{stats.connections}</span>
-                    </div>
-                    <div 
-                        style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 20px', cursor: 'pointer', transition: 'background-color 0.2s' }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                        <span style={{ color: '#94A3B8', fontSize: '13px', fontWeight: '600' }}>Who's viewed your profile</span>
-                        <span style={{ color: '#3B82F6', fontSize: '13px', fontWeight: '600' }}>{stats.views}</span>
-                    </div>
+            {/* Stats Block */}
+            <div style={{ padding: '12px 0' }}>
+                <div 
+                    style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 16px', cursor: 'pointer', transition: 'background-color 0.2s' }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                    <span style={{ color: 'var(--feed-text-muted)', fontSize: '12px', fontWeight: '600' }}>Profile viewers</span>
+                    <span style={{ color: 'var(--feed-accent-blue)', fontSize: '12px', fontWeight: '600' }}>{stats.views}</span>
                 </div>
+                <div 
+                    style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 16px', cursor: 'pointer', transition: 'background-color 0.2s' }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                    <span style={{ color: 'var(--feed-text-muted)', fontSize: '12px', fontWeight: '600' }}>View all analytics</span>
+                </div>
+            </div>
 
-                <div style={{ width: '100%', height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.06)' }}></div>
+            <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--feed-border-card)' }}></div>
 
-                <div style={{ padding: '12px 0 0 0' }}>
-                    <div 
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 20px', cursor: 'pointer', transition: 'background-color 0.2s' }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                        <Bookmark size={16} color="#64748B" />
-                        <span style={{ color: '#E2E8F0', fontSize: '13px', fontWeight: '500' }}>Saved items</span>
-                    </div>
-                    <div 
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 20px', cursor: 'pointer', transition: 'background-color 0.2s' }}
-                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
-                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                        <Users size={16} color="#64748B" />
-                        <span style={{ color: '#E2E8F0', fontSize: '13px', fontWeight: '500' }}>My Team</span>
-                    </div>
+            {/* Bottom List */}
+            <div style={{ padding: '12px 0' }}>
+                <div 
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', cursor: 'pointer', transition: 'background-color 0.2s' }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                    <Bookmark size={16} color="var(--feed-text-muted)" />
+                    <span style={{ color: 'var(--feed-text-muted)', fontSize: '13px', fontWeight: '600' }}>Saved items</span>
+                </div>
+                <div 
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', cursor: 'pointer', transition: 'background-color 0.2s' }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                    <Users size={16} color="var(--feed-text-muted)" />
+                    <span style={{ color: 'var(--feed-text-muted)', fontSize: '13px', fontWeight: '600' }}>Groups</span>
+                </div>
+                <div 
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', cursor: 'pointer', transition: 'background-color 0.2s' }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                    <Mail size={16} color="var(--feed-text-muted)" />
+                    <span style={{ color: 'var(--feed-text-muted)', fontSize: '13px', fontWeight: '600' }}>Newsletters</span>
+                </div>
+                <div 
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', cursor: 'pointer', transition: 'background-color 0.2s' }}
+                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'}
+                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                    <Calendar size={16} color="var(--feed-text-muted)" />
+                    <span style={{ color: 'var(--feed-text-muted)', fontSize: '13px', fontWeight: '600' }}>Events</span>
                 </div>
             </div>
         </div>

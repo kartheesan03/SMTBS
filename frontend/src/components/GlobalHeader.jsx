@@ -2,12 +2,14 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
-import { Search, Bell, Calendar, RefreshCw, Grid, LogOut, User } from 'lucide-react';
+import { ThemeContext } from '../context/ThemeContext';
+import { Search, Bell, Calendar, RefreshCw, Grid, LogOut, User, Sun, Moon } from 'lucide-react';
 import CommandPalette from './CommandPalette';
 import './GlobalHeader.css';
 const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) => {
     const { user, logout } = useContext(AuthContext);
     const { unreadCount } = useContext(NotificationContext);
+    const { theme, toggleTheme } = useContext(ThemeContext);
     const navigate = useNavigate();
     const [currentTime, setCurrentTime] = useState(new Date());
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -105,6 +107,11 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                 
                 <div className="rd-divider"></div>
                 
+                <button className="rd-icon-btn" onClick={toggleTheme} title="Toggle Theme">
+                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
+                <div className="rd-divider"></div>
+
                 <button className="rd-icon-btn" onClick={handleRefresh} title="Refresh">
                     <RefreshCw size={18} />
                 </button>
