@@ -25,7 +25,8 @@ const extractText = async (req, res) => {
         }
 
         const formData = new FormData();
-        formData.append('file', fs.createReadStream(filePath), originalname);
+        const fileBuffer = fs.readFileSync(filePath);
+        formData.append('file', fileBuffer, { filename: originalname });
 
         const response = await axios.post(`${FASTAPI_URL}/api/ocr`, formData, {
             headers: {
@@ -33,7 +34,7 @@ const extractText = async (req, res) => {
             },
             maxContentLength: Infinity,
             maxBodyLength: Infinity,
-            timeout: 300000 // 5 minutes (Render Free tier is slow)
+            timeout: 300000 // 5 minutes
         });
 
         // Clean up the temp file
