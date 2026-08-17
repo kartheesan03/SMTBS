@@ -121,6 +121,7 @@ const FeedProfileCard = () => {
                         <span style={{ color: '#E2E8F0', fontSize: '13px', fontWeight: '500' }}>My Team</span>
                     </div>
                 </div>
+            </div>
         </div>
     );
 };
