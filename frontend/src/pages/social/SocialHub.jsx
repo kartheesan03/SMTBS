@@ -15,7 +15,7 @@ const SocialHub = () => {
             try {
                 // Fetch from API, but add mock categories for the UI
                 const { data } = await API.get('/social/feed');
-                const postsWithCategories = data.map((post, i) => ({
+                const postsWithCategories = (Array.isArray(data) ? data : []).map((post, i) => ({
                     ...post,
                     category: i % 3 === 0 ? 'Achievement' : i % 2 === 0 ? 'Event' : 'Update',
                     authorPresence: i % 2 === 0 ? 'online' : 'away'
@@ -79,22 +79,26 @@ const SocialHub = () => {
                 <div className="feed-stream">
                     {loading ? (
                         <div className="feed-loading">Loading feed...</div>
+                    ) : posts.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px', color: '#8C9BB3' }}>
+                            <p>No posts to show yet. Be the first to post!</p>
+                        </div>
                     ) : (
                         posts.map(post => (
-                            <div key={post.id} className={`post-card category-${post.category.toLowerCase()}`}>
+                            <div key={post.id} className={`post-card category-${(post.category || 'update').toLowerCase()}`}>
                                 <div className="post-header">
                                     <div className="post-author-wrapper">
                                         <div className="post-author-avatar">
                                             {post.author?.username?.charAt(0).toUpperCase()}
                                         </div>
-                                        <span className={`presence-dot ${post.authorPresence}`}></span>
+                                        <span className={`presence-dot ${post.authorPresence || 'offline'}`}></span>
                                     </div>
                                     <div className="post-author-info">
                                         <h4>{post.author?.username}</h4>
                                         <span>{post.author?.department || 'Marketing'} • 2h ago</span>
                                     </div>
                                     <div className="post-meta-right">
-                                        <span className="post-category-tag">{post.category}</span>
+                                        <span className="post-category-tag">{post.category || 'Update'}</span>
                                         <MoreHorizontal size={20} className="post-more" />
                                     </div>
                                 </div>
