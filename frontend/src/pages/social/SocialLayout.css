@@ -14,6 +14,20 @@
     margin-top: 0;
 }
 
+/* Global Layout Overrides for Social Route */
+body.social-route-active .app-main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+body.social-route-active .app-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+}
+
 /* Left Icon Rail */
 .social-rail {
     width: 76px;

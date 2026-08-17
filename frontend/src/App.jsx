@@ -173,6 +173,12 @@ const AppContent = () => {
             document.body.classList.remove('logged-in');
         }
         
+        if (isSocialRoute) {
+            document.body.classList.add('social-route-active');
+        } else {
+            document.body.classList.remove('social-route-active');
+        }
+        
         const theme = localStorage.getItem('theme');
         if (theme === 'Dark') {
             document.documentElement.classList.add('dark-theme');
@@ -182,8 +188,9 @@ const AppContent = () => {
         
         return () => {
             document.body.classList.remove('logged-in');
+            document.body.classList.remove('social-route-active');
         };
-    }, [user]);
+    }, [user, isSocialRoute]);
 
     // Global keyboard shortcut for Command Center
     useEffect(() => {
