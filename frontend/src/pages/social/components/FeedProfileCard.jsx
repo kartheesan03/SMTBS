@@ -8,11 +8,10 @@ const FeedProfileCard = () => {
     const [hoverAvatar, setHoverAvatar] = useState(false);
     const [hoverCover, setHoverCover] = useState(false);
 
-    // Using mock stats for the UI presentation
     const stats = {
-        posts: 12,
-        connections: 148,
-        teamSize: 24,
+        posts: user?.stats?.posts || 0,
+        connections: user?.stats?.connections || 0,
+        views: user?.stats?.profileViews || 0,
     };
 
     return (
@@ -73,10 +72,10 @@ const FeedProfileCard = () => {
                         {user?.name || 'Loading...'}
                     </h3>
                     <p style={{ margin: '0 0 4px', color: '#94A3B8', fontSize: '14px', fontWeight: '400' }}>
-                        {user?.role || 'Software Engineer at SMTBMS'}
+                        {user?.role || 'Employee'}
                     </p>
                     <p style={{ margin: '0 0 16px', color: '#64748B', fontSize: '12px', fontWeight: '400' }}>
-                        Engineering · Salem, TN
+                        {user?.department ? `${user.department}` : ''}{user?.location ? ` · ${user.location}` : ''}
                     </p>
                 </div>
 
@@ -97,7 +96,7 @@ const FeedProfileCard = () => {
                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                         <span style={{ color: '#94A3B8', fontSize: '13px', fontWeight: '600' }}>Who's viewed your profile</span>
-                        <span style={{ color: '#3B82F6', fontSize: '13px', fontWeight: '600' }}>12</span>
+                        <span style={{ color: '#3B82F6', fontSize: '13px', fontWeight: '600' }}>{stats.views}</span>
                     </div>
                 </div>
 
