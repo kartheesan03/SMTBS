@@ -40,6 +40,7 @@ const ocrRoutes = require('./src/routes/ocrRoutes');
 const invoiceRoutes = require('./src/routes/invoiceRoutes');
 const searchRoutes = require('./src/routes/searchRoutes');
 const ocrDocumentRoutes = require('./src/routes/ocrDocumentRoutes');
+const socialRoutes = require('./src/routes/socialRoutes');
 
 const app = express();
 
@@ -96,6 +97,7 @@ app.use('/api/ocr', ocrRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/ocr-documents', ocrDocumentRoutes);
+app.use('/api/social', socialRoutes);
 
 app.use((req, res, next) => {
     const error = new Error(`Not Found - ${req.originalUrl}`);

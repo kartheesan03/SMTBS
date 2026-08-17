@@ -1,0 +1,224 @@
+/* SocialProfile.css */
+.social-profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-family: var(--font-family-sans, system-ui, -apple-system, sans-serif);
+}
+
+.profile-header-card {
+    background: var(--farmaku-bg-primary, #fff);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    border: 1px solid var(--farmaku-border-color, #e2e8f0);
+}
+
+.profile-cover-large {
+    height: 200px;
+    background: linear-gradient(135deg, #0284c7, #1e40af);
+}
+
+.profile-header-content {
+    padding: 0 24px 24px 24px;
+    position: relative;
+}
+
+.profile-avatar-large {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: #1e293b;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    font-weight: 600;
+    margin-top: -70px;
+    border: 6px solid var(--farmaku-bg-primary, #fff);
+    margin-bottom: 16px;
+}
+
+.profile-actions {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    gap: 12px;
+}
+
+.connect-btn-large, .message-btn-large {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.connect-btn-large {
+    background: var(--farmaku-brand-primary, #0284c7);
+    color: #fff;
+    border: none;
+}
+
+.connect-btn-large:hover {
+    background: #0369a1;
+}
+
+.message-btn-large {
+    background: none;
+    border: 1px solid var(--farmaku-border-color, #cbd5e1);
+    color: var(--farmaku-text-primary, #334155);
+}
+
+.message-btn-large:hover {
+    background: var(--farmaku-bg-hover, #f1f5f9);
+}
+
+.profile-main-info h2 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    color: var(--farmaku-text-primary, #0f172a);
+}
+
+.profile-main-info h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--farmaku-text-secondary, #475569);
+}
+
+.profile-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
+    color: var(--farmaku-text-secondary, #64748b);
+    margin-bottom: 12px;
+}
+
+.profile-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.connections-count {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--farmaku-brand-primary, #0284c7);
+    cursor: pointer;
+}
+
+.connections-count:hover {
+    text-decoration: underline;
+}
+
+/* Sections */
+.profile-section-card {
+    background: var(--farmaku-bg-primary, #fff);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    border: 1px solid var(--farmaku-border-color, #e2e8f0);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h4 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--farmaku-text-primary, #0f172a);
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    color: var(--farmaku-text-secondary, #94a3b8);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.edit-btn:hover {
+    background: var(--farmaku-bg-hover, #f1f5f9);
+    color: var(--farmaku-text-primary, #334155);
+}
+
+.about-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--farmaku-text-primary, #334155);
+}
+
+.experience-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.experience-item {
+    display: flex;
+    gap: 16px;
+}
+
+.experience-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--farmaku-bg-secondary, #f8fafc);
+    border: 1px solid var(--farmaku-border-color, #e2e8f0);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--farmaku-text-secondary, #64748b);
+}
+
+.experience-details strong {
+    display: block;
+    font-size: 16px;
+    color: var(--farmaku-text-primary, #0f172a);
+    margin-bottom: 4px;
+}
+
+.experience-details span {
+    display: block;
+    font-size: 14px;
+    color: var(--farmaku-text-primary, #334155);
+    margin-bottom: 2px;
+}
+
+.experience-details .experience-date {
+    font-size: 13px;
+    color: var(--farmaku-text-secondary, #64748b);
+}
+
+.skills-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.skill-tag {
+    background: var(--farmaku-bg-secondary, #f1f5f9);
+    color: var(--farmaku-text-primary, #0f172a);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+}

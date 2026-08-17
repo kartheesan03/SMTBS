@@ -138,6 +138,13 @@ const Recruitment = lazyRetry(() => import('./pages/Recruitment'));
 const LeaveBalance = lazyRetry(() => import('./pages/LeaveBalance'));
 const LandingPage = lazyRetry(() => import('./pages/LandingPage'));
 const AriaCommandCenter = lazyRetry(() => import('./pages/AriaCommandCenter'));
+
+// Social Network Pages
+const SocialHub = lazyRetry(() => import('./pages/social/SocialHub'));
+const SocialProfile = lazyRetry(() => import('./pages/social/SocialProfile'));
+const MyNetwork = lazyRetry(() => import('./pages/social/MyNetwork'));
+const SocialMessages = lazyRetry(() => import('./pages/social/SocialMessages'));
+
 const SupportWrapper = () => {
     const { user } = React.useContext(AuthContext);
     const role = (user?.role || '').toLowerCase();
@@ -429,6 +436,12 @@ const AppContent = () => {
                     <Route path="/settings/attendance" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceSettings /></ProtectedRoute>} />
                     <Route path="/settings/leave" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><LeaveSettings /></ProtectedRoute>} />
                     <Route path="/settings/payroll" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><PayrollSettings /></ProtectedRoute>} />
+
+                    {/* Social Network Routes */}
+                    <Route path="/social" element={<ProtectedRoute><SocialHub /></ProtectedRoute>} />
+                    <Route path="/social/network" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
+                    <Route path="/social/messages" element={<ProtectedRoute><SocialMessages /></ProtectedRoute>} />
+                    <Route path="/social/profile/:id" element={<ProtectedRoute><SocialProfile /></ProtectedRoute>} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />

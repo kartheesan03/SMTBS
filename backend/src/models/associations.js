@@ -85,5 +85,30 @@ function setupAssociations() {
     const SalesGoal = require('./SalesGoal');
     SalesGoal.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedTo', as: 'assignedUser' });
     SalesGoal.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdBy', as: 'createdUser' });
+    const SocialPost = require('./SocialPost');
+    const SocialComment = require('./SocialComment');
+    const SocialReaction = require('./SocialReaction');
+    const SocialConnection = require('./SocialConnection');
+    const SocialMessage = require('./SocialMessage');
+
+    SocialPost.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'authorId', as: 'author' });
+    User.sequelizeModel.hasMany(SocialPost.sequelizeModel, { foreignKey: 'authorId', as: 'posts' });
+
+    SocialComment.sequelizeModel.belongsTo(SocialPost.sequelizeModel, { foreignKey: 'postId', as: 'post' });
+    SocialPost.sequelizeModel.hasMany(SocialComment.sequelizeModel, { foreignKey: 'postId', as: 'comments' });
+
+    SocialComment.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'authorId', as: 'author' });
+    User.sequelizeModel.hasMany(SocialComment.sequelizeModel, { foreignKey: 'authorId', as: 'socialComments' });
+
+    SocialReaction.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
+    SocialReaction.sequelizeModel.belongsTo(SocialPost.sequelizeModel, { foreignKey: 'postId', as: 'post' });
+    SocialPost.sequelizeModel.hasMany(SocialReaction.sequelizeModel, { foreignKey: 'postId', as: 'reactions' });
+    SocialReaction.sequelizeModel.belongsTo(SocialComment.sequelizeModel, { foreignKey: 'commentId', as: 'comment' });
+
+    SocialConnection.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'requesterId', as: 'requester' });
+    SocialConnection.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'recipientId', as: 'recipient' });
+
+    SocialMessage.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'senderId', as: 'sender' });
+    SocialMessage.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'receiverId', as: 'receiver' });
 }
 module.exports = setupAssociations;

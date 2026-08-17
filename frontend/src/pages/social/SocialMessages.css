@@ -1,0 +1,373 @@
+/* SocialMessages.css */
+.social-messages-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+    height: calc(100vh - 80px); /* Adjust based on your header height */
+    font-family: var(--font-family-sans, system-ui, -apple-system, sans-serif);
+}
+
+.messages-layout {
+    display: flex;
+    height: 100%;
+    background: var(--farmaku-bg-primary, #fff);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    border: 1px solid var(--farmaku-border-color, #e2e8f0);
+    overflow: hidden;
+}
+
+/* Sidebar */
+.messages-sidebar {
+    width: 340px;
+    border-right: 1px solid var(--farmaku-border-color, #e2e8f0);
+    display: flex;
+    flex-direction: column;
+}
+
+.messages-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--farmaku-border-color, #f1f5f9);
+}
+
+.messages-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--farmaku-text-primary, #0f172a);
+}
+
+.new-message-btn {
+    background: var(--farmaku-bg-secondary, #f1f5f9);
+    border: none;
+    color: var(--farmaku-text-primary, #334155);
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.new-message-btn:hover {
+    background: var(--farmaku-bg-hover, #e2e8f0);
+}
+
+.messages-search {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--farmaku-bg-secondary, #f8fafc);
+    border-bottom: 1px solid var(--farmaku-border-color, #f1f5f9);
+}
+
+.messages-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font-size: 14px;
+    color: var(--farmaku-text-primary, #0f172a);
+}
+
+.messages-search color {
+    color: var(--farmaku-text-secondary, #94a3b8);
+}
+
+.conversation-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.conversation-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--farmaku-border-color, #f1f5f9);
+    transition: background 0.2s;
+}
+
+.conversation-item:hover {
+    background: var(--farmaku-bg-hover, #f8fafc);
+}
+
+.conversation-item.active {
+    background: var(--farmaku-brand-light, #f0f9ff);
+    border-left: 3px solid var(--farmaku-brand-primary, #0284c7);
+}
+
+.conv-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #1e293b;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.conv-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.conv-name-time {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+}
+
+.conv-name-time h4 {
+    margin: 0;
+    font-size: 15px;
+    color: var(--farmaku-text-primary, #0f172a);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conv-name-time span {
+    font-size: 12px;
+    color: var(--farmaku-text-secondary, #94a3b8);
+}
+
+.conv-last-msg {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.conv-last-msg p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--farmaku-text-secondary, #64748b);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conv-last-msg p.unread {
+    color: var(--farmaku-text-primary, #0f172a);
+    font-weight: 600;
+}
+
+.unread-badge {
+    background: var(--farmaku-brand-primary, #0284c7);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* Main Area */
+.messages-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--farmaku-bg-secondary, #f8fafc);
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--farmaku-bg-primary, #fff);
+    border-bottom: 1px solid var(--farmaku-border-color, #e2e8f0);
+}
+
+.chat-recipient-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1e293b;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.chat-recipient-info h3 {
+    margin: 0 0 2px 0;
+    font-size: 16px;
+    color: var(--farmaku-text-primary, #0f172a);
+}
+
+.chat-status {
+    font-size: 12px;
+    color: #10b981; /* Green status indicator */
+}
+
+.chat-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.chat-actions button {
+    background: none;
+    border: none;
+    color: var(--farmaku-text-secondary, #64748b);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.chat-actions button:hover {
+    color: var(--farmaku-brand-primary, #0284c7);
+}
+
+.chat-history {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.chat-bubble-wrapper {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+}
+
+.chat-bubble-wrapper.sent {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.chat-bubble-wrapper.received {
+    align-self: flex-start;
+    align-items: flex-start;
+}
+
+.chat-bubble {
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.sent .chat-bubble {
+    background: var(--farmaku-brand-primary, #0284c7);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+
+.received .chat-bubble {
+    background: var(--farmaku-bg-primary, #fff);
+    color: var(--farmaku-text-primary, #334155);
+    border: 1px solid var(--farmaku-border-color, #e2e8f0);
+    border-bottom-left-radius: 4px;
+}
+
+.chat-time {
+    font-size: 11px;
+    color: var(--farmaku-text-secondary, #94a3b8);
+    margin-top: 4px;
+}
+
+.chat-input-area {
+    padding: 20px 24px;
+    background: var(--farmaku-bg-primary, #fff);
+    border-top: 1px solid var(--farmaku-border-color, #e2e8f0);
+}
+
+.chat-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--farmaku-bg-secondary, #f1f5f9);
+    padding: 8px 16px;
+    border-radius: 24px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--farmaku-text-secondary, #64748b);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.icon-btn:hover {
+    color: var(--farmaku-text-primary, #334155);
+}
+
+.chat-input-wrapper input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    color: var(--farmaku-text-primary, #0f172a);
+    padding: 8px;
+}
+
+.send-btn {
+    background: var(--farmaku-brand-primary, #0284c7);
+    color: #fff;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.send-btn:hover:not(:disabled) {
+    background: #0369a1;
+}
+
+.send-btn:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+}
+
+.chat-placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--farmaku-text-secondary, #94a3b8);
+}
+
+.placeholder-icon {
+    color: var(--farmaku-border-color, #e2e8f0);
+    margin-bottom: 16px;
+}
+
+.chat-placeholder h3 {
+    margin: 0 0 8px 0;
+    color: var(--farmaku-text-primary, #475569);
+}
+
+@media (max-width: 768px) {
+    .messages-sidebar {
+        width: 100%;
+    }
+    .messages-main {
+        display: none; /* In a real app, toggle visibility based on active conversation */
+    }
+}
