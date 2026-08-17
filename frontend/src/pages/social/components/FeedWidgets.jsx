@@ -128,14 +128,17 @@ const FeedWidgets = () => {
             </WidgetCard>
 
             {/* Footer Mini-links */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px', padding: '0 16px', marginTop: '8px', color: 'var(--feed-text-muted)', fontSize: '12px' }}>
-                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}>About</a>
-                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}>Accessibility</a>
-                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}>Help Center</a>
-                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}>Privacy & Terms</a>
-                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.color = 'var(--feed-accent-blue)'} onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}>Ad Choices</a>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%', justifyContent: 'center', marginTop: '4px' }}>
-                    <span style={{ fontWeight: '600' }}>SMTBMS</span> 
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', rowGap: '4px', columnGap: '8px', padding: '0 24px', margin: '16px 0 32px 0', color: 'var(--feed-text-muted)', fontSize: '12px' }}>
+                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none'}>About</a>
+                <span>·</span>
+                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none'}>Accessibility</a>
+                <span>·</span>
+                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none'}>Help Center</a>
+                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none'}>Privacy & Terms</a>
+                <span>·</span>
+                <a href="#" style={{ color: 'var(--feed-text-muted)', textDecoration: 'none' }} onMouseOver={e => e.currentTarget.style.textDecoration = 'underline'} onMouseOut={e => e.currentTarget.style.textDecoration = 'none'}>Ad Choices</a>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', width: '100%', justifyContent: 'center', marginTop: '8px' }}>
+                    <span style={{ color: 'var(--feed-accent-blue)', fontWeight: '600' }}>SMTBMS</span> 
                     <span>Corporation © 2026</span>
                 </div>
             </div>
