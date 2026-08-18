@@ -276,6 +276,9 @@ const connectDB = async () => {
         setupAssociations();
             // Removed stale table cleanup code to prevent foreign key errors on startup
 
+        // Ensure the Post table is updated with new columns for the Feed module
+        await safelyRecreateTable('Post');
+
         await sequelize.sync();
         console.log(`${dbName} Database tables synchronized.`);
         
