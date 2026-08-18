@@ -125,25 +125,42 @@ const PostCard = ({ post, onDelete }) => {
                 </div>
             </div>
 
-            <p style={{ color: 'var(--feed-text-primary)', fontSize: '14px', lineHeight: '1.5', marginBottom: post.imageUrl ? '12px' : '16px', whiteSpace: 'pre-wrap', padding: '0 16px' }}>
-                {formatText(displayText)}
-                {shouldTruncate && !isExpanded && (
-                    <span 
-                        onClick={() => setIsExpanded(true)}
-                        style={{ color: 'var(--feed-text-muted)', cursor: 'pointer', marginLeft: '4px' }}
-                        onMouseOver={e=>e.currentTarget.style.textDecoration='underline'} 
-                        onMouseOut={e=>e.currentTarget.style.textDecoration='none'}
-                    >
-                        ...see more
-                    </span>
-                )}
-            </p>
+            {/* Post Content */}
+            {post.type === 'Article' ? (
+                <div style={{ padding: '0 16px', marginBottom: '16px' }}>
+                    <h3 style={{ margin: '0 0 8px 0', color: 'var(--feed-text-primary)' }}>{post.articleTitle}</h3>
+                    <p style={{ color: 'var(--feed-text-primary)', fontSize: '14px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+                        {formatText(post.articleBody)}
+                    </p>
+                </div>
+            ) : (
+                <p style={{ color: 'var(--feed-text-primary)', fontSize: '14px', lineHeight: '1.5', marginBottom: (post.imageUrl || (post.media && post.media.length > 0)) ? '12px' : '16px', whiteSpace: 'pre-wrap', padding: '0 16px' }}>
+                    {formatText(displayText)}
+                    {shouldTruncate && !isExpanded && (
+                        <span 
+                            onClick={() => setIsExpanded(true)}
+                            style={{ color: 'var(--feed-text-muted)', cursor: 'pointer', marginLeft: '4px' }}
+                            onMouseOver={e=>e.currentTarget.style.textDecoration='underline'} 
+                            onMouseOut={e=>e.currentTarget.style.textDecoration='none'}
+                        >
+                            ...see more
+                        </span>
+                    )}
+                </p>
+            )}
 
-            {post.imageUrl && (
+            {/* Media Rendering */}
+            {post.media && post.media.length > 0 ? (
+                <div style={{ display: 'grid', gap: '2px', gridTemplateColumns: post.media.length === 1 ? '1fr' : '1fr 1fr', backgroundColor: 'var(--feed-bg-page)' }}>
+                    {post.media.map((item, idx) => (
+                        <img key={idx} src={item.url} alt="Post attachment" style={{ width: '100%', maxHeight: '500px', objectFit: 'cover', display: 'block' }} />
+                    ))}
+                </div>
+            ) : post.imageUrl ? (
                 <div style={{ width: '100%', backgroundColor: 'var(--feed-bg-page)' }}>
                     <img src={post.imageUrl} alt="Post attachment" style={{ width: '100%', maxHeight: '500px', objectFit: 'contain', display: 'block' }} />
                 </div>
-            )}
+            ) : null}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '12px 16px 8px 16px', fontSize: '12px', color: 'var(--feed-text-muted)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
