@@ -3,36 +3,31 @@ const navigationConfig = [
         title: 'Dashboard',
         icon: 'LayoutDashboard',
         path: '/',
-        permission: 'view_dashboard'
+        permission: 'view_dashboard',
+        group: 'WORKSPACE'
+    },
+    {
+        title: 'Tasks & Projects',
+        icon: 'CheckSquare',
+        permission: 'view_tasks',
+        group: 'WORKSPACE',
+        children: [
+            { title: 'All Tasks', path: '/my-tasks' },
+            { title: 'Projects', path: '/projects' }
+        ]
     },
     {
         title: 'Company Feed',
         icon: 'Globe',
         path: '/feed',
-        permission: ''
-    },
-    {
-        title: 'Attendance',
-        icon: 'CalendarCheck',
-        path: '/attendance',
-        permission: ''
-    },
-    {
-        title: 'Leave Management',
-        icon: 'CalendarDays',
-        path: '/leave-management/history',
-        permission: 'view_leave_self'
-    },
-    {
-        title: 'My Salary',
-        icon: 'Wallet',
-        path: '/my-salary',
-        permission: ''
+        permission: '',
+        group: 'WORKSPACE'
     },
     {
         title: 'Material Tracking',
         icon: 'Box',
         permission: 'view_materials',
+        group: 'MATERIALS',
         children: [
             { title: 'Inventory', path: '/materials', permission: 'view_materials' },
             { title: 'Movement Tracking', path: '/tracking-overview', permission: 'view_materials' },
@@ -47,6 +42,7 @@ const navigationConfig = [
         title: 'My Materials',
         icon: 'Box',
         permission: 'view_materials_self',
+        group: 'MATERIALS',
         children: [
             { title: 'Assigned Inventory', path: '/my-materials/inventory', permission: 'view_materials_self' },
             { title: 'Movement Tracking', path: '/tracking-overview', permission: 'view_materials_self' },
@@ -55,21 +51,10 @@ const navigationConfig = [
         ]
     },
     {
-        title: 'HRMS',
-        icon: 'Users',
-        permission: 'view_hrms',
-        children: [
-            { title: 'Employee Data', path: '/hrms' },
-            { title: 'Master Attendance', path: '/attendance/master' },
-            { title: 'All Leave Requests', path: '/leave-management' },
-            { title: 'Payroll', path: '/payroll' },
-            { title: 'Performance', path: '/team-performance' }
-        ]
-    },
-    {
         title: 'ERP',
         icon: 'Database',
         permission: 'view_erp',
+        group: 'PROCUREMENT',
         children: [
             { title: 'Procurement', path: '/erp' },
             { title: 'Vendor Management', path: '/vendors' },
@@ -80,6 +65,7 @@ const navigationConfig = [
         title: 'CRM',
         icon: 'Briefcase',
         permission: 'view_crm',
+        group: 'BUSINESS',
         children: [
             { title: 'Customer Data', path: '/crm' },
             { title: 'Sales Pipeline', path: '/crm/pipeline' },
@@ -89,48 +75,79 @@ const navigationConfig = [
         ]
     },
     {
-        title: 'Support Management',
-        icon: 'LifeBuoy',
-        path: '/support/admin',
-        permission: 'view_crm'
-    },
-    {
-        title: 'Tasks & Projects',
-        icon: 'CheckSquare',
-        permission: 'view_tasks',
-        children: [
-            { title: 'All Tasks', path: '/my-tasks' },
-            { title: 'Projects', path: '/projects' }
-        ]
-    },
-    {
         title: 'Financial Operations',
         icon: 'DollarSign',
         path: '/finance',
-        permission: 'view_reports'
+        permission: 'view_reports',
+        group: 'BUSINESS'
+    },
+    {
+        title: 'HRMS',
+        icon: 'Users',
+        permission: 'view_hrms',
+        group: 'PEOPLE',
+        children: [
+            { title: 'Employee Data', path: '/hrms' },
+            { title: 'Master Attendance', path: '/attendance/master' },
+            { title: 'All Leave Requests', path: '/leave-management' },
+            { title: 'Payroll', path: '/payroll' },
+            { title: 'Performance', path: '/team-performance' }
+        ]
+    },
+    {
+        title: 'Attendance',
+        icon: 'CalendarCheck',
+        path: '/attendance',
+        permission: '',
+        group: 'PEOPLE'
+    },
+    {
+        title: 'Leave Management',
+        icon: 'CalendarDays',
+        path: '/leave-management/history',
+        permission: 'view_leave_self',
+        group: 'PEOPLE'
+    },
+    {
+        title: 'My Salary',
+        icon: 'Wallet',
+        path: '/my-salary',
+        permission: '',
+        group: 'PEOPLE'
     },
     {
         title: 'Reports & Analytics',
         icon: 'BarChart2',
         path: '/analytics',
-        permission: 'view_reports'
+        permission: 'view_reports',
+        group: 'INTELLIGENCE'
     },
     {
         title: 'Notifications',
         icon: 'Bell',
         path: '/notifications',
-        permission: ''
+        permission: '',
+        group: 'SYSTEM'
+    },
+    {
+        title: 'Support Management',
+        icon: 'LifeBuoy',
+        path: '/support/admin',
+        permission: 'view_crm',
+        group: 'SYSTEM'
     },
     {
         title: 'Audit Logs',
         icon: 'ClipboardList',
         path: '/settings/audit-logs',
-        permission: 'view_audit_logs'
+        permission: 'view_audit_logs',
+        group: 'SYSTEM'
     },
     {
         title: 'Settings',
         icon: 'Settings',
         permission: '',
+        group: 'SYSTEM',
         children: [
             { title: 'General Settings', path: '/settings', permission: '' },
             { title: 'User Management', path: '/users', permission: 'manage_users' },
@@ -145,33 +162,38 @@ const hrNavigationConfig = [
         title: 'Dashboard',
         icon: 'LayoutDashboard',
         path: '/',
-        permission: ''
+        permission: '',
+        group: 'WORKSPACE'
     },
     {
         title: 'Company Feed',
         icon: 'Globe',
         path: '/feed',
-        permission: ''
+        permission: '',
+        group: 'WORKSPACE'
+    },
+    {
+        title: 'Employee Management',
+        icon: 'Users',
+        path: '/hrms',
+        permission: 'view_hrms',
+        group: 'PEOPLE'
     },
     {
         title: 'Attendance',
         icon: 'CalendarCheck',
         permission: 'view_hrms',
+        group: 'PEOPLE',
         children: [
             { title: 'Employee Attendance', path: '/attendance' },
             { title: 'Master Attendance',   path: '/attendance/master' }
         ]
     },
     {
-        title: 'Employee Management',
-        icon: 'Users',
-        path: '/hrms',
-        permission: 'view_hrms'
-    },
-    {
         title: 'All Leave Requests',
         icon: 'CalendarDays',
         permission: 'view_hrms',
+        group: 'PEOPLE',
         children: [
             { title: 'Leave Requests', path: '/leave-management' },
             { title: 'Leave History',  path: '/leave-management/history' },
@@ -182,6 +204,7 @@ const hrNavigationConfig = [
         title: 'Payroll',
         icon: 'DollarSign',
         permission: 'view_hrms',
+        group: 'PEOPLE',
         children: [
             { title: 'Generate Payroll', path: '/payroll/generate', permission: 'manage_hrms' },
             { title: 'Salary Details',   path: '/payroll' },
@@ -192,48 +215,56 @@ const hrNavigationConfig = [
         title: 'Performance',
         icon: 'TrendingUp',
         path: '/team-performance',
-        permission: 'view_hrms'
+        permission: 'view_hrms',
+        group: 'PEOPLE'
     },
     {
         title: 'Recruitment',
         icon: 'UserPlus',
         path: '/coming-soon/recruitment',
-        permission: 'view_hrms'
+        permission: 'view_hrms',
+        group: 'PEOPLE'
     },
     {
         title: 'Training',
         icon: 'BookOpen',
         path: '/coming-soon/training',
-        permission: 'view_hrms'
+        permission: 'view_hrms',
+        group: 'PEOPLE'
     },
     {
         title: 'Reports',
         icon: 'BarChart2',
         path: '/hr-reports',
-        permission: 'view_hrms'
-    },
-    {
-        title: 'Notifications',
-        icon: 'Bell',
-        path: '/notifications',
-        permission: ''
+        permission: 'view_hrms',
+        group: 'INTELLIGENCE'
     },
     {
         title: 'Holiday Calendar',
         icon: 'CalendarRange',
         path: '/coming-soon/holiday-calendar',
-        permission: ''
+        permission: '',
+        group: 'WORKSPACE'
+    },
+    {
+        title: 'Notifications',
+        icon: 'Bell',
+        path: '/notifications',
+        permission: '',
+        group: 'SYSTEM'
     },
     {
         title: 'Help & Support',
         icon: 'HelpCircle',
         path: '/support',
-        permission: ''
+        permission: '',
+        group: 'SYSTEM'
     },
     {
         title: 'Settings',
         icon: 'Settings',
         permission: '',
+        group: 'SYSTEM',
         children: [
             { title: 'General Settings',  path: '/settings',              permission: '' },
             { title: 'Attendance Policy', path: '/settings/attendance',   permission: '' },
