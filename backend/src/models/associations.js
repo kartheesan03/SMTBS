@@ -94,6 +94,10 @@ function setupAssociations() {
     const Post = require('./Post');
     const PostLike = require('./PostLike');
     const PostComment = require('./PostComment');
+    const SavedPost = require('./SavedPost');
+    const News = require('./News');
+    const Event = require('./Event');
+    const Follow = require('./Follow');
 
     SocialPost.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'authorId', as: 'author' });
     User.sequelizeModel.hasMany(SocialPost.sequelizeModel, { foreignKey: 'authorId', as: 'posts' });
@@ -118,7 +122,18 @@ function setupAssociations() {
     Post.sequelizeModel.belongsTo(User.sequelizeModel, { as: 'author', foreignKey: 'authorId' });
     Post.sequelizeModel.hasMany(PostComment.sequelizeModel, { foreignKey: 'postId', as: 'comments' });
     Post.sequelizeModel.hasMany(PostLike.sequelizeModel, { foreignKey: 'postId', as: 'likes' });
+    Post.sequelizeModel.hasMany(SavedPost.sequelizeModel, { foreignKey: 'postId', as: 'savedBy' });
     PostComment.sequelizeModel.belongsTo(User.sequelizeModel, { as: 'author', foreignKey: 'authorId' });
     PostLike.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
+    SavedPost.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
+    SavedPost.sequelizeModel.belongsTo(Post.sequelizeModel, { foreignKey: 'postId', as: 'post' });
+    
+    News.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'authorId', as: 'author' });
+    Event.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'organizerId', as: 'organizer' });
+    
+    Follow.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'followerId', as: 'follower' });
+    Follow.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'followingId', as: 'following' });
+    User.sequelizeModel.hasMany(Follow.sequelizeModel, { foreignKey: 'followerId', as: 'followingUsers' });
+    User.sequelizeModel.hasMany(Follow.sequelizeModel, { foreignKey: 'followingId', as: 'followers' });
 }
 module.exports = setupAssociations;

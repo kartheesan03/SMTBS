@@ -14,9 +14,29 @@ const PostSequelize = sequelize.define('Post', {
     },
     text: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: true // Allow null for articles with only title/body
     },
     imageUrl: {
+        type: DataTypes.TEXT('long'),
+        allowNull: true
+    },
+    media: {
+        type: DataTypes.JSON, // Stores array of media objects { url, type }
+        allowNull: true
+    },
+    visibility: {
+        type: DataTypes.ENUM('Everyone', 'Department', 'Team'),
+        defaultValue: 'Everyone'
+    },
+    type: {
+        type: DataTypes.ENUM('Standard', 'Article'),
+        defaultValue: 'Standard'
+    },
+    articleTitle: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    articleBody: {
         type: DataTypes.TEXT('long'),
         allowNull: true
     }
