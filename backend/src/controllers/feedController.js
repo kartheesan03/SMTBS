@@ -355,7 +355,7 @@ const getFollowing = async (req, res) => {
                 {
                     model: User.sequelizeModel,
                     as: 'following',
-                    attributes: ['id', 'name', 'picture', 'role', 'department', 'createdAt']
+                    attributes: ['id', 'name', 'picture', 'role', 'createdAt']
                 }
             ],
             order: [['createdAt', 'DESC']]
