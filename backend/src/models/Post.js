@@ -25,11 +25,15 @@ const PostSequelize = sequelize.define('Post', {
         allowNull: true
     },
     visibility: {
-        type: DataTypes.ENUM('Everyone', 'Department', 'Team'),
-        defaultValue: 'Everyone'
+        type: DataTypes.ENUM('Anyone', 'Connections only', 'Specific teams'),
+        defaultValue: 'Anyone'
+    },
+    targetTeams: {
+        type: DataTypes.JSON, // Stores array of team strings
+        allowNull: true
     },
     type: {
-        type: DataTypes.ENUM('Standard', 'Article'),
+        type: DataTypes.ENUM('Standard', 'Article', 'Story', 'Announcement', 'Broadcast'),
         defaultValue: 'Standard'
     },
     articleTitle: {

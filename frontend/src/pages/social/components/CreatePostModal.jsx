@@ -1,8 +1,7 @@
 import React, { useState, useContext, useRef } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
-import Avatar from './Avatar';
 import { createPost } from '../../../api/posts';
-import { X, Image as ImageIcon, FileText, Smile, HelpCircle, UploadCloud } from 'lucide-react';
+import { X, Image as ImageIcon, Video, FileText, BarChart2, Calendar, UploadCloud } from 'lucide-react';
 
 const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
     const { user } = useContext(AuthContext);
@@ -59,6 +58,8 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
         reader.readAsDataURL(file);
     };
 
+    const authorName = user?.name || user?.username || 'Employee';
+
     return (
         <div style={{
             position: 'fixed',
@@ -66,22 +67,22 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'center',
             paddingTop: '80px',
             zIndex: 1000,
-            backdropFilter: 'blur(4px)'
+            backdropFilter: 'blur(2px)'
         }}>
             <div style={{
-                backgroundColor: 'var(--feed-bg-card)',
+                backgroundColor: '#ffffff',
                 borderRadius: '12px',
                 width: '100%',
                 maxWidth: '550px',
                 maxHeight: 'calc(100vh - 120px)',
-                border: '1px solid var(--feed-border-card)',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
                 display: 'flex',
                 flexDirection: 'column'
             }}>
@@ -91,15 +92,15 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     padding: '16px 24px',
-                    borderBottom: '1px solid #334155'
+                    borderBottom: '1px solid #e2e8f0'
                 }}>
-                    <h2 style={{ margin: 0, fontSize: '20px', color: 'var(--feed-text-primary)', fontWeight: '600' }}>Create a post</h2>
+                    <h2 style={{ margin: 0, fontSize: '20px', color: '#1e293b', fontWeight: '600' }}>Create a post</h2>
                     <button 
                         onClick={onClose}
                         style={{
                             background: 'none',
                             border: 'none',
-                            color: 'var(--feed-text-muted)',
+                            color: '#64748b',
                             cursor: 'pointer',
                             padding: '8px',
                             display: 'flex',
@@ -108,8 +109,8 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                             borderRadius: '50%',
                             transition: 'background-color 0.2s'
                         }}
-                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'; e.currentTarget.style.color = 'var(--feed-text-primary)'; }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--feed-text-muted)'; }}
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
                     >
                         <X size={24} />
                     </button>
@@ -118,10 +119,12 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                 {/* Content */}
                 <div style={{ padding: '16px 24px', flex: 1, overflowY: 'auto' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                        <Avatar user={user} size={48} />
+                        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#e2e8f0', color: '#1a56db', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px', overflow: 'hidden' }}>
+                            {authorName.charAt(0).toUpperCase()}
+                        </div>
                         <div>
-                            <h3 style={{ margin: 0, color: 'var(--feed-text-primary)', fontSize: '16px', fontWeight: '600' }}>{user?.name}</h3>
-                            <span style={{ fontSize: '13px', color: 'var(--feed-text-primary)', backgroundColor: 'var(--feed-btn-hover)', padding: '2px 8px', borderRadius: '12px', display: 'inline-block', marginTop: '4px', border: '1px solid var(--feed-border-card)' }}>Anyone</span>
+                            <h3 style={{ margin: 0, color: '#1e293b', fontSize: '16px', fontWeight: '600' }}>{authorName}</h3>
+                            <span style={{ fontSize: '13px', color: '#475569', backgroundColor: '#f8fafc', padding: '2px 8px', borderRadius: '12px', display: 'inline-block', marginTop: '4px', border: '1px solid #e2e8f0' }}>Anyone</span>
                         </div>
                     </div>
 
@@ -134,7 +137,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                             minHeight: '120px',
                             backgroundColor: 'transparent',
                             border: 'none',
-                            color: 'var(--feed-text-primary)',
+                            color: '#1e293b',
                             fontSize: '16px',
                             resize: 'none',
                             outline: 'none',
@@ -152,8 +155,8 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                             style={{
                                 width: '100%',
                                 boxSizing: 'border-box',
-                                backgroundColor: isDragging ? 'var(--feed-btn-hover)' : 'var(--feed-bg-page)',
-                                border: `2px dashed ${isDragging ? 'var(--feed-accent-blue)' : 'var(--feed-border-card)'}`,
+                                backgroundColor: isDragging ? '#f1f5f9' : '#f8fafc',
+                                border: `2px dashed ${isDragging ? '#1a56db' : '#cbd5e1'}`,
                                 borderRadius: '12px',
                                 padding: '32px 20px',
                                 display: 'flex',
@@ -167,34 +170,34 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                         >
                             <input 
                                 type="file" 
-                                accept="image/*" 
+                                accept="image/*,video/*" 
                                 style={{ display: 'none' }} 
                                 ref={fileInputRef}
                                 onChange={handleFileSelect}
                             />
-                            <div style={{ backgroundColor: 'var(--feed-btn-hover)', padding: '12px', borderRadius: '50%', marginBottom: '12px' }}>
-                                <UploadCloud size={24} color="var(--feed-text-muted)" />
+                            <div style={{ backgroundColor: '#e2e8f0', padding: '12px', borderRadius: '50%', marginBottom: '12px' }}>
+                                <UploadCloud size={24} color="#64748b" />
                             </div>
-                            <p style={{ margin: '0 0 4px 0', color: 'var(--feed-text-primary)', fontSize: '15px', fontWeight: '500' }}>
+                            <p style={{ margin: '0 0 4px 0', color: '#1e293b', fontSize: '15px', fontWeight: '500' }}>
                                 Click to upload or drag and drop
                             </p>
-                            <p style={{ margin: 0, color: 'var(--feed-text-muted)', fontSize: '13px' }}>
-                                PNG, JPG, GIF up to 10MB
+                            <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>
+                                Photos/Videos up to 10MB
                             </p>
                         </div>
                     )}
 
                     {previewUrl && (
-                        <div style={{ position: 'relative', marginBottom: '16px', borderRadius: '12px', overflow: 'hidden', backgroundColor: 'var(--feed-bg-page)', border: '1px solid var(--feed-border-card)' }}>
+                        <div style={{ position: 'relative', marginBottom: '16px', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
                             <button 
                                 onClick={() => setPreviewUrl('')}
                                 style={{
                                     position: 'absolute',
                                     top: '8px',
                                     right: '8px',
-                                    backgroundColor: 'var(--feed-bg-card)',
-                                    color: 'var(--feed-text-primary)',
-                                    border: '1px solid var(--feed-border-card)',
+                                    backgroundColor: '#ffffff',
+                                    color: '#0f172a',
+                                    border: '1px solid #e2e8f0',
                                     borderRadius: '50%',
                                     width: '28px',
                                     height: '28px',
@@ -202,7 +205,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     cursor: 'pointer',
-                                    backdropFilter: 'blur(4px)'
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                                 }}
                             >
                                 <X size={16} />
@@ -213,39 +216,51 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                 </div>
 
                 {/* Footer */}
-                <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <button
                             onClick={() => setShowImageInput(!showImageInput)}
                             style={{
                                 background: 'none',
                                 border: 'none',
-                                color: showImageInput ? 'var(--feed-accent-blue)' : 'var(--feed-text-muted)',
+                                color: showImageInput ? '#1a56db' : '#64748b',
                                 cursor: 'pointer',
-                                padding: '12px',
+                                padding: '10px',
                                 borderRadius: '50%',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 transition: 'background-color 0.2s'
                             }}
-                            onMouseOver={(e) => { if (!showImageInput) { e.currentTarget.style.backgroundColor = 'var(--feed-btn-hover)'; e.currentTarget.style.color = 'var(--feed-text-primary)'; } }}
-                            onMouseOut={(e) => { if (!showImageInput) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--feed-text-muted)'; } }}
-                            title="Add a photo"
+                            onMouseOver={(e) => { if (!showImageInput) { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; } }}
+                            onMouseOut={(e) => { if (!showImageInput) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#64748b'; } }}
+                            title="Add a photo or video"
                         >
                             <ImageIcon size={22} />
                         </button>
                         <button
-                            style={{ background: 'none', border: 'none', color: 'var(--feed-text-muted)', cursor: 'not-allowed', padding: '12px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '10px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s' }}
+                            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
                             title="Add a document"
                         >
                             <FileText size={22} />
                         </button>
                         <button
-                            style={{ background: 'none', border: 'none', color: 'var(--feed-text-muted)', cursor: 'not-allowed', padding: '12px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                            title="Add a poll"
+                            style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '10px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s' }}
+                            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+                            title="Create a poll"
                         >
-                            <HelpCircle size={22} />
+                            <BarChart2 size={22} />
+                        </button>
+                        <button
+                            style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '10px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background-color 0.2s' }}
+                            onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#0f172a'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+                            title="Create an event"
+                        >
+                            <Calendar size={22} />
                         </button>
                     </div>
 
@@ -253,8 +268,8 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                         onClick={handleSubmit}
                         disabled={isSubmitting || (!text.trim() && !previewUrl)}
                         style={{
-                            backgroundColor: (isSubmitting || (!text.trim() && !previewUrl)) ? 'var(--feed-border-card)' : 'var(--feed-accent-blue)',
-                            color: (isSubmitting || (!text.trim() && !previewUrl)) ? 'var(--feed-text-muted)' : 'white',
+                            backgroundColor: (isSubmitting || (!text.trim() && !previewUrl)) ? '#e2e8f0' : '#1a56db',
+                            color: (isSubmitting || (!text.trim() && !previewUrl)) ? '#94a3b8' : '#ffffff',
                             border: 'none',
                             borderRadius: '24px',
                             padding: '8px 20px',
@@ -269,7 +284,7 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
                     >
                         {isSubmitting ? (
                             <>
-                                <span style={{ width: '14px', height: '14px', border: '2px solid #64748B', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
+                                <span style={{ width: '14px', height: '14px', border: '2px solid #94a3b8', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></span>
                                 Uploading...
                             </>
                         ) : 'Post'}
@@ -284,3 +299,4 @@ const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
 };
 
 export default CreatePostModal;
+

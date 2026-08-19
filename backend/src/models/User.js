@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const bcrypt = require('bcryptjs');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
+const { encrypt, decrypt } = require('../utils/cryptoUtils');
 const UserSequelize = sequelize.define('User', {
     id: {
         type: DataTypes.INTEGER,
@@ -23,7 +24,14 @@ const UserSequelize = sequelize.define('User', {
     },
     phone: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
+        get() {
+            const raw = this.getDataValue('phone');
+            return raw ? decrypt(raw) : null;
+        },
+        set(value) {
+            this.setDataValue('phone', value ? encrypt(value) : null);
+        }
     },
     googleId: {
         type: DataTypes.STRING,
@@ -41,6 +49,18 @@ const UserSequelize = sequelize.define('User', {
     active: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
+    },
+    birthday: {
+        type: DataTypes.DATEONLY,
+        allowNull: true
+    },
+    bio: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    skills: {
+        type: DataTypes.STRING,
+        allowNull: true
     },
     isProfileComplete: {
         type: DataTypes.BOOLEAN,

@@ -998,6 +998,11 @@ input[type="password"]::-ms-clear {
   flex-direction: column;
   overflow-x: hidden;
 }
+/* Feed page needs horizontal room for its 3-column grid */
+.app-main:has(.smtbs-feed-page),
+.app-content:has(.smtbs-feed-page) {
+  overflow-x: visible !important;
+}
 
 .app-content {
   padding: 24px;

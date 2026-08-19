@@ -161,6 +161,9 @@ const loginUser = async (req, res) => {
         role: role,
         permissions: permissions,
         picture: user.picture,
+        birthday: user.birthday,
+        bio: user.bio,
+        skills: user.skills,
         isProfileComplete: user.isProfileComplete,
         token: generateToken(user._id),
         user: {
@@ -170,6 +173,9 @@ const loginUser = async (req, res) => {
             role: role,
             permissions: permissions,
             picture: user.picture,
+            birthday: user.birthday,
+            bio: user.bio,
+            skills: user.skills,
             isProfileComplete: user.isProfileComplete
         }
     });
@@ -558,6 +564,9 @@ const updateUserProfile = async (req, res) => {
             if (req.body.password) {
                 user.password = req.body.password;
             }
+            if (req.body.birthday !== undefined) user.birthday = req.body.birthday;
+            if (req.body.bio !== undefined) user.bio = req.body.bio;
+            if (req.body.skills !== undefined) user.skills = req.body.skills;
             const updatedUser = await user.save();
             let role = updatedUser.role;
             const permissions = await getRolePermissions(role);
@@ -568,6 +577,9 @@ const updateUserProfile = async (req, res) => {
                 role: role,
                 permissions: permissions,
                 picture: updatedUser.picture,
+                birthday: updatedUser.birthday,
+                bio: updatedUser.bio,
+                skills: updatedUser.skills,
                 isProfileComplete: updatedUser.isProfileComplete,
                 token: generateToken(updatedUser._id),
                 user: {
@@ -577,6 +589,9 @@ const updateUserProfile = async (req, res) => {
                     role: role,
                     permissions: permissions,
                     picture: updatedUser.picture,
+                    birthday: updatedUser.birthday,
+                    bio: updatedUser.bio,
+                    skills: updatedUser.skills,
                     isProfileComplete: updatedUser.isProfileComplete
                 }
             });
@@ -604,6 +619,9 @@ const getUserProfile = async (req, res) => {
                 role: role,
                 permissions: permissions,
                 picture: user.picture,
+                birthday: user.birthday,
+                bio: user.bio,
+                skills: user.skills,
                 isProfileComplete: user.isProfileComplete,
                 token: generateToken(user._id),
                 user: {
@@ -613,6 +631,9 @@ const getUserProfile = async (req, res) => {
                     role: role,
                     permissions: permissions,
                     picture: user.picture,
+                    birthday: user.birthday,
+                    bio: user.bio,
+                    skills: user.skills,
                     isProfileComplete: user.isProfileComplete
                 }
             });

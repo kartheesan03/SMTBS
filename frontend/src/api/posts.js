@@ -29,3 +29,51 @@ export const addComment = async (id, text) => {
     const response = await API.post(`/feed/${id}/comments`, { text });
     return response.data;
 };
+
+// Delete a comment
+export const deleteComment = async (commentId) => {
+    const response = await API.delete(`/feed/comments/${commentId}`);
+    return response.data;
+};
+
+// Toggle Save
+export const toggleSave = async (id) => {
+    const response = await API.post(`/feed/${id}/save`);
+    return response.data;
+};
+
+// Get Saved Posts
+export const getSavedPosts = async (params) => {
+    const response = await API.get('/feed/saved', { params });
+    return response.data;
+};
+
+// Acknowledge a post
+export const acknowledgePost = async (id) => {
+    const response = await API.post(`/feed/${id}/acknowledge`);
+    return response.data;
+};
+
+// Toggle Repost
+export const toggleRepost = async (id) => {
+    const response = await API.post(`/feed/${id}/repost`);
+    return response.data;
+};
+
+// Get Suggested Connections
+export const getSuggestedConnections = async () => {
+    const response = await API.get('/feed/suggestions');
+    return response.data;
+};
+
+// Get Trending Tags
+export const getTrendingTags = async () => {
+    const response = await API.get('/feed/trending');
+    return response.data;
+};
+
+// Toggle Follow a user
+export const toggleFollow = async (userId) => {
+    const response = await API.post(`/feed/follow/${userId}`);
+    return response.data;
+};

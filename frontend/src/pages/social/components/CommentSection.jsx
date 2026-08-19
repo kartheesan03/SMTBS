@@ -1,144 +1,374 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
-import Avatar from './Avatar';
-import { addComment } from '../../../api/posts';
+import { addComment, deleteComment } from '../../../api/posts';
 import { getRelativeTime } from '../../../utils/timeUtils';
+import { Send, ThumbsUp, CornerDownRight, Trash2, MoreHorizontal, Smile } from 'lucide-react';
+import '../CompanyFeed.css';
 
-const CommentSection = ({ postId, comments: initialComments, onCommentAdded }) => {
-    const { user } = useContext(AuthContext);
-    const [comments, setComments] = useState(initialComments || []);
-    const [text, setText] = useState('');
-    const [submitting, setSubmitting] = useState(false);
-    const [visibleCount, setVisibleCount] = useState(2);
+const AVATAR_COLORS = ['#0a3d62', '#4a5568', '#2f5233', '#7c2d3f', '#4338ca', '#b45309'];
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!text.trim()) return;
+const COMMON_EMOJIS = [
+  '😀', '😂', '😅', '😊', '😍', '🥰', '😎', '🤔', '🙌', '👍',
+  '👏', '🎉', '🔥', '💯', '✨', '🚀', '🤝', '💪', '🙏', '❤️'
+];
 
-        setSubmitting(true);
-        try {
-            const newComment = await addComment(postId, text);
-            setComments([...comments, newComment]);
-            setText('');
-            if (onCommentAdded) onCommentAdded();
-        } catch (error) {
-            console.error('Failed to add comment', error);
-        } finally {
-            setSubmitting(false);
-        }
+function MiniAvatar({ name, color, size = 36 }) {
+  const initials = (name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: '50%',
+      background: color, color: '#fff',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontWeight: 700, fontSize: size * 0.35, flexShrink: 0,
+      userSelect: 'none',
+    }}>
+      {initials}
+    </div>
+  );
+}
+
+const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onCommentDeleted }) => {
+  const { user } = useContext(AuthContext);
+  const [comments, setComments] = useState(initialComments || []);
+  const [text, setText]         = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(3);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const inputRef = useRef(null);
+  const emojiPickerRef = useRef(null);
+
+  const authorName     = user?.name || user?.username || 'You';
+  const authorColor    = AVATAR_COLORS[0];
+
+  // Close menu and emoji picker on outside click
+  useEffect(() => {
+    const fn = e => { 
+      if (openMenuId) setOpenMenuId(null); 
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target)) {
+        setShowEmojiPicker(false);
+      }
     };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, [openMenuId]);
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSubmit(e);
-        }
-    };
+  const insertEmoji = (emoji) => {
+    setText(prev => prev + emoji);
+    if (inputRef.current) inputRef.current.focus();
+  };
 
-    return (
-        <div style={{ marginTop: '16px' }}>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '24px' }}>
-                <Avatar user={user} size={40} />
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <textarea
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Add a comment..."
-                        disabled={submitting}
-                        style={{
-                            width: '100%',
-                            boxSizing: 'border-box',
-                            backgroundColor: 'transparent',
-                            border: '1px solid var(--feed-border-card)',
-                            borderRadius: '24px',
-                            padding: '10px 16px',
-                            color: 'var(--feed-text-primary)',
-                            fontSize: '14px',
-                            outline: 'none',
-                            resize: 'none',
-                            minHeight: '40px',
-                            lineHeight: '1.4',
-                            fontFamily: 'inherit',
-                            overflow: 'hidden',
-                            transition: 'border-color 0.2s'
-                        }}
-                        onFocus={(e) => e.target.style.borderColor = 'var(--feed-accent-blue)'}
-                        onBlur={(e) => e.target.style.borderColor = 'var(--feed-border-card)'}
-                        rows={1}
-                    />
-                    {text.trim() && (
-                        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                            <button
-                                type="submit"
-                                disabled={submitting}
-                                style={{
-                                    backgroundColor: 'var(--feed-accent-blue)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '16px',
-                                    padding: '4px 16px',
-                                    fontWeight: '600',
-                                    fontSize: '13px',
-                                    cursor: submitting ? 'not-allowed' : 'pointer',
-                                    opacity: submitting ? 0.5 : 1,
-                                    transition: 'background-color 0.2s'
-                                }}
-                                onMouseOver={(e) => { if (!submitting) e.target.style.backgroundColor = 'var(--feed-btn-hover)'; e.target.style.color = 'var(--feed-text-primary)'; }}
-                                onMouseOut={(e) => { if (!submitting) e.target.style.backgroundColor = 'var(--feed-accent-blue)'; e.target.style.color = 'white'; }}
-                            >
-                                Post
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </form>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!text.trim()) return;
+    setSubmitting(true);
+    try {
+      const newComment = await addComment(postId, text);
+      setComments(prev => [...prev, newComment]);
+      setText('');
+      setShowEmojiPicker(false);
+      if (onCommentAdded) onCommentAdded();
+    } catch (error) {
+      console.error('Failed to add comment', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {comments.slice(0, visibleCount).map((comment) => (
-                    <div key={comment.id} style={{ display: 'flex', gap: '8px' }}>
-                        <Avatar user={comment.author} size={40} />
-                        <div style={{ flex: 1 }}>
-                            <div style={{ backgroundColor: 'var(--feed-bg-page)', padding: '8px 12px', borderRadius: '0 8px 8px 8px', display: 'inline-block', maxWidth: '100%' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px', gap: '12px' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <span style={{ fontWeight: '600', fontSize: '14px', color: 'var(--feed-text-primary)', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.textDecoration='underline'} onMouseOut={e => e.currentTarget.style.textDecoration='none'}>{comment.author?.name}</span>
-                                        <span style={{ fontSize: '12px', color: 'var(--feed-text-muted)' }}>{comment.author?.role}</span>
-                                    </div>
-                                    <span style={{ fontSize: '12px', color: 'var(--feed-text-muted)' }}>
-                                        {getRelativeTime(comment.createdAt)}
-                                    </span>
-                                </div>
-                                <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: 'var(--feed-text-primary)', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{comment.text}</p>
-                            </div>
-                            <div style={{ display: 'flex', gap: '12px', paddingLeft: '12px', marginTop: '4px', fontSize: '12px', color: 'var(--feed-text-muted)', fontWeight: '600' }}>
-                                <span style={{ cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.backgroundColor='var(--feed-btn-hover)'} onMouseOut={e => e.currentTarget.style.backgroundColor='transparent'} className="comment-action">Like</span>
-                                <span style={{ cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.backgroundColor='var(--feed-btn-hover)'} onMouseOut={e => e.currentTarget.style.backgroundColor='transparent'} className="comment-action">Reply</span>
-                            </div>
-                        </div>
-                    </div>
+  const handleDelete = async (commentId) => {
+    if (!window.confirm('Delete this comment?')) return;
+    try {
+      await deleteComment(commentId);
+      setComments(prev => prev.filter(c => c.id !== commentId));
+      if (onCommentDeleted) onCommentDeleted();
+    } catch (error) {
+      console.error('Failed to delete comment', error);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e); }
+  };
+
+  return (
+    <div style={{
+      borderTop: '1px solid #eee9e0',
+      background: '#f9f8f6',
+    }}>
+      {/* ── Comment Input ─────────────────────────────────────── */}
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          display: 'flex', gap: '10px', alignItems: 'flex-start',
+          padding: '14px 16px 10px',
+        }}
+      >
+        <MiniAvatar name={authorName} color={authorColor} size={36} />
+        <div style={{
+          flex: 1, display: 'flex', alignItems: 'center',
+          background: '#fff', border: '1.5px solid #c9c4bd',
+          borderRadius: '22px', padding: '8px 14px',
+          gap: '8px', transition: 'border-color 0.2s',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+          position: 'relative',
+        }}
+          onFocusCapture={e => e.currentTarget.style.borderColor = '#0a66c2'}
+          onBlurCapture={e => e.currentTarget.style.borderColor = '#c9c4bd'}
+        >
+          <input
+            ref={inputRef}
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Add a comment…"
+            disabled={submitting}
+            style={{
+              flex: 1, border: 'none', outline: 'none',
+              fontSize: '14px', color: '#1a1a1a',
+              background: 'transparent',
+              fontFamily: 'var(--li-font)',
+            }}
+          />
+
+          <div ref={emojiPickerRef} style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+            <button
+              type="button"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              style={{
+                background: 'none', border: 'none', padding: '4px',
+                cursor: 'pointer', color: '#595959',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                borderRadius: '50%', transition: 'background 0.2s, color 0.2s',
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = '#f3f2ef'; e.currentTarget.style.color = '#1a1a1a'; }}
+              onMouseOut={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#595959'; }}
+            >
+              <Smile size={20} strokeWidth={2} />
+            </button>
+
+            {showEmojiPicker && (
+              <div style={{
+                position: 'absolute',
+                bottom: 'calc(100% + 14px)',
+                right: '-10px',
+                background: '#fff',
+                border: '1px solid #e0ddd6',
+                borderRadius: '8px',
+                padding: '12px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                width: '260px',
+                zIndex: 100,
+                display: 'grid',
+                gridTemplateColumns: 'repeat(5, 1fr)',
+                gap: '8px',
+                animation: 'popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+              }}>
+                <style>{`
+                  @keyframes popIn {
+                    0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+                    100% { opacity: 1; transform: scale(1) translateY(0); }
+                  }
+                `}</style>
+                {COMMON_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => insertEmoji(emoji)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      fontSize: '20px',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'transform 0.1s, background 0.1s',
+                    }}
+                    onMouseOver={e => {
+                      e.currentTarget.style.background = '#f3f2ef';
+                      e.currentTarget.style.transform = 'scale(1.2)';
+                    }}
+                    onMouseOut={e => {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  >
+                    {emoji}
+                  </button>
                 ))}
-            </div>
-
-            {comments.length > visibleCount && (
-                <div 
-                    onClick={() => setVisibleCount(prev => prev + 5)}
-                    style={{ marginTop: '12px', color: 'var(--feed-text-muted)', fontSize: '13px', fontWeight: '600', cursor: 'pointer', display: 'inline-block' }}
-                    onMouseOver={e => e.currentTarget.style.color = 'var(--feed-text-primary)'}
-                    onMouseOut={e => e.currentTarget.style.color = 'var(--feed-text-muted)'}
-                >
-                    Load more comments
-                </div>
+              </div>
             )}
-            <style>{`
-                .comment-action {
-                    padding: 2px 4px;
-                    border-radius: 4px;
-                    transition: background-color 0.2s;
-                }
-            `}</style>
+          </div>
+
+          <button
+            type="submit"
+            disabled={!text.trim() || submitting}
+            title="Post comment"
+            style={{
+              background: text.trim() ? '#0a66c2' : '#d4d0ca',
+              border: 'none', color: '#fff',
+              width: 30, height: 30,
+              borderRadius: '50%', cursor: text.trim() ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0, transition: 'background 0.2s, transform 0.15s',
+            }}
+            onMouseOver={e => { if (text.trim()) e.currentTarget.style.transform = 'scale(1.1)'; }}
+            onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+          >
+            <Send size={13} style={{ marginLeft: '-2px' }} />
+          </button>
         </div>
-    );
+      </form>
+
+      {/* ── Comment Thread ─────────────────────────────────────── */}
+      <div style={{ padding: '0 16px 12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {comments.slice(0, visibleCount).map((comment, idx) => {
+          const name      = comment.author?.name || comment.author?.username || 'Unknown';
+          const role      = comment.author?.role || comment.author?.department || 'Employee';
+          const color     = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+          const timeStr   = comment.createdAt ? getRelativeTime(comment.createdAt) : 'Just now';
+          const isOwner   = user?.id === comment.author?.id || ['Admin', 'Super Admin'].includes(user?.role);
+
+          return (
+            <div key={comment.id || idx} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <MiniAvatar name={name} color={color} size={36} />
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {/* Bubble */}
+                <div style={{
+                  background: '#fff',
+                  border: '1px solid #e0ddd6',
+                  borderRadius: '0 12px 12px 12px',
+                  padding: '10px 14px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                  position: 'relative',
+                }}>
+                  {/* Header row */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                    <div>
+                      <span style={{ fontWeight: 700, fontSize: '13px', color: '#1a1a1a', cursor: 'pointer' }}
+                        onMouseOver={e => e.target.style.textDecoration = 'underline'}
+                        onMouseOut={e => e.target.style.textDecoration = 'none'}
+                      >{name}</span>
+                      {' '}
+                      <span style={{ fontSize: '11px', color: '#595959', fontWeight: 400 }}>· {role}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0, marginLeft: '8px' }}>
+                      <span style={{ fontSize: '11px', color: '#8c8c8c', whiteSpace: 'nowrap' }}>{timeStr}</span>
+                      {isOwner && (
+                        <div style={{ position: 'relative' }}>
+                          <button
+                            onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === (comment.id || idx) ? null : (comment.id || idx)); }}
+                            style={{
+                              background: 'transparent', border: 'none', cursor: 'pointer',
+                              padding: '2px 4px', borderRadius: '50%', display: 'flex',
+                              color: '#8c8c8c', transition: 'background 0.15s',
+                            }}
+                            onMouseOver={e => e.currentTarget.style.background = '#f3f2ef'}
+                            onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                          >
+                            <MoreHorizontal size={14} />
+                          </button>
+                          {openMenuId === (comment.id || idx) && (
+                            <div
+                              onMouseDown={e => e.stopPropagation()}
+                              style={{
+                                position: 'absolute', top: '100%', right: 0,
+                                background: '#fff', border: '1px solid #e0ddd6',
+                                borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                minWidth: '140px', zIndex: 100, overflow: 'hidden', padding: '4px 0',
+                              }}
+                            >
+                              <div
+                                onClick={() => { setOpenMenuId(null); handleDelete(comment.id); }}
+                                style={{
+                                  display: 'flex', alignItems: 'center', gap: '8px',
+                                  padding: '10px 14px', cursor: 'pointer',
+                                  fontSize: '13px', fontWeight: 500, color: '#cc1016',
+                                  transition: 'background 0.12s',
+                                }}
+                                onMouseOver={e => e.currentTarget.style.background = '#fef2f2'}
+                                onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                              >
+                                <Trash2 size={13} /> Delete
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Comment text */}
+                  <p style={{
+                    margin: 0, fontSize: '14px', color: '#1e293b',
+                    lineHeight: 1.55, wordBreak: 'break-word', whiteSpace: 'pre-wrap',
+                  }}>
+                    {comment.text || comment.content}
+                  </p>
+                </div>
+
+                {/* Action row below bubble */}
+                <div style={{ display: 'flex', gap: '12px', marginTop: '4px', paddingLeft: '6px' }}>
+                  <button style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: '12px', fontWeight: 600, color: '#595959',
+                    padding: '2px 0', fontFamily: 'var(--li-font)',
+                    display: 'flex', alignItems: 'center', gap: '4px',
+                    transition: 'color 0.15s',
+                  }}
+                    onMouseOver={e => e.currentTarget.style.color = '#0a66c2'}
+                    onMouseOut={e => e.currentTarget.style.color = '#595959'}
+                  >
+                    <ThumbsUp size={12} /> Like
+                  </button>
+                  <button style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: '12px', fontWeight: 600, color: '#595959',
+                    padding: '2px 0', fontFamily: 'var(--li-font)',
+                    display: 'flex', alignItems: 'center', gap: '4px',
+                    transition: 'color 0.15s',
+                  }}
+                    onMouseOver={e => e.currentTarget.style.color = '#0a66c2'}
+                    onMouseOut={e => e.currentTarget.style.color = '#595959'}
+                  >
+                    <CornerDownRight size={12} /> Reply
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Load more */}
+        {comments.length > visibleCount && (
+          <button
+            onClick={() => setVisibleCount(prev => prev + 5)}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: '#0a66c2', fontSize: '13px', fontWeight: 700,
+              padding: '4px 0', fontFamily: 'var(--li-font)',
+              display: 'flex', alignItems: 'center', gap: '4px',
+              textAlign: 'left', transition: 'color 0.15s',
+            }}
+            onMouseOver={e => e.currentTarget.style.color = '#004182'}
+            onMouseOut={e => e.currentTarget.style.color = '#0a66c2'}
+          >
+            View {comments.length - visibleCount} more comment{comments.length - visibleCount !== 1 ? 's' : ''}
+          </button>
+        )}
+
+        {/* No comments state */}
+        {comments.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '12px 0 6px', fontSize: '13px', color: '#8c8c8c' }}>
+            Be the first to comment
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default CommentSection;

@@ -1,19 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
 import { MapPin, Briefcase, Award, GraduationCap, Edit, MessageSquare, UserPlus } from 'lucide-react';
 import './SocialProfile.css';
 
 const SocialProfile = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [profileData, setProfileData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const { data } = await API.get(`/social/profile/${id}`);
-                setProfileData(data);
+                const { data } = await API.get('/auth/users');
+                const userMatch = Array.isArray(data) ? data.find(u => String(u._id) === String(id) || String(u.id) === String(id)) : null;
+                
+                if (userMatch) {
+                    setProfileData({
+                        user: {
+                            ...userMatch,
+                            username: userMatch.name,
+                            role: userMatch.role
+                        },
+                        employee: {
+                            designation: userMatch.role,
+                            department: 'General',
+                            location: 'Headquarters'
+                        }
+                    });
+                } else {
+                    setProfileData(null);
+                }
             } catch (error) {
                 console.error('Failed to load profile', error);
             } finally {
@@ -30,6 +48,30 @@ const SocialProfile = () => {
 
     return (
         <div className="social-profile-container">
+            {/* Back Button */}
+            <div style={{ marginBottom: '16px' }}>
+                <button 
+                    onClick={() => navigate('/feed')}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#555555',
+                        fontWeight: '600',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        padding: '4px 0',
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.color = '#0a66c2'}
+                    onMouseOut={(e) => e.currentTarget.style.color = '#555555'}
+                >
+                    <span style={{ fontSize: '18px', lineHeight: '1' }}>←</span>
+                    Back to Feed
+                </button>
+            </div>
+
             {/* Header Section */}
             <div className="profile-header-card">
                 <div className="profile-cover-large"></div>

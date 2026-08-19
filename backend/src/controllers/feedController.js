@@ -1,22 +1,50 @@
 const Post = require('../models/Post');
 const PostComment = require('../models/PostComment');
 const PostLike = require('../models/PostLike');
+const PostRepost = require('../models/PostRepost');
 const SavedPost = require('../models/SavedPost');
 const News = require('../models/News');
 const Event = require('../models/Event');
 const Follow = require('../models/Follow');
 const User = require('../models/User');
+const PostAcknowledgement = require('../models/PostAcknowledgement');
+const StoryView = require('../models/StoryView');
+const sequelize = require('../config/sequelize');
 
 const getPosts = async (req, res) => {
     try {
         const page = parseInt(req.query.page, 10) || 1;
         const limit = parseInt(req.query.limit, 10) || 10;
         const offset = (page - 1) * limit;
+        
+        const { Op } = require('sequelize');
+        const Employee = require('../models/Employee');
+        const employee = await Employee.sequelizeModel.findOne({ where: { userIdField: req.user.id } });
+        const userDept = employee ? employee.department : '';
+
+        const whereClause = {
+            type: { [Op.ne]: 'Story' },
+            [Op.or]: [
+                { visibility: 'Anyone' },
+                { visibility: 'Connections only' }
+            ]
+        };
+
+        if (userDept) {
+            whereClause[Op.or].push({
+                visibility: 'Specific teams',
+                targetTeams: { [Op.like]: `%${userDept}%` }
+            });
+        }
 
         const { count, rows } = await Post.sequelizeModel.findAndCountAll({
+            where: whereClause,
             offset,
             limit,
-            order: [['createdAt', 'DESC']],
+            order: [
+                [sequelize.literal(`CASE WHEN type = 'Announcement' THEN 1 ELSE 2 END`), 'ASC'],
+                ['createdAt', 'DESC']
+            ],
             include: [
                 {
                     model: User.sequelizeModel,
@@ -44,6 +72,21 @@ const getPosts = async (req, res) => {
                             attributes: ['id', 'name']
                         }
                     ]
+                },
+                {
+                    model: PostRepost.sequelizeModel,
+                    as: 'reposts',
+                    attributes: ['userId']
+                },
+                {
+                    model: SavedPost.sequelizeModel,
+                    as: 'savedBy',
+                    attributes: ['userId']
+                },
+                {
+                    model: PostAcknowledgement.sequelizeModel,
+                    as: 'acknowledgements',
+                    attributes: ['userId']
                 }
             ],
             distinct: true
@@ -63,12 +106,22 @@ const getPosts = async (req, res) => {
 
 const createPost = async (req, res) => {
     try {
-        const { text, imageUrl, media, visibility, type, articleTitle, articleBody } = req.body;
+        let { text, imageUrl, media, visibility, type, articleTitle, articleBody, targetTeams } = req.body;
+        
+        if (req.file) {
+            imageUrl = `/uploads/${req.file.filename}`;
+        }
+        
+        if (typeof targetTeams === 'string') {
+            try { targetTeams = JSON.parse(targetTeams); } catch (e) { targetTeams = []; }
+        }
+
         const post = await Post.sequelizeModel.create({
             text,
             imageUrl,
             media,
-            visibility,
+            visibility: visibility || 'Anyone',
+            targetTeams,
             type,
             articleTitle,
             articleBody,
@@ -170,6 +223,27 @@ const addComment = async (req, res) => {
     }
 };
 
+const deleteComment = async (req, res) => {
+    try {
+        const commentId = req.params.commentId;
+        const comment = await PostComment.sequelizeModel.findByPk(commentId);
+        
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+        
+        if (comment.authorId !== req.user.id && req.user.role !== 'Admin' && req.user.role !== 'Super Admin') {
+            return res.status(403).json({ message: 'Not authorized to delete this comment' });
+        }
+
+        await comment.destroy();
+        res.json({ message: 'Comment deleted' });
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 const toggleSave = async (req, res) => {
     try {
         const postId = req.params.id;
@@ -188,7 +262,7 @@ const toggleSave = async (req, res) => {
         }
     } catch (error) {
         console.error('Error toggling save:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error: ' + error.message });
     }
 };
 
@@ -273,16 +347,250 @@ const getSuggestedConnections = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+const getFollowing = async (req, res) => {
+    try {
+        const follows = await Follow.sequelizeModel.findAll({
+            where: { followerId: req.user.id },
+            include: [
+                {
+                    model: User.sequelizeModel,
+                    as: 'following',
+                    attributes: ['id', 'name', 'picture', 'role', 'department', 'createdAt']
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        const result = follows.map(f => ({
+            id: f.following?.id,
+            name: f.following?.name,
+            picture: f.following?.picture,
+            role: f.following?.role,
+            department: f.following?.department,
+            followedAt: f.createdAt,
+        })).filter(u => u.id);
+
+        res.json(result);
+    } catch (error) {
+        console.error('Error fetching following list:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getSavedPosts = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const offset = (page - 1) * limit;
+
+        const { count, rows: savedPosts } = await SavedPost.sequelizeModel.findAndCountAll({
+            where: { userId: req.user.id },
+            offset,
+            limit,
+            order: [['createdAt', 'DESC']]
+        });
+
+        const postIds = savedPosts.map(sp => sp.postId);
+
+        if (postIds.length === 0) {
+            return res.json({ posts: [], page, pages: 0, total: 0 });
+        }
+
+        const posts = await Post.sequelizeModel.findAll({
+            where: { id: postIds },
+            include: [
+                {
+                    model: User.sequelizeModel,
+                    as: 'author',
+                    attributes: ['id', 'name', 'picture', 'role']
+                },
+                {
+                    model: PostComment.sequelizeModel,
+                    as: 'comments',
+                    include: [
+                        {
+                            model: User.sequelizeModel,
+                            as: 'author',
+                            attributes: ['id', 'name', 'picture', 'role']
+                        }
+                    ]
+                },
+                {
+                    model: PostLike.sequelizeModel,
+                    as: 'likes',
+                    include: [
+                        {
+                            model: User.sequelizeModel,
+                            as: 'user',
+                            attributes: ['id', 'name']
+                        }
+                    ]
+                },
+                {
+                    model: SavedPost.sequelizeModel,
+                    as: 'savedBy',
+                    attributes: ['userId']
+                }
+            ]
+        });
+
+        // Ensure posts are returned in the order they were saved
+        const postsMap = {};
+        posts.forEach(p => postsMap[p.id] = p);
+        const orderedPosts = postIds.map(id => postsMap[id]).filter(Boolean);
+
+        res.json({
+            posts: orderedPosts,
+            page,
+            pages: Math.ceil(count / limit),
+            total: count
+        });
+    } catch (error) {
+        console.error('Error fetching saved posts:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getStories = async (req, res) => {
+    try {
+        const { Op } = require('sequelize');
+        // Fetch stories from the last 24 hours
+        const twentyFourHoursAgo = new Date(new Date() - 24 * 60 * 60 * 1000);
+        
+        const stories = await Post.sequelizeModel.findAll({
+            where: {
+                type: 'Story',
+                createdAt: {
+                    [Op.gte]: twentyFourHoursAgo
+                }
+            },
+            order: [['createdAt', 'DESC']],
+            include: [
+                {
+                    model: User.sequelizeModel,
+                    as: 'author',
+                    attributes: ['id', 'name', 'picture', 'role']
+                },
+                {
+                    model: StoryView.sequelizeModel,
+                    as: 'views',
+                    attributes: ['userId']
+                }
+            ]
+        });
+
+        res.json(stories);
+    } catch (error) {
+        console.error('Error fetching stories:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const toggleAcknowledge = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.user.id;
+
+        const post = await Post.sequelizeModel.findByPk(postId);
+        if (!post || post.type !== 'Announcement') {
+            return res.status(404).json({ message: 'Announcement not found' });
+        }
+
+        const existingAck = await PostAcknowledgement.sequelizeModel.findOne({
+            where: { postId, userId }
+        });
+
+        if (existingAck) {
+            // Already acknowledged, maybe they want to un-acknowledge? Sure.
+            await existingAck.destroy();
+            res.json({ message: 'Acknowledgement removed' });
+        } else {
+            await PostAcknowledgement.sequelizeModel.create({
+                postId,
+                userId
+            });
+            res.json({ message: 'Acknowledged successfully' });
+        }
+    } catch (error) {
+        console.error('Error toggling acknowledgement:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const toggleRepost = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.user.id;
+
+        const post = await Post.sequelizeModel.findByPk(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        const existing = await PostRepost.sequelizeModel.findOne({
+            where: { postId, userId }
+        });
+
+        if (existing) {
+            await existing.destroy();
+            res.json({ message: 'Repost removed', reposted: false });
+        } else {
+            await PostRepost.sequelizeModel.create({ postId, userId });
+            res.json({ message: 'Reposted', reposted: true });
+        }
+    } catch (error) {
+        console.error('Error toggling repost:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+const getTrendingTags = async (req, res) => {
+    try {
+        const posts = await Post.sequelizeModel.findAll({
+            limit: 200,
+            attributes: ['text'],
+            order: [['createdAt', 'DESC']]
+        });
+        
+        const tagCounts = {};
+        posts.forEach(p => {
+            if (!p.text) return;
+            const matches = p.text.match(/#\w+/g);
+            if (matches) {
+                matches.forEach(tag => {
+                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                });
+            }
+        });
+        
+        const trending = Object.keys(tagCounts)
+            .map(tag => ({ tag, count: tagCounts[tag], posts: `${tagCounts[tag]} post${tagCounts[tag] > 1 ? 's' : ''}` }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+        res.json(trending);
+    } catch (error) {
+        console.error('Error fetching trending tags:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
 module.exports = {
     getPosts,
+    getSavedPosts,
     createPost,
     deletePost,
     toggleLike,
+    toggleRepost,
     addComment,
+    deleteComment,
     toggleSave,
     getNews,
     getEvents,
     toggleFollow,
-    getSuggestedConnections
+    getFollowing,
+    getSuggestedConnections,
+    getTrendingTags,
+    getStories,
+    toggleAcknowledge
 };

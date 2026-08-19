@@ -228,6 +228,8 @@ const safelyRecreateTable = async (modelName) => {
             }
             const modelCols = Object.keys(Model.getAttributes());
             const commonCols = currentCols.filter(c => modelCols.includes(c));
+            
+            await sequelize.query(`DROP TABLE IF EXISTS ${quote(tempTableName)};`);
             await sequelize.query(`ALTER TABLE ${quote(tableName)} RENAME TO ${quote(tempTableName)};`);
             await Model.sync();
             try {
@@ -276,11 +278,14 @@ const connectDB = async () => {
         setupAssociations();
             // Removed stale table cleanup code to prevent foreign key errors on startup
 
-        // Ensure the Post table is updated with new columns for the Feed module
-        await safelyRecreateTable('Post');
-
-        await sequelize.sync();
-        console.log(`${dbName} Database tables synchronized.`);
+        // Safely recreate logic removed as it corrupted SQLite foreign keys
+        try {
+            await sequelize.sync({ alter: true });
+            console.log(`${dbName} Database tables synchronized with alter.`);
+        } catch (syncError) {
+            console.warn(`[Sync] Alter sync failed, falling back to standard sync: ${syncError.message}`);
+            await sequelize.sync();
+        }
         
         // Run heavy data sync asynchronously and delay by 15s so we don't block Railway's port binding and healthchecks with CPU-intensive bcrypt hashing
         setTimeout(() => {

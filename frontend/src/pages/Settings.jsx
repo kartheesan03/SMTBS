@@ -379,14 +379,13 @@ const Settings = () => {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Email</label>
+                  <label>Email ID</label>
                   <input
                     type="email"
                     value={formData.email}
-                    disabled
-                    className="input-disabled"
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="Enter your email address"
                   />
-                  <span className="input-helper">Email cannot be changed</span>
                 </div>
                 <div className="form-row-2">
                   <div className="form-group">
