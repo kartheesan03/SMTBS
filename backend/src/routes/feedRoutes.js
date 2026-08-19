@@ -5,9 +5,16 @@ const path = require('path');
 const { getPosts, getSavedPosts, createPost, deletePost, toggleLike, toggleRepost, addComment, deleteComment, toggleSave, getNews, getEvents, toggleFollow, getFollowing, getSuggestedConnections, getStories, toggleAcknowledge, getTrendingTags } = require('../controllers/feedController');
 const { protect } = require('../middleware/authMiddleware');
 
+const fs = require('fs');
+
+const uploadPath = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination(req, file, cb) {
-    cb(null, 'uploads/');
+    cb(null, uploadPath);
   },
   filename(req, file, cb) {
     cb(null, `post-${Date.now()}${path.extname(file.originalname)}`);
