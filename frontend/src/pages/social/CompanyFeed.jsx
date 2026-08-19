@@ -67,6 +67,10 @@ function normalizePost(raw, idx = 0, currentUserId = null) {
       createdAt: raw.createdAt,
       text:      raw.text || '',
       image:     finalImage,
+      media:     Array.isArray(raw.media) ? raw.media.map(m => {
+        const backendBase = window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://smtbs-backend.onrender.com';
+        return { ...m, url: m.url?.startsWith('/uploads/') ? `${backendBase}${m.url}` : m.url };
+      }) : null,
       likes:     raw.likes || [],
       reactions: { like: likeCount, celebrate: 0, love: 0, insightful: 0 },
       myReaction: null,

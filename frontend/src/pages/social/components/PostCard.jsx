@@ -397,6 +397,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
           {post.media.map((item, idx) => (
             <img key={idx} src={item.url} alt="Post media"
               onClick={() => setLightboxSrc(item.url)}
+              onError={(e) => e.target.style.display = 'none'}
               style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'zoom-in' }} />
           ))}
         </div>
@@ -406,6 +407,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
             src={post.image}
             alt="Post"
             onClick={() => setLightboxSrc(post.image)}
+            onError={(e) => e.target.style.display = 'none'}
             style={{ width: '100%', maxHeight: '500px', objectFit: 'contain', cursor: 'zoom-in' }}
           />
         </div>
