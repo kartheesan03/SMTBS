@@ -56,7 +56,11 @@ const Login = () => {
       setError("");
       redirectAfterAuth(data);
     } catch (err) {
-      setError(err.response?.data?.error || err.response?.data?.message || "Login failed. Please try again.");
+      if (err.code === 'ECONNABORTED' || err.message.includes('timeout') || err.message === 'Network Error') {
+        setError("The server is waking up. This can take up to 60 seconds on the free tier. Please try again in a minute.");
+      } else {
+        setError(err.response?.data?.error || err.response?.data?.message || "Login failed. Please try again.");
+      }
     } finally { setIsLoading(false); }
   };
 

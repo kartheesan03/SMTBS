@@ -4,7 +4,7 @@ let apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:50
 
 const API = axios.create({    
     baseURL: apiBaseUrl, 
-    timeout: 30000 
+    timeout: 120000 
 });
 
 API.interceptors.request.use((req) => {    
