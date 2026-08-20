@@ -1,15 +1,25 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 const sequelize = require('./src/config/sequelize');
-const Post = require('./src/models/Post');
+const User = require('./src/models/User');
+require('./src/models/associations')();
 
 async function check() {
   await sequelize.authenticate();
-  const posts = await Post.sequelizeModel.findAll({
-    where: { type: 'Announcement' },
-    order: [['createdAt', 'DESC']],
-    limit: 1
-  });
-  console.log(JSON.stringify(posts, null, 2));
+  try {
+      const followedIds = [];
+      const users = await User.sequelizeModel.findAll({
+          where: {
+              id: {
+                  [Sequelize.Op.notIn]: followedIds
+              }
+          },
+          limit: 5,
+          attributes: ['id', 'name']
+      });
+      console.log('Success', users);
+  } catch (e) {
+      console.error('Error!', e);
+  }
   process.exit(0);
 }
-check().catch(console.error);
+check();
