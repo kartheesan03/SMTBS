@@ -392,7 +392,12 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
                   style={{
                       appearance: 'none',
                       WebkitAppearance: 'none',
-                      background: 'transparent', border: 'none', outline: 'none',
+                      MozAppearance: 'none',
+                      background: 'transparent',
+                      backgroundColor: 'transparent',
+                      border: '0px solid transparent',
+                      boxShadow: 'none',
+                      outline: 'none',
                       fontSize: '12px', color: 'var(--li-text-1)', fontWeight: '600',
                       marginLeft: '4px', cursor: 'pointer', fontFamily: 'inherit',
                       paddingRight: '14px'
