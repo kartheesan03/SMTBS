@@ -178,6 +178,12 @@
     padding: 15px 24px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+    background: transparent;
+}
+
+.network-table tbody tr {
+    background: transparent;
+    transition: background 0.15s;
 }
 
 .network-table tr:last-child td {
@@ -186,7 +192,6 @@
 
 .network-table tbody tr:hover td {
     background: var(--mn-accent-pale);
-    transition: background 0.15s;
 }
 
 /* ─── Table Cells ────────────────────────────────────────────────────────── */

@@ -393,7 +393,7 @@ input[type="password"]::-ms-clear {
   transition: background-color 0.2s ease;
 }
 
-.enterprise-table tbody tr:hover, .modern-table tbody tr:hover, table tbody tr:hover {
+.enterprise-table tbody tr:hover, .modern-table tbody tr:hover {
   background: var(--bg-hover);
 }
 
@@ -976,9 +976,7 @@ input[type="password"]::-ms-clear {
   vertical-align: middle;
 }
 
-.table tr:hover td {
-  background: #f8fafc;
-}
+/* Removed broad .table tr:hover rule — each table now controls its own hover state */
 
 /* App Layout Overrides */
 .app-layout {

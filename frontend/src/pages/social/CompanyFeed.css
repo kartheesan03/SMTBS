@@ -608,9 +608,12 @@ main {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--li-divider);
+  background: transparent;
+  transition: background 0.15s;
 }
+.lf-person-row:hover { background: var(--li-blue-pale); }
 .lf-person-row:last-child { border-bottom: none; }
 
 .lf-person-avatar {
