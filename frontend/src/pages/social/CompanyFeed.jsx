@@ -321,14 +321,14 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
             What's happening in the company?
           </div>
         </div>
-        <div className="cf-composer-actions" style={{ display: 'flex', flexWrap: 'nowrap', gap: '2px', borderTop: '1px solid #eee9e0', paddingTop: '4px', marginTop: '4px' }}>
-            <button className="cf-composer-action photo" style={{ flex: 1, justifyContent: 'center', padding: '8px 4px', fontSize: '12px', whiteSpace: 'nowrap' }} onClick={() => {
+        <div className="cf-composer-actions" style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--li-border)', paddingTop: '12px', marginTop: '16px' }}>
+            <button className="cf-composer-action photo" style={{ justifyContent: 'center', padding: '8px 12px', fontSize: '13px', whiteSpace: 'nowrap' }} onClick={() => {
                 setIsComposerOpen(true);
                 setTimeout(() => document.getElementById('cf-file-upload-input')?.click(), 100);
             }}>
               <Image size={16} /> Photo
             </button>
-            <button className="cf-composer-action document" style={{ flex: 1, justifyContent: 'center', padding: '8px 4px', fontSize: '12px', whiteSpace: 'nowrap' }} onClick={() => {
+            <button className="cf-composer-action document" style={{ justifyContent: 'center', padding: '8px 12px', fontSize: '13px', whiteSpace: 'nowrap' }} onClick={() => {
                 setIsComposerOpen(true);
                 setTimeout(() => document.getElementById('cf-file-upload-input')?.click(), 100);
             }}>
@@ -336,13 +336,13 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
             </button>
             {(currentUser.role === 'Admin' || currentUser.role === 'Super Admin' || currentUser.role === 'HR') && (
                 <>
-                <button className="cf-composer-action announcement" style={{ flex: 1, justifyContent: 'center', padding: '8px 4px', fontSize: '12px', whiteSpace: 'nowrap' }} onClick={() => {
+                <button className="cf-composer-action announcement" style={{ justifyContent: 'center', padding: '8px 12px', fontSize: '13px', whiteSpace: 'nowrap' }} onClick={() => {
                     setComposerType('Announcement');
                     setIsComposerOpen(true);
                 }}>
                   <MessageSquare size={16} /> Announcement
                 </button>
-                <button className="cf-composer-action broadcast" style={{ flex: 1, justifyContent: 'center', padding: '8px 4px', fontSize: '12px', whiteSpace: 'nowrap' }} onClick={() => {
+                <button className="cf-composer-action broadcast" style={{ justifyContent: 'center', padding: '8px 12px', fontSize: '13px', whiteSpace: 'nowrap' }} onClick={() => {
                     setComposerType('Broadcast');
                     setIsComposerOpen(true);
                 }}>
