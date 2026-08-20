@@ -660,6 +660,17 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
                 activeColor: '#057642',
                 onClick: handleRepost,
               },
+              {
+                id: 'share',
+                label: 'Share',
+                icon: Share2,
+                active: false,
+                activeColor: '#595959',
+                onClick: () => {
+                  navigator.clipboard.writeText(window.location.origin + '/feed');
+                  toast.success('Link copied to clipboard');
+                },
+              },
             ].map((btn, i) => (
               <div key={i} style={{ flex: 1, display: 'flex', margin: '2px' }}>
                 <button
