@@ -84,9 +84,9 @@ const SocialMessages = () => {
         setNewMessage('');
         
         try {
-            const { data } = await API.post(`/social/messages/${activeConv.id}`, {
+            const { data } = await API.post(`/social/messages`, {
                 content: msgText,
-                recipientId: activeConv.id
+                receiverId: activeConv.id
             });
             
             // Replace the optimistic message with the real message from the backend
