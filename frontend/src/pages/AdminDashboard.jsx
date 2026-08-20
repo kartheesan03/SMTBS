@@ -38,7 +38,7 @@ const fmtTime = (iso) =>
   new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 /* ─── sub-components ─── */
-const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub }) => (
+const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub, sparkData, sparkColor }) => (
   <div className="db-kpi-card">
     <div className="db-kpi-top">
       <div className={`db-kpi-icon ${iconClass}`}><Icon size={22} /></div>
@@ -48,11 +48,22 @@ const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub }) =
         </span>
       )}
     </div>
-    <div>
-      <div className="db-kpi-value">{value}</div>
-      <div className="db-kpi-label">{label}</div>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
+      <div>
+        <div className="db-kpi-value">{value}</div>
+        <div className="db-kpi-label">{label}</div>
+      </div>
+      {sparkData && (
+        <div style={{ width: '80px', height: '40px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={sparkData}>
+              <Line type="monotone" dataKey="v" stroke={sparkColor} strokeWidth={2} dot={false} isAnimationActive={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
-    {sub && <div className="db-kpi-sub">{sub}</div>}
+    {sub && <div className="db-kpi-sub" style={{ marginTop: '8px' }}>{sub}</div>}
   </div>
 );
 
@@ -88,6 +99,7 @@ const ActivityItem = ({ icon: Icon, iconBg, iconColor, title, desc, time }) => (
 
 /* sparkline data seeds */
 const SPARK = [4,7,5,9,6,11,8,13,10,15,12,14];
+const DONUT_COLORS = ["#14B8A6", "#E2E8F0"];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -182,405 +194,424 @@ const AdminDashboard = () => {
   const topMaterials = (dashboardData?.tables?.topMaterials || []).slice(0, 5);
   const maxMatVal = topMaterials.reduce((m, d) => Math.max(m, d.revenue || d.value || 0), 1);
 
-  const DONUT_COLORS = ["#4f46e5", "#e2e8f0"];
-
   return (
     <div className="db-page">
-      <div className="db-content">
-
-        {/* ── Greeting Bar ── */}
-        <div className="db-greeting-bar">
-          <div className="db-greeting-left">
-            <div className="db-greeting-text">
-              {greeting()}, {user?.name?.split(" ")[0] || "Admin"}! 👋
-            </div>
-            <div className="db-greeting-sub">
-              Welcome back! You're doing great today.
-            </div>
-          </div>
-          <div className="db-greeting-right">
-            <div className="db-datetime">
-              {now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-              &nbsp;·&nbsp;
-              {now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
-            </div>
-            <div className="db-status-pill">
-              <div className="db-status-dot" />
-              All Systems Operational
-            </div>
-          </div>
-        </div>
-
-        {/* ── KPI Cards ── */}
-        <div className="db-kpi-grid">
-          <KpiCard icon={Activity}     iconClass="green"  label="System Health"    value="100%"                    trend="Excellent"    trendUp={true}  sub="All services running" />
-          <KpiCard icon={DollarSign}   iconClass="blue"   label="Revenue Today"    value={fmtINR(totalRevenue)}    trend="vs yesterday"  trendUp={true}  sub="Year-to-date" />
-          <KpiCard icon={ShoppingCart} iconClass="orange" label="Orders Today"     value={activeOrders}            trend={`${pendingOrders} pending`} trendUp={false} sub="Active orders" />
-          <KpiCard icon={Users}        iconClass="purple" label="Active Employees"  value={totalEmployees}          trend="vs last month" trendUp={true}  sub={`${attendanceTotal} present today`} />
-        </div>
-
-        {/* ── Quick Actions ── */}
-        <div className="db-quick-actions">
-          <div className="db-section-title">Quick Actions</div>
-          <div className="db-qa-grid">
-            <QaBtn icon={CheckCircle2} label="Attendance"     colorClass="qa-red"    onClick={() => navigate("/attendance")} />
-            <QaBtn icon={Users}        label="Employee"       colorClass="qa-blue"   onClick={() => navigate("/employees")} />
-            <QaBtn icon={DollarSign}   label="Payroll"        colorClass="qa-purple" onClick={() => navigate("/payroll")} />
-            <QaBtn icon={Box}          label="Inventory"      colorClass="qa-orange" onClick={() => navigate("/materials")} />
-            <QaBtn icon={Tag}          label="Sales"          colorClass="qa-green"  onClick={() => navigate("/orders")} />
-            <QaBtn icon={Building2}    label="Vendors"        colorClass="qa-teal"   onClick={() => navigate("/vendors")} />
-            <QaBtn icon={FileText}     label="Reports"        colorClass="qa-amber"  onClick={() => navigate("/analytics")} />
-            <QaBtn icon={Settings}     label="Settings"       colorClass="qa-cyan"   onClick={() => navigate("/settings")} />
-            <QaBtn icon={Layers}       label="ERP"            colorClass="qa-indigo" onClick={() => navigate("/erp")} />
-            <QaBtn icon={ListTodo}     label="Tasks"          colorClass="qa-pink"   onClick={() => navigate("/my-tasks")} />
-            <QaBtn icon={Folder}       label="Projects"       colorClass="qa-blue"   onClick={() => navigate("/projects")} />
-          </div>
-        </div>
-
-        {/* ── Stats Mini Row ── */}
-        <div className="db-stats-mini-grid">
-          <div className="db-stats-mini-card">
-            <div className="db-stats-mini-icon" style={{ background: "#EEF2FF", color: "#4F46E5" }}><Users size={18} /></div>
-            <div className="db-stats-mini-body">
-              <div className="db-stats-mini-val">{totalEmployees}</div>
-              <div className="db-stats-mini-label">Total Employees</div>
-              <span className="db-stats-mini-badge badge-green-sm">↑ 6% this month</span>
-            </div>
-          </div>
-          <div className="db-stats-mini-card">
-            <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><UserCheck size={18} /></div>
-            <div className="db-stats-mini-body">
-              <div className="db-stats-mini-val">{attendanceTotal}</div>
-              <div className="db-stats-mini-label">Present Today</div>
-              <span className="db-stats-mini-badge badge-green-sm">{attendancePct}%</span>
-            </div>
-          </div>
-          <div className="db-stats-mini-card">
-            <div className="db-stats-mini-icon" style={{ background: "#FEF9C3", color: "#92400E" }}><Calendar size={18} /></div>
-            <div className="db-stats-mini-body">
-              <div className="db-stats-mini-val">{dashboardData?.hrStats?.pendingLeaves || 0}</div>
-              <div className="db-stats-mini-label">Pending Leaves</div>
-              <span className="db-stats-mini-badge badge-orange-sm">Needs Approval</span>
-            </div>
-          </div>
-          <div className="db-stats-mini-card">
-            <div className="db-stats-mini-icon" style={{ background: "#DBEAFE", color: "#1D4ED8" }}><Box size={18} /></div>
-            <div className="db-stats-mini-body">
-              <div className="db-stats-mini-val">{totalMaterials}</div>
-              <div className="db-stats-mini-label">Active Materials</div>
-              <span className="db-stats-mini-badge badge-blue-sm">In Inventory</span>
-            </div>
-          </div>
-          <div className="db-stats-mini-card">
-            <div className="db-stats-mini-icon" style={{ background: "#FFEDD5", color: "#C2410C" }}><ShoppingCart size={18} /></div>
-            <div className="db-stats-mini-body">
-              <div className="db-stats-mini-val">{pendingOrders}</div>
-              <div className="db-stats-mini-label">Open PO Orders</div>
-              <span className="db-stats-mini-badge badge-orange-sm">Total Open</span>
-            </div>
-          </div>
-          <div className="db-stats-mini-card">
-            <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><DollarSign size={18} /></div>
-            <div className="db-stats-mini-body">
-              <div className="db-stats-mini-val">{fmtINR(totalRevenue)}</div>
-              <div className="db-stats-mini-label">Total Revenue</div>
-              <span className="db-stats-mini-badge badge-green-sm">YTD</span>
-            </div>
-          </div>
-          <div className="db-stats-mini-card">
-            <div className="db-stats-mini-icon" style={{ background: "#F3E8FF", color: "#7C3AED" }}><BarChart2 size={18} /></div>
-            <div className="db-stats-mini-body">
-              <div className="db-stats-mini-val">{fmtINR(thisMonthRev)}</div>
-              <div className="db-stats-mini-label">Monthly Sales</div>
-              <span className={`db-stats-mini-badge ${profitTrendPct >= 0 ? 'badge-green-sm' : 'badge-red-sm'}`}>
-                {profitTrendPct >= 0 ? '↑' : '↓'} {Math.abs(profitTrendPct)}%
-              </span>
-            </div>
-          </div>
-          <div className="db-stats-mini-card">
-            <div className="db-stats-mini-icon" style={{ background: "#FEE2E2", color: "#DC2626" }}><ListTodo size={18} /></div>
-            <div className="db-stats-mini-body">
-              <div className="db-stats-mini-val">{pendingTasks}</div>
-              <div className="db-stats-mini-label">Pending Tasks</div>
-              <span className="db-stats-mini-badge badge-red-sm">Due Soon</span>
-            </div>
-          </div>
-        </div>
-
+      <div className="db-content db-layout-split">
         
-        {/* ── Bento Grid ── */}
-        <div className="db-bento">
-          {/* Row 1 */}
-          <div className="db-card db-col-3">
-            <div className="db-profile-banner profile-banner-admin"/>
-            <div className="db-profile-body" style={{ paddingTop: '20px' }}>
-              <div className="db-profile-name">{user?.name || "Admin"}</div>
+        {/* ── LEFT MAIN CONTENT ── */}
+        <div className="db-main-content">
+          
+          {/* Row 1: 4 Stat Cards */}
+          <div className="db-kpi-grid">
+            <KpiCard icon={Activity}     iconClass="green"  label="System Health"    value="100%"                    trend="Excellent"    trendUp={true}  sub="All services running" sparkData={sparkData} sparkColor="#22c55e" />
+            <KpiCard icon={DollarSign}   iconClass="blue"   label="Revenue Today"    value={fmtINR(totalRevenue)}    trend="vs yesterday"  trendUp={true}  sub="Year-to-date" sparkData={sparkData} sparkColor="#3b82f6" />
+            <KpiCard icon={ShoppingCart} iconClass="orange" label="Orders Today"     value={activeOrders}            trend={`${pendingOrders} pending`} trendUp={false} sub="Active orders" sparkData={sparkData} sparkColor="#f97316" />
+            <KpiCard icon={Users}        iconClass="purple" label="Active Employees"  value={totalEmployees}          trend="vs last month" trendUp={true}  sub={`${attendanceTotal} present today`} sparkData={sparkData} sparkColor="#a855f7" />
+          </div>
+
+          {/* Row 2: Quick Actions */}
+          <div className="db-quick-actions">
+            <div className="db-section-title">Quick Actions</div>
+            <div className="db-qa-grid">
+              <QaBtn icon={CheckCircle2} label="Attendance"     colorClass="qa-red"    onClick={() => navigate("/attendance")} />
+              <QaBtn icon={Users}        label="Employee"       colorClass="qa-blue"   onClick={() => navigate("/employees")} />
+              <QaBtn icon={DollarSign}   label="Payroll"        colorClass="qa-purple" onClick={() => navigate("/payroll")} />
+              <QaBtn icon={Box}          label="Inventory"      colorClass="qa-orange" onClick={() => navigate("/materials")} />
+              <QaBtn icon={Tag}          label="Sales"          colorClass="qa-green"  onClick={() => navigate("/orders")} />
+              <QaBtn icon={Building2}    label="Vendors"        colorClass="qa-teal"   onClick={() => navigate("/vendors")} />
+              <QaBtn icon={FileText}     label="Reports"        colorClass="qa-amber"  onClick={() => navigate("/analytics")} />
+              <QaBtn icon={Settings}     label="Settings"       colorClass="qa-cyan"   onClick={() => navigate("/settings")} />
+              <QaBtn icon={Layers}       label="ERP"            colorClass="qa-indigo" onClick={() => navigate("/erp")} />
+              <QaBtn icon={ListTodo}     label="Tasks"          colorClass="qa-pink"   onClick={() => navigate("/my-tasks")} />
+              <QaBtn icon={Folder}       label="Projects"       colorClass="qa-blue"   onClick={() => navigate("/projects")} />
+            </div>
+          </div>
+
+          {/* Row 3: Stats Mini Row */}
+          <div className="db-stats-mini-grid">
+            <div className="db-stats-mini-card">
+              <div className="db-stats-mini-icon" style={{ background: "#EEF2FF", color: "#4F46E5" }}><Users size={18} /></div>
+              <div className="db-stats-mini-body">
+                <div className="db-stats-mini-val">{totalEmployees}</div>
+                <div className="db-stats-mini-label">Total Employees</div>
+                <span className="db-stats-mini-badge badge-green-sm">↑ 6% this month</span>
+              </div>
+            </div>
+            <div className="db-stats-mini-card">
+              <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><UserCheck size={18} /></div>
+              <div className="db-stats-mini-body">
+                <div className="db-stats-mini-val">{attendanceTotal}</div>
+                <div className="db-stats-mini-label">Present Today</div>
+                <span className="db-stats-mini-badge badge-green-sm">{attendancePct}%</span>
+              </div>
+            </div>
+            <div className="db-stats-mini-card">
+              <div className="db-stats-mini-icon" style={{ background: "#FEF9C3", color: "#92400E" }}><Calendar size={18} /></div>
+              <div className="db-stats-mini-body">
+                <div className="db-stats-mini-val">{dashboardData?.hrStats?.pendingLeaves || 0}</div>
+                <div className="db-stats-mini-label">Pending Leaves</div>
+                <span className="db-stats-mini-badge badge-orange-sm">Needs Approval</span>
+              </div>
+            </div>
+            <div className="db-stats-mini-card">
+              <div className="db-stats-mini-icon" style={{ background: "#DBEAFE", color: "#1D4ED8" }}><Box size={18} /></div>
+              <div className="db-stats-mini-body">
+                <div className="db-stats-mini-val">{totalMaterials}</div>
+                <div className="db-stats-mini-label">Active Materials</div>
+                <span className="db-stats-mini-badge badge-blue-sm">In Inventory</span>
+              </div>
+            </div>
+            <div className="db-stats-mini-card">
+              <div className="db-stats-mini-icon" style={{ background: "#FFEDD5", color: "#C2410C" }}><ShoppingCart size={18} /></div>
+              <div className="db-stats-mini-body">
+                <div className="db-stats-mini-val">{pendingOrders}</div>
+                <div className="db-stats-mini-label">Open PO Orders</div>
+                <span className="db-stats-mini-badge badge-orange-sm">Total Open</span>
+              </div>
+            </div>
+            <div className="db-stats-mini-card">
+              <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><DollarSign size={18} /></div>
+              <div className="db-stats-mini-body">
+                <div className="db-stats-mini-val">{fmtINR(totalRevenue)}</div>
+                <div className="db-stats-mini-label">Total Revenue</div>
+                <span className="db-stats-mini-badge badge-green-sm">YTD</span>
+              </div>
+            </div>
+            <div className="db-stats-mini-card">
+              <div className="db-stats-mini-icon" style={{ background: "#F3E8FF", color: "#7C3AED" }}><BarChart2 size={18} /></div>
+              <div className="db-stats-mini-body">
+                <div className="db-stats-mini-val">{fmtINR(thisMonthRev)}</div>
+                <div className="db-stats-mini-label">Monthly Sales</div>
+                <span className={`db-stats-mini-badge ${profitTrendPct >= 0 ? 'badge-green-sm' : 'badge-red-sm'}`}>
+                  {profitTrendPct >= 0 ? '↑' : '↓'} {Math.abs(profitTrendPct)}%
+                </span>
+              </div>
+            </div>
+            <div className="db-stats-mini-card">
+              <div className="db-stats-mini-icon" style={{ background: "#FEE2E2", color: "#DC2626" }}><ListTodo size={18} /></div>
+              <div className="db-stats-mini-body">
+                <div className="db-stats-mini-val">{pendingTasks}</div>
+                <div className="db-stats-mini-label">Pending Tasks</div>
+                <span className="db-stats-mini-badge badge-red-sm">Due Soon</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 4: Panel Row 1 (4 columns) */}
+          <div className="db-panel-grid">
+            
+            {/* 1. System Status */}
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">System Status</div>
+              </div>
+              <div className="db-status-list" style={{ flex: 1, overflowY: 'auto' }}>
+                <StatusRow name="Backend API" status="Healthy" />
+                <StatusRow name="Database" status="Healthy" />
+                <StatusRow name="Authentication" status="Healthy" />
+                <StatusRow name="Storage" status="Healthy" />
+                <StatusRow name="Backup" status="Healthy" />
+                <StatusRow name="Mail Service" status="Healthy" />
+              </div>
+            </div>
+
+            {/* 2. Revenue Trend */}
+            <div className="db-card">
+              <div className="db-card-header" style={{ paddingBottom: 0, borderBottom: 'none' }}>
+                <div className="db-card-title">Revenue Trend</div>
+                <select className="db-panel-select" value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)} style={{ background: '#f8fafc', padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
+                  <option value="current">This Month</option>
+                  <option value="last">Last Month</option>
+                </select>
+              </div>
+              <div style={{ flex: 1, minHeight: "160px", marginTop: "10px", padding: "0 10px 10px 0" }}>
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorRev2" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.4} />
+                          <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dx={-10} tickFormatter={(val) => `₹${val/1000}k`} />
+                      <Tooltip cursor={{ stroke: '#818cf8', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                      <Area type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={3} fill="url(#colorRev2)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="db-empty" style={{ textAlign: 'center', paddingTop: '20px', color: '#94a3b8' }}>No data</div>
+                )}
+              </div>
+            </div>
+
+            {/* 3. Employee Attendance */}
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">Employee Attendance</div>
+              </div>
+              <div className="db-card-body" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, flex: 1, justifyContent: 'center' }}>
+                <div className="db-donut-wrap" style={{ position: "relative", height: "120px", width: "100%", display: "flex", justifyContent: "center" }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={donutData} cx="50%" cy="50%" innerRadius={42} outerRadius={56} dataKey="value" startAngle={90} endAngle={-270} stroke="none" cornerRadius={4}>
+                        {donutData.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />)}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" }}>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a" }}>{attendancePct}%</span>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 16, fontSize: 12, marginTop: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: DONUT_COLORS[0] }} />
+                    <span style={{ color: "#64748b" }}>Present <span style={{ color: "#0f172a", fontWeight: 700 }}>{attendanceTotal}</span></span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: DONUT_COLORS[1] }} />
+                    <span style={{ color: "#64748b" }}>Absent <span style={{ color: "#0f172a", fontWeight: 700 }}>{attendanceAbsent}</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Recent Activity */}
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">Recent Activity</div>
+                <span className="db-card-link" onClick={() => navigate("/settings/audit-logs")}>View All</span>
+              </div>
+              <div className="db-activity-list" style={{ flex: 1, overflowY: 'auto' }}>
+                {recentActivity.length > 0 ? recentActivity.slice(0, 4).map((a, i) => {
+                  const lo = (a.text || "").toLowerCase();
+                  let Icon = Activity, bg = "#EFF6FF", col = "#3B82F6";
+                  if (lo.includes("order") || lo.includes("sale")) { Icon = ShoppingCart; bg = "#FFEDD5"; col = "#F97316"; }
+                  else if (lo.includes("stock") || lo.includes("inventory")) { Icon = Box; bg = "#ECFEFF"; col = "#06B6D4"; }
+                  else if (lo.includes("user") || lo.includes("logged")) { Icon = Users; bg = "#F3E8FF"; col = "#A855F7"; }
+                  else if (lo.includes("payment") || lo.includes("invoice")) { Icon = DollarSign; bg = "#DCFCE7"; col = "#22C55E"; }
+                  return (
+                    <ActivityItem
+                      key={i} icon={Icon} iconBg={bg} iconColor={col}
+                      title={a.title || a.user || "System Event"} desc={a.text} time={fmtTime(a.time || a.createdAt || a.timestamp || new Date())}
+                    />
+                  );
+                }) : (
+                  <div className="db-empty" style={{ padding: '16px', textAlign: 'center', color: '#94a3b8' }}>No recent activity</div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Row 5: Panel Row 2 (4 columns) */}
+          <div className="db-panel-grid">
+            
+            {/* 5. AI Insights */}
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Cpu size={14} color="#8b5cf6" /> AI Insights
+                </div>
+              </div>
+              <div className="db-ai-insights" style={{ flex: 1, overflowY: 'auto' }}>
+                {aiLoading ? (
+                  <div style={{ padding: '16px', textAlign: 'center', color: '#6B7280', fontSize: '12px' }}>
+                    Generating insights...
+                  </div>
+                ) : displayInsights && displayInsights.length > 0 ? (
+                  displayInsights.map((ins, i) => {
+                    const colors = ["#6366f1", "#f97316", "#22c55e", "#ef4444"];
+                    return (
+                      <div key={i} className="db-ai-item" style={{ padding: '8px 12px', borderBottom: '1px solid #f1f5f9', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                        <div className="db-ai-dot" style={{ background: colors[i % colors.length], marginTop: '4px', width: 6, height: 6 }} />
+                        <div className="db-ai-text">{ins}</div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="db-empty" style={{ padding: '16px', textAlign: 'center', color: '#94a3b8' }}>No insights.</div>
+                )}
+              </div>
+            </div>
+
+            {/* 6. Top Selling Materials */}
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">Top Selling Materials</div>
+              </div>
+              <div className="db-bar-list" style={{ padding: '12px', flex: 1, overflowY: 'auto' }}>
+                {topMaterials.length > 0 ? topMaterials.map((m, i) => (
+                  <div key={i} className="db-bar-item" style={{ marginBottom: '8px' }}>
+                    <div className="db-bar-label">
+                      <span>{m.name || m.materialName || `Material ${i+1}`}</span>
+                      <span style={{ fontWeight: 700 }}>{fmtINR(m.revenue || m.value || 0)}</span>
+                    </div>
+                    <div className="db-bar-track">
+                      <div className="db-bar-fill" style={{ width: `${Math.max(10, ((m.revenue || m.value || 0) / (Math.max(...topMaterials.map(tm => tm.revenue || tm.value || 0)) || 1)) * 100)}%`, background: i === 0 ? '#3b82f6' : '#94a3b8' }} />
+                    </div>
+                  </div>
+                )) : (
+                  <div className="db-empty" style={{ textAlign: 'center', color: '#94a3b8', padding: '16px' }}>No data</div>
+                )}
+              </div>
+            </div>
+
+            {/* 7. Sales Analytics */}
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">Sales Analytics</div>
+              </div>
+              <div className="db-card-body" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, flex: 1, justifyContent: 'center' }}>
+                <div className="db-donut-wrap" style={{ position: "relative", height: "120px", width: "100%", display: "flex", justifyContent: "center" }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={[{name: 'A', value: 400}, {name: 'B', value: 300}, {name: 'C', value: 300}, {name: 'D', value: 200}]} cx="50%" cy="50%" innerRadius={42} outerRadius={56} dataKey="value" stroke="none" cornerRadius={4}>
+                        <Cell fill="#3b82f6" />
+                        <Cell fill="#10b981" />
+                        <Cell fill="#f59e0b" />
+                        <Cell fill="#e2e8f0" />
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" }}>
+                    <span style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Total</span>
+                    <br />
+                    <span style={{ fontSize: 10, color: "#64748b" }}>Sales</span>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 12, fontSize: 11, marginTop: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, background: '#3b82f6', borderRadius: '50%' }}/> Electronics</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, background: '#10b981', borderRadius: '50%' }}/> Hardware</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, background: '#f59e0b', borderRadius: '50%' }}/> Software</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 8. Monthly Profit */}
+            <div className="db-card">
+              <div className="db-card-header">
+                <div className="db-card-title">Monthly Profit</div>
+              </div>
+              <div className="db-card-body" style={{ padding: '16px 16px 0', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a' }}>{fmtINR(totalProfit)}</div>
+                <div style={{ fontSize: '12px', color: profitTrendPct >= 0 ? '#10b981' : '#ef4444', fontWeight: '600', marginBottom: '8px' }}>
+                  {profitTrendPct >= 0 ? '↑' : '↓'} {Math.abs(profitTrendPct)}% vs last month
+                </div>
+                <div style={{ width: "100%", flex: 1, minHeight: '80px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={sparkData}>
+                      <Line type="monotone" dataKey="v" stroke="#3b82f6" strokeWidth={3} dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* ── RIGHT SIDEBAR RAIL ── */}
+        <div className="db-sidebar-rail">
+          
+          {/* Profile Card */}
+          <div className="db-profile-card">
+            <div className="db-profile-banner profile-banner-admin">
+              <div className="db-profile-avatar profile-avatar-admin" style={{ overflow: 'hidden' }}>
+                {user?.profileImage || user?.avatar ? (
+                  <img src={user.profileImage || user.avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  user?.name ? user.name.substring(0, 2).toUpperCase() : 'AU'
+                )}
+              </div>
+            </div>
+            <div className="db-profile-body">
+              <div className="db-profile-name">{user?.name || "Admin User"}</div>
               <div className="db-profile-role">{user?.role || "System Administrator"}</div>
-              <span className="db-profile-badge profile-badge-admin">Full Access</span>
+              <div className="db-profile-badge profile-badge-admin">Full Access</div>
+              
               <div className="db-profile-info">
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Admin ID</span>
-                  <span className="db-profile-info-val">{user?.employeeId || user?.id || "SYS-01"}</span>
+                  <span className="db-profile-info-val">#ADM-001</span>
                 </div>
                 <div className="db-profile-info-row">
-                  <span className="db-profile-info-label">Email</span>
-                  <span className="db-profile-info-val" style={{ fontSize: 11 }}>{user?.email || "admin@smtbms.com"}</span>
+                  <span className="db-profile-info-label">Department</span>
+                  <span className="db-profile-info-val">IT & Management</span>
                 </div>
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Last Login</span>
-                  <span className="db-profile-info-val">{fmtTime(new Date())}</span>
+                  <span className="db-profile-info-val">{fmtTime(new Date().toISOString())}</span>
                 </div>
               </div>
+              
               <button className="db-profile-btn" onClick={() => navigate("/profile")}>
-                View Profile <ArrowRight size={14} />
+                <UserCheck size={14} /> View Profile
               </button>
             </div>
           </div>
 
-          <div className="db-card db-col-6" style={{ background: "#ffffff", border: "1px solid #e2e8f0", boxShadow: "0 10px 30px -10px rgba(99, 102, 241, 0.15)", position: "relative", overflow: "hidden", padding: 0, display: "flex", flexDirection: "column" }}>
-            <div className="db-card-header" style={{ borderBottom: "none", padding: "24px 24px 0 24px", margin: 0, display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
-              <div>
-                <div className="db-card-title" style={{ color: "#64748b", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                  <Activity size={16} color="#6366f1" />
-                  Revenue Analytics
-                </div>
-                <div style={{ fontSize: 32, fontWeight: 900, color: "#0f172a", marginTop: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
-                  {fmtINR(totalRevenue)}
-                  <span style={{ fontSize: 13, padding: "3px 10px", background: profitTrendPct >= 0 ? "#ecfdf5" : "#fef2f2", color: profitTrendPct >= 0 ? "#10b981" : "#ef4444", borderRadius: "12px", fontWeight: 700 }}>
-                    {profitTrendPct >= 0 ? '+' : '-'}{Math.abs(profitTrendPct)}%
-                  </span>
-                </div>
-              </div>
-              <select className="db-panel-select" style={{ background: "#f8fafc", color: "#475569", border: "1px solid #e2e8f0", outline: "none", padding: "6px 14px", borderRadius: "20px", fontWeight: 600, fontSize: 12, cursor: "pointer", transition: "all 0.2s" }} value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)}>
-                <option value="current">This Year</option>
-                <option value="last">Last Year</option>
-              </select>
-            </div>
-            
-            <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
-              {chartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.5} />
-                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0.05} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#94a3b8", fontWeight: 600 }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#94a3b8", fontWeight: 600 }} dx={-10} tickFormatter={(val) => `₹${val/1000}k`} />
-                    <Tooltip 
-                      cursor={{ stroke: '#818cf8', strokeWidth: 2, strokeDasharray: '4 4' }}
-                      content={({ active, payload, label }) => {
-                        if (active && payload && payload.length) {
-                          return (
-                            <div style={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px", padding: "12px 16px", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.4)" }}>
-                              <p style={{ color: "#94a3b8", fontSize: "12px", margin: "0 0 6px 0", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>{label}</p>
-                              <p style={{ color: "#fff", fontSize: "18px", margin: 0, fontWeight: 800 }}>
-                                {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(payload[0].value)}
-                              </p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <Area type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={4} fill="url(#colorRev)" activeDot={{ r: 6, fill: "#fff", stroke: "#4f46e5", strokeWidth: 3 }} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="db-empty" style={{ color: "#94a3b8", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>No financial data available</div>
-              )}
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header">
-              <div className="db-card-title">Employee Attendance</div>
-              <span style={{ fontSize: 11, color: "#6B7280" }}>This Week</span>
-            </div>
-            <div className="db-card-body" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-              <div className="db-donut-wrap" style={{ position: "relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={donutData} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" startAngle={90} endAngle={-270} stroke="none" cornerRadius={6}>
-                      {donutData.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />)}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-                <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <span style={{ fontSize: 26, fontWeight: 900, color: "#1e293b", lineHeight: 1 }}>{attendancePct}%</span>
-                  <span style={{ fontSize: 12, color: "#64748b", fontWeight: 700, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>Present</span>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 24, fontSize: 13, marginTop: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: DONUT_COLORS[0] }} />
-                  <span style={{ color: "#64748b", fontWeight: 600 }}>Present <span style={{ color: "#0f172a", fontWeight: 800, marginLeft: 2 }}>{attendanceTotal}</span></span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: DONUT_COLORS[1] }} />
-                  <span style={{ color: "#64748b", fontWeight: 600 }}>Absent <span style={{ color: "#0f172a", fontWeight: 800, marginLeft: 2 }}>{attendanceAbsent}</span></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Row 2 */}
-          <div className="db-card db-col-3">
-            <div className="db-card-header">
-              <div className="db-card-title">System Status</div>
-              <span className="db-card-link" onClick={() => navigate("/settings")}>View All</span>
-            </div>
-            <div className="db-status-list">
-              <StatusRow name="Backend API" status="Healthy" />
-              <StatusRow name="Database" status="Healthy" />
-              <StatusRow name="Authentication" status="Healthy" />
-              <StatusRow name="Storage" status="Healthy" />
-              <StatusRow name="Backup" status="Healthy" />
-              <StatusRow name="Mail Service" status="Healthy" />
-            </div>
-          </div>
-
-          <div className="db-card db-col-6">
-            <div className="db-card-header">
-              <div className="db-card-title">Recent Activity</div>
-              <span className="db-card-link" onClick={() => navigate("/settings/audit-logs")}>View All</span>
-            </div>
-            <div className="db-activity-list">
-              {recentActivity.length > 0 ? recentActivity.slice(0, 5).map((a, i) => {
-                const lo = (a.text || "").toLowerCase();
-                let Icon = Activity, bg = "#EFF6FF", col = "#3B82F6";
-                if (lo.includes("order") || lo.includes("sale")) { Icon = ShoppingCart; bg = "#FFEDD5"; col = "#F97316"; }
-                else if (lo.includes("stock") || lo.includes("inventory")) { Icon = Box; bg = "#ECFEFF"; col = "#06B6D4"; }
-                else if (lo.includes("user") || lo.includes("logged")) { Icon = Users; bg = "#F3E8FF"; col = "#A855F7"; }
-                else if (lo.includes("payment") || lo.includes("invoice")) { Icon = DollarSign; bg = "#DCFCE7"; col = "#22C55E"; }
-                return (
-                  <ActivityItem
-                    key={i} icon={Icon} iconBg={bg} iconColor={col}
-                    title={a.title || a.user || "System Event"} desc={a.text} time={fmtTime(a.time || a.createdAt || a.timestamp || new Date())}
-                  />
-                );
-              }) : (
-                <div className="db-empty">No recent activity</div>
-              )}
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
+          {/* Notifications Panel */}
+          <div className="db-card">
             <div className="db-card-header">
               <div className="db-card-title">Notifications</div>
-              <span className="db-card-link" onClick={() => navigate("/notifications")}>View All</span>
+              <span className="db-card-link">View All</span>
             </div>
-            <div className="db-notif-list">
-              {notifications.length > 0 ? notifications.slice(0, 4).map((n, i) => {
-                const colors = ["#6366f1", "#22c55e", "#f97316", "#ef4444", "#eab308"];
-                return (
-                  <div key={i} className="db-notif-item">
-                    <div className="db-notif-dot" style={{ background: colors[i % colors.length] }} />
-                    <div className="db-notif-body">
-                      <div className="db-notif-text">{n.text || n.message}</div>
-                      <div className="db-notif-time">{fmtTime(n.time || n.date)}</div>
-                    </div>
-                  </div>
-                );
-              }) : (
-                <div className="db-empty">All caught up! ✨</div>
-              )}
-            </div>
-          </div>
-
-          {/* Row 3 */}
-          <div className="db-card db-col-3">
-            <div className="db-card-header">
-              <div className="db-card-title">Inventory Alerts</div>
-            </div>
-            <div className="db-status-list">
-              {lowStock.length === 0 ? (
-                <div className="db-empty">No low-stock alerts 🎉</div>
-              ) : lowStock.slice(0, 5).map((m, i) => (
-                <div key={i} className="db-status-row">
-                  <span className="db-status-name">{m.name || m.materialName}</span>
-                  <span className="db-status-badge status-critical">{m.currentStock ?? m.quantity ?? 0} left</span>
+            <div className="db-notif-list" style={{ flex: 1, overflowY: 'auto' }}>
+              <div className="db-notif-item">
+                <div className="db-notif-dot" style={{ background: '#3b82f6' }} />
+                <div className="db-notif-body">
+                  <div className="db-notif-text">New order #8920 received from client</div>
+                  <div className="db-notif-time">2 mins ago</div>
                 </div>
-              ))}
+              </div>
+              <div className="db-notif-item">
+                <div className="db-notif-dot" style={{ background: '#f59e0b' }} />
+                <div className="db-notif-body">
+                  <div className="db-notif-text">Low stock alert for Steel Beams</div>
+                  <div className="db-notif-time">1 hr ago</div>
+                </div>
+              </div>
+              <div className="db-notif-item">
+                <div className="db-notif-dot" style={{ background: '#10b981' }} />
+                <div className="db-notif-body">
+                  <div className="db-notif-text">System backup completed successfully</div>
+                  <div className="db-notif-time">3 hrs ago</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="db-card db-col-3">
+          {/* Upcoming Events Panel */}
+          <div className="db-card">
             <div className="db-card-header">
               <div className="db-card-title">Upcoming Events</div>
             </div>
-            <div className="db-event-list">
-              <br/>
+            <div className="db-event-list" style={{ padding: '12px', flex: 1, overflowY: 'auto' }}>
               {upcomingEvents.length > 0 ? upcomingEvents.map((e, i) => (
-                <div key={i} className="db-event-item">
-                  <div className="db-event-date" style={{ background: e.color }}>
-                    <div className="db-event-day">{e.day}</div>
-                    <div className="db-event-mon">{e.mon}</div>
+                <div key={i} className="db-event-item" style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div className="db-event-date" style={{ background: e.bg, color: e.color, padding: '6px 10px', borderRadius: '6px', textAlign: 'center' }}>
+                    <div className="db-event-day" style={{ fontSize: '14px', fontWeight: '800' }}>{e.day}</div>
+                    <div className="db-event-mon" style={{ fontSize: '9px', fontWeight: '700', textTransform: 'uppercase' }}>{e.mon}</div>
                   </div>
                   <div className="db-event-body">
-                    <div className="db-event-title">{e.title}</div>
-                    <div className="db-event-sub">{e.sub}</div>
+                    <div className="db-event-title" style={{ fontSize: '12px', fontWeight: '600', color: '#0f172a' }}>{e.title}</div>
+                    <div className="db-event-sub" style={{ fontSize: '11px', color: '#64748b' }}>{e.sub}</div>
                   </div>
                 </div>
               )) : (
-                <div className="db-empty" style={{padding: "10px"}}>No events scheduled</div>
+                <div className="db-empty" style={{ textAlign: 'center', color: '#94a3b8', padding: '16px' }}>No events scheduled</div>
               )}
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header">
-              <div className="db-card-title"><Cpu size={16} style={{display:"inline", color:"#8b5cf6"}}/> AI Insights</div>
-            </div>
-            <div className="db-ai-insights">
-              <br/>
-              {aiLoading ? (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
-                  <Cpu size={18} className="db-spin" style={{ marginBottom: '8px', color: '#8b5cf6' }} /><br />
-                  Generating insights...
-                </div>
-              ) : displayInsights && displayInsights.length > 0 ? (
-                displayInsights.map((ins, i) => {
-                  const colors = ["#6366f1", "#f97316", "#22c55e", "#ef4444"];
-                  return (
-                    <div key={i} className="db-ai-item">
-                      <div className="db-ai-dot" style={{ background: colors[i % colors.length] }} />
-                      <div className="db-ai-text">{ins}</div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
-              )}
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header">
-              <div className="db-card-title">Monthly Profit</div>
-              <span style={{ fontSize: 11, color: "#6B7280" }}>This Month</span>
-            </div>
-            <div className="db-card-body" style={{ padding: 0 }}>
-              <div className="db-profit-val">{fmtINR(totalProfit)}</div>
-              <div className="db-profit-sub">
-                {profitTrendPct >= 0 ? '↑' : '↓'} {Math.abs(profitTrendPct)}% vs last month
-              </div>
-              <div style={{ width: "100%", height: "120px" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={sparkData}>
-                    <Line type="monotone" dataKey="v" stroke={profitTrendPct >= 0 ? "#22C55E" : "#EF4444"} strokeWidth={3} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
             </div>
           </div>
 
         </div>
-    
+
       </div>
     </div>
   );
-};export default AdminDashboard; 
+};
+
+export default AdminDashboard;

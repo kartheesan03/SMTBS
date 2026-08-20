@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
 import { ThemeContext } from '../context/ThemeContext';
-import { Search, Bell, Calendar, RefreshCw, Grid, LogOut, User, Sun, Moon } from 'lucide-react';
+import { Search, Bell, Calendar, RefreshCw, Grid, LogOut, User, Sun, Moon, Menu, CheckCircle2 } from 'lucide-react';
 import CommandPalette from './CommandPalette';
 import './GlobalHeader.css';
 const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) => {
@@ -81,57 +81,61 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
         }
         return currentTime.toLocaleDateString('en-US', { timeZone: timezone, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
     };
+    const getGreeting = () => {
+        const hour = currentTime.getHours();
+        if (hour < 12) return 'Good Morning';
+        if (hour < 18) return 'Good Afternoon';
+        return 'Good Evening';
+    };
+
     return (
-        <header className="rd-header" style={{ position: 'sticky', top: 0, zIndex: 100, background: '#fff', borderBottom: '1px solid #e2e8f0', margin: 0, width: '100%', boxSizing: 'border-box' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <header className="rd-header" style={{ position: 'sticky', top: 0, zIndex: 100, background: '#fff', borderBottom: '1px solid #e2e8f0', margin: 0, width: '100%', boxSizing: 'border-box', display: 'flex', justifyContent: 'space-between', padding: '12px 24px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexShrink: 0 }}>
                 <button 
                     className="rd-icon-btn" 
                     onClick={onOpenModuleLauncher} 
-                    title="Modules"
-                    style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}
+                    title="Menu"
+                    style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
                 >
-                    <Grid size={18} color="#64748b" />
+                    <Menu size={24} color="#64748b" />
                 </button>
-                <div className="rd-search-bar" onClick={() => setIsCommandPaletteOpen(true)} style={{ cursor: 'pointer' }}>
-                    <Search size={16} color="#94a3b8" />
-                    <span style={{ color: '#94a3b8', fontSize: '14px', marginLeft: '8px' }}>Search... (Ctrl+K)</span>
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div style={{ fontSize: '18px', fontWeight: '700', color: '#0f172a', whiteSpace: 'nowrap', lineHeight: '1.2' }}>
+                        {getGreeting()}, {user?.name ? user.name.split(' ')[0] : 'Admin'}! 👋
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap', marginTop: '4px' }}>
+                        Welcome back! You are doing great today.
+                    </div>
                 </div>
             </div>
-            <div className="rd-header-actions">
-                <div className="rd-datetime-pill">
-                    <Calendar size={16} />
-                    {formatCurrentDate()}
-                    <span style={{ color: '#fda4af', margin: '0 4px' }}>·</span>
+            
+            <div className="rd-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px', overflowX: 'auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', background: '#ecfdf5', color: '#059669', padding: '6px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: '600', gap: '6px', whiteSpace: 'nowrap' }}>
+                    <CheckCircle2 size={14} /> All Systems Operational
+                </div>
+
+                <div className="rd-datetime-pill" style={{ color: '#64748b', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+                    <Calendar size={14} />
+                    {currentTime.toLocaleDateString('en-US', { timeZone: timezone, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                    <span style={{ margin: '0 4px' }}>·</span>
                     {currentTime.toLocaleTimeString('en-US', { timeZone: timezone, hour: 'numeric', minute: '2-digit', hour12: true })}
                 </div>
                 
-                <div className="rd-divider"></div>
+                <div className="rd-divider" style={{ width: '1px', height: '24px', background: '#e2e8f0' }}></div>
                 
-                <button className="rd-icon-btn" onClick={toggleTheme} title="Toggle Theme">
-                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-                <div className="rd-divider"></div>
+                <div className="rd-search-bar" onClick={() => setIsCommandPaletteOpen(true)} style={{ cursor: 'pointer', background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Search size={16} color="#94a3b8" />
+                    <span style={{ color: '#94a3b8', fontSize: '13px' }}>Search...</span>
+                </div>
 
-                <button className="rd-icon-btn" onClick={handleRefresh} title="Refresh">
-                    <RefreshCw size={18} />
-                </button>
-                <button className="rd-icon-btn" onClick={() => navigate('/notifications')} title="Notifications">
-                    <Bell size={18} />
-                    {unreadCount > 0 && <span className="rd-badge">{unreadCount}</span>}
+                <button className="rd-icon-btn" onClick={() => navigate('/notifications')} title="Notifications" style={{ position: 'relative', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Bell size={18} color="#64748b" />
+                    {unreadCount > 0 && <span className="rd-badge" style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: 'white', fontSize: '10px', padding: '2px 6px', borderRadius: '10px', fontWeight: 'bold' }}>{unreadCount}</span>}
                 </button>
                 
-                <div className="rd-divider"></div>
-
                 <div className="rd-profile-menu-container" ref={profileRef} style={{ position: 'relative' }}>
-                    <div className="rd-profile-menu" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} style={{ cursor: 'pointer' }}>
-                        <div className="rd-avatar" style={{ background: avatarGradient }}>{initials}</div>
-                        <div className="rd-profile-info">
-                            <span className="rd-profile-name">{user?.name || 'Admin User'}</span>
-                            <span className="rd-profile-role" style={{ textTransform: 'none', fontWeight: 600, color: '#64748b' }}>
-                                {role} <span className="rd-dot"></span>
-                            </span>
-                        </div>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 4}}><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <div className="rd-profile-menu" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className="rd-avatar" style={{ background: avatarGradient, width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>{initials}</div>
                     </div>
                     {isProfileMenuOpen && (
                         <div style={{ 
@@ -140,7 +144,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                             right: '0', 
                             marginTop: '8px',
                             background: '#fff', 
-                            borderRadius: '0px', 
+                            borderRadius: '8px', 
                             boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
                             border: '1px solid #e2e8f0',
                             width: '240px',
@@ -148,7 +152,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                             overflow: 'hidden'
                         }}>
                             <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div className="rd-avatar" style={{ width: '40px', height: '40px', fontSize: '16px', background: avatarGradient }}>{initials}</div>
+                                <div className="rd-avatar" style={{ width: '40px', height: '40px', fontSize: '16px', background: avatarGradient, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>{initials}</div>
                                 <div>
                                     <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>{user?.name || 'Admin User'}</div>
                                     <div style={{ color: '#64748b', fontSize: '12px' }}>{user?.email || 'admin@smtbms.com'}</div>
@@ -156,7 +160,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                             </div>
                             <div style={{ padding: '8px' }}>
                                 <div 
-                                    style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', borderRadius: '0px', fontSize: '14px', color: '#475569' }}
+                                    style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', borderRadius: '6px', fontSize: '14px', color: '#475569' }}
                                     onClick={() => { setIsProfileMenuOpen(false); navigate('/profile'); }}
                                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -164,7 +168,7 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher, onOpenCommandCenter }) 
                                     <User size={16} /> My Profile
                                 </div>
                                 <div 
-                                    style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', borderRadius: '0px', fontSize: '14px', color: '#ef4444', marginTop: '4px' }}
+                                    style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', borderRadius: '6px', fontSize: '14px', color: '#ef4444', marginTop: '4px' }}
                                     onClick={handleLogout}
                                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}

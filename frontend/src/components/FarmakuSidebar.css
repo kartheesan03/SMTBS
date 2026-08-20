@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════
-   SMTBMS Sidebar — Charcoal Enterprise Theme
+   SMTBMS Sidebar — Light Theme
    ═══════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -7,9 +7,9 @@
 /* ── Shell ── */
 .farmaku-sidebar {
     width: 260px;
-    background: #1A2332;
+    background: #FFFFFF;
     height: 100vh;
-    border-right: 1px solid rgba(255,255,255,0.06);
+    border-right: 1px solid #E2E8F0;
     display: flex;
     flex-direction: column;
     font-family: 'Inter', sans-serif;
@@ -31,7 +31,7 @@
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid #E2E8F0;
 }
 
 .farmaku-logo-container {
@@ -44,7 +44,7 @@
     width: 38px;
     height: 38px;
     background: #3B82F6;
-    border-radius: 0px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -63,15 +63,9 @@
 .farmaku-logo-text {
     font-size: 16px;
     font-weight: 800;
-    color: #FFFFFF;
+    color: #0F172A;
     letter-spacing: -0.3px;
     line-height: 1;
-}
-
-.farmaku-logo-subtext {
-    font-size: 9.5px;
-    color: rgba(255,255,255,0.4);
-    line-height: 1.3;
 }
 
 /* ── Scrollable Content ── */
@@ -80,23 +74,13 @@
     overflow-y: auto;
     padding: 12px 16px 16px 12px;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.1) transparent;
+    scrollbar-color: rgba(0,0,0,0.1) transparent;
 }
 
 .farmaku-sidebar-content::-webkit-scrollbar { width: 4px; }
 .farmaku-sidebar-content::-webkit-scrollbar-track { background: transparent; }
-.farmaku-sidebar-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 0px; }
+.farmaku-sidebar-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
 
-/* ── Section Labels ── */
-.farmaku-section-label {
-    padding: 10px 8px 5px;
-    font-size: 9.5px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.28);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    user-select: none;
-}
 
 /* ── Nav List ── */
 .farmaku-nav-list {
@@ -115,7 +99,7 @@
     gap: 12px;
     padding: 10px 14px;
     border-radius: 8px;
-    color: rgba(255, 255, 255, 0.6);
+    color: #64748B;
     text-decoration: none;
     font-size: 13.5px;
     font-weight: 500;
@@ -126,57 +110,56 @@
 }
 
 .farmaku-nav-item:hover:not(.active) {
-    background: rgba(255,255,255,0.05);
-    color: rgba(255,255,255,0.9);
+    background: #F1F5F9;
+    color: #334155;
 }
 
 .farmaku-nav-item.expanded {
-    background: rgba(0, 0, 0, 0.2);
-    color: rgba(255, 255, 255, 0.9);
+    background: #F8FAFC;
+    color: #334155;
 }
 
 .farmaku-nav-item.active {
-    background: rgba(59, 130, 246, 0.15);
-    color: #60A5FA;
+    background: #EFF6FF;
+    color: #2563EB;
     font-weight: 600;
 }
 
-/* Parent with an active child should look highlighted but WITHOUT the solid blue active background */
 .farmaku-nav-item.has-active-child {
-    color: #FFFFFF;
+    color: #0F172A;
     font-weight: 600;
 }
 
-.farmaku-nav-item svg,
-.farmaku-subnav-item svg {
-    flex-shrink: 0;
-    opacity: 0.7;
-    transition: opacity 0.18s;
+/* ── Icon Backgrounds ── */
+.icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+}
+.icon-bg-blue { background: #EFF6FF; color: #3B82F6; }
+.icon-bg-green { background: #F0FDF4; color: #22C55E; }
+.icon-bg-orange { background: #FFF7ED; color: #F97316; }
+.icon-bg-purple { background: #FAF5FF; color: #A855F7; }
+.icon-bg-cyan { background: #ECFEFF; color: #06B6D4; }
+.icon-bg-rose { background: #FFF1F2; color: #F43F5E; }
+.icon-bg-yellow { background: #FEFCE8; color: #EAB308; }
+.icon-bg-teal { background: #F0FDFA; color: #14B8A6; }
+.icon-bg-indigo { background: #EEF2FF; color: #6366F1; }
+.icon-bg-gray { background: #F8FAFC; color: #64748B; }
+
+.farmaku-nav-item svg {
+    width: 16px;
+    height: 16px;
 }
 
-.farmaku-nav-item:hover svg,
-.farmaku-subnav-item:hover svg { opacity: 1; }
-
-.farmaku-nav-item.expanded svg { opacity: 0.9; }
-
-.farmaku-nav-item.active svg,
-.farmaku-nav-item.has-active-child svg,
-.farmaku-subnav-item.active svg { opacity: 1; }
-
-.farmaku-nav-item > svg:last-child,
-.farmaku-subnav-item > svg:last-child {
+.farmaku-nav-item > svg:last-child {
     margin-left: auto;
-    opacity: 0.4;
     width: 14px;
     height: 14px;
-    display: block;
-}
-
-.farmaku-nav-item:hover > svg:last-child,
-.farmaku-nav-item.active > svg:last-child,
-.farmaku-subnav-item:hover > svg:last-child,
-.farmaku-subnav-item.active > svg:last-child {
-    opacity: 1;
+    color: #94A3B8;
 }
 
 /* ── Submenu Wrapper & Animation ── */
@@ -189,7 +172,7 @@
 
 .farmaku-submenu-wrapper.expanded {
     grid-template-rows: 1fr;
-    margin-top: 4px; /* Space between parent and submenu */
+    margin-top: 4px;
 }
 
 /* ── Submenu ── */
@@ -203,62 +186,31 @@
     position: relative;
 }
 
-/* Vertical connector line aligned with center of parent icon (16px padding + 9px half icon = 25px) */
-.farmaku-submenu::before {
-    content: '';
-    position: absolute;
-    top: 4px;
-    bottom: 4px;
-    left: 25px;
-    width: 1.5px;
-    background: rgba(255, 255, 255, 0.1);
-}
-
 .farmaku-subnav-item {
     display: flex;
     align-items: center;
     width: 100%;
     box-sizing: border-box;
-    /* padding-left: 45px so text aligns perfectly with parent text (16px + 18px + 11px) */
-    padding: 8px 12px 8px 45px; /* Reduced right padding slightly to fit text better */
-    color: rgba(255, 255, 255, 0.55);
+    padding: 8px 12px 8px 52px;
+    color: #64748B;
     text-decoration: none;
     font-size: 13.5px;
     font-weight: 500;
     transition: all 0.15s ease;
     border-radius: 0px;
     margin: 0 !important;
-    height: 34px; /* Force consistent height regardless of font weight */
-    position: relative;
-}
-
-.farmaku-subnav-item span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    height: 34px;
 }
 
 .farmaku-subnav-item:hover {
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.07);
+    color: #334155;
+    background: #F8FAFC;
 }
 
 .farmaku-subnav-item.active {
-    color: #60A5FA;
+    color: #2563EB;
     font-weight: 600;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.farmaku-subnav-item.active::before {
-    content: '';
-    position: absolute;
-    left: 24px;
-    top: 6px;
-    bottom: 6px;
-    width: 3px;
-    background: #60A5FA;
-    border-radius: 0px;
-    z-index: 2;
+    background: #EFF6FF;
 }
 
 /* ── Notification Badge ── */
@@ -266,9 +218,9 @@
     margin-left: auto;
     background: #EF4444;
     color: #fff;
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 700;
-    border-radius: 0px;
+    border-radius: 12px;
     min-width: 18px;
     height: 18px;
     display: flex;
@@ -277,93 +229,55 @@
     padding: 0 5px;
 }
 
-/* ── Divider ── */
-.farmaku-divider {
-    height: 1px;
-    background: rgba(255,255,255,0.07);
-    margin: 10px 0;
+/* ── Upgrade to Pro Card ── */
+.pro-upgrade-card {
+    margin: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+    border: 1px solid #FDE68A;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
-
-/* ── Icon Color Utilities (used by MODULE_COLORS map) ── */
-.nav-icon-blue   { color: #60A5FA !important; }
-.nav-icon-green  { color: #4ADE80 !important; }
-.nav-icon-orange { color: #FB923C !important; }
-.nav-icon-purple { color: #A78BFA !important; }
-.nav-icon-cyan   { color: #22D3EE !important; }
-.nav-icon-rose   { color: #FB7185 !important; }
-.nav-icon-yellow { color: #FCD34D !important; }
-.nav-icon-teal   { color: #2DD4BF !important; }
-.nav-icon-indigo { color: #818CF8 !important; }
-.nav-icon-white  { color: rgba(255,255,255,0.6) !important; }
-
-/* Brighten on hover / active */
-.farmaku-nav-item:hover .nav-icon-blue,
-.farmaku-nav-item.active .nav-icon-blue,
-.farmaku-nav-item.has-active-child .nav-icon-blue   { color: #93C5FD !important; }
-.farmaku-nav-item:hover .nav-icon-green,
-.farmaku-nav-item.active .nav-icon-green,
-.farmaku-nav-item.has-active-child .nav-icon-green  { color: #86EFAC !important; }
-.farmaku-nav-item:hover .nav-icon-orange,
-.farmaku-nav-item.active .nav-icon-orange,
-.farmaku-nav-item.has-active-child .nav-icon-orange { color: #FDBA74 !important; }
-.farmaku-nav-item:hover .nav-icon-purple,
-.farmaku-nav-item.active .nav-icon-purple,
-.farmaku-nav-item.has-active-child .nav-icon-purple { color: #C4B5FD !important; }
-.farmaku-nav-item:hover .nav-icon-cyan,
-.farmaku-nav-item.active .nav-icon-cyan,
-.farmaku-nav-item.has-active-child .nav-icon-cyan   { color: #67E8F9 !important; }
-.farmaku-nav-item:hover .nav-icon-rose,
-.farmaku-nav-item.active .nav-icon-rose,
-.farmaku-nav-item.has-active-child .nav-icon-rose   { color: #FDA4AF !important; }
-.farmaku-nav-item:hover .nav-icon-yellow,
-.farmaku-nav-item.active .nav-icon-yellow,
-.farmaku-nav-item.has-active-child .nav-icon-yellow { color: #FDE68A !important; }
-.farmaku-nav-item:hover .nav-icon-teal,
-.farmaku-nav-item.active .nav-icon-teal,
-.farmaku-nav-item.has-active-child .nav-icon-teal   { color: #5EEAD4 !important; }
-.farmaku-nav-item:hover .nav-icon-indigo,
-.farmaku-nav-item.active .nav-icon-indigo,
-.farmaku-nav-item.has-active-child .nav-icon-indigo { color: #A5B4FC !important; }
-.farmaku-nav-item:hover .nav-icon-white,
-.farmaku-nav-item.active .nav-icon-white,
-.farmaku-nav-item.has-active-child .nav-icon-white  { color: rgba(255,255,255,0.9) !important; }
-
-/* ── AI Mode Button ── */
-.ai-mode-btn {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%) !important;
-    border: 1px solid rgba(139, 92, 246, 0.2) !important;
-    color: #E2E8F0 !important;
-    transition: all 0.3s ease;
+.pro-icon-wrap {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
 }
-
-.ai-mode-btn:hover {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%) !important;
-    border-color: rgba(139, 92, 246, 0.4) !important;
-    transform: translateY(-1px);
+.pro-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #92400E;
+    margin-bottom: 4px;
 }
-
-.ai-mode-btn.active {
-    background: linear-gradient(135deg, #4F46E5 0%, #9333EA 100%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    color: #FFFFFF !important;
-    box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3) !important;
+.pro-subtitle {
+    font-size: 11px;
+    color: #B45309;
+    margin-bottom: 12px;
 }
-
-.ai-mode-btn .nav-icon-blue {
-    color: #A78BFA !important;
+.pro-btn {
+    background: #D97706;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
 }
-
-.ai-mode-btn.active .nav-icon-blue {
-    color: #FFFFFF !important;
-    animation: pulseGlow 2s infinite;
-}
-
-@keyframes pulseGlow {
-    0% { filter: drop-shadow(0 0 2px rgba(255,255,255,0.2)); }
-    50% { filter: drop-shadow(0 0 8px rgba(255,255,255,0.6)); }
-    100% { filter: drop-shadow(0 0 2px rgba(255,255,255,0.2)); }
+.pro-btn:hover {
+    background: #B45309;
 }
 
 /* ── Logout Item ── */
@@ -371,48 +285,38 @@
     display: flex;
     align-items: center;
     gap: 11px;
-    padding: 9px 12px;
-    border-radius: 0px;
-    color: rgba(248,113,113,0.75);
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: #EF4444;
     text-decoration: none;
     font-size: 13.5px;
     font-weight: 500;
     transition: all 0.18s ease;
     cursor: pointer;
-    margin-top: auto;
+    margin: 2px 8px;
 }
 .farmaku-logout-item:hover {
-    background: rgba(239,68,68,0.1);
-    color: #FCA5A5;
+    background: #FEF2F2;
+    color: #DC2626;
 }
-.farmaku-logout-item svg { flex-shrink: 0; }
 
 /* ── App Layout ── */
-body .app-layout {
-    display: flex;
-    min-height: 100vh;
-}
+body .app-layout { display: flex; min-height: 100vh; }
 body .app-main {
     flex: 1;
     margin-left: 260px;
     width: calc(100% - 260px);
     display: flex;
     flex-direction: column;
-    background: #F8FAFC;
+    background: #F5F6FA; /* Light gray page background */
     min-width: 0;
 }
 
-/* ── Responsive ── */
 @media (max-width: 768px) {
     .farmaku-sidebar {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
     }
-    .farmaku-sidebar.open {
-        transform: translateX(0);
-    }
-    body .app-main {
-        margin-left: 0;
-        width: 100%;
-    }
+    .farmaku-sidebar.open { transform: translateX(0); }
+    body .app-main { margin-left: 0; width: 100%; }
 }
