@@ -10,6 +10,7 @@ import { toggleLike, deletePost, toggleSave, acknowledgePost, toggleRepost as to
 import { AuthContext } from '../../../context/AuthContext';
 import { getRelativeTime } from '../../../utils/timeUtils';
 import toast from 'react-hot-toast';
+import ShareModal from './ShareModal';
 
 // ─── Reaction emojis ───────────────────────────────────────────────────────
 const REACTIONS = [
@@ -69,6 +70,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
   );
   const [ackCount, setAckCount] = useState(post.acknowledgements?.length || 0);
   const [lightboxSrc, setLightboxSrc] = useState(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const menuRef      = useRef(null);
   const reactionTimer = useRef(null);
 
@@ -666,10 +668,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
                 icon: Share2,
                 active: false,
                 activeColor: '#595959',
-                onClick: () => {
-                  navigator.clipboard.writeText(window.location.origin + '/feed');
-                  toast.success('Link copied to clipboard');
-                },
+                onClick: () => setIsShareModalOpen(true),
               },
             ].map((btn, i) => (
               <div key={i} style={{ flex: 1, display: 'flex', margin: '2px' }}>
@@ -753,6 +752,13 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
           onCommentDeleted={() => setCommentsCount(n => n - 1)}
         />
       )}
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        authorName={post.author?.name || post.author?.username || 'Employee'}
+        postUrl={window.location.origin + '/feed'}
+      />
     </article>
   );
 };
