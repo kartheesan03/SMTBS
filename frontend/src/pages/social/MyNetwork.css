@@ -1,4 +1,14 @@
-/* MyNetwork.css - Modern Enterprise Social Network Styles */
+/* MyNetwork.css - Polished Enterprise Social Network Styles */
+
+/* ─── Accent system ─────────────────────────────────────────────────────── */
+/* Single accent: LinkedIn blue  #0a66c2  / soft: #dbeafe */
+:root {
+  --mn-accent:      #0a66c2;
+  --mn-accent-soft: #dbeafe;
+  --mn-accent-pale: #f0f6ff;
+}
+
+/* ─── Container ─────────────────────────────────────────────────────────── */
 .my-network-container {
     max-width: 1000px;
     margin: 0 auto;
@@ -7,48 +17,63 @@
     gap: 24px;
 }
 
-/* Stat Cards */
+/* ─── Stat / Tab Cards ───────────────────────────────────────────────────── */
 .network-stats-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    gap: 16px;
 }
 
 .network-stat-card {
     background: var(--surface);
     border-radius: var(--radius);
-    padding: 20px;
-    border: 1px solid var(--border);
+    padding: 18px 20px;
+    border: 1.5px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: border-color 0.18s, box-shadow 0.18s;
 }
 
 .network-stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(10,102,194,0.08);
+    border-color: var(--mn-accent);
 }
 
+/* Selected state matches the accent border */
+.network-stat-card[style*="2px solid"] {
+    background: var(--mn-accent-pale);
+}
+
+/* Icon wrapper — use accent tint for ALL icons so selection feels unified */
 .stat-icon-wrapper {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius);
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: var(--mn-accent-soft);
+    color: var(--mn-accent);
+    flex-shrink: 0;
 }
 
-.stat-icon-wrapper.blue { background: var(--teal-soft); color: var(--teal); }
-.stat-icon-wrapper.amber { background: var(--accent-soft); color: var(--accent); }
-.stat-icon-wrapper.teal { background: var(--bg); color: var(--primary); }
+/* Remove the separate blue/amber/teal variants — they all use accent now */
+.stat-icon-wrapper.blue,
+.stat-icon-wrapper.amber,
+.stat-icon-wrapper.teal {
+    background: var(--mn-accent-soft);
+    color: var(--mn-accent);
+}
 
 .stat-info h3 {
-    margin: 0 0 4px 0;
-    font-size: 24px;
+    margin: 0 0 2px 0;
+    font-size: 22px;
     font-family: 'IBM Plex Mono', monospace;
     color: var(--primary);
+    font-weight: 700;
+    line-height: 1;
 }
 
 .stat-info span {
@@ -57,85 +82,75 @@
     font-weight: 500;
 }
 
-/* Main Panel */
+/* ─── Main Panel ─────────────────────────────────────────────────────────── */
 .network-main-panel {
     background: var(--surface);
     border-radius: var(--radius);
     border: 1px solid var(--border);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .network-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
+    padding: 18px 24px;
     border-bottom: 1px solid var(--border);
+    gap: 16px;
 }
 
 .network-header h2 {
     margin: 0;
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: 700;
     color: var(--primary);
+    white-space: nowrap;
 }
 
 .network-actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
+/* ─── Search ─────────────────────────────────────────────────────────────── */
 .network-search {
     position: relative;
-    width: 250px;
+    width: 220px;
 }
 
 .network-search input {
     width: 100%;
-    padding: 8px 16px 8px 36px;
+    height: 36px;
+    padding: 0 12px 0 34px;
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: 8px;
     font-size: 13px;
     background: var(--bg);
     outline: none;
-    transition: all 0.2s;
+    color: var(--primary);
     font-family: 'Inter', sans-serif;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    box-sizing: border-box;
 }
 
 .network-search input:focus {
-    background: var(--surface);
-    border-color: var(--teal);
+    border-color: var(--mn-accent);
+    box-shadow: 0 0 0 3px rgba(10,102,194,0.08);
 }
 
 .network-search svg {
     position: absolute;
-    left: 12px;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--muted);
+    pointer-events: none;
 }
 
-.filter-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--primary);
-    padding: 8px 16px;
-    border-radius: var(--radius);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.filter-btn:hover {
-    background: var(--bg);
-}
-
-/* Table List */
+/* ─── Table ──────────────────────────────────────────────────────────────── */
 .network-list-container {
     padding: 0;
 }
@@ -145,20 +160,22 @@
     border-collapse: collapse;
 }
 
+/* Header — subtle, no heavy fill */
 .network-table th {
     text-align: left;
-    padding: 12px 24px;
-    font-size: 12px;
+    padding: 10px 24px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
     border-bottom: 1px solid var(--border);
-    background: var(--bg);
+    background: transparent;
 }
 
+/* Rows — consistent 15px vertical padding with 1px divider */
 .network-table td {
-    padding: 16px 24px;
+    padding: 15px 24px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
 }
@@ -167,11 +184,12 @@
     border-bottom: none;
 }
 
-.network-table tr:hover td {
-    background: var(--bg);
+.network-table tbody tr:hover td {
+    background: var(--mn-accent-pale);
+    transition: background 0.15s;
 }
 
-/* Table Cells */
+/* ─── Table Cells ────────────────────────────────────────────────────────── */
 .table-user-cell {
     display: flex;
     align-items: center;
@@ -185,31 +203,31 @@
     flex-shrink: 0;
 }
 
+/* Consistent avatar: single blue accent for all */
 .table-avatar {
     width: 100%;
     height: 100%;
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--primary);
+    border-radius: 50%;
+    background: var(--mn-accent);
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-}
-
-.table-avatar-wrapper .presence-dot {
-    border-color: var(--surface);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
 }
 
 .table-user-name strong {
     font-size: 14px;
+    font-weight: 600;
     color: var(--primary);
 }
 
 .table-role-cell {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     font-size: 13px;
     color: var(--primary);
 }
@@ -224,68 +242,53 @@
     color: var(--muted);
 }
 
-/* Actions */
+/* ─── Action Buttons ─────────────────────────────────────────────────────── */
 .table-action-cell {
     display: flex;
     justify-content: flex-end;
 }
 
-.message-btn-outline, .connect-btn-outline {
-    display: flex;
+/* Base button — text only, no icon gap */
+.connect-btn-outline {
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--primary);
-    padding: 6px 16px;
-    border-radius: var(--radius);
+    justify-content: center;
+    height: 32px;
+    padding: 0 18px;
+    border-radius: 20px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.18s, border-color 0.18s, color 0.18s;
+    white-space: nowrap;
+    /* Default: outlined */
+    background: transparent;
+    border: 1.5px solid var(--mn-accent);
+    color: var(--mn-accent);
 }
 
-.message-btn-outline:hover, .connect-btn-outline:hover {
-    border-color: var(--teal);
-    color: var(--teal);
+.connect-btn-outline:hover {
+    background: var(--mn-accent-soft);
 }
 
-.request-actions {
-    display: flex;
-    gap: 8px;
+/* Follow (suggestions tab) — filled */
+.connect-btn-outline.follow-filled {
+    background: var(--mn-accent);
+    color: #fff;
+    border-color: var(--mn-accent);
 }
 
-.accept-btn {
-    background: var(--teal);
-    color: var(--surface);
-    border: none;
-    padding: 6px 16px;
-    border-radius: var(--radius);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
+.connect-btn-outline.follow-filled:hover {
+    background: #004da3;
+    border-color: #004da3;
 }
 
-.accept-btn:hover {
-    background: var(--primary);
+.connect-btn-outline:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.reject-btn {
-    background: var(--bg);
-    color: var(--primary);
-    border: none;
-    padding: 6px 16px;
-    border-radius: var(--radius);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.reject-btn:hover {
-    background: var(--border);
-}
-
-/* Empty State */
+/* ─── Empty / Loading States ─────────────────────────────────────────────── */
 .network-loading, .network-empty {
     padding: 48px;
     text-align: center;
@@ -293,16 +296,17 @@
     font-size: 14px;
 }
 
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
     .network-stats-row {
         grid-template-columns: 1fr;
     }
-    
+
     .network-actions {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .network-search {
         width: 100%;
     }

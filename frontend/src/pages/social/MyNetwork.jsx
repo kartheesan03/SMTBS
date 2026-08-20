@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
-import { UserPlus, UserCheck, Search, MessageSquare, ArrowLeft, Users, UserX } from 'lucide-react';
+import { UserPlus, UserCheck, Search, ArrowLeft, Users, UserX } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import { toggleFollow } from '../../api/posts';
 import toast from 'react-hot-toast';
 import './MyNetwork.css';
 
-const AVATAR_COLORS = ['#0f4c75', '#1b6ca8', '#163172', '#2f5233', '#7c2d3f', '#b45309'];
+const AVATAR_COLOR = '#0a66c2';
 
 const MyNetwork = () => {
     const navigate = useNavigate();
@@ -78,7 +78,7 @@ const MyNetwork = () => {
         .filter(p => !search || (p.name || '').toLowerCase().includes(search.toLowerCase()));
 
     const initials = (name) => (name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const avatarColor = (id, idx) => AVATAR_COLORS[(id || idx || 0) % AVATAR_COLORS.length];
+    const avatarColor = () => AVATAR_COLOR;
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '—';
@@ -202,19 +202,16 @@ const MyNetwork = () => {
                                                         disabled={unfollowLoading.has(person.id)}
                                                         style={{ opacity: unfollowLoading.has(person.id) ? 0.5 : 1 }}
                                                     >
-                                                        <UserX size={15} /> Unfollow
+                                                        Unfollow
                                                     </button>
                                                 ) : (
                                                     <button
-                                                        className="connect-btn-outline"
+                                                        className="connect-btn-outline follow-filled"
                                                         onClick={() => handleFollow(person.id, person.name)}
                                                         disabled={followLoading.has(person.id)}
-                                                        style={{
-                                                            background: '#0a66c2', color: '#fff', borderColor: '#0a66c2',
-                                                            opacity: followLoading.has(person.id) ? 0.5 : 1
-                                                        }}
+                                                        style={{ opacity: followLoading.has(person.id) ? 0.5 : 1 }}
                                                     >
-                                                        <UserPlus size={15} /> Follow
+                                                        Follow
                                                     </button>
                                                 )}
                                             </div>
