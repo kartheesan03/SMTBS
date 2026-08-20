@@ -370,24 +370,24 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
       </div>
 
       {/* ── Post body ──────────────────────────────────────────────── */}
-      <div style={{ padding: '0 20px 16px' }}>
+      <div style={{ padding: '0 16px 16px' }}>
         {post.articleTitle && (
-          <h3 style={{ margin: '0 0 8px', fontSize: '17px', fontWeight: 700, color: 'var(--li-text-1)', lineHeight: 1.35 }}>
+          <h3 style={{ margin: '0 0 8px', fontSize: '17px', fontWeight: 700, color: '#0f172a', lineHeight: 1.35 }}>
             {post.articleTitle}
           </h3>
         )}
         {(post.text || post.articleBody) && (
-          <p style={{ margin: 0, fontSize: '15px', color: 'var(--li-text-1)', lineHeight: 1.65, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+          <p style={{ margin: 0, fontSize: '15px', color: '#1e293b', lineHeight: 1.65, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
             {formatText(displayText || post.articleBody)}
             {shouldTruncate && !isExpanded && (
               <button onClick={() => setIsExpanded(true)}
-                style={{ background: 'none', border: 'none', padding: 0, color: 'var(--li-text-2)', fontSize: '15px', fontWeight: 600, cursor: 'pointer', marginLeft: '4px' }}>
+                style={{ background: 'none', border: 'none', padding: 0, color: '#64748b', fontSize: '15px', fontWeight: 600, cursor: 'pointer', marginLeft: '4px' }}>
                 …see more
               </button>
             )}
             {isExpanded && shouldTruncate && (
               <button onClick={() => setIsExpanded(false)}
-                style={{ background: 'none', border: 'none', padding: 0, color: 'var(--li-text-2)', fontSize: '15px', fontWeight: 600, cursor: 'pointer', marginLeft: '4px' }}>
+                style={{ background: 'none', border: 'none', padding: 0, color: '#64748b', fontSize: '15px', fontWeight: 600, cursor: 'pointer', marginLeft: '4px' }}>
                 {' '}Show less
               </button>
             )}
