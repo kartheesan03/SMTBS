@@ -416,31 +416,32 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
           </>
         ) : displayPosts.length === 0 ? (
           <div style={{
-            background: '#fff',
-            borderRadius: '12px',
-            border: '1px solid var(--social-border)',
+            background: 'var(--li-card)',
+            borderRadius: '8px',
+            border: '1px solid var(--li-border)',
             padding: '60px 32px',
             textAlign: 'center',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '12px',
+            boxShadow: 'var(--li-shadow)'
           }}>
             <div style={{ fontSize: '56px', lineHeight: 1 }}>📢</div>
-            <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: 'var(--social-text-main)' }}>
+            <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: 'var(--li-text-1)' }}>
               No posts yet
             </h3>
-            <p style={{ margin: 0, fontSize: '14px', color: 'var(--social-text-sec)', maxWidth: '320px', lineHeight: 1.6 }}>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--li-text-2)', maxWidth: '320px', lineHeight: 1.6 }}>
               Be the first to share an update, announcement, or broadcast with your team.
             </p>
             <button
               onClick={() => setIsComposerOpen(true)}
               style={{
                 marginTop: '8px',
-                background: 'var(--social-primary)',
+                background: 'var(--li-primary)',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '24px',
+                borderRadius: '6px',
                 padding: '12px 28px',
                 fontSize: '15px',
                 fontWeight: 600,

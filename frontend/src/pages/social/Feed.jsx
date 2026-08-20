@@ -192,8 +192,8 @@ const Feed = () => {
           {/* People You May Know */}
           <div className="lf-card lf-right-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Users size={17} color="#0a66c2" />
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--li-blue-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Users size={17} color="var(--li-primary)" />
               </div>
               <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1, fontSize: '15px' }}>People you may know</span>
             </div>
@@ -236,11 +236,11 @@ const Feed = () => {
               style={{
                 display: 'flex', alignItems: 'center', gap: '4px',
                 marginTop: '12px', background: 'none', border: 'none',
-                color: 'var(--li-blue)', fontSize: '13px', fontWeight: 600,
+                color: 'var(--li-primary)', fontSize: '13px', fontWeight: 600,
                 cursor: 'pointer', padding: 0, fontFamily: 'var(--li-font)'
               }}
-              onMouseOver={e => e.currentTarget.style.color = 'var(--li-blue-hover)'}
-              onMouseOut={e => e.currentTarget.style.color = 'var(--li-blue)'}
+              onMouseOver={e => e.currentTarget.style.color = 'var(--li-primary-hover)'}
+              onMouseOut={e => e.currentTarget.style.color = 'var(--li-primary)'}
             >
               View all <ChevronRight size={14} />
             </button>
@@ -272,18 +272,18 @@ const Feed = () => {
           {/* Company Info */}
           <div className="lf-card lf-right-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <Building2 size={18} color="#0a66c2" />
+              <Building2 size={18} color="var(--li-primary)" />
               <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1 }}>About SMTBMS</span>
             </div>
-            <div style={{ fontSize: '13px', color: '#595959', lineHeight: 1.6 }}>
+            <div style={{ fontSize: '13px', color: 'var(--li-text-2)', lineHeight: 1.6 }}>
               Smart Material Tracking &amp; Business Management System — A centralized platform for smarter operations.
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
               {['ERP', 'CRM', 'HRMS', 'Inventory'].map(tag => (
                 <span key={tag} style={{
-                  padding: '3px 10px', borderRadius: '14px',
-                  background: '#eff6ff', color: '#0a66c2',
-                  fontSize: '12px', fontWeight: 600,
+                  padding: '4px 10px', borderRadius: '4px',
+                  background: 'var(--li-blue-light)', color: 'var(--li-primary)',
+                  fontSize: '12px', fontWeight: 500,
                 }}>{tag}</span>
               ))}
             </div>

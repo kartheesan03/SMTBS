@@ -7,26 +7,28 @@
 /* ─── Design Tokens ─────────────────────────────────────────────────────── */
 :root {
   --li-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --li-bg:         #f7f8fa;
+  --li-bg:         #f8fafc;
   --li-card:       #ffffff;
-  --li-border:     #e4e7ec;
-  --li-shadow:     0 1px 2px rgba(16, 24, 40, 0.05);
-  --li-shadow-hover: 0 4px 6px rgba(16, 24, 40, 0.05), 0 1px 3px rgba(16, 24, 40, 0.1);
-  --li-radius:     12px;
-  --li-blue:       #0a66c2;
-  --li-blue-hover: #004da3;
-  --li-blue-light: #dbeafe;
-  --li-blue-pale:  #f0f6ff;
-  --li-green:      #16803c;
-  --li-green-light:#e8f5e9;
-  --li-amber:      #f79009;
-  --li-amber-light:#fef3c7;
-  --li-red:        #d92d20;
-  --li-text-1:     #1d2939;
-  --li-text-2:     #667085;
-  --li-text-3:     #98a2b3;
-  --li-divider:    #f2f4f7;
-  --li-hover:      #f9fafb;
+  --li-border:     #e2e8f0;
+  --li-shadow:     0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+  --li-shadow-hover: 0 4px 12px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.04);
+  --li-radius:     8px;
+  --li-blue:       #0f172a;
+  --li-blue-hover: #1e293b;
+  --li-blue-light: #f1f5f9;
+  --li-blue-pale:  #f8fafc;
+  --li-primary:    #2563eb;
+  --li-primary-hover: #1d4ed8;
+  --li-green:      #0f766e;
+  --li-green-light:#f0fdfa;
+  --li-amber:      #b45309;
+  --li-amber-light:#fffbeb;
+  --li-red:        #b91c1c;
+  --li-text-1:     #0f172a;
+  --li-text-2:     #475569;
+  --li-text-3:     #94a3b8;
+  --li-divider:    #f1f5f9;
+  --li-hover:      #f8fafc;
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */
@@ -48,12 +50,12 @@
 /* ─── Layout ────────────────────────────────────────────────────────────── */
 .lf-grid {
   width: 100%;
-  max-width: 1128px;
+  max-width: 1240px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 280px 1fr 320px;
   gap: 24px;
-  padding: 24px;
+  padding: 24px 24px;
   align-items: start;
   box-sizing: border-box;
 }
@@ -65,12 +67,6 @@
 .lf-left,
 .lf-right,
 .cf-feed-wrapper {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-.lf-grid > aside > :first-child,
-.lf-grid > main > :first-child,
-.lf-grid > main > div > :first-child {
   margin-top: 0 !important;
 }
 
@@ -95,7 +91,7 @@
   flex-direction: column;
   gap: 16px;
   position: sticky;
-  top: 84px;
+  top: 0px;
   align-self: start;
 }
 
@@ -104,7 +100,7 @@
   flex-direction: column;
   gap: 16px;
   position: sticky;
-  top: 84px;
+  top: 0px;
   align-self: start;
 }
 
@@ -133,27 +129,29 @@ main {
 }
 
 .lf-profile-cover {
-  height: 72px;
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0a66c2 100%);
+  height: 64px;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   position: relative;
+  border-bottom: 1px solid var(--li-border);
 }
 
 .lf-profile-avatar-wrap {
   position: relative;
-  margin: -28px 0 0 16px;
+  margin: -24px 0 0 20px;
   display: inline-block;
 }
 
 .lf-profile-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
   border: 2px solid #fff;
   overflow: hidden;
   background: #0f172a;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
 }
 .lf-profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -204,21 +202,20 @@ main {
   font-weight: 500;
   white-space: nowrap;
   flex-shrink: 0;
+  font-size: 13px;
 }
 
-/* Blue + bold for numeric highlights (e.g. member count) */
 .lf-profile-stat-value {
-  color: var(--li-blue);
-  font-weight: 700;
+  color: var(--li-primary);
+  font-weight: 600;
   font-size: 13px;
   text-align: right;
 }
 
-/* Dark text for non-numeric values (e.g. Industry, Location) */
 .lf-profile-stat-value.text {
   color: var(--li-text-1);
-  font-weight: 600;
-  font-size: 12px;
+  font-weight: 500;
+  font-size: 13px;
   text-align: right;
   line-height: 1.4;
 }
@@ -274,7 +271,7 @@ main {
 
 /* ─── Composer ──────────────────────────────────────────────────────────── */
 .lf-composer {
-  padding: 16px;
+  padding: 20px;
 }
 
 .lf-composer-top {
@@ -285,70 +282,71 @@ main {
 }
 
 .lf-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
   flex-shrink: 0;
-  background: var(--li-blue);
+  background: var(--li-primary);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 16px;
+  font-weight: 600;
+  font-size: 14px;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid #e5e7eb;
-  transition: border-color 0.2s;
+  border: 1px solid var(--li-border);
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.lf-avatar:hover { border-color: var(--li-blue); }
+.lf-avatar:hover { border-color: var(--li-primary); box-shadow: 0 0 0 2px var(--li-blue-light); }
 .lf-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 .lf-composer-trigger {
   flex: 1;
-  padding: 12px 16px;
-  border: 1.5px solid #c9c4bd;
-  border-radius: 28px;
+  padding: 10px 16px;
+  border: 1px solid var(--li-border);
+  border-radius: 6px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--li-text-2);
   cursor: pointer;
-  background: transparent;
+  background: var(--li-bg);
   text-align: left;
   font-family: var(--li-font);
-  transition: border-color 0.2s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 .lf-composer-trigger:hover {
-  border-color: var(--li-text-1);
-  background: rgba(0,0,0,0.02);
+  border-color: var(--li-text-3);
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
 .lf-composer-actions {
   display: flex;
-  gap: 4px;
-  justify-content: space-between;
+  gap: 8px;
+  justify-content: flex-start;
 }
 
 .lf-composer-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 12px;
+  padding: 8px 16px;
   border-radius: 6px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--li-text-2);
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
   font-family: var(--li-font);
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.lf-composer-btn:hover { background: var(--li-hover); color: var(--li-text-1); }
-.lf-composer-btn.photo      { color: #378fe9; }
-.lf-composer-btn.document   { color: #e16745; }
-.lf-composer-btn.announcement { color: #f59e0b; }
-.lf-composer-btn.broadcast  { color: #057642; }
+.lf-composer-btn:hover { background: var(--li-hover); color: var(--li-text-1); border-color: var(--li-border); }
+.lf-composer-btn.photo      { color: var(--li-primary); }
+.lf-composer-btn.document   { color: var(--li-amber); }
+.lf-composer-btn.announcement { color: var(--li-green); }
+.lf-composer-btn.broadcast  { color: var(--li-text-1); }
 
 /* ─── Sort Bar ──────────────────────────────────────────────────────────── */
 .lf-sort-bar {
@@ -694,8 +692,8 @@ main {
   height: 32px;
   padding: 0 18px;
   border-radius: 20px;
-  border: 1.5px solid var(--li-blue);
-  background: var(--li-blue);
+  border: 1.5px solid var(--social-primary, #0a66c2);
+  background: var(--social-primary, #0a66c2);
   color: #fff;
   font-size: 13px;
   font-weight: 600;
@@ -711,18 +709,18 @@ main {
 /* Following state — outlined */
 .lf-person-action.following {
   background: transparent;
-  color: var(--li-blue);
-  border-color: var(--li-blue);
+  color: var(--social-primary, #0a66c2);
+  border-color: var(--social-primary, #0a66c2);
 }
 .lf-person-action:hover {
-  background: var(--li-blue-hover);
-  border-color: var(--li-blue-hover);
+  background: var(--li-primary-hover);
+  border-color: var(--li-primary-hover);
   color: #fff;
 }
 .lf-person-action.following:hover {
   background: var(--li-blue-light);
-  color: var(--li-blue);
-  border-color: var(--li-blue);
+  color: var(--social-primary, #0a66c2);
+  border-color: var(--social-primary, #0a66c2);
 }
 
 .lf-trending-tag {

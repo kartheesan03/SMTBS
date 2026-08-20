@@ -191,17 +191,17 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
   return (
     <article
       style={{
-        background: '#fff',
-        borderRadius: '12px',
-        border: isAnnouncement ? '1px solid #fde68a' : isBroadcast ? '1px solid #bbf7d0' : '1px solid #e2e8f0',
+        background: 'var(--li-card)',
+        borderRadius: '8px',
+        border: isAnnouncement ? '1px solid #fde68a' : isBroadcast ? '1px solid #bbf7d0' : '1px solid var(--li-border)',
         marginBottom: '16px',
         overflow: 'hidden',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        boxShadow: 'var(--li-shadow)',
         position: 'relative',
-        transition: 'box-shadow 0.2s',
+        transition: 'box-shadow 0.2s, border-color 0.2s',
       }}
-      onMouseOver={e => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'}
-      onMouseOut={e  => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'}
+      onMouseOver={e => e.currentTarget.style.boxShadow = 'var(--li-shadow-hover)'}
+      onMouseOut={e  => e.currentTarget.style.boxShadow = 'var(--li-shadow)'}
     >
 
       {/* ── Pinned banner ─────────────────────────────────────────── */}
@@ -754,17 +754,17 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
                     borderRadius: btn.id === 'like' ? '4px 0 0 4px' : '4px',
                     fontSize: '14px', fontWeight: 600,
                     cursor: btn.disabled ? 'not-allowed' : 'pointer',
-                    color: btn.active ? btn.activeColor : '#595959',
+                    color: btn.active ? btn.activeColor : 'var(--li-text-2)',
                     transition: 'background 0.15s, color 0.15s',
                     fontFamily: 'var(--li-font)',
                   }}
                   onMouseOver={e => {
-                    if (!btn.disabled) e.currentTarget.style.background = '#f3f2ef';
-                    if (!btn.active && !btn.disabled) e.currentTarget.style.color = '#1a1a1a';
+                    if (!btn.disabled) e.currentTarget.style.background = 'var(--li-hover)';
+                    if (!btn.active && !btn.disabled) e.currentTarget.style.color = 'var(--li-text-1)';
                   }}
                   onMouseOut={e => {
                     e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = btn.active ? btn.activeColor : '#595959';
+                    e.currentTarget.style.color = btn.active ? btn.activeColor : 'var(--li-text-2)';
                   }}
                 >
                   <btn.icon
@@ -794,11 +794,11 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
                       background: 'transparent', border: 'none',
                       borderRadius: '0 4px 4px 0',
                       cursor: btn.disabled ? 'not-allowed' : 'pointer',
-                      color: btn.active ? btn.activeColor : '#595959',
+                      color: btn.active ? btn.activeColor : 'var(--li-text-2)',
                       transition: 'background 0.15s',
                     }}
                     onMouseOver={e => {
-                      if (!btn.disabled) e.currentTarget.style.background = '#e0e0e0';
+                      if (!btn.disabled) e.currentTarget.style.background = 'var(--li-border)';
                     }}
                     onMouseOut={e => {
                       e.currentTarget.style.background = 'transparent';
