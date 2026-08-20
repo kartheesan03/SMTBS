@@ -138,7 +138,13 @@ const createPost = async (req, res) => {
         let { text, imageUrl, media, visibility, type, articleTitle, articleBody, targetTeams } = req.body;
         
         if (req.file) {
-            imageUrl = req.file.path;
+            // Cloudinary provides a full URL in req.file.path
+            if (req.file.path && req.file.path.startsWith('http')) {
+                imageUrl = req.file.path;
+            } else {
+                // Local disk storage fallback
+                imageUrl = '/uploads/' + req.file.filename;
+            }
         }
         
         if (typeof targetTeams === 'string') {

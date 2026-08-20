@@ -14,13 +14,26 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'smtbms_feed',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov']
-  },
-});
+const hasCloudinary = process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET;
+
+const storage = hasCloudinary 
+  ? new CloudinaryStorage({
+      cloudinary: cloudinary,
+      params: {
+        folder: 'smtbms_feed',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov']
+      },
+    })
+  : multer.diskStorage({
+      destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../../uploads/'))
+      },
+      filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+        cb(null, 'feed-' + uniqueSuffix + path.extname(file.originalname))
+      }
+    });
+
 const upload = multer({ storage });
 
 router.route('/')
