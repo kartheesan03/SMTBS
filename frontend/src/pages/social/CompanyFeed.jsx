@@ -354,25 +354,6 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
       </div>
       )}
 
-      {/* Sort By Separator */}
-      {showComposer && displayPosts.length > 0 && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '0' }}>
-            <div style={{ height: '1px', backgroundColor: 'var(--social-divider)', flex: 1, marginRight: '12px' }}></div>
-            <span style={{ fontSize: '13px', color: 'var(--social-text-sec)', fontWeight: '500' }}>Sort by: </span>
-            <select 
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{
-                  background: 'transparent', border: 'none', outline: 'none',
-                  fontSize: '13px', color: 'var(--social-text-main)', fontWeight: '600',
-                  marginLeft: '4px', cursor: 'pointer', fontFamily: 'inherit'
-              }}
-            >
-                <option value="Top">Top</option>
-                <option value="Recent">Recent</option>
-            </select>
-        </div>
-      )}
 
       {/* Analytics placeholder */}
       {showAnalytics && (
@@ -408,6 +389,26 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
 
       {/* Feed */}
       <div className="cf-feed">
+        {/* Sort By Separator */}
+        {showComposer && displayPosts.length > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '0', paddingBottom: '0' }}>
+              <div style={{ height: '1px', backgroundColor: 'var(--social-divider)', flex: 1, marginRight: '12px' }}></div>
+              <span style={{ fontSize: '13px', color: 'var(--social-text-sec)', fontWeight: '500' }}>Sort by: </span>
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                style={{
+                    background: 'transparent', border: 'none', outline: 'none',
+                    fontSize: '13px', color: 'var(--social-text-main)', fontWeight: '600',
+                    marginLeft: '4px', cursor: 'pointer', fontFamily: 'inherit'
+                }}
+              >
+                  <option value="Top">Top</option>
+                  <option value="Recent">Recent</option>
+              </select>
+          </div>
+        )}
+
         {loading ? (
           <>
             <PostSkeleton />
