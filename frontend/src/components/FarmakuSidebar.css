@@ -6,16 +6,16 @@
 
 /* ── Shell ── */
 .farmaku-sidebar {
+    grid-column: 1;
+    grid-row: 1 / span 2;
     width: 260px;
-    background: #1A2332;
+    background: #172131;
     height: 100vh;
     border-right: 1px solid rgba(255,255,255,0.06);
     display: flex;
     flex-direction: column;
     font-family: 'Inter', sans-serif;
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: relative;
     z-index: 100;
     overflow: hidden;
     transition: width 0.3s cubic-bezier(0.4,0,0.2,1);

@@ -222,19 +222,21 @@ const AppContent = () => {
     return (
         <div className="app-layout">
             {user && <FarmakuSidebar />}
+            
+            {user && (
+                <div className="app-header-area">
+                    <ModuleLauncher 
+                        isOpen={isModuleLauncherOpen} 
+                        onClose={() => setIsModuleLauncherOpen(false)} 
+                    />
+                    <GlobalHeader 
+                        onOpenModuleLauncher={() => setIsModuleLauncherOpen(true)}
+                        onOpenCommandCenter={() => openAria()}
+                    />
+                </div>
+            )}
+
             <main className="app-main">
-                {user && (
-                    <>
-                        <ModuleLauncher 
-                            isOpen={isModuleLauncherOpen} 
-                            onClose={() => setIsModuleLauncherOpen(false)} 
-                        />
-                        <GlobalHeader 
-                            onOpenModuleLauncher={() => setIsModuleLauncherOpen(true)}
-                            onOpenCommandCenter={() => openAria()}
-                        />
-                    </>
-                )}
                 <React.Suspense fallback={<div className="flex-center" style={{height:'100vh'}}><div className="loader"></div></div>}>
                 <div className="app-content">
 

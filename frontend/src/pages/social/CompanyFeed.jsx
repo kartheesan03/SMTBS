@@ -321,7 +321,7 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
             What's happening in the company?
           </div>
         </div>
-        <div className="cf-composer-actions" style={{ display: 'flex', flexWrap: 'nowrap', gap: '2px', borderTop: '1px solid #eee9e0', paddingTop: '4px', marginTop: '4px' }}>
+        <div className="cf-composer-actions" style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--li-border)', paddingTop: '12px', marginTop: '16px' }}>
             <button className="cf-composer-action photo" style={{ flex: 1, justifyContent: 'center', padding: '8px 4px', fontSize: '12px', whiteSpace: 'nowrap' }} onClick={() => {
                 setIsComposerOpen(true);
                 setTimeout(() => document.getElementById('cf-file-upload-input')?.click(), 100);
@@ -389,17 +389,16 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
 
       {/* Feed */}
       <div className="cf-feed">
-        {/* Sort By Separator */}
+        {/* Sort By */}
         {showComposer && displayPosts.length > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '0', paddingBottom: '0' }}>
-              <div style={{ height: '1px', backgroundColor: 'var(--social-divider)', flex: 1, marginRight: '12px' }}></div>
-              <span style={{ fontSize: '13px', color: 'var(--social-text-sec)', fontWeight: '500' }}>Sort by: </span>
+          <div style={{ display: 'flex', alignItems: 'center', height: '44px' }}>
+              <span style={{ fontSize: '13px', color: 'var(--li-text-2)', fontWeight: '500' }}>Sort by: </span>
               <select 
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 style={{
                     background: 'transparent', border: 'none', outline: 'none',
-                    fontSize: '13px', color: 'var(--social-text-main)', fontWeight: '600',
+                    fontSize: '13px', color: 'var(--li-text-1)', fontWeight: '600',
                     marginLeft: '4px', cursor: 'pointer', fontFamily: 'inherit'
                 }}
               >
