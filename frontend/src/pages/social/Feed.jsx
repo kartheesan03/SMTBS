@@ -4,7 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import CompanyFeed from './CompanyFeed';
 import {
   Home, Megaphone, Radio, Calendar, Image, Bookmark,
-  Users, Building2, TrendingUp, ChevronRight, UserCheck
+  Users, Building2, TrendingUp, ChevronRight
 } from 'lucide-react';
 import './CompanyFeed.css';
 import { getSuggestedConnections, getTrendingTags, toggleFollow } from '../../api/posts';
@@ -20,7 +20,7 @@ const TABS = [
 ];
 
 const COMPANY_LOGO = "https://ui-avatars.com/api/?name=SM&background=0f172a&color=fff&size=200&font-size=0.40&bold=true";
-const AVATAR_COLORS = ['#0f4c75', '#1b6ca8', '#163172', '#2f5233', '#7c2d3f'];
+const AVATAR_COLOR = '#0a66c2';
 
 class SafeSection extends React.Component {
   state = { error: null };
@@ -186,9 +186,11 @@ const Feed = () => {
 
           {/* People You May Know */}
           <div className="lf-card lf-right-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <Users size={18} color="var(--li-text-2)" />
-              <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1 }}>People you may know</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Users size={17} color="#0a66c2" />
+              </div>
+              <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1, fontSize: '15px' }}>People you may know</span>
             </div>
 
             {suggested.length === 0 ? (
@@ -197,7 +199,7 @@ const Feed = () => {
               </div>
             ) : suggested.map((p, i) => {
               const initials   = (p.name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-              const color      = AVATAR_COLORS[i % AVATAR_COLORS.length];
+              const color      = AVATAR_COLOR;
               const isFollowing = followedIds.has(p.id);
               const isLoading  = followLoading.has(p.id);
               return (
@@ -214,19 +216,11 @@ const Feed = () => {
                     <div className="lf-person-role">{p.role}</div>
                   </div>
                   <button
-                    className="lf-person-action"
+                    className={`lf-person-action${isFollowing ? ' following' : ''}`}
                     onClick={() => handleFollow(p.id, p.name)}
                     disabled={isLoading}
-                    style={{
-                      background: isFollowing ? 'var(--li-blue)' : 'transparent',
-                      color: isFollowing ? '#fff' : 'var(--li-text-2)',
-                      borderColor: isFollowing ? 'var(--li-blue)' : 'var(--li-text-2)',
-                    }}
                   >
-                    {isFollowing
-                      ? <><UserCheck size={13} style={{ marginRight: '4px' }} /> Following</>
-                      : '+ Follow'
-                    }
+                    {isFollowing ? 'Following' : '+ Follow'}
                   </button>
                 </div>
               );
