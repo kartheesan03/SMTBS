@@ -114,11 +114,11 @@ const Feed = () => {
       <div className="lf-grid">
 
         {/* ─── LEFT SIDEBAR ─── */}
-        <aside className="lf-left">
+        <aside className="lf-left" style={{ marginTop: 0 }}>
 
           {/* Company Profile Card */}
-          <div className="lf-card lf-profile-card">
-            <div className="lf-profile-cover" />
+          <div className="lf-card lf-profile-card" style={{ marginTop: 0 }}>
+            <div className="lf-profile-cover" style={{ marginTop: 0 }} />
             <div className="lf-profile-avatar-wrap">
               <div className="lf-profile-avatar">
                 <img src={COMPANY_LOGO} alt="SMTBMS" />
@@ -164,7 +164,7 @@ const Feed = () => {
         </aside>
 
         {/* ─── MAIN FEED ─── */}
-        <main>
+        <main style={{ marginTop: 0 }}>
           {hashtagFilter && (
             <div className="lf-hashtag-bar">
               <span>Filtered by: {hashtagFilter}</span>
@@ -182,10 +182,10 @@ const Feed = () => {
         </main>
 
         {/* ─── RIGHT SIDEBAR ─── */}
-        <aside className="lf-right">
+        <aside className="lf-right" style={{ marginTop: 0 }}>
 
           {/* People You May Know */}
-          <div className="lf-card lf-right-card">
+          <div className="lf-card lf-right-card" style={{ marginTop: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
               <Users size={18} color="#595959" />
               <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1 }}>People you may know</span>
