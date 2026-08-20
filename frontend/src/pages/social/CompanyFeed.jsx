@@ -318,37 +318,28 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
               {currentUser.initials}
           </div>
           <div className="cf-composer-input" onClick={() => setIsComposerOpen(true)}>
-            What's happening in the company?
+            Start a post
           </div>
         </div>
         <div className="cf-composer-actions" style={{ display: 'flex', flexWrap: 'nowrap', gap: '2px', justifyContent: 'space-between', borderTop: '1px solid var(--li-border)', paddingTop: '12px', marginTop: '16px' }}>
-            <button className="cf-composer-action photo" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '8px 2px', fontSize: '12px', whiteSpace: 'nowrap' }} onClick={() => {
+            <button className="cf-composer-action broadcast" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '12px 8px', fontSize: '14px', whiteSpace: 'nowrap' }} onClick={() => {
+                setComposerType('Broadcast');
                 setIsComposerOpen(true);
-                setTimeout(() => document.getElementById('cf-file-upload-input')?.click(), 100);
             }}>
-              <Image size={15} style={{ flexShrink: 0 }} /> <span>Photo</span>
+              <Video size={20} style={{ flexShrink: 0, color: '#5f9b41' }} /> <span style={{ color: 'var(--li-text-2)' }}>Video</span>
             </button>
-            <button className="cf-composer-action document" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '8px 2px', fontSize: '12px', whiteSpace: 'nowrap' }} onClick={() => {
+            <button className="cf-composer-action photo" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '12px 8px', fontSize: '14px', whiteSpace: 'nowrap' }} onClick={() => {
                 setIsComposerOpen(true);
                 setTimeout(() => document.getElementById('cf-file-upload-input')?.click(), 100);
             }}>
-              <FileText size={15} style={{ flexShrink: 0 }} /> <span>Document</span>
+              <Image size={20} style={{ flexShrink: 0, color: '#378fe9' }} /> <span style={{ color: 'var(--li-text-2)' }}>Photo</span>
             </button>
             {(currentUser.role === 'Admin' || currentUser.role === 'Super Admin' || currentUser.role === 'HR') && (
-                <>
-                <button className="cf-composer-action announcement" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '8px 2px', fontSize: '12px', whiteSpace: 'nowrap' }} onClick={() => {
-                    setComposerType('Announcement');
+                <button className="cf-composer-action document" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '12px 8px', fontSize: '14px', whiteSpace: 'nowrap' }} onClick={() => {
                     setIsComposerOpen(true);
                 }}>
-                  <MessageSquare size={15} style={{ flexShrink: 0 }} /> <span>Announcement</span>
+                  <FileText size={20} style={{ flexShrink: 0, color: '#e16745' }} /> <span style={{ color: 'var(--li-text-2)' }}>Write article</span>
                 </button>
-                <button className="cf-composer-action broadcast" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '8px 2px', fontSize: '12px', whiteSpace: 'nowrap' }} onClick={() => {
-                    setComposerType('Broadcast');
-                    setIsComposerOpen(true);
-                }}>
-                  <Video size={15} style={{ flexShrink: 0 }} /> <span>Broadcast</span>
-                </button>
-                </>
             )}
         </div>
       </div>
@@ -391,21 +382,29 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
       <div className="cf-feed">
         {/* Sort By Separator */}
         {showComposer && displayPosts.length > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '0', paddingBottom: '0' }}>
-              <div style={{ height: '1px', backgroundColor: 'var(--social-divider)', flex: 1, marginRight: '12px' }}></div>
-              <span style={{ fontSize: '13px', color: 'var(--social-text-sec)', fontWeight: '500' }}>Sort by: </span>
-              <select 
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                style={{
-                    background: 'transparent', border: 'none', outline: 'none',
-                    fontSize: '13px', color: 'var(--social-text-main)', fontWeight: '600',
-                    marginLeft: '4px', cursor: 'pointer', fontFamily: 'inherit'
-                }}
-              >
-                  <option value="Top">Top</option>
-                  <option value="Recent">Recent</option>
-              </select>
+          <div style={{ display: 'flex', alignItems: 'center', padding: '0 0 8px 0', margin: '4px 0 8px' }}>
+              <div style={{ height: '1px', backgroundColor: 'var(--li-border)', flex: 1, marginRight: '8px' }}></div>
+              <span style={{ fontSize: '12px', color: 'var(--li-text-2)', fontWeight: '500' }}>Sort by: </span>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  style={{
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      background: 'transparent', border: 'none', outline: 'none',
+                      fontSize: '12px', color: 'var(--li-text-1)', fontWeight: '600',
+                      marginLeft: '4px', cursor: 'pointer', fontFamily: 'inherit',
+                      paddingRight: '14px'
+                  }}
+                >
+                    <option value="Top">Top</option>
+                    <option value="Recent">Recent</option>
+                </select>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="12" height="12" fill="var(--li-text-1)" style={{ position: 'absolute', right: 0, pointerEvents: 'none' }}>
+                  <path d="M8 11L3 6h10z" />
+                </svg>
+              </div>
           </div>
         )}
 
