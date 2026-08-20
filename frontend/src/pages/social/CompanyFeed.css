@@ -49,8 +49,7 @@
   max-width: 1128px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 225px 540px 315px;
-  justify-content: center;
+  grid-template-columns: 280px 1fr 320px;
   gap: 24px;
   padding: 24px 0;
   align-items: start;
@@ -60,8 +59,9 @@
 .lf-grid > aside,
 .lf-grid > main,
 .lf-profile-card,
-.cf-composer,
-.lf-right-card {
+.lf-left,
+.lf-right,
+.cf-feed-wrapper {
   margin-top: 0 !important;
   padding-top: 0 !important;
 }

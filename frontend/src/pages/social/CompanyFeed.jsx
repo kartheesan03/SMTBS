@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { Image, Video, FileText, MessageSquare, X } from 'lucide-react';
+import { Image, Video, FileText, MessageSquare, X, ChevronDown } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
@@ -382,10 +382,9 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
       <div className="cf-feed">
         {/* Sort By Separator */}
         {showComposer && displayPosts.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', padding: '0 0 8px 0', margin: '4px 0 8px' }}>
-              <div style={{ height: '1px', backgroundColor: 'var(--li-border)', flex: 1, marginRight: '8px' }}></div>
-              <span style={{ fontSize: '12px', color: 'var(--li-text-2)', fontWeight: '500' }}>Sort by: </span>
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', width: '100%', margin: '16px 0 16px 0' }}>
+              <span style={{ fontSize: '13px', color: 'var(--li-text-2)', marginRight: '8px' }}>Sort by:</span>
+              <div style={{ position: 'relative' }}>
                 <select 
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
@@ -393,22 +392,18 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
                       appearance: 'none',
                       WebkitAppearance: 'none',
                       MozAppearance: 'none',
-                      background: 'transparent',
-                      backgroundColor: 'transparent',
-                      border: '0px solid transparent',
-                      boxShadow: 'none',
+                      background: 'var(--li-bg)',
+                      border: '1px solid var(--li-border)',
+                      borderRadius: '4px',
                       outline: 'none',
-                      fontSize: '12px', color: 'var(--li-text-1)', fontWeight: '600',
-                      marginLeft: '4px', cursor: 'pointer', fontFamily: 'inherit',
-                      paddingRight: '14px'
+                      fontSize: '13px', color: 'var(--li-text-1)', fontWeight: '500',
+                      padding: '4px 28px 4px 12px', cursor: 'pointer', fontFamily: 'inherit'
                   }}
                 >
                     <option value="Top">Top</option>
                     <option value="Recent">Recent</option>
                 </select>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="12" height="12" fill="var(--li-text-1)" style={{ position: 'absolute', right: 0, pointerEvents: 'none' }}>
-                  <path d="M8 11L3 6h10z" />
-                </svg>
+                <ChevronDown size={14} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--li-text-2)' }} />
               </div>
           </div>
         )}
