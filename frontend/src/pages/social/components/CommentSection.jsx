@@ -106,14 +106,14 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
         <MiniAvatar name={authorName} color={authorColor} size={36} />
         <div style={{
           flex: 1, display: 'flex', alignItems: 'center',
-          background: '#fff', border: '1.5px solid #c9c4bd',
-          borderRadius: '22px', padding: '8px 14px',
+          background: 'var(--li-card)', border: '1px solid var(--li-border)',
+          borderRadius: '24px', padding: '8px 14px',
           gap: '8px', transition: 'border-color 0.2s',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+          boxShadow: 'var(--li-shadow)',
           position: 'relative',
         }}
-          onFocusCapture={e => e.currentTarget.style.borderColor = '#0a66c2'}
-          onBlurCapture={e => e.currentTarget.style.borderColor = '#c9c4bd'}
+          onFocusCapture={e => e.currentTarget.style.borderColor = 'var(--li-text-3)'}
+          onBlurCapture={e => e.currentTarget.style.borderColor = 'var(--li-border)'}
         >
           <input
             ref={inputRef}
@@ -136,12 +136,12 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               style={{
                 background: 'none', border: 'none', padding: '4px',
-                cursor: 'pointer', color: '#595959',
+                cursor: 'pointer', color: 'var(--li-text-2)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                borderRadius: '50%', transition: 'background 0.2s, color 0.2s',
+                transition: 'color 0.2s'
               }}
-              onMouseOver={e => { e.currentTarget.style.background = '#f3f2ef'; e.currentTarget.style.color = '#1a1a1a'; }}
-              onMouseOut={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#595959'; }}
+              onMouseOver={e => e.currentTarget.style.color = 'var(--li-blue)'}
+              onMouseOut={e => e.currentTarget.style.color = 'var(--li-text-2)'}
             >
               <Smile size={20} strokeWidth={2} />
             </button>
@@ -151,11 +151,11 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
                 position: 'absolute',
                 bottom: 'calc(100% + 14px)',
                 right: '-10px',
-                background: '#fff',
-                border: '1px solid #e0ddd6',
+                background: 'var(--li-card)',
+                border: '1px solid var(--li-border)',
                 borderRadius: '8px',
                 padding: '12px',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                boxShadow: 'var(--li-shadow-hover)',
                 width: '260px',
                 zIndex: 100,
                 display: 'grid',
@@ -187,7 +187,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
                       transition: 'transform 0.1s, background 0.1s',
                     }}
                     onMouseOver={e => {
-                      e.currentTarget.style.background = '#f3f2ef';
+                      e.currentTarget.style.background = 'var(--li-hover)';
                       e.currentTarget.style.transform = 'scale(1.2)';
                     }}
                     onMouseOut={e => {
@@ -207,7 +207,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
             disabled={!text.trim() || submitting}
             title="Post comment"
             style={{
-              background: text.trim() ? '#0a66c2' : '#d4d0ca',
+              background: text.trim() ? 'var(--li-blue)' : 'var(--li-border)',
               border: 'none', color: '#fff',
               width: 30, height: 30,
               borderRadius: '50%', cursor: text.trim() ? 'pointer' : 'not-allowed',
@@ -238,11 +238,11 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
               <div style={{ flex: 1, minWidth: 0 }}>
                 {/* Bubble */}
                 <div style={{
-                  background: '#fff',
-                  border: '1px solid #e0ddd6',
+                  background: 'var(--li-card)',
+                  border: '1px solid var(--li-border)',
                   borderRadius: '0 12px 12px 12px',
-                  padding: '10px 14px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                  padding: '12px 16px',
+                  boxShadow: 'var(--li-shadow)',
                   position: 'relative',
                 }}>
                   {/* Header row */}
@@ -285,8 +285,8 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
                                 onMouseDown={e => e.stopPropagation()}
                                 style={{
                                   position: 'absolute', top: '100%', right: 0,
-                                  background: '#fff', border: '1px solid #e0ddd6',
-                                  borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                  background: 'var(--li-card)', border: '1px solid var(--li-border)',
+                                  borderRadius: '8px', boxShadow: 'var(--li-shadow-hover)',
                                   minWidth: '140px', zIndex: 100, overflow: 'hidden', padding: '4px 0',
                                 }}
                               >
@@ -295,10 +295,10 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
                                   style={{
                                     display: 'flex', alignItems: 'center', gap: '8px',
                                     padding: '10px 14px', cursor: 'pointer',
-                                    fontSize: '13px', fontWeight: 500, color: '#cc1016',
+                                    fontSize: '13px', fontWeight: 500, color: 'var(--li-red)',
                                     transition: 'background 0.12s',
                                   }}
-                                  onMouseOver={e => e.currentTarget.style.background = '#fef2f2'}
+                                  onMouseOver={e => e.currentTarget.style.background = 'var(--li-hover)'}
                                   onMouseOut={e => e.currentTarget.style.background = 'transparent'}
                                 >
                                   <Trash2 size={13} /> Delete
@@ -325,25 +325,25 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
                 <div style={{ display: 'flex', gap: '12px', marginTop: '4px', paddingLeft: '6px' }}>
                   <button style={{
                     background: 'none', border: 'none', cursor: 'pointer',
-                    fontSize: '12px', fontWeight: 600, color: '#595959',
+                    fontSize: '12px', fontWeight: 600, color: 'var(--li-text-2)',
                     padding: '2px 0', fontFamily: 'var(--li-font)',
                     display: 'flex', alignItems: 'center', gap: '4px',
                     transition: 'color 0.15s',
                   }}
-                    onMouseOver={e => e.currentTarget.style.color = '#0a66c2'}
-                    onMouseOut={e => e.currentTarget.style.color = '#595959'}
+                    onMouseOver={e => e.currentTarget.style.color = 'var(--li-blue)'}
+                    onMouseOut={e => e.currentTarget.style.color = 'var(--li-text-2)'}
                   >
                     <ThumbsUp size={12} /> Like
                   </button>
                   <button style={{
                     background: 'none', border: 'none', cursor: 'pointer',
-                    fontSize: '12px', fontWeight: 600, color: '#595959',
+                    fontSize: '12px', fontWeight: 600, color: 'var(--li-text-2)',
                     padding: '2px 0', fontFamily: 'var(--li-font)',
                     display: 'flex', alignItems: 'center', gap: '4px',
                     transition: 'color 0.15s',
                   }}
-                    onMouseOver={e => e.currentTarget.style.color = '#0a66c2'}
-                    onMouseOut={e => e.currentTarget.style.color = '#595959'}
+                    onMouseOver={e => e.currentTarget.style.color = 'var(--li-blue)'}
+                    onMouseOut={e => e.currentTarget.style.color = 'var(--li-text-2)'}
                   >
                     <CornerDownRight size={12} /> Reply
                   </button>
@@ -376,7 +376,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
 
         {/* No comments state */}
         {comments.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '12px 0 6px', fontSize: '13px', color: '#8c8c8c' }}>
+          <div style={{ textAlign: 'center', padding: '12px 0 6px', fontSize: '13px', color: 'var(--li-text-3)' }}>
             Be the first to comment
           </div>
         )}

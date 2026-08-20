@@ -187,12 +187,12 @@ const Feed = () => {
           {/* People You May Know */}
           <div className="lf-card lf-right-card" style={{ marginTop: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <Users size={18} color="#595959" />
+              <Users size={18} color="var(--li-text-2)" />
               <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1 }}>People you may know</span>
             </div>
 
             {suggested.length === 0 ? (
-              <div style={{ fontSize: '13px', color: '#888', fontStyle: 'italic', padding: '6px 4px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--li-text-3)', fontStyle: 'italic', padding: '6px 4px' }}>
                 No suggestions available
               </div>
             ) : suggested.map((p, i) => {
@@ -237,10 +237,11 @@ const Feed = () => {
               style={{
                 display: 'flex', alignItems: 'center', gap: '4px',
                 marginTop: '12px', background: 'none', border: 'none',
-                color: '#0a66c2', fontSize: '12px', fontWeight: 600, cursor: 'pointer',
-                fontFamily: 'var(--li-font)',
-                padding: '4px 0',
+                color: 'var(--li-blue)', fontSize: '13px', fontWeight: 600,
+                cursor: 'pointer', padding: 0, fontFamily: 'var(--li-font)'
               }}
+              onMouseOver={e => e.currentTarget.style.color = 'var(--li-blue-hover)'}
+              onMouseOut={e => e.currentTarget.style.color = 'var(--li-blue)'}
             >
               View all <ChevronRight size={14} />
             </button>
@@ -249,7 +250,7 @@ const Feed = () => {
           {/* Trending Now */}
           <div className="lf-card lf-right-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <TrendingUp size={18} color="#595959" />
+              <TrendingUp size={18} color="var(--li-text-2)" />
               <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1 }}>Trending Now</span>
             </div>
             {trending.length > 0 ? trending.map((t, i) => (

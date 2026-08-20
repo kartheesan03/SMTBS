@@ -13,11 +13,11 @@ import toast from 'react-hot-toast';
 
 // ─── Reaction emojis ───────────────────────────────────────────────────────
 const REACTIONS = [
-  { emoji: '👍', label: 'Like',       Icon: ThumbsUp,   color: '#0a66c2' },
+  { emoji: '👍', label: 'Like',       Icon: ThumbsUp,   color: 'var(--li-blue)' },
   { emoji: '❤️', label: 'Love',       Icon: Heart,      color: '#e0245e' },
-  { emoji: '🎉', label: 'Celebrate',  Icon: PartyPopper,color: '#f59e0b' },
+  { emoji: '🎉', label: 'Celebrate',  Icon: PartyPopper,color: 'var(--li-amber)' },
   { emoji: '💡', label: 'Insightful', Icon: Lightbulb,  color: '#8b5cf6' },
-  { emoji: '🤔', label: 'Curious',    Icon: MessageSquare, color: '#64748b' },
+  { emoji: '🤔', label: 'Curious',    Icon: MessageSquare, color: 'var(--li-text-2)' },
 ];
 
 // ─── Avatar color pool ─────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
         return (
             <span 
               key={i} 
-              style={{ color: '#0a66c2', fontWeight: 600, cursor: 'pointer' }}
+              style={{ color: 'var(--li-blue)', fontWeight: 600, cursor: 'pointer' }}
               onMouseOver={e => e.currentTarget.style.textDecoration = 'underline'}
               onMouseOut={e => e.currentTarget.style.textDecoration = 'none'}
               onClick={(e) => {
@@ -206,50 +206,58 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
       {/* ── Announcement type banner ───────────────────────────────── */}
       {isAnnouncement && (
         <div style={{
-          background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
-          padding: '12px 16px',
+          background: 'var(--li-amber-light)',
+          padding: '12px 20px',
           display: 'flex', alignItems: 'center', gap: '10px',
-          borderBottom: '1px solid #fde68a',
+          borderBottom: '1px solid var(--li-amber)',
         }}>
           <div style={{
             width: 36, height: 36, borderRadius: '50%',
-            background: '#f59e0b', display: 'flex',
+            background: 'var(--li-amber)', display: 'flex',
             alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>
             <Megaphone size={18} color="#fff" />
           </div>
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--li-text-1)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               📢 IMPORTANT ANNOUNCEMENT
             </div>
-            <div style={{ fontSize: '12px', color: '#b45309', marginTop: '1px' }}>
+            <div style={{ fontSize: '12px', color: 'var(--li-amber)', marginTop: '1px', fontWeight: 600 }}>
               SMTBMS Official · {post.author?.role || 'HR Department'}
             </div>
           </div>
         </div>
       )}
 
+      {/* ── Repost Header ─────────────────────────────────────────── */}
+      {post.isRepost && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px 0', fontSize: '13px', color: 'var(--li-text-2)', fontWeight: 600 }}>
+          <Repeat2 size={16} />
+          <span>{post.reposterName} reposted this</span>
+        </div>
+      )}
+
       {/* ── Broadcast type banner ──────────────────────────────────── */}
       {isBroadcast && (
         <div style={{
-          background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
-          padding: '10px 16px',
+          background: 'var(--li-green-light)',
+          padding: '10px 20px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          borderBottom: '1px solid #bbf7d0',
+          borderBottom: '1px solid var(--li-green)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{
               width: 30, height: 30, borderRadius: '50%',
-              background: '#16a34a', display: 'flex',
+              background: 'var(--li-green)', display: 'flex',
               alignItems: 'center', justifyContent: 'center',
             }}>
               <Radio size={14} color="#fff" />
             </div>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--li-green)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               📣 COMPANY BROADCAST
             </span>
           </div>
-          <span style={{ fontSize: '11px', color: '#4ade80', background: '#166534', padding: '2px 10px', borderRadius: '12px', fontWeight: 600 }}>
+          <span style={{ fontSize: '11px', color: 'var(--li-green)', background: '#fff', padding: '2px 10px', borderRadius: '12px', fontWeight: 600, border: '1px solid var(--li-green)' }}>
             LIVE
           </span>
         </div>
@@ -264,7 +272,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
               <div style={{
                 position: 'absolute', bottom: -2, right: -2,
                 width: 18, height: 18, borderRadius: '50%',
-                background: '#f59e0b', border: '2px solid #fff',
+                background: 'var(--li-amber)', border: '2px solid #fff',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <Megaphone size={9} color="#fff" />
@@ -274,7 +282,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
               <div style={{
                 position: 'absolute', bottom: -2, right: -2,
                 width: 18, height: 18, borderRadius: '50%',
-                background: '#16a34a', border: '2px solid #fff',
+                background: 'var(--li-green)', border: '2px solid #fff',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <Radio size={9} color="#fff" />
@@ -291,7 +299,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
               </span>
               {isAnnouncement && (
                 <span style={{
-                  background: '#fef3c7', color: '#b45309',
+                  background: 'var(--li-amber-light)', color: 'var(--li-amber)',
                   fontSize: '10px', fontWeight: 700, padding: '2px 7px',
                   borderRadius: '4px', letterSpacing: '0.3px',
                 }}>
@@ -299,12 +307,12 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
                 </span>
               )}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '1px', lineHeight: 1.4 }}>
-              {post.author?.role || 'Employee'}
+            <div style={{ fontSize: '13px', color: 'var(--li-text-2)', marginTop: '2px', lineHeight: 1.3 }}>
+              {post.author?.role || 'Company Member'}
               {post.author?.department ? ` · ${post.author.department}` : ''}
             </div>
             {!isBroadcast && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--li-text-3)', marginTop: '2px' }}>
                 <span>{getRelativeTime(post.createdAt)}</span>
                 <span>·</span>
                 <Globe size={11} />

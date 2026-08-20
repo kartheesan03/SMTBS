@@ -6,26 +6,26 @@
 
 /* ─── Design Tokens ─────────────────────────────────────────────────────── */
 :root {
-  --li-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --li-bg:         #f4f2ee;
+  --li-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --li-bg:         #f7f8fa;
   --li-card:       #ffffff;
-  --li-border:     #e0ddd6;
-  --li-shadow:     0 0 0 1px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --li-shadow-hover: 0 0 0 1px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.1);
+  --li-border:     #e4e7ec;
+  --li-shadow:     0 1px 2px rgba(16, 24, 40, 0.05);
+  --li-shadow-hover: 0 4px 6px rgba(16, 24, 40, 0.05), 0 1px 3px rgba(16, 24, 40, 0.1);
   --li-radius:     12px;
   --li-blue:       #0a66c2;
-  --li-blue-hover: #004182;
+  --li-blue-hover: #1464a5;
   --li-blue-light: #eff6ff;
-  --li-green:      #057642;
+  --li-green:      #16803c;
   --li-green-light:#e8f5e9;
-  --li-amber:      #f59e0b;
+  --li-amber:      #f79009;
   --li-amber-light:#fef3c7;
-  --li-red:        #cc1016;
-  --li-text-1:     #1a1a1a;
-  --li-text-2:     #595959;
-  --li-text-3:     #8c8c8c;
-  --li-divider:    #eee9e0;
-  --li-hover:      #f3f2ef;
+  --li-red:        #d92d20;
+  --li-text-1:     #1d2939;
+  --li-text-2:     #667085;
+  --li-text-3:     #98a2b3;
+  --li-divider:    #f2f4f7;
+  --li-hover:      #f9fafb;
 }
 
 /* ─── Reset ─────────────────────────────────────────────────────────────── */
@@ -46,7 +46,7 @@
 /* ─── Layout ────────────────────────────────────────────────────────────── */
 .lf-grid {
   width: 100%;
-  max-width: 1128px;
+  max-width: 1280px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr) 320px;
@@ -93,7 +93,10 @@ main {
   border-radius: var(--li-radius);
   overflow: hidden;
   background: var(--li-card);
+  box-shadow: var(--li-shadow);
+  transition: box-shadow 0.2s;
 }
+.lf-card:hover { box-shadow: var(--li-shadow-hover); }
 
 /* ─── LEFT SIDEBAR — Company Profile Card ───────────────────────────────── */
 .lf-profile-card {
@@ -132,8 +135,8 @@ main {
 }
 
 .lf-profile-name {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--li-text-1);
   line-height: 1.3;
   margin-top: 4px;
@@ -578,8 +581,8 @@ main {
 }
 
 .lf-right-title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--li-text-1);
   margin-bottom: 16px;
 }
@@ -649,6 +652,11 @@ main {
   gap: 6px;
   transition: all 0.2s;
   font-family: var(--li-font);
+}
+.lf-person-action:hover {
+  background: var(--li-hover);
+  color: var(--li-text-1);
+  border-color: var(--li-text-1);
 }
 
 .lf-trending-tag {
@@ -738,11 +746,12 @@ main {
 /* ─── Backwards-compat aliases (used by PostCard.jsx) ────────────────────── */
 .cf-feed-wrapper     { display: flex; flex-direction: column; gap: 24px; }
 .cf-feed             { display: flex; flex-direction: column; gap: 24px; }
-.cf-composer         { background: var(--li-card); border: 1px solid var(--li-border); border-radius: var(--li-radius); padding: 20px; }
+.cf-composer         { background: var(--li-card); border: 1px solid var(--li-border); border-radius: var(--li-radius); box-shadow: var(--li-shadow); padding: 20px; transition: box-shadow 0.2s; }
+.cf-composer:hover   { box-shadow: var(--li-shadow-hover); }
 .cf-composer-top     { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
 .cf-composer-avatar  { width: 48px; height: 48px; border-radius: 50%; background: var(--li-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; flex-shrink: 0; }
-.cf-composer-input   { flex: 1; padding: 12px 16px; border: 1.5px solid #c9c4bd; border-radius: 28px; font-size: 14px; font-weight: 500; color: var(--li-text-2); cursor: pointer; background: transparent; font-family: var(--li-font); transition: border-color 0.2s; }
-.cf-composer-input:hover { border-color: var(--li-text-1); }
+.cf-composer-input   { flex: 1; padding: 12px 16px; border: 1px solid var(--li-border); border-radius: 24px; font-size: 14px; font-weight: 400; color: var(--li-text-2); cursor: pointer; background: var(--li-bg); font-family: var(--li-font); transition: border-color 0.2s, background 0.2s; }
+.cf-composer-input:hover { border-color: var(--li-text-3); background: var(--li-hover); }
 .cf-composer-actions { display: flex; gap: 4px; justify-content: space-between; }
 .cf-composer-action  { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; color: var(--li-text-2); cursor: pointer; border: none; background: transparent; font-family: var(--li-font); transition: background 0.15s; }
 .cf-composer-action:hover { background: var(--li-hover); }
