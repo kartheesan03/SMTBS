@@ -202,8 +202,12 @@ const Feed = () => {
               const isLoading  = followLoading.has(p.id);
               return (
                 <div className="lf-person-row" key={p.id}>
-                  <div className="lf-person-avatar">
-                    <img src={p.avatar} alt={p.name} />
+                  <div className="lf-person-avatar" style={{ background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', fontWeight: 600 }}>
+                    {p.picture ? (
+                      <img src={p.picture} alt={p.name} />
+                    ) : (
+                      initials
+                    )}
                   </div>
                   <div className="lf-person-meta">
                     <div className="lf-person-name">{p.name}</div>
