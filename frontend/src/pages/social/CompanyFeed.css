@@ -55,6 +55,18 @@
   align-items: start;
 }
 
+/* Force perfect top alignment for all grid columns */
+.lf-grid > aside,
+.lf-grid > main {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+.lf-grid > aside > :first-child,
+.lf-grid > main > :first-child,
+.lf-grid > main > div > :first-child {
+  margin-top: 0 !important;
+}
+
 @media (max-width: 1128px) {
   .lf-grid { 
     grid-template-columns: 225px minmax(0, 1fr) 300px;
