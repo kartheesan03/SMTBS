@@ -308,11 +308,15 @@ const connectDB = async () => {
 
         // Safely recreate logic removed as it corrupted SQLite foreign keys
         try {
-            await sequelize.sync({ alter: true });
-            console.log(`${dbName} Database tables synchronized with alter.`);
+            if (dialect === 'sqlite') {
+                await sequelize.sync({ alter: true });
+                console.log(`${dbName} Database tables synchronized with alter.`);
+            } else {
+                console.log(`${dbName} Database tables sync skipped for remote DB.`);
+            }
         } catch (syncError) {
             console.warn(`[Sync] Alter sync failed, falling back to standard sync: ${syncError.message}`);
-            await sequelize.sync();
+            if (dialect === 'sqlite') await sequelize.sync();
         }
         
         // Run heavy data sync asynchronously and delay by 15s so we don't block Railway's port binding and healthchecks with CPU-intensive bcrypt hashing
