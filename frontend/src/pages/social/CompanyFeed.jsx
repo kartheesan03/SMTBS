@@ -356,7 +356,7 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
 
       {/* Sort By Separator */}
       {showComposer && displayPosts.length > 0 && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '12px', paddingRight: '0' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '0' }}>
             <div style={{ height: '1px', backgroundColor: 'var(--social-divider)', flex: 1, marginRight: '12px' }}></div>
             <span style={{ fontSize: '13px', color: 'var(--social-text-sec)', fontWeight: '500' }}>Sort by: </span>
             <select 

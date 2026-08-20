@@ -166,7 +166,7 @@ const Feed = () => {
         {/* ─── MAIN FEED ─── */}
         <main>
           {hashtagFilter && (
-            <div className="lf-hashtag-bar" style={{ marginBottom: '10px' }}>
+            <div className="lf-hashtag-bar">
               <span>Filtered by: {hashtagFilter}</span>
               <span className="lf-hashtag-clear" onClick={() => setHashtagFilter(null)}>✕ Clear</span>
             </div>
