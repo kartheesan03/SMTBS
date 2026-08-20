@@ -237,9 +237,9 @@ const AppContent = () => {
     if (loading) return <div className="app-loading">Loading...</div>;
 
     return (
-        <div className={user ? "app-shell" : "public-app-shell"}>
+        <div className="app-layout">
             {user && <FarmakuSidebar />}
-            <main className={user ? "main-area" : "public-main-area"}>
+            <main className="app-main">
                 {user && (
                     <>
                         <ModuleLauncher 

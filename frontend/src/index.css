@@ -981,37 +981,25 @@ input[type="password"]::-ms-clear {
 }
 
 /* App Layout Overrides */
-.app-shell {
-  display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  min-height: 100vh;
+.app-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
   background-color: #f8fafc;
 }
 
-.public-app-shell {
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-  background-color: #f8fafc;
-}
-
-.main-area {
+.app-main {
+  flex: 1 1 auto;
   min-width: 0;
-  width: 100%;
+  width: calc(100% - 260px);
+  margin-left: 260px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
-
-.public-main-area {
-  flex: 1;
-  min-width: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
 /* Feed page needs horizontal room for its 3-column grid */
-.main-area:has(.smtbs-feed-page),
+.app-main:has(.smtbs-feed-page),
 .app-content:has(.smtbs-feed-page) {
   overflow-x: visible !important;
 }
@@ -1028,17 +1016,16 @@ input[type="password"]::-ms-clear {
 }
 
 /* Full-screen public pages (no sidebar margin, no content padding) */
-body.landing-page-active .main-area,
-body.landing-page-active .public-main-area {
+body.landing-page-active .app-main {
   margin-left: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
 }
 
-body .main-area:has(.landing-container),
-body .main-area:has(.fx-login-shell),
-body .public-main-area:has(.landing-container),
-body .public-main-area:has(.fx-login-shell) {
+body .app-main:has(.landing-container),
+body .app-main:has(.fx-login-shell),
+body .app-layout .app-main:has(.landing-container),
+body .app-layout .app-main:has(.fx-login-shell) {
   margin-left: 0 !important;
   width: 100% !important;
 }

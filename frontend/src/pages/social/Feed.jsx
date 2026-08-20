@@ -110,12 +110,61 @@ const Feed = () => {
   };
 
   return (
-    <div className="feed-page" style={{ background: 'var(--li-bg)' }}>
-      <div className="feed-layout">
+    <div className="lf-root" style={{ margin: '-24px', padding: 0 }}>
+      <div className="lf-grid">
+
+        {/* ─── LEFT SIDEBAR ─── */}
+        <aside className="lf-left">
+
+          {/* Company Profile Card */}
+          <div className="lf-card lf-profile-card">
+            <div className="lf-profile-cover" />
+            <div className="lf-profile-avatar-wrap">
+              <div className="lf-profile-avatar">
+                <img src={COMPANY_LOGO} alt="SMTBMS" />
+              </div>
+            </div>
+            <div className="lf-profile-body">
+              <div className="lf-profile-name">SMTBMS Solutions</div>
+              <div className="lf-profile-tagline">Official Company Updates &amp; Network</div>
+              <div className="lf-profile-divider" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div className="lf-profile-stat">
+                  <span className="lf-profile-stat-label">Company members</span>
+                  <span className="lf-profile-stat-value">1,245</span>
+                </div>
+                <div className="lf-profile-stat">
+                  <span className="lf-profile-stat-label">Industry</span>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#1a1a1a' }}>IT Services</span>
+                </div>
+                <div className="lf-profile-stat">
+                  <span className="lf-profile-stat-label">Location</span>
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#1a1a1a' }}>India</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <div className="lf-card lf-nav-card">
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                className={`lf-nav-tab${activeTab === id ? ' active' : ''}`}
+                onClick={() => setActiveTab(id)}
+              >
+                <span className="lf-nav-tab-icon">
+                  <Icon size={17} strokeWidth={activeTab === id ? 2.5 : 2} />
+                </span>
+                {label}
+              </button>
+            ))}
+          </div>
+
+        </aside>
 
         {/* ─── MAIN FEED ─── */}
-        <main style={{ minWidth: 0, width: '100%', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
+        <main>
           {hashtagFilter && (
             <div className="lf-hashtag-bar">
               <span>Filtered by: {hashtagFilter}</span>
@@ -133,23 +182,7 @@ const Feed = () => {
         </main>
 
         {/* ─── RIGHT SIDEBAR ─── */}
-        <aside className="right-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-          {/* Navigation Tabs */}
-          <div className="lf-card lf-nav-card">
-            {TABS.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                className={`lf-nav-tab${activeTab === id ? ' active' : ''}`}
-                onClick={() => setActiveTab(id)}
-              >
-                <span className="lf-nav-tab-icon">
-                  <Icon size={17} strokeWidth={activeTab === id ? 2.5 : 2} />
-                </span>
-                {label}
-              </button>
-            ))}
-          </div>
+        <aside className="lf-right">
 
           {/* People You May Know */}
           <div className="lf-card lf-right-card">
