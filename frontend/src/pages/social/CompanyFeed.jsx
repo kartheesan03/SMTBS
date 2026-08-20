@@ -382,8 +382,8 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
       <div className="cf-feed">
         {/* Sort By Separator */}
         {showComposer && displayPosts.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', width: '100%', margin: '16px 0 16px 0' }}>
-              <span style={{ fontSize: '13px', color: 'var(--li-text-2)', marginRight: '8px' }}>Sort by:</span>
+          <div style={{ display: 'flex', alignItems: 'center', padding: '0 2px', margin: '12px 0 12px 0' }}>
+              <span style={{ fontSize: '13px', color: 'var(--li-text-2)', marginRight: '8px', whiteSpace: 'nowrap' }}>Sort by:</span>
               <div style={{ position: 'relative' }}>
                 <select 
                   value={sortBy}
@@ -394,10 +394,10 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
                       MozAppearance: 'none',
                       background: 'var(--li-bg)',
                       border: '1px solid var(--li-border)',
-                      borderRadius: '4px',
+                      borderRadius: '6px',
                       outline: 'none',
-                      fontSize: '13px', color: 'var(--li-text-1)', fontWeight: '500',
-                      padding: '4px 28px 4px 12px', cursor: 'pointer', fontFamily: 'inherit'
+                      fontSize: '13px', color: 'var(--li-text-1)', fontWeight: '600',
+                      padding: '5px 30px 5px 12px', cursor: 'pointer', fontFamily: 'inherit'
                   }}
                 >
                     <option value="Top">Top</option>
