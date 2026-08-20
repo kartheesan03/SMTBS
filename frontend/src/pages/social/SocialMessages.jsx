@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
-import { Search, Phone, Video, MoreVertical, Image as ImageIcon, Paperclip, Smile, Send, MessageSquare, ArrowLeft, Trash2 } from 'lucide-react';
+import { Search, Phone, Video, MoreVertical, Image as ImageIcon, Paperclip, Smile, Send, MessageSquare, ArrowLeft, Trash2, ChevronDown, Copy } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { AuthContext } from '../../context/AuthContext';
 import './SocialMessages.css';
 
@@ -11,6 +12,7 @@ const SocialMessages = () => {
     const [activeConv, setActiveConv] = useState(null);
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [openDropdownId, setOpenDropdownId] = useState(null);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -179,18 +181,27 @@ const SocialMessages = () => {
                                                     </div>
                                                 )}
                                                 <div className="chat-message-content">
-                                                    <div className="chat-bubble-container">
+                                                    <div className="chat-bubble-container" onMouseLeave={() => setOpenDropdownId(null)}>
                                                         <div className="chat-bubble">
                                                             {msg.content}
+                                                            {isOutgoing && (
+                                                                <button 
+                                                                    className="msg-dropdown-toggle"
+                                                                    onClick={(e) => { e.stopPropagation(); setOpenDropdownId(openDropdownId === msg.id ? null : msg.id); }}
+                                                                >
+                                                                    <ChevronDown size={16} />
+                                                                </button>
+                                                            )}
                                                         </div>
-                                                        {isOutgoing && (
-                                                            <button 
-                                                                className="delete-msg-btn"
-                                                                onClick={() => handleDeleteMessage(msg.id)}
-                                                                title="Delete message"
-                                                            >
-                                                                <Trash2 size={14} />
-                                                            </button>
+                                                        {openDropdownId === msg.id && (
+                                                            <div className="msg-dropdown-menu">
+                                                                <button onClick={() => { navigator.clipboard.writeText(msg.content); toast.success('Copied to clipboard'); setOpenDropdownId(null); }}>
+                                                                    <Copy size={14} /> Copy
+                                                                </button>
+                                                                <button onClick={() => { handleDeleteMessage(msg.id); setOpenDropdownId(null); }}>
+                                                                    <Trash2 size={14} /> Delete
+                                                                </button>
+                                                            </div>
                                                         )}
                                                     </div>
                                                     <span className="chat-time" style={{ textAlign: isOutgoing ? 'right' : 'left', display: 'block', marginTop: '4px' }}>{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
