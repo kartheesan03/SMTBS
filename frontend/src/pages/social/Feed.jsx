@@ -201,37 +201,26 @@ const Feed = () => {
               const isFollowing = followedIds.has(p.id);
               const isLoading  = followLoading.has(p.id);
               return (
-                <div className="lf-person-row" key={p.id || i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0' }}>
-                  <div className="lf-person-avatar" style={{ background: color }}>
-                    {p.picture
-                      ? <img src={p.picture} alt={p.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                      : initials}
+                <div className="lf-person-row" key={p.id}>
+                  <div className="lf-person-avatar">
+                    <img src={p.avatar} alt={p.name} />
                   </div>
-                  <div className="lf-person-info" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div className="lf-person-meta">
                     <div className="lf-person-name">{p.name}</div>
-                    <div className="lf-person-role">{p.role || 'Member'}</div>
+                    <div className="lf-person-role">{p.role}</div>
                   </div>
                   <button
+                    className="lf-person-action"
                     onClick={() => handleFollow(p.id, p.name)}
                     disabled={isLoading}
                     style={{
-                      padding: '5px 12px',
-                      borderRadius: '20px',
-                      border: '1.5px solid #0a66c2',
-                      background: isFollowing ? '#0a66c2' : 'transparent',
-                      color: isFollowing ? '#fff' : '#0a66c2',
-                      fontSize: '12px', fontWeight: 700,
-                      cursor: isLoading ? 'wait' : 'pointer',
-                      opacity: isLoading ? 0.6 : 1,
-                      display: 'flex', alignItems: 'center', gap: '4px',
-                      whiteSpace: 'nowrap',
-                      fontFamily: 'var(--li-font)',
-                      transition: 'background 0.2s, color 0.2s',
-                      flexShrink: 0,
+                      background: isFollowing ? 'var(--li-blue)' : 'transparent',
+                      color: isFollowing ? '#fff' : 'var(--li-text-2)',
+                      borderColor: isFollowing ? 'var(--li-blue)' : 'var(--li-text-2)',
                     }}
                   >
                     {isFollowing
-                      ? <><UserCheck size={13} /> Following</>
+                      ? <><UserCheck size={13} style={{ marginRight: '4px' }} /> Following</>
                       : '+ Follow'
                     }
                   </button>

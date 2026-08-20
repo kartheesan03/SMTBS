@@ -256,7 +256,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
       )}
 
       {/* ── Post header ───────────────────────────────────────────── */}
-      <div style={{ padding: '16px 16px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div style={{ padding: '20px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <UserAvatar user={post.author} size={46} />
@@ -283,7 +283,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a', cursor: 'pointer' }}
+              <span style={{ fontSize: '16px', fontWeight: 600, color: 'var(--li-text-1)', cursor: 'pointer' }}
                 onMouseOver={e => e.target.style.textDecoration = 'underline'}
                 onMouseOut={e => e.target.style.textDecoration = 'none'}
               >

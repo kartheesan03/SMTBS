@@ -100,7 +100,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
         onSubmit={handleSubmit}
         style={{
           display: 'flex', gap: '10px', alignItems: 'flex-start',
-          padding: '16px 16px 12px',
+          padding: '16px 20px 12px',
         }}
       >
         <MiniAvatar name={authorName} color={authorColor} size={36} />
@@ -223,7 +223,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
       </form>
 
       {/* ── Comment Thread ─────────────────────────────────────── */}
-      <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {comments.slice(0, visibleCount).map((comment, idx) => {
           const name      = comment.author?.name || comment.author?.username || 'Unknown';
           const role      = comment.author?.role || comment.author?.department || 'Employee';
@@ -248,66 +248,77 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
                   {/* Header row */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
                     <div>
-                      <span style={{ fontWeight: 700, fontSize: '13px', color: '#1a1a1a', cursor: 'pointer' }}
-                        onMouseOver={e => e.target.style.textDecoration = 'underline'}
-                        onMouseOut={e => e.target.style.textDecoration = 'none'}
-                      >{name}</span>
-                      {' '}
-                      <span style={{ fontSize: '11px', color: '#595959', fontWeight: 400 }}>· {role}</span>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--li-text-1)', lineHeight: 1.2 }}>
+                        {name}
+                        {comment.author?.role === 'Admin' && (
+                          <span style={{
+                            background: '#fef3c7', color: '#b45309',
+                            fontSize: '9px', fontWeight: 700, padding: '1px 5px',
+                            borderRadius: '4px', marginLeft: '6px',
+                            verticalAlign: 'middle',
+                          }}>ADMIN</span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '12px', color: 'var(--li-text-2)', marginTop: '2px', lineHeight: 1.2 }}>
+                        {role}
+                      </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0, marginLeft: '8px' }}>
-                      <span style={{ fontSize: '11px', color: '#8c8c8c', whiteSpace: 'nowrap' }}>{timeStr}</span>
-                      {isOwner && (
-                        <div style={{ position: 'relative' }}>
-                          <button
-                            onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === (comment.id || idx) ? null : (comment.id || idx)); }}
-                            style={{
-                              background: 'transparent', border: 'none', cursor: 'pointer',
-                              padding: '2px 4px', borderRadius: '50%', display: 'flex',
-                              color: '#8c8c8c', transition: 'background 0.15s',
-                            }}
-                            onMouseOver={e => e.currentTarget.style.background = '#f3f2ef'}
-                            onMouseOut={e => e.currentTarget.style.background = 'transparent'}
-                          >
-                            <MoreHorizontal size={14} />
-                          </button>
-                          {openMenuId === (comment.id || idx) && (
-                            <div
-                              onMouseDown={e => e.stopPropagation()}
+                      <div style={{ fontSize: '12px', color: 'var(--li-text-2)', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {timeStr}
+                        {isOwner && (
+                          <div style={{ position: 'relative' }}>
+                            <button
+                              onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === (comment.id || idx) ? null : (comment.id || idx)); }}
                               style={{
-                                position: 'absolute', top: '100%', right: 0,
-                                background: '#fff', border: '1px solid #e0ddd6',
-                                borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                                minWidth: '140px', zIndex: 100, overflow: 'hidden', padding: '4px 0',
+                                background: 'transparent', border: 'none', cursor: 'pointer',
+                                padding: '2px 4px', borderRadius: '50%', display: 'flex',
+                                color: '#8c8c8c', transition: 'background 0.15s',
                               }}
+                              onMouseOver={e => e.currentTarget.style.background = '#f3f2ef'}
+                              onMouseOut={e => e.currentTarget.style.background = 'transparent'}
                             >
+                              <MoreHorizontal size={14} />
+                            </button>
+                            {openMenuId === (comment.id || idx) && (
                               <div
-                                onClick={() => { setOpenMenuId(null); handleDelete(comment.id); }}
+                                onMouseDown={e => e.stopPropagation()}
                                 style={{
-                                  display: 'flex', alignItems: 'center', gap: '8px',
-                                  padding: '10px 14px', cursor: 'pointer',
-                                  fontSize: '13px', fontWeight: 500, color: '#cc1016',
-                                  transition: 'background 0.12s',
+                                  position: 'absolute', top: '100%', right: 0,
+                                  background: '#fff', border: '1px solid #e0ddd6',
+                                  borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                  minWidth: '140px', zIndex: 100, overflow: 'hidden', padding: '4px 0',
                                 }}
-                                onMouseOver={e => e.currentTarget.style.background = '#fef2f2'}
-                                onMouseOut={e => e.currentTarget.style.background = 'transparent'}
                               >
-                                <Trash2 size={13} /> Delete
+                                <div
+                                  onClick={() => { setOpenMenuId(null); handleDelete(comment.id); }}
+                                  style={{
+                                    display: 'flex', alignItems: 'center', gap: '8px',
+                                    padding: '10px 14px', cursor: 'pointer',
+                                    fontSize: '13px', fontWeight: 500, color: '#cc1016',
+                                    transition: 'background 0.12s',
+                                  }}
+                                  onMouseOver={e => e.currentTarget.style.background = '#fef2f2'}
+                                  onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+                                >
+                                  <Trash2 size={13} /> Delete
+                                </div>
                               </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
                   {/* Comment text */}
-                  <p style={{
-                    margin: 0, fontSize: '14px', color: '#1e293b',
-                    lineHeight: 1.55, wordBreak: 'break-word', whiteSpace: 'pre-wrap',
+                  <div style={{
+                    fontSize: '14px', color: 'var(--li-text-1)',
+                    lineHeight: 1.5, wordBreak: 'break-word', whiteSpace: 'pre-wrap',
+                    marginTop: '8px'
                   }}>
                     {comment.text || comment.content}
-                  </p>
+                  </div>
                 </div>
 
                 {/* Action row below bubble */}
@@ -344,20 +355,23 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
 
         {/* Load more */}
         {comments.length > visibleCount && (
-          <button
-            onClick={() => setVisibleCount(prev => prev + 5)}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: '#0a66c2', fontSize: '13px', fontWeight: 700,
-              padding: '4px 0', fontFamily: 'var(--li-font)',
-              display: 'flex', alignItems: 'center', gap: '4px',
-              textAlign: 'left', transition: 'color 0.15s',
-            }}
-            onMouseOver={e => e.currentTarget.style.color = '#004182'}
-            onMouseOut={e => e.currentTarget.style.color = '#0a66c2'}
-          >
-            View {comments.length - visibleCount} more comment{comments.length - visibleCount !== 1 ? 's' : ''}
-          </button>
+          <div style={{
+            textAlign: 'center', marginTop: '4px',
+            borderTop: '1px solid var(--li-divider)', paddingTop: '16px'
+          }}>
+            <button
+              onClick={() => setVisibleCount(prev => prev + 5)}
+              style={{
+                background: 'transparent', border: 'none',
+                color: 'var(--li-text-2)', fontSize: '14px', fontWeight: 600,
+                cursor: 'pointer', fontFamily: 'var(--li-font)',
+              }}
+              onMouseOver={e => e.currentTarget.style.color = 'var(--li-blue)'}
+              onMouseOut={e => e.currentTarget.style.color = 'var(--li-text-2)'}
+            >
+              View {comments.length - visibleCount} more comment{comments.length - visibleCount !== 1 ? 's' : ''}
+            </button>
+          </div>
         )}
 
         {/* No comments state */}
