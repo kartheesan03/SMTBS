@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
-import { Search, Phone, Video, MoreVertical, Image as ImageIcon, Paperclip, Smile, Send, MessageSquare } from 'lucide-react';
+import { Search, Phone, Video, MoreVertical, Image as ImageIcon, Paperclip, Smile, Send, MessageSquare, ArrowLeft } from 'lucide-react';
+import { AuthContext } from '../../context/AuthContext';
 import './SocialMessages.css';
 
 const SocialMessages = () => {
@@ -10,17 +12,35 @@ const SocialMessages = () => {
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
 
+    const location = useLocation();
+    const navigate = useNavigate();
+    const newChatUser = location.state?.newChatUser;
+    const { user: currentUser } = useContext(AuthContext);
+
     useEffect(() => {
         const fetchConversations = async () => {
             try {
-                // Placeholder API response format for conversations
-                const mockConvs = [
-                    { id: 1, name: 'Alice Smith', lastMessage: 'See you tomorrow!', time: '10:30 AM', unread: 2, presence: 'online' },
-                    { id: 2, name: 'Bob Jones', lastMessage: 'Can you send the report?', time: 'Yesterday', unread: 0, presence: 'away' },
-                    { id: 3, name: 'Marketing Team', lastMessage: 'Great job everyone.', time: 'Tue', unread: 0, presence: 'offline' },
-                ];
-                setConversations(mockConvs);
-                setActiveConv(mockConvs[0]);
+                const { data } = await API.get('/social/messages');
+                let convs = Array.isArray(data) ? data : [];
+                
+                if (newChatUser) {
+                    const existing = convs.find(c => c.id === newChatUser.id);
+                    if (!existing) {
+                        convs = [{
+                            id: newChatUser.id,
+                            name: newChatUser.name,
+                            presence: 'online',
+                            lastMessage: 'Start a conversation...',
+                            time: '',
+                            unread: 0
+                        }, ...convs];
+                    }
+                    setConversations(convs);
+                    setActiveConv(convs.find(c => c.id === newChatUser.id));
+                } else {
+                    setConversations(convs);
+                    if (convs.length > 0) setActiveConv(convs[0]);
+                }
             } catch (error) {
                 console.error('Error fetching conversations', error);
             } finally {
@@ -28,19 +48,17 @@ const SocialMessages = () => {
             }
         };
         fetchConversations();
-    }, []);
+    }, [newChatUser]);
 
     useEffect(() => {
         if (activeConv) {
             const fetchMessages = async () => {
                 try {
                     const { data } = await API.get(`/social/messages/${activeConv.id}`);
-                    setMessages(Array.isArray(data) ? data : [
-                        { id: 101, content: 'Hey, are we still meeting tomorrow?', senderId: activeConv.id, createdAt: new Date(Date.now() - 3600000).toISOString() },
-                        { id: 102, content: 'Yes, 10 AM works for me!', senderId: 1, createdAt: new Date(Date.now() - 3500000).toISOString() }
-                    ]);
+                    setMessages(Array.isArray(data) ? data : []);
                 } catch (error) {
                     console.error('Error fetching messages', error);
+                    setMessages([]);
                 }
             };
             fetchMessages();
@@ -54,7 +72,7 @@ const SocialMessages = () => {
             const optimisticMsg = {
                 id: Date.now(),
                 content: newMessage,
-                senderId: 1,
+                senderId: currentUser?.id || 1,
                 createdAt: new Date().toISOString()
             };
             setMessages([...messages, optimisticMsg]);
@@ -74,8 +92,16 @@ const SocialMessages = () => {
             <div className="messages-layout">
                 {/* Left Sidebar: Conversations */}
                 <div className="messages-sidebar">
-                    <div className="messages-header">
-                        <h2>Messages</h2>
+                    <div className="messages-header" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button 
+                            onClick={() => navigate('/social/network')} 
+                            className="icon-btn" 
+                            style={{ padding: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--primary)' }}
+                            title="Back to Network"
+                        >
+                            <ArrowLeft size={20} />
+                        </button>
+                        <h2 style={{ margin: 0 }}>Messages</h2>
                     </div>
                     <div className="messages-search">
                         <Search size={16} />
@@ -138,7 +164,7 @@ const SocialMessages = () => {
                                     <div className="chat-empty">No messages yet. Start the conversation.</div>
                                 ) : (
                                     messages.map((msg, idx) => {
-                                        const isOutgoing = msg.senderId === 1;
+                                        const isOutgoing = msg.senderId === (currentUser?.id || 1);
                                         return (
                                             <div key={idx} className={`chat-bubble-wrapper ${isOutgoing ? 'sent' : 'received'}`}>
                                                 {!isOutgoing && (
