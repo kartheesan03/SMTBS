@@ -69,20 +69,22 @@ const PublicPostView = () => {
     }
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f0f2f5', display: 'flex', flexDirection: 'column', fontFamily: 'sans-serif' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', fontFamily: 'sans-serif', background: '#f0f2f5' }}>
             {/* Top Navigation Bar */}
-            <div style={{ background: '#0a3d62', color: '#fff', padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                <h1 style={{ margin: 0, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ width: '24px', height: '24px', background: '#fff', borderRadius: '4px', display: 'inline-block' }}></div>
-                    SMTBMS Network
-                </h1>
-                <Link to="/login" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', border: '1px solid #fff', padding: '0.4rem 1rem', borderRadius: '20px' }}>
-                    Sign In
-                </Link>
+            <div className="main-header" style={{ background: '#0a3d62', color: '#fff', height: '64px', width: '100%', display: 'flex' }}>
+                <div className="header-inner" style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '0 24px', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <h1 style={{ margin: 0, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <div style={{ width: '24px', height: '24px', background: '#fff', borderRadius: '4px', display: 'inline-block' }}></div>
+                        SMTBMS Network
+                    </h1>
+                    <Link to="/login" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold', border: '1px solid #fff', padding: '0.4rem 1rem', borderRadius: '20px' }}>
+                        Sign In
+                    </Link>
+                </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem 1rem', flex: 1 }}>
-                <div style={{ width: '100%', maxWidth: '650px', background: '#fff', borderRadius: '12px', padding: '2rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+            <div className="public-post-page" style={{ minHeight: 'calc(100vh - 64px)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '32px 24px', boxSizing: 'border-box' }}>
+                <div className="public-post-card" style={{ width: '650px', maxWidth: '100%', margin: '0 auto', background: '#fff', borderRadius: '12px', padding: '2rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                     {/* Header */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
                         <div style={{ 

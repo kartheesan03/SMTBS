@@ -35,52 +35,41 @@
   padding: 0;
 }
 
-.lf-root {
+.feed-page {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  padding: 32px 36px;
+  box-sizing: border-box;
   font-family: var(--li-font);
-  background: var(--li-bg);
   color: var(--li-text-1);
-  line-height: 1.5;
-  min-height: 100vh;
 }
 
-/* ─── Layout ────────────────────────────────────────────────────────────── */
-.lf-grid {
+.feed-layout {
   width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
+  max-width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 320px;
+  grid-template-columns: minmax(0, 680px) 320px;
   gap: 24px;
-  padding: 24px;
   align-items: start;
 }
 
-/* Force perfect top alignment for all grid columns */
-.lf-grid > aside,
-.lf-grid > main {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-.lf-grid > aside > :first-child,
-.lf-grid > main > :first-child,
-.lf-grid > main > div > :first-child {
-  margin-top: 0 !important;
-}
+@media (max-width: 1100px) {
+  .feed-layout {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 680px;
+  }
 
-@media (max-width: 1128px) {
-  .lf-grid { 
-    grid-template-columns: 225px minmax(0, 1fr) 300px;
-    padding: 24px 16px;
+  .right-sidebar {
+    display: none;
   }
 }
 
-@media (max-width: 1060px) {
-  .lf-grid { grid-template-columns: 225px minmax(0, 1fr); }
-  .lf-right { display: none; }
-}
-@media (max-width: 760px) {
-  .lf-grid { grid-template-columns: minmax(0, 1fr); }
-  .lf-left  { display: none; }
+.right-sidebar {
+  position: sticky;
+  top: 24px;
 }
 
 .lf-left, .lf-right {
@@ -100,11 +89,12 @@ main {
 
 /* ─── Card Base ─────────────────────────────────────────────────────────── */
 .lf-card {
+  width: 100%;
+  box-sizing: border-box;
   background: var(--li-card);
   border: 1px solid var(--li-border);
   border-radius: var(--li-radius);
   overflow: hidden;
-  background: var(--li-card);
   box-shadow: var(--li-shadow);
   transition: box-shadow 0.2s;
 }
