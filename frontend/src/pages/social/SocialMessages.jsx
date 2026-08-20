@@ -179,7 +179,7 @@ const SocialMessages = () => {
                                                     </div>
                                                 )}
                                                 <div className="chat-message-content">
-                                                    <div className="chat-bubble-container" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexDirection: isOutgoing ? 'row-reverse' : 'row' }}>
+                                                    <div className="chat-bubble-container">
                                                         <div className="chat-bubble">
                                                             {msg.content}
                                                         </div>
