@@ -90,7 +90,16 @@
   .lf-left  { display: none; }
 }
 
-.lf-left, .lf-right {
+.lf-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 84px;
+  align-self: start;
+}
+
+.lf-right {
   display: flex;
   flex-direction: column;
   gap: 16px;
