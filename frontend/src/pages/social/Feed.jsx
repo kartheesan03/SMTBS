@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import CompanyFeed from './CompanyFeed';
+import COMPANY_INFO from '../../config/companyInfo';
 import {
   Home, Megaphone, Radio, Calendar, Image, Bookmark,
   Users, Building2, TrendingUp, ChevronRight
@@ -125,21 +126,21 @@ const Feed = () => {
               </div>
             </div>
             <div className="lf-profile-body">
-              <div className="lf-profile-name">SMTBMS Solutions</div>
-              <div className="lf-profile-tagline">Official Company Updates &amp; Network</div>
+              <div className="lf-profile-name">{COMPANY_INFO.name}</div>
+              <div className="lf-profile-tagline">{COMPANY_INFO.tagline}</div>
               <div className="lf-profile-divider" />
               <div className="lf-profile-stats">
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Company members</span>
-                  <span className="lf-profile-stat-value">1,245</span>
+                  <span className="lf-profile-stat-value">{COMPANY_INFO.members}</span>
                 </div>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Industry</span>
-                  <span className="lf-profile-stat-value text">IT Services</span>
+                  <span className="lf-profile-stat-value text">{COMPANY_INFO.industry}</span>
                 </div>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Location</span>
-                  <span className="lf-profile-stat-value text">India</span>
+                  <span className="lf-profile-stat-value text">{COMPANY_INFO.location}</span>
                 </div>
               </div>
             </div>
