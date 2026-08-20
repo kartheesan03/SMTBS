@@ -758,6 +758,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
         onClose={() => setIsShareModalOpen(false)}
         authorName={post.author?.name || post.author?.username || 'Employee'}
         postUrl={`${window.location.origin}/feed?postId=${post._id || post.id}`}
+        postText={post.text || post.content}
       />
     </article>
   );

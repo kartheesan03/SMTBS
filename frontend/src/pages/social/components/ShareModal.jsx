@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 
 const AVATAR_COLORS = ['#0a3d62', '#155e75', '#166534', '#7c2d12', '#4338ca', '#b45309'];
 
-const ShareModal = ({ isOpen, onClose, authorName, postUrl }) => {
+const ShareModal = ({ isOpen, onClose, authorName, postUrl, postText }) => {
     const [search, setSearch] = useState('');
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -43,7 +43,14 @@ const ShareModal = ({ isOpen, onClose, authorName, postUrl }) => {
     };
 
     const handleCopyLink = () => {
-        navigator.clipboard.writeText(postUrl);
+        let textToCopy = postUrl;
+        if (postText) {
+            // strip markdown or basic HTML tags to get clean text
+            const cleanText = postText.replace(/<[^>]*>?/gm, '').trim();
+            const previewText = cleanText.length > 120 ? cleanText.substring(0, 120) + '...' : cleanText;
+            textToCopy = `Check out this post by ${authorName}:\n\n"${previewText}"\n\n${postUrl}`;
+        }
+        navigator.clipboard.writeText(textToCopy);
         toast.success('Link copied to clipboard');
         onClose();
     };
