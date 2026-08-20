@@ -168,7 +168,8 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
     } catch { setIsAcknowledged(was); setAckCount(n => was ? n + 1 : n - 1); }
   };
 
-  const isAuthor       = user.id === post.authorId || ['Admin', 'Super Admin'].includes(user.role);
+  const safeRole = String(user?.role || '').toLowerCase();
+  const isAuthor = user?.id === post.authorId || user?._id === post.authorId || ['admin', 'super admin'].includes(safeRole);
   const isAnnouncement = post.type === 'Announcement';
   const isBroadcast    = post.type === 'Broadcast';
   const isPinned       = post.pinned;
