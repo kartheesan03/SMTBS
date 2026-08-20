@@ -153,73 +153,74 @@ const MyNetwork = () => {
                                 {activeTab === 'connections' ? 'Follow colleagues from the Feed to see them here.' : 'Check back later!'}
                             </div>
                         </div>
+                    ) : activeTab === 'suggestions' ? (
+                        <div className="network-grid-container">
+                            {filtered.map((person, idx) => (
+                                <div key={person.id || idx} className="network-card">
+                                    <div className="network-card-banner"></div>
+                                    <div className="network-card-avatar">
+                                        <div className="table-avatar" style={{ background: avatarColor(person.id, idx), color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '18px' }}>
+                                            {person.picture
+                                                ? <img src={person.picture} alt={person.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                                : initials(person.name)}
+                                        </div>
+                                    </div>
+                                    <div className="network-card-body">
+                                        <div className="network-card-name">{person.name || 'Employee'}</div>
+                                        <div className="network-card-role">{person.role || 'Member'}</div>
+                                        {person.department && <div className="network-card-dept">{person.department}</div>}
+                                    </div>
+                                    <div className="network-card-footer">
+                                        <button
+                                            className="connect-btn-outline follow-filled full-width"
+                                            onClick={() => handleFollow(person.id, person.name)}
+                                            disabled={followLoading.has(person.id)}
+                                            style={{ opacity: followLoading.has(person.id) ? 0.5 : 1 }}
+                                        >
+                                            Follow
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : (
-                        <table className="network-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Role</th>
-                                    {activeTab === 'connections' && <th>Followed Since</th>}
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filtered.map((person, idx) => (
-                                    <tr key={person.id || idx}>
-                                        <td>
-                                            <div className="table-user-cell">
-                                                <div className="table-avatar-wrapper">
-                                                    <div className="table-avatar" style={{ background: avatarColor(person.id, idx), color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '14px' }}>
-                                                        {person.picture
-                                                            ? <img src={person.picture} alt={person.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                                                            : initials(person.name)}
-                                                    </div>
-                                                </div>
-                                                <div className="table-user-name">
-                                                    <strong>{person.name || 'Employee'}</strong>
-                                                </div>
+                        <div className="network-list-wrapper">
+                            {filtered.map((person, idx) => (
+                                <div key={person.id || idx} className="network-list-row">
+                                    <div className="table-user-cell">
+                                        <div className="table-avatar-wrapper">
+                                            <div className="table-avatar" style={{ background: avatarColor(person.id, idx), color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '14px' }}>
+                                                {person.picture
+                                                    ? <img src={person.picture} alt={person.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                                    : initials(person.name)}
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div className="table-role-cell">
+                                        </div>
+                                        <div className="network-list-info">
+                                            <strong>{person.name || 'Employee'}</strong>
+                                            <div className="table-role-cell" style={{ flexDirection: 'row', alignItems: 'center', gap: '4px' }}>
                                                 <span>{person.role || 'Member'}</span>
                                                 {person.department && (
-                                                    <span className="table-department">{person.department}</span>
+                                                    <span className="table-department"> • {person.department}</span>
                                                 )}
                                             </div>
-                                        </td>
-                                        {activeTab === 'connections' && (
-                                            <td>
-                                                <span className="table-date">{formatDate(person.followedAt)}</span>
-                                            </td>
-                                        )}
-                                        <td>
-                                            <div className="table-action-cell">
-                                                {activeTab === 'connections' ? (
-                                                    <button
-                                                        className="connect-btn-outline"
-                                                        onClick={() => handleUnfollow(person.id, person.name)}
-                                                        disabled={unfollowLoading.has(person.id)}
-                                                        style={{ opacity: unfollowLoading.has(person.id) ? 0.5 : 1 }}
-                                                    >
-                                                        Unfollow
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        className="connect-btn-outline follow-filled"
-                                                        onClick={() => handleFollow(person.id, person.name)}
-                                                        disabled={followLoading.has(person.id)}
-                                                        style={{ opacity: followLoading.has(person.id) ? 0.5 : 1 }}
-                                                    >
-                                                        Follow
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                        </div>
+                                    </div>
+                                    <div className="network-list-date">
+                                        <span>Followed: {formatDate(person.followedAt)}</span>
+                                    </div>
+                                    <div className="table-action-cell">
+                                        <button
+                                            className="connect-btn-outline"
+                                            onClick={() => handleUnfollow(person.id, person.name)}
+                                            disabled={unfollowLoading.has(person.id)}
+                                            style={{ opacity: unfollowLoading.has(person.id) ? 0.5 : 1 }}
+                                        >
+                                            Unfollow
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>

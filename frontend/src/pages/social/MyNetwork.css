@@ -150,54 +150,132 @@
     pointer-events: none;
 }
 
-/* ─── Table ──────────────────────────────────────────────────────────────── */
-.network-list-container {
-    padding: 0;
+/* ─── Grid View (Suggestions) ────────────────────────────────────────────── */
+.network-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 24px;
+    background: #f8fafc;
 }
 
-.network-table {
+.network-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.network-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(10,102,194,0.1);
+}
+
+.network-card-banner {
     width: 100%;
-    border-collapse: collapse;
+    height: 60px;
+    background: linear-gradient(135deg, var(--mn-accent-soft), var(--mn-accent-pale));
 }
 
-/* Header — subtle, no heavy fill */
-.network-table th {
-    text-align: left;
-    padding: 10px 24px;
-    font-size: 11px;
-    font-weight: 600;
+.network-card-avatar {
+    margin-top: -30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    z-index: 1;
+}
+
+.network-card-avatar .table-avatar {
+    width: 100%;
+    height: 100%;
+}
+
+.network-card-body {
+    padding: 16px;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.network-card-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.network-card-role {
+    font-size: 13px;
     color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    border-bottom: 1px solid var(--border);
-    background: transparent;
+    font-weight: 500;
 }
 
-/* Rows — consistent 15px vertical padding, 1px divider, ALL white by default */
-.network-table td {
-    padding: 15px 24px;
+.network-card-dept {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.network-card-footer {
+    padding: 16px;
+    width: 100%;
+    border-top: 1px solid var(--border);
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* ─── List View (Connections) ────────────────────────────────────────────── */
+.network-list-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.network-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
     border-bottom: 1px solid var(--border);
-    vertical-align: middle;
-    background-color: #ffffff !important;
     transition: background-color 0.15s;
+    background: #ffffff;
 }
 
-.network-table tbody tr {
-    background-color: #ffffff;
+.network-list-row:hover {
+    background: #f8fafc;
 }
 
-.network-table tr:last-child td {
+.network-list-row:last-child {
     border-bottom: none;
 }
 
-/* Only show background on actual mouse hover — never statically */
-.network-table tbody tr:hover td {
-    background-color: #f8fafc !important;
+.network-list-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
-/* Reset on :active so click never leaves a stuck state */
-.network-table tbody tr:active td {
-    background-color: #ffffff !important;
+.network-list-info strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.network-list-info .table-role-cell {
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+}
+
+.network-list-date {
+    font-size: 13px;
+    color: var(--muted);
 }
 
 /* ─── Table Cells ────────────────────────────────────────────────────────── */
