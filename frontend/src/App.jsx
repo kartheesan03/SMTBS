@@ -159,6 +159,23 @@ const SupportWrapper = () => {
 
 
 const AuthMicrosoftCallback = lazyRetry(() => import('./pages/AuthMicrosoftCallback'));
+const PublicPostView = lazyRetry(() => import('./pages/social/PublicPostView'));
+
+const FeedRouteHandler = () => {
+    const { user } = useContext(AuthContext);
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    
+    if (!user && searchParams.get('postId')) {
+        return <PublicPostView />;
+    }
+    if (!user) {
+        return <Navigate to="/login" replace state={{ from: location }} />;
+    }
+    // ProtectedRoute logic requires children, but Feed is protected below inside the Route
+    return <Feed />;
+};
+
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
     const { isOpen: isAriaOpen, openAria, closeAria } = useContext(AriaContext);
@@ -454,7 +471,7 @@ const AppContent = () => {
                     <Route path="/social/network" element={<ProtectedRoute><SocialLayout><MyNetwork /></SocialLayout></ProtectedRoute>} />
                     <Route path="/social/messages" element={<ProtectedRoute><SocialLayout><SocialMessages /></SocialLayout></ProtectedRoute>} />
                     <Route path="/social/profile/:id" element={<ProtectedRoute><SocialLayout><SocialProfile /></SocialLayout></ProtectedRoute>} />
-                    <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+                    <Route path="/feed" element={<FeedRouteHandler />} />
 
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />

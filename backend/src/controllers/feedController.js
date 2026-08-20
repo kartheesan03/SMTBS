@@ -11,6 +11,35 @@ const PostAcknowledgement = require('../models/PostAcknowledgement');
 const StoryView = require('../models/StoryView');
 const sequelize = require('../config/sequelize');
 
+const getPostById = async (req, res) => {
+    try {
+        const post = await Post.sequelizeModel.findOne({
+            where: { id: req.params.id },
+            include: [
+                {
+                    model: User.sequelizeModel,
+                    as: 'author',
+                    attributes: ['id', 'name', 'picture', 'role']
+                },
+                {
+                    model: PostLike.sequelizeModel,
+                    as: 'likes',
+                    attributes: ['userId']
+                }
+            ]
+        });
+
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        res.json(post);
+    } catch (error) {
+        console.error('Error in getPostById:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 const getPosts = async (req, res) => {
     try {
         const page = parseInt(req.query.page, 10) || 1;
@@ -590,7 +619,8 @@ module.exports = {
     toggleFollow,
     getFollowing,
     getSuggestedConnections,
-    getTrendingTags,
     getStories,
-    toggleAcknowledge
+    toggleAcknowledge,
+    getTrendingTags,
+    getPostById
 };
