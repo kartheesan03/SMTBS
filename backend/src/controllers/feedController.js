@@ -604,6 +604,23 @@ const getTrendingTags = async (req, res) => {
     }
 };
 
+// Company profile stats — real member count from DB + env-driven metadata
+const getCompanyStats = async (req, res) => {
+    try {
+        const memberCount = await User.sequelizeModel.count({ where: { active: true } });
+        res.json({
+            name:     process.env.COMPANY_NAME     || 'SMTBMS Solutions',
+            tagline:  process.env.COMPANY_TAGLINE  || 'Official Company Updates & Network',
+            industry: process.env.COMPANY_INDUSTRY || 'IT Services',
+            location: process.env.COMPANY_LOCATION || 'India',
+            members:  memberCount
+        });
+    } catch (error) {
+        console.error('Error fetching company stats:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     getPosts,
     getSavedPosts,
@@ -622,5 +639,6 @@ module.exports = {
     getStories,
     toggleAcknowledge,
     getTrendingTags,
-    getPostById
+    getPostById,
+    getCompanyStats
 };

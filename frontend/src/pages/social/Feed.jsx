@@ -2,13 +2,12 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import CompanyFeed from './CompanyFeed';
-import COMPANY_INFO from '../../config/companyInfo';
 import {
   Home, Megaphone, Radio, Calendar, Image, Bookmark,
   Users, Building2, TrendingUp, ChevronRight
 } from 'lucide-react';
 import './CompanyFeed.css';
-import { getSuggestedConnections, getTrendingTags, toggleFollow } from '../../api/posts';
+import { getSuggestedConnections, getTrendingTags, toggleFollow, getCompanyStats } from '../../api/posts';
 import toast from 'react-hot-toast';
 
 const TABS = [
@@ -47,16 +46,19 @@ const Feed = () => {
   const [trending, setTrending]           = useState([]);
   const [followedIds, setFollowedIds]     = useState(new Set());
   const [followLoading, setFollowLoading] = useState(new Set());
+  const [companyStats, setCompanyStats]   = useState(null);
 
   React.useEffect(() => {
     const fetchSidebarData = async () => {
       try {
-        const [suggestionsRes, trendingRes] = await Promise.all([
+        const [suggestionsRes, trendingRes, statsRes] = await Promise.all([
           getSuggestedConnections(),
-          getTrendingTags()
+          getTrendingTags(),
+          getCompanyStats()
         ]);
         setSuggested(suggestionsRes || []);
         setTrending(trendingRes || []);
+        if (statsRes) setCompanyStats(statsRes);
       } catch (err) {
         console.error('Failed to load sidebar data', err);
       }
@@ -126,21 +128,23 @@ const Feed = () => {
               </div>
             </div>
             <div className="lf-profile-body">
-              <div className="lf-profile-name">{COMPANY_INFO.name}</div>
-              <div className="lf-profile-tagline">{COMPANY_INFO.tagline}</div>
+              <div className="lf-profile-name">{companyStats?.name ?? '—'}</div>
+              <div className="lf-profile-tagline">{companyStats?.tagline ?? ''}</div>
               <div className="lf-profile-divider" />
               <div className="lf-profile-stats">
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Company members</span>
-                  <span className="lf-profile-stat-value">{COMPANY_INFO.members}</span>
+                  <span className="lf-profile-stat-value">
+                    {companyStats ? companyStats.members.toLocaleString() : '—'}
+                  </span>
                 </div>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Industry</span>
-                  <span className="lf-profile-stat-value text">{COMPANY_INFO.industry}</span>
+                  <span className="lf-profile-stat-value text">{companyStats?.industry ?? '—'}</span>
                 </div>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Location</span>
-                  <span className="lf-profile-stat-value text">{COMPANY_INFO.location}</span>
+                  <span className="lf-profile-stat-value text">{companyStats?.location ?? '—'}</span>
                 </div>
               </div>
             </div>

@@ -77,3 +77,9 @@ export const toggleFollow = async (userId) => {
     const response = await API.post(`/feed/follow/${userId}`);
     return response.data;
 };
+
+// Get Company Profile Stats (real member count + env-driven metadata)
+export const getCompanyStats = async () => {
+    const response = await API.get('/feed/company-stats');
+    return response.data;
+};
