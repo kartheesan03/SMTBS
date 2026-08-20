@@ -69,23 +69,33 @@ const SocialMessages = () => {
 
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !activeConv) return;
+        
+        const msgText = newMessage.trim();
+        const tempId = Date.now();
+        
+        const optimisticMsg = {
+            id: tempId,
+            content: msgText,
+            senderId: currentUser?.id || 1,
+            createdAt: new Date().toISOString()
+        };
+        
+        setMessages(prev => [...prev, optimisticMsg]);
+        setNewMessage('');
+        
         try {
-            // Optimistic update for demo
-            const optimisticMsg = {
-                id: Date.now(),
-                content: newMessage,
-                senderId: currentUser?.id || 1,
-                createdAt: new Date().toISOString()
-            };
-            setMessages([...messages, optimisticMsg]);
-            setNewMessage('');
-            
-            await API.post(`/social/messages/${activeConv.id}`, {
-                content: newMessage,
+            const { data } = await API.post(`/social/messages/${activeConv.id}`, {
+                content: msgText,
                 recipientId: activeConv.id
             });
+            
+            // Replace the optimistic message with the real message from the backend
+            setMessages(prev => prev.map(m => m.id === tempId ? data : m));
         } catch (error) {
             console.error('Failed to send message', error);
+            // Revert on failure
+            setMessages(prev => prev.filter(m => m.id !== tempId));
+            toast.error('Failed to send message');
         }
     };
 
