@@ -59,7 +59,8 @@
 /* Force perfect top alignment for all grid columns */
 .lf-grid > aside,
 .lf-grid > main,
-.lf-left, .lf-right, .cf-feed-wrapper {
+.lf-left, .lf-right, .cf-feed-wrapper,
+.lf-profile-card, .cf-composer, .lf-right-card {
   margin-top: 0 !important;
   padding-top: 0 !important;
 }
@@ -69,18 +70,15 @@
   margin-top: 0 !important;
 }
 
-@media (max-width: 1128px) {
+@media (max-width: 1400px) {
   .lf-grid { 
-    grid-template-columns: 225px minmax(0, 540px) 300px;
-    padding: 24px 16px;
+    grid-template-columns: 225px minmax(480px, 540px);
+    justify-content: center;
   }
-}
-
-@media (max-width: 1060px) {
-  .lf-grid { grid-template-columns: 225px minmax(0, 540px); justify-content: center; }
   .lf-right { display: none; }
 }
-@media (max-width: 760px) {
+
+@media (max-width: 1024px) {
   .lf-grid { grid-template-columns: minmax(0, 1fr); }
   .lf-left  { display: none; }
 }
