@@ -91,7 +91,7 @@
 
 .lf-left, .lf-right {
   position: sticky;
-  top: 24px;
+  top: 0;
   display: flex;
   flex-direction: column;
   gap: 24px;
