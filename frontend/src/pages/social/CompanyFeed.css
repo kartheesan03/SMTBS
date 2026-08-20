@@ -181,7 +181,8 @@ main {
 .lf-profile-stat {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 8px;
   padding: 4px 0;
   font-size: 12px;
 }
@@ -189,6 +190,8 @@ main {
 .lf-profile-stat-label {
   color: var(--li-text-2);
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Blue + bold for numeric highlights (e.g. member count) */
@@ -196,6 +199,7 @@ main {
   color: var(--li-blue);
   font-weight: 700;
   font-size: 13px;
+  text-align: right;
 }
 
 /* Dark text for non-numeric values (e.g. Industry, Location) */
@@ -203,6 +207,8 @@ main {
   color: var(--li-text-1);
   font-weight: 600;
   font-size: 12px;
+  text-align: right;
+  line-height: 1.4;
 }
 
 .lf-nav-card {

@@ -611,7 +611,7 @@ const getCompanyStats = async (req, res) => {
         res.json({
             name:     process.env.COMPANY_NAME     || 'SMTBMS Solutions',
             tagline:  process.env.COMPANY_TAGLINE  || 'Official Company Updates & Network',
-            industry: process.env.COMPANY_INDUSTRY || 'Smart Material Tracking & Business Management',
+            industry: process.env.COMPANY_INDUSTRY || 'ERP Systems',
             location: process.env.COMPANY_LOCATION || 'India',
             members:  memberCount
         });

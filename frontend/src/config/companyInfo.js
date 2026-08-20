@@ -8,7 +8,7 @@
 const COMPANY_INFO = {
   name:     'SMTBMS Solutions',
   tagline:  'Official Company Updates & Network',
-  industry: 'Smart Material Tracking & Business Management',
+  industry: 'ERP Systems',
   location: 'India',
   members:  null, // always fetched live from /feed/company-stats
 };
