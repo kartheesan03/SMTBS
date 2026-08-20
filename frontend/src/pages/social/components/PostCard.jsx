@@ -497,7 +497,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
             {/* Post Text */}
             {post.text && (
               <div style={{ padding: '16px', fontSize: '14px', lineHeight: 1.5, color: 'var(--li-text-1)', whiteSpace: 'pre-wrap' }}>
-                 {post.text}
+                 {formatText(post.text)}
               </div>
             )}
 
