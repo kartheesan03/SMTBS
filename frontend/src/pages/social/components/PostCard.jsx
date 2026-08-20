@@ -652,15 +652,6 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
                 activeColor: '#057642',
                 onClick: handleRepost,
               },
-              {
-                id: 'save',
-                label: 'Save',
-                icon: Bookmark,
-                active: isSaved,
-                activeColor: '#057642',
-                onClick: handleSave,
-                iconFill: isSaved,
-              },
             ].map((btn, i) => (
               <div key={i} style={{ flex: 1, display: 'flex', margin: '2px' }}>
                 <button
