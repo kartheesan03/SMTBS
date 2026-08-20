@@ -135,6 +135,7 @@ const getPosts = async (req, res) => {
 
 const createPost = async (req, res) => {
     try {
+        const { broadcast } = require('../services/notificationService');
         let { text, imageUrl, media, visibility, type, articleTitle, articleBody, targetTeams } = req.body;
         
         if (req.file) {
@@ -181,8 +182,25 @@ const createPost = async (req, res) => {
                 }
             ]
         });
-
         res.status(201).json(createdPost);
+
+        // Send notifications for Announcements and Broadcasts
+        if (type === 'Announcement' || type === 'Broadcast') {
+            let title = type === 'Announcement' ? 'New Company Announcement' : 'New Broadcast Message';
+            if (articleTitle) title = articleTitle;
+            
+            let messageStr = text ? (text.length > 100 ? text.substring(0, 100) + '...' : text) : 'A new update was posted on the company feed.';
+            
+            await broadcast({
+                module: 'System',
+                referenceId: post.id,
+                title: title,
+                message: messageStr,
+                type: 'info',
+                targetAll: true
+            });
+        }
+
     } catch (error) {
         console.error('Error creating post:', error);
         res.status(500).json({ message: 'Server error' });

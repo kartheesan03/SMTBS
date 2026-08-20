@@ -14,8 +14,9 @@ const emailService = require('./emailService');
  * @param {Boolean} [params.isCritical] - If true, notifies all Admins and Managers
  * @param {Boolean} [params.targetOnly] - If true, ONLY sends to targetUserId
  * @param {Boolean} [params.exactRoles] - If true, ONLY sends to the exact roles provided (doesn't automatically add Admin)
+ * @param {Boolean} [params.targetAll] - If true, sends to ALL active users regardless of role
  */
-const broadcast = async ({ module = 'System', referenceId = null, title, message, type = 'info', targetRoles = [], targetUserId = null, isCritical = false, targetOnly = false, exactRoles = false }) => {
+const broadcast = async ({ module = 'System', referenceId = null, title, message, type = 'info', targetRoles = [], targetUserId = null, isCritical = false, targetOnly = false, exactRoles = false, targetAll = false }) => {
     try {
         const notificationsToCreate = [];
         const notifiedUserIds = new Set();
@@ -32,7 +33,13 @@ const broadcast = async ({ module = 'System', referenceId = null, title, message
                 }
             }
             const rolesArray = Array.from(rolesToNotify);
-            const users = await User.find({ role: { $in: rolesArray }, active: true });
+            
+            let query = { active: true };
+            if (!targetAll) {
+                query.role = { $in: rolesArray };
+            }
+            
+            const users = await User.find(query);
             for (const user of users) {
                 const uId = String(user._id || user.id);
                 if (!notifiedUserIds.has(uId)) {
