@@ -173,25 +173,31 @@
     background: transparent;
 }
 
-/* Rows — consistent 15px vertical padding with 1px divider */
+/* Rows — consistent 15px vertical padding, 1px divider, ALL white by default */
 .network-table td {
     padding: 15px 24px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
-    background: transparent;
+    background-color: #ffffff !important;
+    transition: background-color 0.15s;
 }
 
 .network-table tbody tr {
-    background: transparent;
-    transition: background 0.15s;
+    background-color: #ffffff;
 }
 
 .network-table tr:last-child td {
     border-bottom: none;
 }
 
+/* Only show background on actual mouse hover — never statically */
 .network-table tbody tr:hover td {
-    background: var(--mn-accent-pale);
+    background-color: #f8fafc !important;
+}
+
+/* Reset on :active so click never leaves a stuck state */
+.network-table tbody tr:active td {
+    background-color: #ffffff !important;
 }
 
 /* ─── Table Cells ────────────────────────────────────────────────────────── */

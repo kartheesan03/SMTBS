@@ -610,10 +610,11 @@ main {
   gap: 10px;
   padding: 10px 0;
   border-bottom: 1px solid var(--li-divider);
-  background: transparent;
-  transition: background 0.15s;
+  background-color: transparent;
+  transition: background-color 0.15s;
 }
-.lf-person-row:hover { background: var(--li-blue-pale); }
+.lf-person-row:hover { background-color: #f8fafc; }
+.lf-person-row:active { background-color: transparent; }
 .lf-person-row:last-child { border-bottom: none; }
 
 .lf-person-avatar {
