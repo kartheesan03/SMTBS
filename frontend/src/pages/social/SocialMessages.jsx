@@ -91,6 +91,11 @@ const SocialMessages = () => {
             
             // Replace the optimistic message with the real message from the backend
             setMessages(prev => prev.map(m => m.id === tempId ? data : m));
+            
+            // Update the sidebar preview
+            setConversations(prev => prev.map(c => 
+                c.id === activeConv.id ? { ...c, lastMessage: msgText, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) } : c
+            ));
         } catch (error) {
             console.error('Failed to send message', error);
             // Revert on failure

@@ -445,12 +445,12 @@
     position: absolute;
     top: 4px;
     right: 4px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
+    background: transparent;
     border: none;
     color: var(--muted);
     cursor: pointer;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, color 0.2s;
     border-radius: 50%;
     padding: 2px;
     display: flex;
@@ -459,8 +459,12 @@
 }
 
 .chat-bubble-wrapper.sent .msg-dropdown-toggle {
-    background: linear-gradient(180deg, var(--teal) 60%, rgba(255,255,255,0));
-    color: var(--surface);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.chat-bubble-wrapper.sent .msg-dropdown-toggle:hover {
+    color: rgba(255, 255, 255, 1);
 }
 
 .chat-bubble-container:hover .msg-dropdown-toggle {
