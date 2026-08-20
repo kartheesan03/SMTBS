@@ -528,7 +528,12 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
 
             {/* Comments Section (always visible in modal) */}
             <div style={{ flex: 1, background: '#fdfdfc', borderTop: '1px solid #f1f5f9' }}>
-               <CommentSection postId={post.id} comments={comments} currentUser={currentUser} />
+               <CommentSection 
+                 postId={post.id} 
+                 comments={post.comments} 
+                 onCommentAdded={() => setCommentsCount(n => n + 1)}
+                 onCommentDeleted={() => setCommentsCount(n => n - 1)}
+               />
             </div>
           </div>
         </div>
