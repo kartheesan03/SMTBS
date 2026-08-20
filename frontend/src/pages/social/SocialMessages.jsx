@@ -153,9 +153,6 @@ const SocialMessages = () => {
                                     </div>
                                 </div>
                                 <div className="chat-actions">
-                                    <button><Phone size={18} /></button>
-                                    <button><Video size={18} /></button>
-                                    <button><MoreVertical size={18} /></button>
                                 </div>
                             </div>
 
@@ -186,9 +183,6 @@ const SocialMessages = () => {
 
                             <div className="chat-input-area">
                                 <div className="chat-input-wrapper">
-                                    <button className="icon-btn"><Smile size={20} /></button>
-                                    <button className="icon-btn"><Paperclip size={20} /></button>
-                                    <button className="icon-btn"><ImageIcon size={20} /></button>
                                     <input 
                                         type="text" 
                                         placeholder="Type a new message..." 
