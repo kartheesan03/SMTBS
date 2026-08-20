@@ -8,9 +8,9 @@
 const COMPANY_INFO = {
   name:     'SMTBMS Solutions',
   tagline:  'Official Company Updates & Network',
-  industry: 'IT Services',
+  industry: 'Smart Material Tracking & Business Management',
   location: 'India',
-  members:  '1,245',
+  members:  null, // always fetched live from /feed/company-stats
 };
 
 export default COMPANY_INFO;
