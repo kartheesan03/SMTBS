@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
-import { UserPlus, UserCheck, Search, ArrowLeft, Users, UserX } from 'lucide-react';
+import { UserPlus, UserCheck, Search, ArrowLeft, Users, UserX, MessageSquare } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import { toggleFollow } from '../../api/posts';
 import toast from 'react-hot-toast';
@@ -208,7 +208,14 @@ const MyNetwork = () => {
                                     <div className="network-list-date">
                                         <span>Followed: {formatDate(person.followedAt)}</span>
                                     </div>
-                                    <div className="table-action-cell">
+                                    <div className="table-action-cell" style={{ gap: '8px' }}>
+                                        <button
+                                            className="connect-btn-outline message-btn"
+                                            onClick={() => navigate('/social/messages', { state: { newChatUser: person } })}
+                                            style={{ border: 'none', background: 'var(--mn-accent-pale)' }}
+                                        >
+                                            <MessageSquare size={14} style={{ marginRight: '6px' }} /> Message
+                                        </button>
                                         <button
                                             className="connect-btn-outline"
                                             onClick={() => handleUnfollow(person.id, person.name)}
