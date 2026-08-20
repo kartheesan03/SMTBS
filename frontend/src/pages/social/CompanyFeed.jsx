@@ -321,32 +321,32 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
             What's happening in the company?
           </div>
         </div>
-        <div className="cf-composer-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'space-between', borderTop: '1px solid var(--li-border)', paddingTop: '12px', marginTop: '16px' }}>
-            <button className="cf-composer-action photo" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '8px 8px', fontSize: '13px', whiteSpace: 'nowrap' }} onClick={() => {
+        <div className="cf-composer-actions" style={{ display: 'flex', flexWrap: 'nowrap', gap: '4px', justifyContent: 'space-between', borderTop: '1px solid var(--li-border)', paddingTop: '12px', marginTop: '16px' }}>
+            <button className="cf-composer-action photo" style={{ flex: '1 1 0', minWidth: 0, justifyContent: 'center', padding: '8px 4px', fontSize: '13px' }} onClick={() => {
                 setIsComposerOpen(true);
                 setTimeout(() => document.getElementById('cf-file-upload-input')?.click(), 100);
             }}>
-              <Image size={16} /> <span className="cf-action-text">Photo</span>
+              <Image size={16} style={{ flexShrink: 0 }} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Photo</span>
             </button>
-            <button className="cf-composer-action document" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '8px 8px', fontSize: '13px', whiteSpace: 'nowrap' }} onClick={() => {
+            <button className="cf-composer-action document" style={{ flex: '1 1 0', minWidth: 0, justifyContent: 'center', padding: '8px 4px', fontSize: '13px' }} onClick={() => {
                 setIsComposerOpen(true);
                 setTimeout(() => document.getElementById('cf-file-upload-input')?.click(), 100);
             }}>
-              <FileText size={16} /> <span className="cf-action-text">Document</span>
+              <FileText size={16} style={{ flexShrink: 0 }} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Document</span>
             </button>
             {(currentUser.role === 'Admin' || currentUser.role === 'Super Admin' || currentUser.role === 'HR') && (
                 <>
-                <button className="cf-composer-action announcement" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '8px 8px', fontSize: '13px', whiteSpace: 'nowrap' }} onClick={() => {
+                <button className="cf-composer-action announcement" style={{ flex: '1 1 0', minWidth: 0, justifyContent: 'center', padding: '8px 4px', fontSize: '13px' }} onClick={() => {
                     setComposerType('Announcement');
                     setIsComposerOpen(true);
                 }}>
-                  <MessageSquare size={16} /> <span className="cf-action-text">Announcement</span>
+                  <MessageSquare size={16} style={{ flexShrink: 0 }} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Announcement</span>
                 </button>
-                <button className="cf-composer-action broadcast" style={{ flex: '1 1 auto', justifyContent: 'center', padding: '8px 8px', fontSize: '13px', whiteSpace: 'nowrap' }} onClick={() => {
+                <button className="cf-composer-action broadcast" style={{ flex: '1 1 0', minWidth: 0, justifyContent: 'center', padding: '8px 4px', fontSize: '13px' }} onClick={() => {
                     setComposerType('Broadcast');
                     setIsComposerOpen(true);
                 }}>
-                  <Video size={16} /> <span className="cf-action-text">Broadcast</span>
+                  <Video size={16} style={{ flexShrink: 0 }} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Broadcast</span>
                 </button>
                 </>
             )}
