@@ -58,7 +58,10 @@
 
 /* Force perfect top alignment for all grid columns */
 .lf-grid > aside,
-.lf-grid > main {
+.lf-grid > main,
+.lf-profile-card,
+.cf-composer,
+.lf-right-card {
   margin-top: 0 !important;
   padding-top: 0 !important;
 }
@@ -68,15 +71,17 @@
   margin-top: 0 !important;
 }
 
-@media (max-width: 1128px) {
+@media (max-width: 1400px) {
+  /* Scale columns proportionally to fit without hiding anything */
   .lf-grid { 
-    grid-template-columns: 225px minmax(0, 540px) 300px;
+    grid-template-columns: 21fr 50fr 29fr;
+    gap: 16px;
     padding: 24px 16px;
   }
 }
 
 @media (max-width: 1060px) {
-  .lf-grid { grid-template-columns: 225px minmax(0, 540px); justify-content: center; }
+  .lf-grid { grid-template-columns: 225px minmax(0, 540px); justify-content: center; gap: 24px; }
   .lf-right { display: none; }
 }
 @media (max-width: 760px) {
