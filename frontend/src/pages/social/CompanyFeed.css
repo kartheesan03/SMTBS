@@ -172,6 +172,12 @@ main {
   margin: 16px 0;
 }
 
+.lf-profile-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .lf-profile-stat {
   display: flex;
   justify-content: space-between;
@@ -185,10 +191,18 @@ main {
   font-weight: 500;
 }
 
+/* Blue + bold for numeric highlights (e.g. member count) */
 .lf-profile-stat-value {
   color: var(--li-blue);
   font-weight: 700;
   font-size: 13px;
+}
+
+/* Dark text for non-numeric values (e.g. Industry, Location) */
+.lf-profile-stat-value.text {
+  color: var(--li-text-1);
+  font-weight: 600;
+  font-size: 12px;
 }
 
 .lf-nav-card {

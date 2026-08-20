@@ -128,18 +128,18 @@ const Feed = () => {
               <div className="lf-profile-name">SMTBMS Solutions</div>
               <div className="lf-profile-tagline">Official Company Updates &amp; Network</div>
               <div className="lf-profile-divider" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="lf-profile-stats">
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Company members</span>
                   <span className="lf-profile-stat-value">1,245</span>
                 </div>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Industry</span>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#1a1a1a' }}>IT Services</span>
+                  <span className="lf-profile-stat-value text">IT Services</span>
                 </div>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Location</span>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#1a1a1a' }}>India</span>
+                  <span className="lf-profile-stat-value text">India</span>
                 </div>
               </div>
             </div>
