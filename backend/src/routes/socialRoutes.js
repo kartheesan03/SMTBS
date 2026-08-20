@@ -25,5 +25,6 @@ router.put('/profile', socialController.updateProfile); // if we use a separate 
 router.get('/messages', socialController.getConversations);
 router.get('/messages/:userId', socialController.getMessages);
 router.post('/messages', socialController.sendMessage);
+router.delete('/messages/:id', socialController.deleteMessage);
 
 module.exports = router;

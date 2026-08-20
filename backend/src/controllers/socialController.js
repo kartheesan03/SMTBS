@@ -214,3 +214,23 @@ exports.sendMessage = async (req, res) => {
         res.status(500).json({ message: 'Error sending message' });
     }
 };
+
+exports.deleteMessage = async (req, res) => {
+    try {
+        const messageId = req.params.id;
+        const userId = req.user.id;
+        
+        const message = await SocialMessage.sequelizeModel.findByPk(messageId);
+        if (!message) return res.status(404).json({ message: 'Message not found' });
+        
+        if (message.senderId !== userId) {
+            return res.status(403).json({ message: 'Not authorized to delete this message' });
+        }
+        
+        await message.destroy();
+        res.json({ message: 'Message deleted' });
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        res.status(500).json({ message: 'Error deleting message' });
+    }
+};

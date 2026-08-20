@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
-import { Search, Phone, Video, MoreVertical, Image as ImageIcon, Paperclip, Smile, Send, MessageSquare, ArrowLeft } from 'lucide-react';
+import { Search, Phone, Video, MoreVertical, Image as ImageIcon, Paperclip, Smile, Send, MessageSquare, ArrowLeft, Trash2 } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import './SocialMessages.css';
 
@@ -84,6 +84,15 @@ const SocialMessages = () => {
             });
         } catch (error) {
             console.error('Failed to send message', error);
+        }
+    };
+
+    const handleDeleteMessage = async (msgId) => {
+        try {
+            await API.delete(`/social/messages/${msgId}`);
+            setMessages(prev => prev.filter(m => m.id !== msgId));
+        } catch (error) {
+            console.error('Failed to delete message', error);
         }
     };
 
@@ -170,10 +179,21 @@ const SocialMessages = () => {
                                                     </div>
                                                 )}
                                                 <div className="chat-message-content">
-                                                    <div className="chat-bubble">
-                                                        {msg.content}
+                                                    <div className="chat-bubble-container" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexDirection: isOutgoing ? 'row-reverse' : 'row' }}>
+                                                        <div className="chat-bubble">
+                                                            {msg.content}
+                                                        </div>
+                                                        {isOutgoing && (
+                                                            <button 
+                                                                className="delete-msg-btn"
+                                                                onClick={() => handleDeleteMessage(msg.id)}
+                                                                title="Delete message"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        )}
                                                     </div>
-                                                    <span className="chat-time">{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                                    <span className="chat-time" style={{ textAlign: isOutgoing ? 'right' : 'left', display: 'block', marginTop: '4px' }}>{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                                                 </div>
                                             </div>
                                         )
