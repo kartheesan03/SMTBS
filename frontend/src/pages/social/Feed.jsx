@@ -128,7 +128,7 @@ const Feed = () => {
               <div className="lf-profile-name">SMTBMS Solutions</div>
               <div className="lf-profile-tagline">Official Company Updates &amp; Network</div>
               <div className="lf-profile-divider" />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Company members</span>
                   <span className="lf-profile-stat-value">1,245</span>
@@ -186,9 +186,9 @@ const Feed = () => {
 
           {/* People You May Know */}
           <div className="lf-card lf-right-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span className="lf-right-title" style={{ marginBottom: 0 }}>People you may know</span>
-              <Users size={16} color="#595959" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <Users size={18} color="#595959" />
+              <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1 }}>People you may know</span>
             </div>
 
             {suggested.length === 0 ? (
@@ -201,13 +201,13 @@ const Feed = () => {
               const isFollowing = followedIds.has(p.id);
               const isLoading  = followLoading.has(p.id);
               return (
-                <div className="lf-person-row" key={p.id || i}>
+                <div className="lf-person-row" key={p.id || i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0' }}>
                   <div className="lf-person-avatar" style={{ background: color }}>
                     {p.picture
                       ? <img src={p.picture} alt={p.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                       : initials}
                   </div>
-                  <div className="lf-person-info">
+                  <div className="lf-person-info" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <div className="lf-person-name">{p.name}</div>
                     <div className="lf-person-role">{p.role || 'Member'}</div>
                   </div>
@@ -255,9 +255,9 @@ const Feed = () => {
 
           {/* Trending Now */}
           <div className="lf-card lf-right-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span className="lf-right-title" style={{ marginBottom: 0 }}>Trending Now</span>
-              <TrendingUp size={16} color="#595959" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <TrendingUp size={18} color="#595959" />
+              <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1 }}>Trending Now</span>
             </div>
             {trending.length > 0 ? trending.map((t, i) => (
               <div
@@ -278,9 +278,9 @@ const Feed = () => {
 
           {/* Company Info */}
           <div className="lf-card lf-right-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
               <Building2 size={18} color="#0a66c2" />
-              <span className="lf-right-title" style={{ marginBottom: 0 }}>About SMTBMS</span>
+              <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1 }}>About SMTBMS</span>
             </div>
             <div style={{ fontSize: '13px', color: '#595959', lineHeight: 1.6 }}>
               Smart Material Tracking &amp; Business Management System — A centralized platform for smarter operations.

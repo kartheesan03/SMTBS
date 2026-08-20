@@ -100,7 +100,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
         onSubmit={handleSubmit}
         style={{
           display: 'flex', gap: '10px', alignItems: 'flex-start',
-          padding: '14px 16px 10px',
+          padding: '16px 16px 12px',
         }}
       >
         <MiniAvatar name={authorName} color={authorColor} size={36} />
@@ -223,7 +223,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
       </form>
 
       {/* ── Comment Thread ─────────────────────────────────────── */}
-      <div style={{ padding: '0 16px 12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {comments.slice(0, visibleCount).map((comment, idx) => {
           const name      = comment.author?.name || comment.author?.username || 'Unknown';
           const role      = comment.author?.role || comment.author?.department || 'Employee';

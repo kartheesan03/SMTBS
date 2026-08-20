@@ -256,7 +256,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
       )}
 
       {/* ── Post header ───────────────────────────────────────────── */}
-      <div style={{ padding: '14px 16px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div style={{ padding: '16px 16px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <UserAvatar user={post.author} size={46} />
@@ -362,7 +362,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
       </div>
 
       {/* ── Post body ──────────────────────────────────────────────── */}
-      <div style={{ padding: '0 16px 12px' }}>
+      <div style={{ padding: '0 16px 16px' }}>
         {post.articleTitle && (
           <h3 style={{ margin: '0 0 8px', fontSize: '17px', fontWeight: 700, color: '#0f172a', lineHeight: 1.35 }}>
             {post.articleTitle}
@@ -462,7 +462,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
       {!isBroadcast && (likesCount > 0 || commentsCount > 0) && (
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '6px 16px 2px',
+          padding: '12px 16px 12px',
           fontSize: '13px', color: '#595959',
         }}>
           {/* Reaction emoji stacks + count */}
@@ -511,7 +511,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
         /* Announcement: Acknowledge */
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '10px 16px',
+          padding: '12px 16px',
           borderTop: '1px solid #eee9e0',
           background: isAcknowledged ? '#f0fdf4' : 'transparent',
           transition: 'background 0.3s',
@@ -540,7 +540,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
         </div>
       ) : isBroadcast ? (
         /* Broadcast: React + Reply pills */
-        <div style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderTop: '1px solid #eee9e0' }}>
+        <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', borderTop: '1px solid #eee9e0' }}>
           <button
             onClick={handleLike}
             style={{
