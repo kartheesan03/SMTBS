@@ -90,30 +90,41 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
     return () => document.removeEventListener('mousedown', fn);
   }, [showMenu]);
 
-  // Format text: color @mentions and #hashtags
+  // Format text: color @mentions and #hashtags, and parse **bold**
   const formatText = text => {
     if (!text) return null;
-    return text.split(/([\s\n]+)/).map((word, i) => {
-      const isHashtag = word.startsWith('#');
-      if (word.startsWith('@') || isHashtag) {
-        return (
-            <span 
-              key={i} 
-              style={{ color: 'var(--li-blue)', fontWeight: 600, cursor: 'pointer' }}
-              onMouseOver={e => e.currentTarget.style.textDecoration = 'underline'}
-              onMouseOut={e => e.currentTarget.style.textDecoration = 'none'}
-              onClick={(e) => {
-                if (isHashtag && onHashtagClick) {
-                  e.stopPropagation();
-                  onHashtagClick(word);
-                }
-              }}
-            >
-              {word}
-            </span>
-        );
-      }
-      return word;
+    
+    // First, split by bold markdown **text**
+    const boldParts = text.split(/(\*\*.*?\*\*)/g);
+    
+    return boldParts.map((boldPart, bIndex) => {
+        if (boldPart.startsWith('**') && boldPart.endsWith('**') && boldPart.length > 4) {
+            return <strong key={bIndex} style={{ color: 'var(--li-text-1)' }}>{boldPart.slice(2, -2)}</strong>;
+        }
+        
+        // Process hashtags and mentions within non-bold text
+        return boldPart.split(/([\s\n]+)/).map((word, i) => {
+          const isHashtag = word.startsWith('#');
+          if (word.startsWith('@') || isHashtag) {
+            return (
+                <span 
+                  key={`${bIndex}-${i}`} 
+                  style={{ color: 'var(--li-blue)', fontWeight: 600, cursor: 'pointer' }}
+                  onMouseOver={e => e.currentTarget.style.textDecoration = 'underline'}
+                  onMouseOut={e => e.currentTarget.style.textDecoration = 'none'}
+                  onClick={(e) => {
+                    if (isHashtag && onHashtagClick) {
+                      e.stopPropagation();
+                      onHashtagClick(word);
+                    }
+                  }}
+                >
+                  {word}
+                </span>
+            );
+          }
+          return word;
+        });
     });
   };
 
