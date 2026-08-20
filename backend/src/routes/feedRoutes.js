@@ -5,20 +5,21 @@ const path = require('path');
 const { getPosts, getSavedPosts, createPost, deletePost, toggleLike, toggleRepost, addComment, deleteComment, toggleSave, getNews, getEvents, toggleFollow, getFollowing, getSuggestedConnections, getStories, toggleAcknowledge, getTrendingTags } = require('../controllers/feedController');
 const { protect } = require('../middleware/authMiddleware');
 
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-const uploadPath = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadPath)) {
-    fs.mkdirSync(uploadPath, { recursive: true });
-}
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, uploadPath);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'smtbms_feed',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov']
   },
-  filename(req, file, cb) {
-    cb(null, `post-${Date.now()}${path.extname(file.originalname)}`);
-  }
 });
 const upload = multer({ storage });
 

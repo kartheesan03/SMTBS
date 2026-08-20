@@ -109,7 +109,7 @@ const createPost = async (req, res) => {
         let { text, imageUrl, media, visibility, type, articleTitle, articleBody, targetTeams } = req.body;
         
         if (req.file) {
-            imageUrl = `/uploads/${req.file.filename}`;
+            imageUrl = req.file.path;
         }
         
         if (typeof targetTeams === 'string') {
