@@ -1004,6 +1004,11 @@ input[type="password"]::-ms-clear {
   overflow-x: visible !important;
 }
 
+/* Remove app-content padding for the feed page — the grid manages its own padding */
+.app-content:has(.lf-root) {
+  padding: 0 !important;
+}
+
 .app-content {
   padding: 24px;
   flex: 1;

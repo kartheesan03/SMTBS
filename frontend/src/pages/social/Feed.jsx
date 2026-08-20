@@ -110,7 +110,7 @@ const Feed = () => {
   };
 
   return (
-    <div className="lf-root" style={{ margin: '-24px', padding: 0 }}>
+    <div className="lf-root">
       <div className="lf-grid">
 
         {/* ─── LEFT SIDEBAR ─── */}

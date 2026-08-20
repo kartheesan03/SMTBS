@@ -41,7 +41,8 @@
   background: var(--li-bg);
   color: var(--li-text-1);
   line-height: 1.5;
-  min-height: 100vh;
+  min-height: 100%;
+  width: 100%;
 }
 
 /* ─── Layout ────────────────────────────────────────────────────────────── */
@@ -52,8 +53,9 @@
   display: grid;
   grid-template-columns: 280px 1fr 320px;
   gap: 24px;
-  padding: 24px 0;
+  padding: 24px;
   align-items: start;
+  box-sizing: border-box;
 }
 
 /* Force perfect top alignment for all grid columns */
@@ -73,11 +75,9 @@
 }
 
 @media (max-width: 1400px) {
-  /* Scale columns proportionally to fit without hiding anything */
   .lf-grid { 
     grid-template-columns: 21fr 50fr 29fr;
     gap: 16px;
-    padding: 24px 16px;
   }
 }
 
