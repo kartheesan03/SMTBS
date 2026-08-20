@@ -278,6 +278,34 @@ const connectDB = async () => {
         setupAssociations();
             // Removed stale table cleanup code to prevent foreign key errors on startup
 
+        // Quick fix for temp_migration foreign key corruption
+        try {
+            if (dialect === 'mysql') {
+                const [results] = await sequelize.query(`
+                    SELECT TABLE_NAME, CONSTRAINT_NAME, REFERENCED_TABLE_NAME
+                    FROM information_schema.KEY_COLUMN_USAGE
+                    WHERE REFERENCED_TABLE_NAME LIKE '%_temp_migration'
+                      AND TABLE_SCHEMA = DATABASE();
+                `);
+                for (let row of results) {
+                    await sequelize.query(`ALTER TABLE \`${row.TABLE_NAME}\` DROP FOREIGN KEY \`${row.CONSTRAINT_NAME}\`;`);
+                    console.log(`[Sync Fix] Dropped corrupted FK ${row.CONSTRAINT_NAME} from ${row.TABLE_NAME}`);
+                }
+                const [tempTables] = await sequelize.query(`
+                    SELECT TABLE_NAME 
+                    FROM information_schema.TABLES 
+                    WHERE TABLE_NAME LIKE '%_temp_migration'
+                      AND TABLE_SCHEMA = DATABASE();
+                `);
+                for (let row of tempTables) {
+                    await sequelize.query(`DROP TABLE IF EXISTS \`${row.TABLE_NAME}\`;`);
+                    console.log(`[Sync Fix] Dropped ${row.TABLE_NAME} table.`);
+                }
+            }
+        } catch (fkError) {
+            console.warn(`[Sync Fix] Error repairing foreign keys: ${fkError.message}`);
+        }
+
         // Safely recreate logic removed as it corrupted SQLite foreign keys
         try {
             await sequelize.sync({ alter: true });
