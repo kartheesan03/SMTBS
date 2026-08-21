@@ -133,6 +133,24 @@ const getPosts = async (req, res) => {
     }
 };
 
+const uploadMedia = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+        let url;
+        if (req.file.path && req.file.path.startsWith('http')) {
+            url = req.file.path;
+        } else {
+            url = '/uploads/' + req.file.filename;
+        }
+        res.status(200).json({ url, type: req.file.mimetype });
+    } catch (error) {
+        console.error('Error uploading media:', error);
+        res.status(500).json({ message: 'Upload failed' });
+    }
+};
+
 const createPost = async (req, res) => {
     try {
         const { broadcast } = require('../services/notificationService');
@@ -150,6 +168,10 @@ const createPost = async (req, res) => {
         
         if (typeof targetTeams === 'string') {
             try { targetTeams = JSON.parse(targetTeams); } catch (e) { targetTeams = []; }
+        }
+        
+        if (typeof media === 'string') {
+            try { media = JSON.parse(media); } catch (e) { media = null; }
         }
 
         const post = await Post.sequelizeModel.create({
@@ -664,5 +686,6 @@ module.exports = {
     toggleAcknowledge,
     getTrendingTags,
     getPostById,
-    getCompanyStats
+    getCompanyStats,
+    uploadMedia
 };

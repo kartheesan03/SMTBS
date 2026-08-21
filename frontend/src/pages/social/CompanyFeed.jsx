@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { Image, Video, FileText, MessageSquare, X, ChevronDown } from 'lucide-react';
+import { Image, Video, FileText, MessageSquare, X, ChevronDown, Play } from 'lucide-react';
 import { AuthContext } from '../../context/AuthContext';
 import API from '../../api/axios';
+import { uploadMediaFile } from '../../api/posts';
 import toast from 'react-hot-toast';
 import PostCard from './components/PostCard';
 import './CompanyFeed.css';
@@ -130,8 +131,7 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
   // Composer State
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [composerText, setComposerText] = useState('');
-  const [composerImageUrl, setComposerImageUrl] = useState('');
-  const [composerFile, setComposerFile] = useState(null);
+  const [composerFiles, setComposerFiles] = useState([]);
   const [isPosting, setIsPosting] = useState(false);
   const [composerType, setComposerType] = useState('Standard');
   const [audience, setAudience] = useState('Anyone');
@@ -157,14 +157,73 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
   const [sortBy, setSortBy] = useState('Top');
   const [followedAuthors, setFollowedAuthors] = useState(new Set());
 
-  const handleFileSelect = (e) => {
-      const file = e.target.files?.[0];
-      if (file && file.type.startsWith('image/')) {
-          setComposerFile(file);
-          const reader = new FileReader();
-          reader.onloadend = () => setComposerImageUrl(reader.result);
-          reader.readAsDataURL(file);
+  const uploadSingleFile = async (id, file) => {
+      try {
+          const data = await uploadMediaFile(file, (progressEvent) => {
+              const p = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setComposerFiles(prev => prev.map(f => f.id === id ? { ...f, progress: p } : f));
+          });
+          setComposerFiles(prev => prev.map(f => f.id === id ? { ...f, url: data.url, type: data.type, status: 'done' } : f));
+      } catch (err) {
+          console.error('Upload error', err);
+          setComposerFiles(prev => prev.map(f => f.id === id ? { ...f, status: 'error' } : f));
+          toast.error('Upload failed for ' + file.name);
       }
+  };
+
+  const handleFileSelect = (e) => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      
+      const newFiles = [];
+      files.forEach(file => {
+          const isVideo = file.type.startsWith('video/');
+          const isImage = file.type.startsWith('image/');
+          if (!isVideo && !isImage) return;
+
+          if (isVideo && file.size > 200 * 1024 * 1024) {
+              toast.error(`${file.name} exceeds 200MB limit`);
+              return;
+          }
+          if (isImage && file.size > 10 * 1024 * 1024) {
+              toast.error(`${file.name} exceeds 10MB limit`);
+              return;
+          }
+          
+          const uid = Date.now() + Math.random().toString();
+          newFiles.push({
+              id: uid,
+              file,
+              url: null,
+              preview: URL.createObjectURL(file),
+              type: file.type,
+              progress: 0,
+              status: 'uploading'
+          });
+      });
+      
+      setComposerFiles(prev => {
+          const combined = [...prev, ...newFiles];
+          const imgs = combined.filter(f => f.type.startsWith('image/'));
+          const vids = combined.filter(f => f.type.startsWith('video/'));
+          
+          if (imgs.length > 10 || vids.length > 2) {
+              toast.error('Limit: Max 10 images and 2 videos.');
+              const validImgs = imgs.slice(0, 10);
+              const validVids = vids.slice(0, 2);
+              const validCombined = [...validImgs, ...validVids];
+              
+              const validNewFiles = newFiles.filter(nf => validCombined.some(vc => vc.id === nf.id));
+              validNewFiles.forEach(nf => uploadSingleFile(nf.id, nf.file));
+              return validCombined;
+          }
+          
+          newFiles.forEach(nf => uploadSingleFile(nf.id, nf.file));
+          return combined;
+      });
+      
+      // Clear input so same file can be selected again if needed
+      if (e.target) e.target.value = null;
   };
 
 
@@ -193,7 +252,11 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
   };
 
     const handlePost = async () => {
-      if (!composerText.trim() && !composerFile) return;
+      if (!composerText.trim() && composerFiles.length === 0) return;
+      if (composerFiles.some(f => f.status === 'uploading')) {
+          toast.error('Please wait for media to finish uploading');
+          return;
+      }
       setIsPosting(true);
       
       try {
@@ -202,8 +265,10 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
         formData.append('visibility', audience);
         formData.append('type', composerType);
         formData.append('targetTeams', JSON.stringify(selectedTeams));
-        if (composerFile) {
-          formData.append('media', composerFile);
+        
+        if (composerFiles.length > 0) {
+            const mediaArray = composerFiles.filter(f => f.status === 'done').map(f => ({ url: f.url, type: f.type }));
+            formData.append('media', JSON.stringify(mediaArray));
         }
 
         // Backend: POST /api/feed
@@ -217,8 +282,7 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
         setPosts(rawList.map((p, i) => normalizePost(p, i, currentUser.id)));
 
         setComposerText('');
-        setComposerImageUrl('');
-        setComposerFile(null);
+        setComposerFiles([]);
         setIsComposerOpen(false);
         setIsPosting(false);
         toast.success('Post created!');
@@ -525,7 +589,7 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
 
               {/* Type Selector Tabs */}
               <div style={{ display: 'flex', gap: '16px', borderBottom: '1px solid #e5e7eb' }}>
-                  {['Standard', 'Story', 'Broadcast', ...(currentUser.role === 'Admin' || currentUser.role === 'Super Admin' ? ['Announcement'] : [])].map(type => (
+                  {['Standard', 'Broadcast', ...(currentUser.role === 'Admin' || currentUser.role === 'Super Admin' ? ['Announcement'] : [])].map(type => (
                       <button
                           key={type}
                           onClick={() => setComposerType(type)}
@@ -551,11 +615,10 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
                 className="cf-modal-textarea"
                 placeholder={
                     composerType === 'Story' ? 'Add a caption to your story...' : 
-                    composerType === 'Broadcast' ? 'Write a short broadcast message (max 200 chars)...' : 
+                    composerType === 'Broadcast' ? 'Write a broadcast message...' : 
                     composerType === 'Announcement' ? 'Write an official announcement...' : 
                     'What do you want to talk about?'
                 }
-                maxLength={composerType === 'Broadcast' ? 200 : undefined}
                 value={composerText}
                 onChange={e => setComposerText(e.target.value)}
                 autoFocus
@@ -564,46 +627,54 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
               <input 
                   id="cf-file-upload-input"
                   type="file" 
+                  multiple
                   accept="image/*,video/*" 
                   style={{ position: 'absolute', left: '-9999px', top: '-9999px', opacity: 0 }} 
                   onChange={handleFileSelect}
                   disabled={isPosting}
               />
-              {composerImageUrl && (
-                <div style={{ position: 'relative', marginTop: '12px' }}>
-                    <div style={{ 
-                        width: '100%', height: '300px', borderRadius: '8px', 
-                        backgroundImage: `url(${composerImageUrl})`, 
-                        backgroundSize: 'contain', backgroundRepeat: 'no-repeat', backgroundPosition: 'center', 
-                        border: '1px solid #e0e0e0', backgroundColor: '#f9f9f9'
-                    }} />
-                    <button 
-                        onClick={() => { setComposerImageUrl(''); setComposerFile(null); }}
-                        style={{
-                            position: 'absolute', top: '8px', right: '8px',
-                            background: 'rgba(0,0,0,0.6)', color: 'white',
-                            border: 'none', borderRadius: '50%', padding: '6px',
-                            cursor: 'pointer', display: 'flex'
-                        }}
-                    >
-                        <X size={16} />
-                    </button>
+              {composerFiles.length > 0 && (
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+                    {composerFiles.map(f => (
+                        <div key={f.id} style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e0e0e0', backgroundColor: '#f9f9f9' }}>
+                            {f.type.startsWith('video/') ? (
+                                <>
+                                  <video src={f.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.2)' }}>
+                                      <Play size={24} color="#fff" fill="#fff" />
+                                  </div>
+                                </>
+                            ) : (
+                                <img src={f.preview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="upload preview" />
+                            )}
+                            <button 
+                                onClick={() => setComposerFiles(prev => prev.filter(cf => cf.id !== f.id))}
+                                style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', padding: '4px', cursor: 'pointer', display: 'flex' }}
+                            >
+                                <X size={12} />
+                            </button>
+                            {f.status === 'uploading' && (
+                                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '4px', background: '#e2e8f0' }}>
+                                    <div style={{ height: '100%', background: '#3b82f6', width: `${f.progress}%`, transition: 'width 0.2s' }} />
+                                </div>
+                            )}
+                            {f.status === 'error' && (
+                                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'red', color: 'white', fontSize: '10px', textAlign: 'center' }}>Error</div>
+                            )}
+                        </div>
+                    ))}
                 </div>
               )}
             </div>
             <div className="cf-modal-footer" style={{ padding: '12px 24px' }}>
               <div className="cf-modal-tools">
-                {composerType !== 'Broadcast' && (
-                  <>
-                    <button className="cf-icon-btn" onClick={() => document.getElementById('cf-file-upload-input')?.click()}><Image size={24} color="#666" /></button>
-                    <button className="cf-icon-btn" onClick={() => document.getElementById('cf-file-upload-input')?.click()}><Video size={24} color="#666" /></button>
-                    <button className="cf-icon-btn" onClick={() => { document.getElementById('cf-file-upload-input').accept = ".pdf,.doc,.docx,application/pdf"; document.getElementById('cf-file-upload-input')?.click(); }}><FileText size={24} color="#666" /></button>
-                  </>
-                )}
+                <button className="cf-icon-btn" onClick={() => document.getElementById('cf-file-upload-input')?.click()}><Image size={24} color="#666" /></button>
+                <button className="cf-icon-btn" onClick={() => document.getElementById('cf-file-upload-input')?.click()}><Video size={24} color="#666" /></button>
+                <button className="cf-icon-btn" onClick={() => { document.getElementById('cf-file-upload-input').accept = ".pdf,.doc,.docx,application/pdf"; document.getElementById('cf-file-upload-input')?.click(); }}><FileText size={24} color="#666" /></button>
               </div>
               <button 
-                className={`cf-primary-btn ${(!composerText.trim() && !composerImageUrl) || isPosting || (composerType === 'Story' && !composerImageUrl) ? 'disabled' : ''}`}
-                disabled={(!composerText.trim() && !composerImageUrl) || isPosting || (composerType === 'Story' && !composerImageUrl)}
+                className={`cf-primary-btn ${(!composerText.trim() && !composerFile) || isPosting ? 'disabled' : ''}`}
+                disabled={(!composerText.trim() && !composerFile) || isPosting}
                 onClick={handlePost}
                 style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '16px' }}
               >

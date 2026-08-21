@@ -69,18 +69,18 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
     post.acknowledgements?.some(a => a.userId === user.id) || false
   );
   const [ackCount, setAckCount] = useState(post.acknowledgements?.length || 0);
-  const [lightboxSrc, setLightboxSrc] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const menuRef      = useRef(null);
   const reactionTimer = useRef(null);
 
   // Close lightbox on Escape key
   React.useEffect(() => {
-    if (!lightboxSrc) return;
-    const fn = e => { if (e.key === 'Escape') setLightboxSrc(null); };
+    if (lightboxIndex === null) return;
+    const fn = e => { if (e.key === 'Escape') setLightboxIndex(null); };
     document.addEventListener('keydown', fn);
     return () => document.removeEventListener('keydown', fn);
-  }, [lightboxSrc]);
+  }, [lightboxIndex]);
 
   // Close menu on outside click
   useEffect(() => {
@@ -416,128 +416,182 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
           gap: '2px', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9',
           background: '#000', maxHeight: post.media.length === 1 ? '500px' : '280px', overflow: 'hidden',
         }}>
-          {post.media.map((item, idx) => (
-            <img key={idx} src={item.url} alt="Post media"
-              onClick={() => setLightboxSrc(item.url)}
-              onError={(e) => e.target.style.display = 'none'}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'zoom-in' }} />
+          {post.media.slice(0, 4).map((item, idx) => (
+            <div key={idx} style={{ position: 'relative', width: '100%', height: '100%' }}>
+                {item.url?.match(/\.(mp4|webm|ogg)$/i) || item.type?.startsWith('video/') ? (
+                    <video src={item.url} controls style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                    <img src={item.url} alt="Post media"
+                      onClick={() => setLightboxIndex(idx)}
+                      onError={(e) => e.target.style.display = 'none'}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'zoom-in' }} />
+                )}
+                {idx === 3 && post.media.length > 4 && (
+                    <div 
+                        onClick={() => setLightboxIndex(3)}
+                        style={{ 
+                            position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', 
+                            color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '24px', fontWeight: 'bold', cursor: 'pointer'
+                        }}>
+                        +{post.media.length - 4} more
+                    </div>
+                )}
+            </div>
           ))}
         </div>
       ) : post.image ? (
         <div style={{ background: '#000', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9', maxHeight: '500px', overflow: 'hidden', display: 'flex', justifyContent: 'center' }}>
-          <img
-            src={post.image}
-            alt="Post"
-            onClick={() => setLightboxSrc(post.image)}
-            onError={(e) => e.target.style.display = 'none'}
-            style={{ width: '100%', maxHeight: '500px', objectFit: 'contain', cursor: 'zoom-in' }}
-          />
+          {post.image?.match(/\.(mp4|webm|ogg)$/i) ? (
+            <video
+              src={post.image}
+              controls
+              style={{ width: '100%', maxHeight: '500px', objectFit: 'contain' }}
+            />
+          ) : (
+            <img
+              src={post.image}
+              alt="Post"
+              onClick={() => setLightboxIndex('single')}
+              onError={(e) => e.target.style.display = 'none'}
+              style={{ width: '100%', maxHeight: '500px', objectFit: 'contain', cursor: 'zoom-in' }}
+            />
+          )}
         </div>
       ) : null}
 
       {/* ── Lightbox overlay (Split-screen) ─────────────────────────────────────── */}
-      {lightboxSrc && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, zIndex: 9999,
-            background: 'rgba(0,0,0,0.92)',
-            display: 'flex',
-            backdropFilter: 'blur(6px)',
-            animation: 'lf-modal-in 0.18s ease-out',
-          }}
-        >
-          {/* Close button */}
-          <button
-            onClick={() => setLightboxSrc(null)}
-            style={{
-              position: 'absolute', top: 20, left: 20, zIndex: 10001,
-              background: 'rgba(255,255,255,0.15)',
-              border: 'none', borderRadius: '50%',
-              width: 44, height: 44, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontSize: 22, fontWeight: 700,
-              transition: 'background 0.2s',
-              backdropFilter: 'blur(4px)',
-            }}
-            onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.28)'}
-            onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-          >✕</button>
+      {lightboxIndex !== null && (() => {
+          let currentMedia;
+          let isVideo = false;
+          let hasNext = false;
+          let hasPrev = false;
 
-          {/* Left Side: Image */}
-          <div 
-             style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out', position: 'relative' }}
-             onClick={() => setLightboxSrc(null)}
-          >
-            <img
-              src={lightboxSrc}
-              alt="Full view"
-              onClick={e => e.stopPropagation()}
+          if (post.media && post.media.length > 0 && typeof lightboxIndex === 'number') {
+              currentMedia = post.media[lightboxIndex].url;
+              isVideo = currentMedia?.match(/\.(mp4|webm|ogg)$/i) || post.media[lightboxIndex].type?.startsWith('video/');
+              hasPrev = lightboxIndex > 0;
+              hasNext = lightboxIndex < post.media.length - 1;
+          } else {
+              currentMedia = post.image;
+              isVideo = currentMedia?.match(/\.(mp4|webm|ogg)$/i);
+          }
+
+          return (
+            <div
               style={{
-                maxWidth: '92vw', maxHeight: '92vh',
-                objectFit: 'contain',
-                borderRadius: '8px',
-                boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
-                cursor: 'default',
+                position: 'fixed', inset: 0, zIndex: 9999,
+                background: 'rgba(0,0,0,0.92)',
+                display: 'flex',
+                backdropFilter: 'blur(6px)',
+                animation: 'lf-modal-in 0.18s ease-out',
               }}
-            />
-          </div>
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setLightboxIndex(null)}
+                style={{
+                  position: 'absolute', top: 20, left: 20, zIndex: 10001,
+                  background: 'rgba(255,255,255,0.15)',
+                  border: 'none', borderRadius: '50%',
+                  width: 44, height: 44, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontSize: 22, fontWeight: 700,
+                  transition: 'background 0.2s',
+                  backdropFilter: 'blur(4px)',
+                }}
+                onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.28)'}
+                onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+              >✕</button>
 
-          {/* Right Side: Post Details */}
-          <div style={{ width: '380px', background: '#fff', display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '16px', borderBottom: '1px solid #f1f5f9' }}>
-               <UserAvatar user={post.author} size={42} />
-               <div>
-                  <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--li-text-1)' }}>{post.author?.name}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--li-text-2)' }}>{post.author?.role || 'Company Member'}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--li-text-3)' }}>{getRelativeTime(post.createdAt)}</div>
-               </div>
-            </div>
+              {/* Prev Button */}
+              {hasPrev && (
+                  <button 
+                      onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex - 1); }}
+                      style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', zIndex: 10001, background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: 44, height: 44, cursor: 'pointer', color: '#fff', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s', backdropFilter: 'blur(4px)' }}
+                      onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.28)'}
+                      onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+                  >‹</button>
+              )}
+              {/* Next Button */}
+              {hasNext && (
+                  <button 
+                      onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex + 1); }}
+                      style={{ position: 'absolute', right: '420px', top: '50%', transform: 'translateY(-50%)', zIndex: 10001, background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: 44, height: 44, cursor: 'pointer', color: '#fff', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s', backdropFilter: 'blur(4px)' }}
+                      onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.28)'}
+                      onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+                  >›</button>
+              )}
 
-            {/* Post Text */}
-            {post.text && (
-              <div style={{ padding: '16px', fontSize: '14px', lineHeight: 1.5, color: 'var(--li-text-1)', whiteSpace: 'pre-wrap' }}>
-                 {formatText(post.text)}
+              {/* Left Side: Image */}
+              <div 
+                 style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out', position: 'relative' }}
+                 onClick={() => setLightboxIndex(null)}
+              >
+                  {isVideo ? (
+                      <video src={currentMedia} controls autoPlay style={{ maxWidth: '92vw', maxHeight: '92vh', objectFit: 'contain' }} onClick={e => e.stopPropagation()} />
+                  ) : (
+                      <img src={currentMedia} alt="Lightbox view" style={{ maxWidth: '92vw', maxHeight: '92vh', objectFit: 'contain', boxShadow: '0 24px 80px rgba(0,0,0,0.7)' }} onClick={e => e.stopPropagation()} />
+                  )}
               </div>
-            )}
 
-            {/* Simplified Engagement Stats */}
-            {!isBroadcast && (likesCount > 0 || commentsCount > 0) && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', fontSize: '13px', color: '#595959', borderTop: '1px solid #f1f5f9' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <ThumbsUp size={14} color="#0a66c2" />
-                  <span>{likesCount}</span>
+              {/* Right Side: Post Details */}
+              <div style={{ width: '380px', background: '#fff', display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '16px', borderBottom: '1px solid #f1f5f9' }}>
+                   <UserAvatar user={post.author} size={42} />
+                   <div>
+                      <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--li-text-1)' }}>{post.author?.name}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--li-text-2)' }}>{post.author?.role || 'Company Member'}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--li-text-3)' }}>{getRelativeTime(post.createdAt)}</div>
+                   </div>
                 </div>
-                <span>{commentsCount} comments</span>
-              </div>
-            )}
 
-            {/* Simplified Actions */}
-            {!isBroadcast && !isAnnouncement && (
-              <div style={{ display: 'flex', padding: '8px 16px', gap: '8px', borderTop: '1px solid #f1f5f9' }}>
-                 <button onClick={handleLike} style={{ flex: 1, padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: isLiked ? '#0a66c2' : '#595959', fontWeight: 600, borderRadius: '4px' }} onMouseOver={e => e.currentTarget.style.background='#f3f2ef'} onMouseOut={e => e.currentTarget.style.background='transparent'}>
-                    <ThumbsUp size={18} fill={isLiked ? 'currentColor' : 'none'} />
-                    Like
-                 </button>
-                 <button style={{ flex: 1, padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: '#595959', fontWeight: 600, borderRadius: '4px' }} onMouseOver={e => e.currentTarget.style.background='#f3f2ef'} onMouseOut={e => e.currentTarget.style.background='transparent'}>
-                    <MessageSquare size={18} />
-                    Comment
-                 </button>
-              </div>
-            )}
+                {/* Post Text */}
+                {post.text && (
+                  <div style={{ padding: '16px', fontSize: '14px', lineHeight: 1.5, color: 'var(--li-text-1)', whiteSpace: 'pre-wrap' }}>
+                     {formatText(post.text)}
+                  </div>
+                )}
 
-            {/* Comments Section (always visible in modal) */}
-            <div style={{ flex: 1, background: '#fdfdfc', borderTop: '1px solid #f1f5f9' }}>
-               <CommentSection 
-                 postId={post.id} 
-                 comments={post.comments} 
-                 onCommentAdded={() => setCommentsCount(n => n + 1)}
-                 onCommentDeleted={() => setCommentsCount(n => n - 1)}
-               />
+                {/* Simplified Engagement Stats */}
+                {!isBroadcast && (likesCount > 0 || commentsCount > 0) && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', fontSize: '13px', color: '#595959', borderTop: '1px solid #f1f5f9' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <ThumbsUp size={14} color="#0a66c2" />
+                      <span>{likesCount}</span>
+                    </div>
+                    <span>{commentsCount} comments</span>
+                  </div>
+                )}
+
+                {/* Simplified Actions */}
+                {!isBroadcast && !isAnnouncement && (
+                  <div style={{ display: 'flex', padding: '8px 16px', gap: '8px', borderTop: '1px solid #f1f5f9' }}>
+                     <button onClick={handleLike} style={{ flex: 1, padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: isLiked ? '#0a66c2' : '#595959', fontWeight: 600, borderRadius: '4px' }} onMouseOver={e => e.currentTarget.style.background='#f3f2ef'} onMouseOut={e => e.currentTarget.style.background='transparent'}>
+                        <ThumbsUp size={18} fill={isLiked ? 'currentColor' : 'none'} />
+                        Like
+                     </button>
+                     <button style={{ flex: 1, padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: '#595959', fontWeight: 600, borderRadius: '4px' }} onMouseOver={e => e.currentTarget.style.background='#f3f2ef'} onMouseOut={e => e.currentTarget.style.background='transparent'}>
+                        <MessageSquare size={18} />
+                        Comment
+                     </button>
+                  </div>
+                )}
+
+                {/* Comments Section (always visible in modal) */}
+                <div style={{ flex: 1, background: '#fdfdfc', borderTop: '1px solid #f1f5f9' }}>
+                   <CommentSection 
+                     postId={post.id} 
+                     comments={post.comments} 
+                     onCommentAdded={() => setCommentsCount(n => n + 1)}
+                     onCommentDeleted={() => setCommentsCount(n => n - 1)}
+                   />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          );
+      })()}
 
       {/* ── Engagement stats row ──────────────────────────────────── */}
       {!isBroadcast && (likesCount > 0 || commentsCount > 0) && (

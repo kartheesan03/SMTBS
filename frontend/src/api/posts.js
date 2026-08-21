@@ -12,6 +12,17 @@ export const createPost = async (text, imageUrl = null) => {
     return response.data;
 };
 
+// Upload media file
+export const uploadMediaFile = async (file, onUploadProgress) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await API.post('/feed/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress
+    });
+    return response.data;
+};
+
 // Delete a post
 export const deletePost = async (id) => {
     const response = await API.delete(`/feed/${id}`);

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const { getPosts, getSavedPosts, createPost, deletePost, toggleLike, toggleRepost, addComment, deleteComment, toggleSave, getNews, getEvents, toggleFollow, getFollowing, getSuggestedConnections, getStories, toggleAcknowledge, getTrendingTags, getPostById, getCompanyStats } = require('../controllers/feedController');
+const { getPosts, getSavedPosts, createPost, deletePost, toggleLike, toggleRepost, addComment, deleteComment, toggleSave, getNews, getEvents, toggleFollow, getFollowing, getSuggestedConnections, getStories, toggleAcknowledge, getTrendingTags, getPostById, getCompanyStats, uploadMedia } = require('../controllers/feedController');
 const { protect } = require('../middleware/authMiddleware');
 
 const cloudinary = require('cloudinary').v2;
@@ -41,6 +41,7 @@ router.route('/')
     .post(protect, upload.single('media'), createPost);
 
 router.get('/saved', protect, getSavedPosts);
+router.post('/upload', protect, upload.single('file'), uploadMedia);
 router.get('/stories', protect, getStories);
 router.get('/news', protect, getNews);
 router.get('/events', protect, getEvents);
