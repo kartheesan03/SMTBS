@@ -483,20 +483,21 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
                 position: 'fixed', inset: 0, zIndex: 9999,
                 background: 'rgba(0,0,0,0.92)',
                 display: 'flex',
+                overflow: 'hidden',
                 backdropFilter: 'blur(6px)',
                 animation: 'lf-modal-in 0.18s ease-out',
               }}
             >
-              {/* Close button */}
+              {/* Close button — top-right of the dark left pane */}
               <button
                 onClick={() => setLightboxIndex(null)}
                 style={{
-                  position: 'absolute', top: 20, left: 20, zIndex: 10001,
+                  position: 'absolute', top: 16, right: 396, zIndex: 10001,
                   background: 'rgba(255,255,255,0.15)',
                   border: 'none', borderRadius: '50%',
                   width: 44, height: 44, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', fontSize: 22, fontWeight: 700,
+                  color: '#fff', fontSize: 20, fontWeight: 700,
                   transition: 'background 0.2s',
                   backdropFilter: 'blur(4px)',
                 }}
@@ -508,7 +509,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
               {hasPrev && (
                   <button 
                       onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex - 1); }}
-                      style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', zIndex: 10001, background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: 44, height: 44, cursor: 'pointer', color: '#fff', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s', backdropFilter: 'blur(4px)' }}
+                      style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', zIndex: 10001, background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: 44, height: 44, cursor: 'pointer', color: '#fff', fontSize: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s', backdropFilter: 'blur(4px)' }}
                       onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.28)'}
                       onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
                   >‹</button>
@@ -517,26 +518,26 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
               {hasNext && (
                   <button 
                       onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex + 1); }}
-                      style={{ position: 'absolute', right: '420px', top: '50%', transform: 'translateY(-50%)', zIndex: 10001, background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: 44, height: 44, cursor: 'pointer', color: '#fff', fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s', backdropFilter: 'blur(4px)' }}
+                      style={{ position: 'absolute', right: 396, top: '50%', transform: 'translateY(-50%)', zIndex: 10001, background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: 44, height: 44, cursor: 'pointer', color: '#fff', fontSize: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s', backdropFilter: 'blur(4px)' }}
                       onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.28)'}
                       onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
                   >›</button>
               )}
 
-              {/* Left Side: Image */}
+              {/* Left Side: Image — flex:1 but overflow hidden so it never pushes right panel off-screen */}
               <div 
-                 style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out', position: 'relative' }}
+                 style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out', position: 'relative', overflow: 'hidden' }}
                  onClick={() => setLightboxIndex(null)}
               >
                   {isVideo ? (
-                      <video src={currentMedia} controls autoPlay style={{ maxWidth: '92vw', maxHeight: '92vh', objectFit: 'contain' }} onClick={e => e.stopPropagation()} />
+                      <video src={currentMedia} controls autoPlay style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} onClick={e => e.stopPropagation()} />
                   ) : (
-                      <img src={currentMedia} alt="Lightbox view" style={{ maxWidth: '92vw', maxHeight: '92vh', objectFit: 'contain', boxShadow: '0 24px 80px rgba(0,0,0,0.7)' }} onClick={e => e.stopPropagation()} />
+                      <img src={currentMedia} alt="Lightbox view" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', boxShadow: '0 24px 80px rgba(0,0,0,0.7)' }} onClick={e => e.stopPropagation()} />
                   )}
               </div>
 
-              {/* Right Side: Post Details */}
-              <div style={{ width: '380px', background: '#fff', display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+              {/* Right Side: Post Details — fixed 380px, no overflow into viewport */}
+              <div style={{ width: '380px', minWidth: '380px', maxWidth: '380px', background: '#fff', display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', overflowX: 'hidden', flexShrink: 0, borderLeft: '1px solid #f1f5f9' }} onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '16px', borderBottom: '1px solid #f1f5f9' }}>
                    <UserAvatar user={post.author} size={42} />
@@ -549,7 +550,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
 
                 {/* Post Text */}
                 {post.text && (
-                  <div style={{ padding: '16px', fontSize: '14px', lineHeight: 1.5, color: 'var(--li-text-1)', whiteSpace: 'pre-wrap' }}>
+                  <div style={{ padding: '16px', fontSize: '14px', lineHeight: 1.5, color: 'var(--li-text-1)', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                      {formatText(post.text)}
                   </div>
                 )}
