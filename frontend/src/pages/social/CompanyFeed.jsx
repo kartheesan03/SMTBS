@@ -329,7 +329,7 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
   // Filter by Hashtag if active
   let filteredPosts = [...posts];
   if (hashtagFilter) {
-      filteredPosts = filteredPosts.filter(p => p.text.toLowerCase().includes(hashtagFilter.toLowerCase()));
+      filteredPosts = filteredPosts.filter(p => (p.text || '').toLowerCase().includes(hashtagFilter.toLowerCase()));
   }
 
   // Sort based on sortBy state
@@ -337,11 +337,13 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
     if (a.pinned && !b.pinned) return -1;
     if (!a.pinned && b.pinned) return 1;
     if (sortBy === 'Recent') {
-        return new Date(b.time === 'Just now' ? Date.now() : Date.parse(b.time)).getTime() - new Date(a.time === 'Just now' ? Date.now() : Date.parse(a.time)).getTime();
+        const tA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const tB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return tB - tA;
     } else {
         // Top = engagement (likes + comments)
-        const engA = Object.values(a.reactions).reduce((sum, val) => sum + val, 0) + (a.comments?.length || 0);
-        const engB = Object.values(b.reactions).reduce((sum, val) => sum + val, 0) + (b.comments?.length || 0);
+        const engA = Object.values(a.reactions || {}).reduce((sum, val) => sum + (val || 0), 0) + (a.comments?.length || 0);
+        const engB = Object.values(b.reactions || {}).reduce((sum, val) => sum + (val || 0), 0) + (b.comments?.length || 0);
         return engB - engA;
     }
   });
