@@ -99,7 +99,7 @@ const ActivityItem = ({ icon: Icon, iconBg, iconColor, title, desc, time }) => (
 
 /* sparkline data seeds */
 const SPARK = [4,7,5,9,6,11,8,13,10,15,12,14];
-const DONUT_COLORS = ["#14B8A6", "#E2E8F0"];
+const DONUT_COLORS = ["#7C3AED", "#E2E8F0"];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -305,7 +305,7 @@ const AdminDashboard = () => {
               <div className="db-card-header">
                 <div className="db-card-title">System Status</div>
               </div>
-              <div className="db-status-list" style={{ flex: 1, overflowY: 'auto' }}>
+              <div className="db-status-list" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '8px' }}>
                 <StatusRow name="Backend API" status="Healthy" />
                 <StatusRow name="Database" status="Healthy" />
                 <StatusRow name="Authentication" status="Healthy" />
@@ -337,7 +337,10 @@ const AdminDashboard = () => {
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dx={-10} tickFormatter={(val) => `₹${val/1000}k`} />
-                      <Tooltip cursor={{ stroke: '#818cf8', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                      <Tooltip 
+                        cursor={false} 
+                        contentStyle={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '8px 12px', fontSize: '12px' }} 
+                      />
                       <Area type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={3} fill="url(#colorRev2)" />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -384,7 +387,7 @@ const AdminDashboard = () => {
                 <div className="db-card-title">Recent Activity</div>
                 <span className="db-card-link" onClick={() => navigate("/settings/audit-logs")}>View All</span>
               </div>
-              <div className="db-activity-list" style={{ flex: 1, overflowY: 'auto' }}>
+              <div className="db-activity-list" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '8px' }}>
                 {recentActivity.length > 0 ? recentActivity.slice(0, 4).map((a, i) => {
                   const lo = (a.text || "").toLowerCase();
                   let Icon = Activity, bg = "#EFF6FF", col = "#3B82F6";
@@ -415,7 +418,7 @@ const AdminDashboard = () => {
                   <Cpu size={14} color="#8b5cf6" /> AI Insights
                 </div>
               </div>
-              <div className="db-ai-insights" style={{ flex: 1, overflowY: 'auto' }}>
+              <div className="db-ai-insights" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '8px' }}>
                 {aiLoading ? (
                   <div style={{ padding: '16px', textAlign: 'center', color: '#6B7280', fontSize: '12px' }}>
                     Generating insights...
@@ -441,7 +444,7 @@ const AdminDashboard = () => {
               <div className="db-card-header">
                 <div className="db-card-title">Top Selling Materials</div>
               </div>
-              <div className="db-bar-list" style={{ padding: '12px', flex: 1, overflowY: 'auto' }}>
+              <div className="db-bar-list" style={{ padding: '12px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {topMaterials.length > 0 ? topMaterials.map((m, i) => (
                   <div key={i} className="db-bar-item" style={{ marginBottom: '8px' }}>
                     <div className="db-bar-label">
