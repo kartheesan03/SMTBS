@@ -324,10 +324,10 @@ const AdminDashboard = () => {
                   <option value="last">Last Month</option>
                 </select>
               </div>
-              <div style={{ flex: 1, minHeight: "160px", marginTop: "10px", padding: "0 10px 10px 0" }}>
+              <div style={{ flex: 1, minHeight: "160px", marginTop: "10px" }}>
                 {chartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                  <ResponsiveContainer width="100%" height="100%" style={{ outline: 'none' }}>
+                    <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 10 }} style={{ outline: 'none' }}>
                       <defs>
                         <linearGradient id="colorRev2" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.4} />
@@ -338,7 +338,9 @@ const AdminDashboard = () => {
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
                       <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dx={-10} tickFormatter={(val) => `₹${val/1000}k`} />
                       <Tooltip 
-                        cursor={false} 
+                        cursor={false}
+                        labelFormatter={(label) => label}
+                        formatter={(value) => [`₹${value.toLocaleString('en-IN')}`, 'Revenue']}
                         contentStyle={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '8px 12px', fontSize: '12px' }} 
                       />
                       <Area type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={3} fill="url(#colorRev2)" />
