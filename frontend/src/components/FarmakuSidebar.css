@@ -106,7 +106,9 @@
     transition: all 0.2s ease;
     cursor: pointer;
     position: relative;
-    margin: 2px 8px;
+    margin: 4px 8px;
+    height: 42px;
+    box-sizing: border-box;
 }
 
 .farmaku-nav-item:hover:not(.active) {

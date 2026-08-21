@@ -97,50 +97,18 @@ const FarmakuSidebar = () => {
     };
 
     const renderNavItem = (item, index) => {
-        if (item.children && item.children.length > 0) {
-            const isExpanded = expandedMenu === item.title;
-            const hasActiveChild = isParentActive(item.children);
+        const leafActive = isParentActive(item.children || []) || isLeafActive(item.path);
+        const isNotifications = item.path === '/notifications';
+        
+        // Flatten: If no path but has children, use first child's path
+        const targetPath = item.path || (item.children && item.children[0]?.path) || '#';
 
-            return (
-                <li key={index ?? item.title}>
-                    <div
-                        className={['farmaku-nav-item', isExpanded ? 'expanded' : '', hasActiveChild ? 'has-active-child active' : ''].filter(Boolean).join(' ')}
-                        onClick={() => toggleMenu(item.title)}
-                        role="button"
-                    >
-                        {renderIcon(item.icon, item.title)}
-                        <span>{item.title}</span>
-                        {isExpanded ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
-                    </div>
-                    <div className={`farmaku-submenu-wrapper ${isExpanded ? 'expanded' : ''}`}>
-                        <div className="farmaku-submenu">
-                            {item.children.map((child, cIndex) => {
-                                const childActive = isLeafActive(child.path);
-                                return (
-                                    <NavLink
-                                        key={cIndex}
-                                        to={child.path}
-                                        end
-                                        className={() => `farmaku-subnav-item${childActive ? ' active' : ''}`}
-                                    >
-                                        <span>{child.title}</span>
-                                    </NavLink>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </li>
-            );
-        }
-
-        const leafActive = isLeafActive(item.path);
         const isNotifications = item.path === '/notifications';
 
         return (
             <li key={index ?? item.title}>
                 <NavLink
-                    to={item.path}
-                    end
+                    to={targetPath}
                     className={() => `farmaku-nav-item${leafActive ? ' active' : ''}`}
                 >
                     {renderIcon(item.icon, item.title)}

@@ -99,7 +99,7 @@ const ActivityItem = ({ icon: Icon, iconBg, iconColor, title, desc, time }) => (
 
 /* sparkline data seeds */
 const SPARK = [4,7,5,9,6,11,8,13,10,15,12,14];
-const DONUT_COLORS = ["#7C3AED", "#E2E8F0"];
+const DONUT_COLORS = ["#22c55e", "#ef4444"];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -543,6 +543,10 @@ const AdminDashboard = () => {
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Department</span>
                   <span className="db-profile-info-val">IT & Management</span>
+                </div>
+                <div className="db-profile-info-row">
+                  <span className="db-profile-info-label">Email</span>
+                  <span className="db-profile-info-val">{user?.email || "admin@smtbms.com"}</span>
                 </div>
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Last Login</span>
