@@ -57,7 +57,8 @@ def is_mathematically_valid(nums: List[float], line_text: str = "") -> Optional[
 # LINE GROUPING
 # ---------------------------------------------------------------------------
 
-def group_into_lines(elements: List[Dict], y_tolerance: int = 15) -> List[List[Dict]]:
+def group_into_lines(elements: List[Dict], y_tolerance: int = 10) -> List[List[Dict]]:
+    """Group elements into horizontal lines with strict y-tolerance to avoid vertical bleeding."""
     elements = sorted(elements, key=lambda e: (e['y0'] + e['y1']) / 2)
     lines: List[List[Dict]] = []
     current_line: List[Dict] = []
@@ -71,12 +72,11 @@ def group_into_lines(elements: List[Dict], y_tolerance: int = 15) -> List[List[D
         else:
             if abs(y_mid - current_y) <= y_tolerance:
                 current_line.append(el)
-                current_y = sum((e['y0'] + e['y1']) / 2 for e in current_line) / len(current_line)
             else:
                 lines.append(sorted(current_line, key=lambda e: e['x0']))
                 current_line = [el]
                 current_y = y_mid
-
+                
     if current_line:
         lines.append(sorted(current_line, key=lambda e: e['x0']))
 
@@ -130,121 +130,209 @@ def process_document(elements: List[Dict]) -> Dict:
 
     lines = group_into_lines(elements)
     
-    item_rows = []
-    for i, line in enumerate(lines):
-        nums = []
-        for el in line:
-            n = parse_number(el['text'])
-            if n is not None:
-                if re.search(r'\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4}', el['text']):
-                    continue
-                nums.append(n)
-        line_text = clean_line_text(line)
-        valid = is_mathematically_valid(nums, line_text)
-        if valid:
-            item_rows.append((i, line, valid))
-            
-    header_lines = lines
-    actual_item_lines = []
-    summary_lines = []
-    footer_address_lines = []
+    # 1. Determine Document Type (Receipt vs Generic)
+    is_receipt = False
+    raw_text_full = "\n".join([clean_line_text(line) for line in lines]).upper()
+    if "HOTEL" in raw_text_full or "RESTAURANT" in raw_text_full or "ROOM NO" in raw_text_full:
+        is_receipt = True
+
+    # 2. Extract Document Metadata / Header
+    doc_info = {}
+    vendor_name = None
     
-    if item_rows:
-        item_start_idx = item_rows[0][0]
-        item_end_idx = item_rows[-1][0]
-        
-        header_keywords = ["QTY", "QUANTITY", "RATE", "PRICE", "S.NO", "ITEM", "AMOUNT"]
-        if item_start_idx > 0:
-            prev_line_text = clean_line_text(lines[item_start_idx - 1]).upper()
-            if any(hk in prev_line_text for hk in header_keywords):
-                item_start_idx -= 1
-                
-        summary_idx = item_end_idx + 1
-        for i in range(item_end_idx + 1, len(lines)):
-            text = clean_line_text(lines[i]).upper()
-            if "TOTAL" in text or "SUBTOTAL" in text or "AMOUNT" in text or "NET PAYABLE" in text:
-                summary_idx = i
+    # Try to grab vendor name from the first line if it's substantial
+    if len(lines) > 0:
+        first_line_text = clean_line_text(lines[0])
+        if len(first_line_text) > 3 and not re.search(r'\d', first_line_text):
+            vendor_name = first_line_text
+            doc_info["Vendor"] = vendor_name
+
+    for i, line in enumerate(lines):
+        line_text = clean_line_text(line)
+        # Look for Date
+        m_date = re.search(r'(?:Date|Dt)[\s:-]*(\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4})', line_text, re.IGNORECASE)
+        if m_date:
+            doc_info["Date"] = m_date.group(1)
+        # Look for Room No
+        m_room = re.search(r'(?:Room\s*No|Room)[\s:-]*(\d+)', line_text, re.IGNORECASE)
+        if m_room:
+            doc_info["Room No"] = m_room.group(1)
+
+    # 3. Find Table Headers
+    header_keywords = ["QTY", "QUANTITY", "RATE", "PRICE", "S.NO", "ITEM", "AMOUNT", "DESCRIPTION", "NAME", "SKU", "CATEGORY", "STOCK", "STATUS", "PART", "CODE"]
+    
+    best_header_idx = -1
+    best_headers = []
+    
+    for i, line in enumerate(lines):
+        line_text = clean_line_text(line).upper()
+        matches = sum(1 for kw in header_keywords if re.search(rf'\b{kw}\b', line_text))
+        if matches >= 2 or (matches >= 1 and len(line) >= 3):
+            best_header_idx = i
+            best_headers = line
+            break
+            
+    table_rows = []
+    headers = []
+    end_idx = len(lines)
+    summary_idx = len(lines)
+    
+    # DEBUG a: Log raw OCR text
+    logger.info("=== DEBUG: RAW OCR TEXT ===")
+    for idx, l in enumerate(lines):
+        logger.info(f"Line {idx}: {clean_line_text(l).upper()}")
+    logger.info("===========================")
+    
+    warnings = []
+    
+    def clean_numeric(val):
+        if not val:
+            return ""
+        val = val.upper()
+        val = val.replace('O', '0').replace('U', '0')
+        val = val.replace('L', '1').replace('I', '1')
+        val = val.replace('S', '5').replace('Q', '0')
+        val = val.replace('(', '0').replace(')', '0')
+        val = val.replace(' ', '')
+        if re.match(r'^[\d\.,]+$', val):
+            return val
+        return ""
+
+    if is_receipt:
+        headers = ["Qty", "Item Name", "Rate", "Amount"]
+        for i in range(len(lines)):
+            line = lines[i]
+            line_text = clean_line_text(line).upper()
+            
+            m_total = re.search(r'(?:SUBTOTAL|TOTAL AMOUNT|NET PAYABLE|GRAND TOTAL|TOTAL)\s+([\d\.,\sOUloI]+)', line_text)
+            if m_total:
+                amt = clean_numeric(m_total.group(1))
+                if amt:
+                    doc_info["Total"] = amt
+                end_idx = i
                 break
                 
-        header_lines = lines[:item_start_idx]
-        actual_item_lines = lines[item_start_idx:item_end_idx + 1]
-        summary_lines = lines[item_end_idx + 1:summary_idx + 1]
-        footer_address_lines = lines[summary_idx + 1:]
-    else:
-        # Fallback if no item rows found
-        pass
+            if any(k in line_text for k in ["SUBTOTAL", "TOTAL AMOUNT", "NET PAYABLE", "GRAND TOTAL", "TOTAL"]):
+                end_idx = i
+                break
+                
+            if "RATE" in line_text or "ITEM" in line_text or "TTEM" in line_text:
+                continue
+            if "ROOM NO" in line_text or "DATE" in line_text or "BILL" in line_text or "TABL" in line_text or "TIME" in line_text:
+                continue
 
-    def extract_item_name(line_text, q, r, a):
-        item_name = line_text
-        
-        amount_str = str(a)
-        if amount_str.endswith(".0"): amount_str = amount_str[:-2]
-        item_name = re.sub(rf'\b{amount_str}(?:\.\d+)?\b', '', item_name, count=1)
-        
-        rate_str = str(r)
-        if rate_str.endswith(".0"): rate_str = rate_str[:-2]
-        item_name = re.sub(rf'\b{rate_str}(?:\.\d+)?\b', '', item_name, count=1)
-        
-        qty_str = str(q)
-        if qty_str.endswith(".0"): qty_str = qty_str[:-2]
-        item_name = re.sub(rf'\b{qty_str}\s*[xX\*]?\s*', '', item_name, count=1)
-        
-        item_name = re.sub(r'^[^\w]+|[^\w]+$', '', item_name).strip()
-        item_name = re.sub(r'₹|Rs\.?|USD', '', item_name, flags=re.IGNORECASE).strip()
-        item_name = re.sub(r'^[^\w]+|[^\w]+$', '', item_name).strip()
-        return item_name
+            # Clean spaces around dots to prevent numbers like '500 . 00' splitting incorrectly
+            cleaned_line = re.sub(r'\s*\.\s*', '.', line_text)
+            
+            # [Qty] [Item Name] [Rate] [Amount]
+            m = re.search(r'^\s*(?:([lIO\d]{1,3})\s+)?(.+?)(?:\s+([\dSOUIlouIqQ\(\)\.,]+))?\s+([\dSOUIlouIqQ\(\)\.,]+)\s*$', cleaned_line, re.IGNORECASE)
+            
+            logger.info(f"REGEX CHECK - Line: '{cleaned_line}' | Match: {bool(m)}")
+            if m:
+                qty_raw = m.group(1)
+                item = m.group(2).strip()
+                rate_raw = m.group(3)
+                amt_raw = m.group(4)
+                
+                qty = clean_numeric(qty_raw) if qty_raw else '1'
+                if not qty: qty = '1'
+                rate = clean_numeric(rate_raw)
+                amt = clean_numeric(amt_raw)
 
-    # Process items
-    receipt_items = []
-    sno = 1
-    for i, line, valid in item_rows:
-        q, r, a = valid
-        line_text = " ".join([el['text'] for el in line]).strip()
-        item_name = extract_item_name(line_text, q, r, a)
+                # Infer Qty if missing from OCR but Rate and Amount exist
+                if (not qty_raw or qty == '1') and rate and amt:
+                    try:
+                        r_val = float(rate)
+                        a_val = float(amt)
+                        if r_val > 0:
+                            inferred_qty = round(a_val / r_val)
+                            if inferred_qty > 0:
+                                qty = str(inferred_qty)
+                    except ValueError:
+                        pass
+                
+                if (rate_raw and not rate) or (amt_raw and not amt):
+                    warnings.append(f"Row with Item Name '{item}' has invalid numeric data. Requires manual review.")
+                
+                logger.info(f"REGEX EXTRACTED: Qty={qty}, Item={item}, Rate={rate}, Amount={amt}")
+                table_rows.append({
+                    "Qty": qty,
+                    "Item Name": item,
+                    "Rate": rate,
+                    "Amount": amt
+                })
+                end_idx = i
+                
+    elif best_header_idx != -1:
+        headers = [e["text"] for e in best_headers]
+        col_centers = [(e["x0"] + e["x1"]) / 2 for e in best_headers]
         
-        receipt_items.append({
-            "S.No": str(sno),
-            "Item": item_name,
-            "Quantity": str(int(q) if q == int(q) else q),
-            "Rate": f"{r:.2f}",
-            "Amount": f"{a:.2f}"
-        })
-        sno += 1
+        end_idx = best_header_idx
+        for i in range(best_header_idx + 1, len(lines)):
+            line = lines[i]
+            line_text = clean_line_text(line).upper()
+            if any(k in line_text for k in ["SUBTOTAL", "TOTAL AMOUNT", "NET PAYABLE", "GRAND TOTAL", "TOTAL"]):
+                break
+                
+            row_data = {h: "" for h in headers}
+            for el in line:
+                el_center = (el["x0"] + el["x1"]) / 2
+                closest_idx = 0
+                min_dist = float('inf')
+                for j, c in enumerate(col_centers):
+                    dist = abs(el_center - c)
+                    if dist < min_dist:
+                        min_dist = dist
+                        closest_idx = j
+                
+                if min_dist < 400: # relaxed
+                    col_name = headers[closest_idx]
+                    if row_data[col_name]:
+                        row_data[col_name] += " " + el["text"]
+                    else:
+                        row_data[col_name] = el["text"]
+            
+            filled = sum(1 for v in row_data.values() if v.strip())
+            if filled >= 1:
+                table_rows.append(row_data)
+                end_idx = i
 
-    # Process Headers
-    doc_info = {}
-    for line in header_lines:
-        line_text = clean_line_text(line)
-        if len(header_lines) > 0 and line == header_lines[0] and not ":" in line_text:
-            doc_info["Company"] = line_text
-            continue
-        k, v = extract_generic_kv(line)
-        if k and v:
-            doc_info[k.title()] = v
+    # DEBUG c: Log array after loop
+    logger.info("=== DEBUG: ARRAY AFTER LOOP ===")
+    logger.info(str(table_rows))
+    logger.info("===============================")
 
-    # Process Summary
+    # Process Summary (Total)
     summary_kv = {}
-    for line in summary_lines:
-        line_text = clean_line_text(line).upper()
+    extracted_total = None
+    for i in range(end_idx + 1, len(lines)):
+        line_text = clean_line_text(lines[i]).upper()
         if "TOTAL" in line_text or "AMOUNT" in line_text or "SUBTOTAL" in line_text:
-            nums = re.findall(r'[\d,\.]+', line_text)
+            nums = re.findall(r'[\d\.,]+', line_text)
             if nums:
                 summary_kv["Total"] = nums[-1]
+                extracted_total = parse_number(nums[-1])
 
-    # Process Address/Footer
-    address_lines_text = []
-    for line in footer_address_lines:
-        text = clean_line_text(line)
-        if "THANK YOU" in text.upper() or "PLEASE COME" in text.upper():
-            continue # Skip footer phrases
-        valid_nums = [n for t in line if (n := parse_number(t.get('text', ''))) is not None]
-        if text.strip() and not is_mathematically_valid(valid_nums, text):
-            address_lines_text.append(text.strip())
+    # 4. Validation Logic
+    # Validate mathematical sum
+    computed_sum = 0.0
+    if table_rows:
+        amount_col = next((h for h in headers if "AMOUNT" in h.upper() or "TOTAL" in h.upper() or "PRICE" in h.upper()), None)
+        if amount_col:
+            for row in table_rows:
+                val = parse_number(row.get(amount_col, ""))
+                if val is not None:
+                    computed_sum += val
+                    
+        if extracted_total is not None and abs(computed_sum - extracted_total) > 0.1:
+            warnings.append(f"Validation failed: Sum of line items ({computed_sum}) does not match extracted Total ({extracted_total}). Requires manual review.")
             
-    address_kv = {}
-    if address_lines_text:
-        address_kv["Address"] = ", ".join(address_lines_text)
-
+    # Vendor matching check
+    if vendor_name and vendor_name.upper() not in raw_text_full:
+        warnings.append(f"Validation failed: Vendor '{vendor_name}' not definitively found in raw text.")
+    if vendor_name == "Company Inc." and not any("Company Inc." in clean_line_text(l) for l in lines):
+        warnings.append("Validation failed: Mock data detected. Please review extracted fields.")
+        
     sections = []
     
     def _build_kv_section(title, kv_dict):
@@ -260,11 +348,24 @@ def process_document(elements: List[Dict]) -> Dict:
         sec = _build_kv_section("Document Details", doc_info)
         if sec: sections.append(sec)
 
-    if receipt_items:
-        headers = ["S.No", "Item", "Quantity", "Rate", "Amount"]
-        rows = [[it[h] for h in headers] for it in receipt_items]
+    if table_rows:
+        headers = list(table_rows[0].keys())
+        rows = [[row.get(h, "") for h in headers] for row in table_rows]
+        
+        # Append Total row at the bottom
+        if summary_kv and "Total" in summary_kv:
+            total_row = [""] * len(headers)
+            if len(headers) >= 2:
+                total_row[-2] = "TOTAL"
+                total_row[-1] = summary_kv["Total"]
+            else:
+                total_row[0] = f"TOTAL: {summary_kv['Total']}"
+            rows.append(total_row)
+            # Clear summary_kv so it isn't added as a separate section
+            summary_kv = {}
+            
         sections.append({
-            "title": "Items",
+            "title": "Line Items",
             "type": "table",
             "headers": headers,
             "rows": rows
@@ -274,29 +375,35 @@ def process_document(elements: List[Dict]) -> Dict:
         sec = _build_kv_section("Summary", summary_kv)
         if sec: sections.append(sec)
 
-    if address_kv:
-        sec = _build_kv_section("Address", address_kv)
-        if sec: sections.append(sec)
+    avg_conf = 0.95
+    if elements:
+        conf_vals = [e.get("confidence", 0) for e in elements if e.get("confidence") is not None]
+        if conf_vals:
+            avg_conf = sum(conf_vals) / len(conf_vals)
 
-    return {
+    res = {
         "success": True,
         "document": {
-            "type": "General",
+            "type": "Receipt" if is_receipt else "General",
             "module": "General",
             "isRelated": False,
             "isStructured": len(sections) > 0,
-            "tableDetected": len(sections) > 0,
-            "confidence": 0.95,
+            "tableDetected": len(table_rows) > 0,
+            "confidence": round(avg_conf, 4),
             "pageCount": 1,
             "details": doc_info
         },
         "sections": sections,
         "tables": sections,
-        "rawText": "",
-        "vendor": None,
-        "invoice": None,
-        "totals": None
+        "rawText": "\n".join([clean_line_text(line) for line in lines]),
+        "vendor": vendor_name,
+        "totals": summary_kv
     }
+    
+    if warnings:
+        res["_warnings"] = warnings
+        
+    return res
 
 def process_docx_document(file_path: str) -> Dict:
     import docx as _docx

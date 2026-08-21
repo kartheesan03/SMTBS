@@ -20,8 +20,18 @@ import pytesseract
 from PIL import Image
 import re
 
-def _init_reader():
-    pass
+_reader = None
+def _get_reader():
+    global _reader
+    if _reader is None:
+        try:
+            import easyocr
+            # Note: gpu=False since we assume CPU environments, but will use GPU if available
+            _reader = easyocr.Reader(['en'], gpu=False)
+        except ImportError:
+            logger.error("EasyOCR not installed. Please run: pip install easyocr")
+            raise
+    return _reader
 
 def clean_ocr_text(text: str) -> str:
     """Universally clean and normalize OCR text."""
@@ -67,38 +77,47 @@ def clean_ocr_text(text: str) -> str:
 def _ocr_image_elements(img_path: str, page_num: int = 1) -> list:
     """Run OCR and return structured bounding box elements."""
     t0 = time.time()
-    logger.info(f"[TIMING] PyTesseract page {page_num}: starting...")
+    logger.info(f"[TIMING] EasyOCR page {page_num}: starting...")
     
-    img = Image.open(img_path)
-    # Get verbose data including bounding boxes
-    data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
-    logger.info(f"[TIMING] PyTesseract page {page_num}: {time.time()-t0:.1f}s")
+    reader = _get_reader()
+    
+    try:
+        results = reader.readtext(img_path)
+    except Exception as e:
+        logger.error(f"EasyOCR failed: {e}")
+        return []
+        
+    logger.info(f"[TIMING] EasyOCR page {page_num}: {time.time()-t0:.1f}s")
     
     elements = []
     
-    n_boxes = len(data['level'])
-    for i in range(n_boxes):
-        text = str(data['text'][i])
+    for bbox, text, conf in results:
+        text = str(text)
         if not text or not text.strip():
             continue
             
-        conf = data['conf'][i]
         try:
-            conf = float(conf) / 100.0  # Tesseract conf is 0-100
+            conf = float(conf)
         except ValueError:
             conf = 0.0
             
         if conf < 0:
-            conf = 0.0 # Some internal tesseract errors yield -1
+            conf = 0.0
             
         text = clean_ocr_text(text)
         if not text:
             continue
             
-        x0 = float(data['left'][i])
-        y0 = float(data['top'][i])
-        x1 = x0 + float(data['width'][i])
-        y1 = y0 + float(data['height'][i])
+        # bbox is a list of 4 coordinates: [top_left, top_right, bottom_right, bottom_left]
+        # each coordinate is a list/tuple: [x, y]
+        # We need: x0 (min x), x1 (max x), y0 (min y), y1 (max y)
+        x_coords = [point[0] for point in bbox]
+        y_coords = [point[1] for point in bbox]
+        
+        x0 = float(min(x_coords))
+        x1 = float(max(x_coords))
+        y0 = float(min(y_coords))
+        y1 = float(max(y_coords))
         
         elements.append({
             "text": text,
@@ -215,4 +234,10 @@ def extract_text(file_path: str, ext: Optional[str] = None) -> dict:
     t_parse = time.time()
     result = process_document(all_elements)
     logger.info(f"[TIMING] process_document done in {time.time()-t_parse:.2f}s, total={time.time()-t_start:.2f}s")
+    
+    import json
+    logger.info("=== DEBUG: FINAL API PAYLOAD ===")
+    logger.info(json.dumps(result, indent=2))
+    logger.info("================================")
+    
     return result

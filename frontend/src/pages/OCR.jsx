@@ -425,25 +425,32 @@ const DocumentIntelligence = () => {
           </div>
 
           <div className="doc-intel-main">
-            {/* Dropzone */}
-            <div
-              className={`doc-intel-workspace-center${isDragging ? " dragging" : ""}`}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-            >
-              <div className="empty-state">
-                <Upload size={40} color={isDragging ? "var(--blue)" : "var(--ink-soft)"} />
-                <h2>Drag &amp; Drop any document or image</h2>
-                <p>PDF • DOC • DOCX • PNG • JPG • TIFF &amp; more supported</p>
-                <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={handleFileChange} />
-                <button className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>
-                  <Plus size={14} /> Browse Files
-                </button>
+            {canEdit ? (
+              <div
+                className={`doc-intel-workspace-center${isDragging ? " dragging" : ""}`}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+              >
+                <div className="empty-state">
+                  <Upload size={40} color={isDragging ? "var(--blue)" : "var(--ink-soft)"} />
+                  <h2>Drag &amp; Drop any document or image</h2>
+                  <p>PDF • DOC • DOCX • PNG • JPG • TIFF &amp; more supported</p>
+                  <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={handleFileChange} />
+                  <button className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>
+                    <Plus size={14} /> Browse Files
+                  </button>
+                </div>
               </div>
-            </div>
-
-
+            ) : (
+              <div className="doc-intel-workspace-center">
+                <div className="empty-state">
+                  <Eye size={40} color="var(--ink-soft)" />
+                  <h2>View Mode</h2>
+                  <p>You have view-only access to this module. Please select an existing document from the system to review its extracted data.</p>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
@@ -527,7 +534,7 @@ const DocumentIntelligence = () => {
                 <span className={`status-badge status-${docStatusKey}`}>{docStatus}</span>
                 {confidence != null && (
                   <span className={`confidence-pill ${confClass}`}>
-                    {confidence}% confidence
+                    {(confidence * 100).toFixed(2)}% confidence
                   </span>
                 )}
                 <span style={{ color: "var(--ink-faint)" }}>·</span>
@@ -627,6 +634,12 @@ const DocumentIntelligence = () => {
               </div>
 
               <div className="ocr-right-panel-body">
+                {confidence != null && confidence < 0.70 && (
+                  <div style={{ padding: "12px 16px", marginBottom: "16px", background: "var(--red-light, #fee2e2)", color: "var(--red-dark, #991b1b)", borderRadius: "var(--radius)", display: "flex", gap: "12px", alignItems: "center", fontSize: "13px" }}>
+                    <AlertTriangle size={16} />
+                    <span><strong>Low Confidence Extraction:</strong> The OCR engine had difficulty reading some parts of this document. Please review the extracted data carefully.</span>
+                  </div>
+                )}
 
                 {(extractionData.sections || []).length === 0 && (
                   <div style={{ padding: "40px", textAlign: "center", color: "var(--ink-soft)", fontSize: 13, background: "var(--paper)", borderRadius: "var(--radius)", border: "1px solid var(--line)" }}>
