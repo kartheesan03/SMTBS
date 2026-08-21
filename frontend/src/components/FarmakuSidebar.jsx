@@ -97,11 +97,44 @@ const FarmakuSidebar = () => {
     };
 
     const renderNavItem = (item, index) => {
+        const hasChildren = item.children && item.children.length > 0;
         const leafActive = isParentActive(item.children || []) || isLeafActive(item.path);
+        const isExpanded = expandedMenu === item.title;
         const isNotifications = item.path === '/notifications';
-        
-        // Flatten: If no path but has children, use first child's path
-        const targetPath = item.path || (item.children && item.children[0]?.path) || '#';
+
+        if (hasChildren) {
+            return (
+                <li key={index ?? item.title}>
+                    <div 
+                        className={`farmaku-nav-item ${leafActive ? 'active' : ''}`}
+                        onClick={() => toggleMenu(item.title)}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        {renderIcon(item.icon, item.title)}
+                        <span>{item.title}</span>
+                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+                            {isExpanded ? <Icons.ChevronDown size={16} /> : <Icons.ChevronRight size={16} />}
+                        </div>
+                    </div>
+                    {isExpanded && (
+                        <div className="farmaku-submenu" style={{ paddingLeft: '40px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {item.children.map((child, cIdx) => (
+                                <NavLink
+                                    key={cIdx}
+                                    to={child.path || '#'}
+                                    className={() => `farmaku-subnav-item ${isLeafActive(child.path) ? 'active' : ''}`}
+                                    style={{ fontSize: '13px', color: isLeafActive(child.path) ? 'var(--li-primary)' : 'var(--li-text-2)', textDecoration: 'none', padding: '6px 0', fontWeight: isLeafActive(child.path) ? 600 : 400 }}
+                                >
+                                    {child.title}
+                                </NavLink>
+                            ))}
+                        </div>
+                    )}
+                </li>
+            );
+        }
+
+        const targetPath = item.path || '#';
 
         return (
             <li key={index ?? item.title}>
