@@ -407,10 +407,14 @@ const getSuggestedConnections = async (req, res) => {
 
         followedIds.push(req.user.id);
 
+        const Op = require('sequelize').Op;
         const users = await User.sequelizeModel.findAll({
             where: {
                 id: {
-                    [require('sequelize').Op.notIn]: followedIds
+                    [Op.notIn]: followedIds
+                },
+                role: {
+                    [Op.ne]: 'Customer'
                 }
             },
             limit: 5,
