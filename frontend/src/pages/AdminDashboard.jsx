@@ -368,7 +368,7 @@ const AdminDashboard = () => {
                     <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a" }}>{attendancePct}%</span>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 16, fontSize: 12, marginTop: 4 }}>
+                <div style={{ display: "flex", gap: 16, fontSize: 12, marginTop: 20 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <div style={{ width: 8, height: 8, borderRadius: "50%", background: DONUT_COLORS[0] }} />
                     <span style={{ color: "#64748b" }}>Present <span style={{ color: "#0f172a", fontWeight: 700 }}>{attendanceTotal}</span></span>
