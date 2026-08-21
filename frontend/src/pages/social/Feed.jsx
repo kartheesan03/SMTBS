@@ -4,10 +4,11 @@ import { AuthContext } from '../../context/AuthContext';
 import CompanyFeed from './CompanyFeed';
 import {
   Home, Megaphone, Radio, Calendar, Image, Bookmark,
-  Building2, TrendingUp
+  Users, Building2, TrendingUp, ChevronRight
 } from 'lucide-react';
 import './CompanyFeed.css';
-import { getTrendingTags, getCompanyStats } from '../../api/posts';
+import { getSuggestedConnections, getTrendingTags, toggleFollow, getCompanyStats } from '../../api/posts';
+import toast from 'react-hot-toast';
 
 const TABS = [
   { id: 'Home',          label: 'Home',          icon: Home },
@@ -19,6 +20,7 @@ const TABS = [
 ];
 
 const COMPANY_LOGO = "https://ui-avatars.com/api/?name=SM&background=0f172a&color=fff&size=200&font-size=0.40&bold=true";
+const AVATAR_COLOR = '#0a66c2';
 
 class SafeSection extends React.Component {
   state = { error: null, errorInfo: null };
@@ -86,16 +88,21 @@ const Feed = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab]         = useState('Home');
   const [hashtagFilter, setHashtagFilter] = useState(null);
+  const [suggested, setSuggested]         = useState([]);
   const [trending, setTrending]           = useState([]);
+  const [followedIds, setFollowedIds]     = useState(new Set());
+  const [followLoading, setFollowLoading] = useState(new Set());
   const [companyStats, setCompanyStats]   = useState(null);
 
   React.useEffect(() => {
     const fetchSidebarData = async () => {
       try {
-        const [trendingRes, statsRes] = await Promise.all([
+        const [suggestionsRes, trendingRes, statsRes] = await Promise.all([
+          getSuggestedConnections(),
           getTrendingTags(),
           getCompanyStats()
         ]);
+        setSuggested(suggestionsRes || []);
         setTrending(trendingRes || []);
         if (statsRes) setCompanyStats(statsRes);
       } catch (err) {
@@ -115,6 +122,41 @@ const Feed = () => {
       if (appContent) appContent.style.overflowX = origContent;
     };
   }, []);
+
+  const handleFollow = async (userId, userName) => {
+    if (followLoading.has(userId)) return;
+    setFollowLoading(prev => new Set([...prev, userId]));
+    const wasFollowing = followedIds.has(userId);
+
+    // Optimistic update
+    setFollowedIds(prev => {
+      const next = new Set(prev);
+      if (wasFollowing) next.delete(userId); else next.add(userId);
+      return next;
+    });
+
+    try {
+      const res = await toggleFollow(userId);
+      if (res.following) {
+        toast.success(`Now following ${userName}`);
+      } else {
+        toast(`Unfollowed ${userName}`, { icon: '👋' });
+        // Remove from suggestions after unfollow so list refreshes
+        setSuggested(prev => prev.filter(p => p.id !== userId));
+        setFollowedIds(prev => { const n = new Set(prev); n.delete(userId); return n; });
+      }
+    } catch {
+      // Rollback
+      setFollowedIds(prev => {
+        const next = new Set(prev);
+        if (wasFollowing) next.add(userId); else next.delete(userId);
+        return next;
+      });
+      toast.error('Failed to update follow status');
+    } finally {
+      setFollowLoading(prev => { const n = new Set(prev); n.delete(userId); return n; });
+    }
+  };
 
   return (
     <div className="lf-root">
@@ -193,7 +235,62 @@ const Feed = () => {
         {/* ─── RIGHT SIDEBAR ─── */}
         <aside className="lf-right">
 
+          {/* People You May Know */}
+          <div className="lf-card lf-right-card">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--li-blue-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Users size={17} color="var(--li-primary)" />
+              </div>
+              <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1, fontSize: '15px' }}>People you may know</span>
+            </div>
 
+            {suggested.length === 0 ? (
+              <div style={{ fontSize: '13px', color: 'var(--li-text-3)', fontStyle: 'italic', padding: '6px 4px' }}>
+                No suggestions available
+              </div>
+            ) : suggested.map((p, i) => {
+              const initials   = (p.name || 'U').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+              const color      = AVATAR_COLOR;
+              const isFollowing = followedIds.has(p.id);
+              const isLoading  = followLoading.has(p.id);
+              return (
+                <div className="lf-person-row" key={p.id}>
+                  <div className="lf-person-avatar" style={{ background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', fontWeight: 600 }}>
+                    {p.picture ? (
+                      <img src={p.picture} alt={p.name} />
+                    ) : (
+                      initials
+                    )}
+                  </div>
+                  <div className="lf-person-meta">
+                    <div className="lf-person-name">{p.name}</div>
+                    <div className="lf-person-role">{p.role}</div>
+                  </div>
+                  <button
+                    className={`lf-person-action${isFollowing ? ' following' : ''}`}
+                    onClick={() => handleFollow(p.id, p.name)}
+                    disabled={isLoading}
+                  >
+                    {isFollowing ? 'Following' : '+ Follow'}
+                  </button>
+                </div>
+              );
+            })}
+
+            <button
+              onClick={() => navigate('/social/network')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '4px',
+                marginTop: '12px', background: 'none', border: 'none',
+                color: 'var(--li-primary)', fontSize: '13px', fontWeight: 600,
+                cursor: 'pointer', padding: 0, fontFamily: 'var(--li-font)'
+              }}
+              onMouseOver={e => e.currentTarget.style.color = 'var(--li-primary-hover)'}
+              onMouseOut={e => e.currentTarget.style.color = 'var(--li-primary)'}
+            >
+              View all <ChevronRight size={14} />
+            </button>
+          </div>
 
           {/* Trending Now */}
           <div className="lf-card lf-right-card">
