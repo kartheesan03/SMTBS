@@ -673,10 +673,11 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
                 <button className="cf-icon-btn" onClick={() => { document.getElementById('cf-file-upload-input').accept = ".pdf,.doc,.docx,application/pdf"; document.getElementById('cf-file-upload-input')?.click(); }}><FileText size={24} color="#666" /></button>
               </div>
               <button 
-                className={`cf-primary-btn ${(!composerText.trim() && !composerFile) || isPosting ? 'disabled' : ''}`}
-                disabled={(!composerText.trim() && !composerFile) || isPosting}
+                className={`cf-primary-btn ${(!composerText.trim() && composerFiles.length === 0) || isPosting || composerFiles.some(f => f.status === 'uploading') ? 'disabled' : ''}`}
+                disabled={(!composerText.trim() && composerFiles.length === 0) || isPosting || composerFiles.some(f => f.status === 'uploading')}
                 onClick={handlePost}
                 style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '16px' }}
+                title={composerFiles.some(f => f.status === 'uploading') ? 'Waiting for uploads to finish...' : ''}
               >
                 {isPosting ? <span className="cf-spinner"></span> : 'Post'}
               </button>

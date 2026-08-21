@@ -23,13 +23,59 @@ const COMPANY_LOGO = "https://ui-avatars.com/api/?name=SM&background=0f172a&colo
 const AVATAR_COLOR = '#0a66c2';
 
 class SafeSection extends React.Component {
-  state = { error: null };
+  state = { error: null, errorInfo: null };
   static getDerivedStateFromError(e) { return { error: e }; }
+  componentDidCatch(error, errorInfo) {
+    console.error('[SafeSection] Component crashed:', error, errorInfo);
+  }
   render() {
     if (this.state.error) {
+      const isNetwork = this.state.error?.message?.toLowerCase().includes('network') ||
+                        this.state.error?.message?.toLowerCase().includes('fetch');
       return (
-        <div style={{ padding: '20px', color: '#9ca3af', fontSize: '13px', textAlign: 'center' }}>
-          ⚠️ Could not load this section
+        <div style={{
+          background: 'var(--li-card, #fff)',
+          border: '1px solid var(--li-border, #e5e7eb)',
+          borderRadius: '8px',
+          padding: '40px 32px',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '12px',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
+        }}>
+          <div style={{ fontSize: '40px' }}>⚠️</div>
+          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#1e293b' }}>
+            {isNetwork ? 'Unable to load feed' : 'Something went wrong'}
+          </h3>
+          <p style={{ margin: 0, fontSize: '13px', color: '#64748b', maxWidth: '320px', lineHeight: 1.6 }}>
+            {isNetwork
+              ? 'Unable to load feed. Please check your connection and try again.'
+              : 'An unexpected error occurred while loading this section.'}
+          </p>
+          <button
+            onClick={() => this.setState({ error: null, errorInfo: null })}
+            style={{
+              marginTop: '8px',
+              background: '#0a66c2',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '20px',
+              padding: '10px 24px',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            🔄 Retry
+          </button>
+          {process.env.NODE_ENV === 'development' && (
+            <details style={{ marginTop: '8px', fontSize: '11px', color: '#94a3b8', textAlign: 'left', maxWidth: '400px', wordBreak: 'break-all' }}>
+              <summary style={{ cursor: 'pointer' }}>Error details</summary>
+              <pre style={{ marginTop: '8px', whiteSpace: 'pre-wrap' }}>{String(this.state.error)}</pre>
+            </details>
+          )}
         </div>
       );
     }

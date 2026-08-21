@@ -94,13 +94,3 @@ export const getCompanyStats = async () => {
     const response = await API.get('/feed/company-stats');
     return response.data;
 };
-
-export const uploadMediaFile = async (file, onUploadProgress) => {
-    const formData = new FormData();
-    formData.append('media', file);
-    const response = await API.post('/feed/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress
-    });
-    return response.data;
-};
