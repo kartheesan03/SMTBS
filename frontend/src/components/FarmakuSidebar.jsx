@@ -103,8 +103,6 @@ const FarmakuSidebar = () => {
         // Flatten: If no path but has children, use first child's path
         const targetPath = item.path || (item.children && item.children[0]?.path) || '#';
 
-        const isNotifications = item.path === '/notifications';
-
         return (
             <li key={index ?? item.title}>
                 <NavLink
