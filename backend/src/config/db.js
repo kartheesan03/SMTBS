@@ -135,7 +135,6 @@ const syncAndRepairDatabase = async () => {
         const updatedUsers = await UserModel.findAll();
         for (const user of updatedUsers) {
             if (user.role === 'Customer' || user.role === 'Vendor') continue;
-            if (protectedEmails.has(user.email)) continue;
             let emp = await EmployeeModel.findOne({ where: { userIdField: user.id } });
             if (!emp && user.email) {
                 emp = await EmployeeModel.findOne({ where: { contact: user.email } });

@@ -196,6 +196,7 @@ const DocumentIntelligence = () => {
       setTimeout(() => setProcessingStep(1), 1500),
       setTimeout(() => setProcessingStep(2), 3500),
       setTimeout(() => setProcessingStep(3), 6000),
+      setTimeout(() => setProcessingStep(4), 8000),
     ];
     const formData = new FormData();
     formData.append("file", fileToProcess);
@@ -491,6 +492,10 @@ const DocumentIntelligence = () => {
                 <div className={`step-indicator ${processingStep >= 3 ? 'active' : ''}`}>
                    {processingStep > 3 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 3 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
                    <span>Formatting as Structured Tables...</span>
+                </div>
+                <div className={`step-indicator ${processingStep >= 4 ? 'active' : ''}`}>
+                   {processingStep > 4 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 4 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
+                   <span>Running OCR Engine (This may take ~60s on CPU)...</span>
                 </div>
               </div>
             </div>

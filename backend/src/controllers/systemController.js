@@ -279,7 +279,7 @@ exports.getNavigation = async (req, res) => {
         let userPermissions = Array.isArray(req.user.permissions) ? [...req.user.permissions] : [];
         const roleName = req.user.role ? req.user.role.toLowerCase() : '';
         console.log(`[getNavigation] User Email: ${req.user.email}, Role: ${roleName}, Permissions: ${userPermissions}`);
-        if (req.user.email === 'admin@smtbms.com' || roleName === 'admin' || roleName === 'super admin') {
+        if (req.user.email === 'admin@smtbms.com' || roleName === 'admin' || roleName === 'super admin' || roleName === 'system admin') {
             userPermissions.push('all');
         }
         if (roleName === 'employee') {

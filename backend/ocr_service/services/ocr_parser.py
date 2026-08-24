@@ -140,12 +140,17 @@ def process_document(elements: List[Dict]) -> Dict:
     doc_info = {}
     vendor_name = None
     
-    # Try to grab vendor name from the first line if it's substantial
-    if len(lines) > 0:
+    # Try to grab vendor name from the first line if it's substantial (mostly for receipts/invoices)
+    if is_receipt and len(lines) > 0:
         first_line_text = clean_line_text(lines[0])
         if len(first_line_text) > 3 and not re.search(r'\d', first_line_text):
             vendor_name = first_line_text
             doc_info["Vendor"] = vendor_name
+    elif not is_receipt and len(lines) > 0:
+        # Just call it Title instead of Vendor
+        first_line_text = clean_line_text(lines[0])
+        if len(first_line_text) > 3:
+            doc_info["Title"] = first_line_text
 
     for i, line in enumerate(lines):
         line_text = clean_line_text(line)
@@ -267,11 +272,17 @@ def process_document(elements: List[Dict]) -> Dict:
         headers = [e["text"] for e in best_headers]
         col_centers = [(e["x0"] + e["x1"]) / 2 for e in best_headers]
         
-        end_idx = best_header_idx
+        end_idx = len(lines)
         for i in range(best_header_idx + 1, len(lines)):
             line = lines[i]
             line_text = clean_line_text(line).upper()
-            if any(k in line_text for k in ["SUBTOTAL", "TOTAL AMOUNT", "NET PAYABLE", "GRAND TOTAL", "TOTAL"]):
+            
+            # Stop if we hit something that clearly looks like a receipt's final total (only if receipt-like)
+            if is_receipt and any(k in line_text for k in ["SUBTOTAL", "TOTAL AMOUNT", "NET PAYABLE", "GRAND TOTAL"]):
+                break
+            
+            # Also stop if we hit an entirely blank section or distinct new block (simple heuristic)
+            if not line_text.strip():
                 break
                 
             row_data = {h: "" for h in headers}
@@ -305,13 +316,14 @@ def process_document(elements: List[Dict]) -> Dict:
     # Process Summary (Total)
     summary_kv = {}
     extracted_total = None
-    for i in range(end_idx + 1, len(lines)):
-        line_text = clean_line_text(lines[i]).upper()
-        if "TOTAL" in line_text or "AMOUNT" in line_text or "SUBTOTAL" in line_text:
-            nums = re.findall(r'[\d\.,]+', line_text)
-            if nums:
-                summary_kv["Total"] = nums[-1]
-                extracted_total = parse_number(nums[-1])
+    if is_receipt:
+        for i in range(end_idx + 1, len(lines)):
+            line_text = clean_line_text(lines[i]).upper()
+            if "TOTAL" in line_text or "AMOUNT" in line_text or "SUBTOTAL" in line_text:
+                nums = re.findall(r'[\d\.,]+', line_text)
+                if nums:
+                    summary_kv["Total"] = nums[-1]
+                    extracted_total = parse_number(nums[-1])
 
     # 4. Validation Logic
     # Validate mathematical sum

@@ -154,6 +154,9 @@ const loginUser = async (req, res) => {
         description: `${actualName} (${role}) logged in successfully.`,
         ipAddress: req.ip
     }).catch(() => {});
+    const Employee = require('../models/Employee');
+    const emp = await Employee.findOne({ userIdField: user._id }) || await Employee.findOne({ contact: user.email });
+    
     return res.json({
         _id: user._id,
         name: actualName,
@@ -165,6 +168,8 @@ const loginUser = async (req, res) => {
         bio: user.bio,
         skills: user.skills,
         isProfileComplete: user.isProfileComplete,
+        employeeId: emp?.employeeId,
+        department: emp?.department,
         token: generateToken(user._id),
         user: {
             id: user._id,
@@ -176,6 +181,8 @@ const loginUser = async (req, res) => {
             birthday: user.birthday,
             bio: user.bio,
             skills: user.skills,
+            employeeId: emp?.employeeId,
+            department: emp?.department,
             isProfileComplete: user.isProfileComplete
         }
     });
@@ -612,6 +619,9 @@ const getUserProfile = async (req, res) => {
             if (user.email === 'admin@smtbms.com' && !permissions.includes('all')) {
                 permissions.push('all');
             }
+            const Employee = require('../models/Employee');
+            const emp = await Employee.findOne({ userIdField: user._id }) || await Employee.findOne({ contact: user.email });
+
             res.json({
                 _id: user._id,
                 name: actualName,
@@ -623,6 +633,8 @@ const getUserProfile = async (req, res) => {
                 bio: user.bio,
                 skills: user.skills,
                 isProfileComplete: user.isProfileComplete,
+                employeeId: emp?.employeeId,
+                department: emp?.department,
                 token: generateToken(user._id),
                 user: {
                     id: user._id,
@@ -634,6 +646,8 @@ const getUserProfile = async (req, res) => {
                     birthday: user.birthday,
                     bio: user.bio,
                     skills: user.skills,
+                    employeeId: emp?.employeeId,
+                    department: emp?.department,
                     isProfileComplete: user.isProfileComplete
                 }
             });

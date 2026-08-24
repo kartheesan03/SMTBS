@@ -55,7 +55,7 @@ const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub, spa
       </div>
       {sparkData && (
         <div style={{ width: '80px', height: '40px' }}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <LineChart data={sparkData}>
               <Line type="monotone" dataKey="v" stroke={sparkColor} strokeWidth={2} dot={false} isAnimationActive={false} />
             </LineChart>
@@ -326,7 +326,7 @@ const AdminDashboard = () => {
               </div>
               <div style={{ flex: 1, minHeight: "160px", marginTop: "10px" }}>
                 {chartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%" style={{ outline: 'none' }}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1} style={{ outline: 'none' }}>
                     <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 10 }} style={{ outline: 'none' }}>
                       <defs>
                         <linearGradient id="colorRev2" x1="0" y1="0" x2="0" y2="1">
@@ -359,7 +359,7 @@ const AdminDashboard = () => {
               </div>
               <div className="db-card-body" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, flex: 1, justifyContent: 'center' }}>
                 <div className="db-donut-wrap" style={{ position: "relative", height: "120px", width: "100%", display: "flex", justifyContent: "center" }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                     <PieChart>
                       <Pie data={donutData} cx="50%" cy="50%" innerRadius={42} outerRadius={56} dataKey="value" startAngle={90} endAngle={-270} stroke="none" cornerRadius={4}>
                         {donutData.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />)}
@@ -470,7 +470,7 @@ const AdminDashboard = () => {
               </div>
               <div className="db-card-body" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, flex: 1, justifyContent: 'center' }}>
                 <div className="db-donut-wrap" style={{ position: "relative", height: "120px", width: "100%", display: "flex", justifyContent: "center" }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                     <PieChart>
                       <Pie data={[{name: 'A', value: 400}, {name: 'B', value: 300}, {name: 'C', value: 300}, {name: 'D', value: 200}]} cx="50%" cy="50%" innerRadius={42} outerRadius={56} dataKey="value" stroke="none" cornerRadius={4}>
                         <Cell fill="#3b82f6" />
@@ -505,7 +505,7 @@ const AdminDashboard = () => {
                   {profitTrendPct >= 0 ? '↑' : '↓'} {Math.abs(profitTrendPct)}% vs last month
                 </div>
                 <div style={{ width: "100%", flex: 1, minHeight: '80px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                     <LineChart data={sparkData}>
                       <Line type="monotone" dataKey="v" stroke="#3b82f6" strokeWidth={3} dot={false} />
                     </LineChart>
@@ -540,11 +540,11 @@ const AdminDashboard = () => {
               <div className="db-profile-info">
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Admin ID</span>
-                  <span className="db-profile-info-val">#ADM-001</span>
+                  <span className="db-profile-info-val">{user?.employeeId || "N/A"}</span>
                 </div>
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Department</span>
-                  <span className="db-profile-info-val">IT & Management</span>
+                  <span className="db-profile-info-val">{user?.department || user?.role || "N/A"}</span>
                 </div>
                 <div className="db-profile-info-row">
                   <span className="db-profile-info-label">Email</span>
