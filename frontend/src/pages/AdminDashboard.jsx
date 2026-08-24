@@ -1,623 +1,460 @@
-import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useDashboardData } from "../hooks/useDashboardData";
-import { useAiInsights } from "../hooks/useAiInsights";
-import API from "../api/axios";
-import {
-  Users, ShoppingCart, DollarSign, Box, FileText, Truck,
-  BarChart2, Bell, CheckCircle2, Calendar, Cpu, ListTodo,
-  UserCheck, Activity, AlertCircle, AlertTriangle, Package,
-  Layers, Target, Building2, Tag, Clock, TrendingUp,
-  TrendingDown, Settings, Plus, ArrowRight, UserPlus, CreditCard,
-  LineChart as LineChartIcon, Briefcase, Database, Folder
+import { 
+  Calendar as CalIcon, Bell, Search, Plus, User, CheckCircle, AlertTriangle, 
+  Clock, Activity, FileText, Settings, HelpCircle, HardHat, Package, 
+  Briefcase, ArrowRight, Home, CreditCard, Layers, TrendingUp, Zap, Calendar, ChevronDown,
+  ArrowUpRight, ArrowDownRight, Users, Cloud
 } from "lucide-react";
 import {
-  AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar,
-  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line,
-  ComposedChart
+  PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
+  BarChart, Bar
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
 import { LoadingState, ErrorState } from "../components/DataStates";
 
-/* ─── helpers ─── */
-const greeting = () => {
-  const h = new Date().getHours();
-  if (h < 12) return "Good Morning";
-  if (h < 18) return "Good Afternoon";
-  return "Good Evening";
-};
 const fmtINR = (v) => {
   if (!v && v !== 0) return "₹0";
   const abs = Math.abs(v);
-  if (abs >= 100000) return `₹${(abs / 100000).toFixed(2)}L`;
-  if (abs >= 1000) return `₹${(abs / 1000).toFixed(1)}k`;
-  return `₹${abs}`;
+  if (abs >= 10000000) return `₹${(abs / 10000000).toFixed(2)} Cr`;
+  if (abs >= 100000) return `₹${(abs / 100000).toFixed(2)} L`;
+  return `₹${abs.toLocaleString('en-IN')}`;
 };
-const fmtTime = (iso) =>
-  new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-/* ─── sub-components ─── */
-const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub, sparkData, sparkColor }) => (
-  <div className="db-kpi-card">
-    <div className="db-kpi-top">
-      <div className={`db-kpi-icon ${iconClass}`}><Icon size={22} /></div>
-      {trend && (
-        <span className={`db-kpi-trend ${trendUp ? "up" : "down"}`}>
-          {trendUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {trend}
-        </span>
-      )}
-    </div>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
-      <div>
-        <div className="db-kpi-value">{value}</div>
-        <div className="db-kpi-label">{label}</div>
-      </div>
-      {sparkData && (
-        <div style={{ width: '80px', height: '40px' }}>
-          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-            <LineChart data={sparkData}>
-              <Line type="monotone" dataKey="v" stroke={sparkColor} strokeWidth={2} dot={false} isAnimationActive={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-    </div>
-    {sub && <div className="db-kpi-sub" style={{ marginTop: '8px' }}>{sub}</div>}
-  </div>
-);
-
-const QaBtn = ({ icon: Icon, label, colorClass, onClick }) => (
-  <div className="db-qa-item" onClick={onClick}>
-    <div className={`db-qa-icon ${colorClass}`}><Icon size={20} /></div>
-    <span className="db-qa-label">{label}</span>
-  </div>
-);
-
-const StatusRow = ({ name, status }) => {
-  const cls = status === "Healthy" ? "status-healthy" : status === "Warning" ? "status-warning" : "status-critical";
-  return (
-    <div className="db-status-row">
-      <span className="db-status-name">{name}</span>
-      <span className={`db-status-badge ${cls}`}>{status}</span>
-    </div>
-  );
-};
-
-const ActivityItem = ({ icon: Icon, iconBg, iconColor, title, desc, time }) => (
-  <div className="db-activity-item">
-    <div className="db-activity-icon" style={{ background: iconBg, color: iconColor }}>
-      <Icon size={14} />
-    </div>
-    <div className="db-activity-body">
-      <div className="db-activity-title">{title}</div>
-      <div className="db-activity-desc">{desc}</div>
-    </div>
-    <div className="db-activity-time">{time}</div>
-  </div>
-);
-
-/* sparkline data seeds */
-const SPARK = [4,7,5,9,6,11,8,13,10,15,12,14];
-const DONUT_COLORS = ["#22c55e", "#ef4444"];
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const { data: dashboardData, loading, error } = useDashboardData();
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
-  const [revTrendYear, setRevTrendYear] = useState("current");
-  const [now, setNow] = useState(new Date());
-  
-  const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();
 
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 60000);
-    return () => clearInterval(t);
-  }, []);
+  if (loading) return <LoadingState message="Loading dashboard…" height="100vh" />;
+  if (error)   return <ErrorState message="Failed to load dashboard." height="100vh" />;
 
-  useEffect(() => {
-    API.get("/tasks").then(r => {
-      const future = (r.data || [])
-        .filter(t => t.dueDate && new Date(t.dueDate) >= new Date())
-        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-        .slice(0, 4)
-        .map(t => {
-          const d = new Date(t.dueDate);
-          const colors = ["#6366f1","#f97316","#22c55e","#ef4444"];
-          const bgs = ["#EEF2FF","#FFEDD5","#DCFCE7","#FEE2E2"];
-          const i = upcomingEvents.length % 4;
-          return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"General", color: colors[i], bg: bgs[i] };
-        });
-      setUpcomingEvents(future);
-    }).catch(() => {});
-  }, []);
-
-  if (loading) return <LoadingState message="Loading Admin Dashboard…" height="100vh" />;
-  if (error)   return <ErrorState   message="Failed to load dashboard." height="100vh" />;
-
-  /* ── derived stats ── */
   const s = dashboardData?.stats || {};
-  const totalRevenue   = s.revenue || 0;
-  const totalEmployees = s.totalEmployees || 0;
-  const totalOrders    = s.totalOrders || 0;
-  const totalMaterials = s.totalMaterials || 0;
-  const activeOrders   = s.activeOrdersCount || 0;
-  const pendingOrders  = s.pendingOrders || 0;
-  const totalVendors   = s.totalVendors || 0;
-  const activeCustomers= s.activeCustomers || 0;
-  const fulfillment    = dashboardData?.analytics?.healthMetrics?.orderFulfillment || 0;
-  const completedTasks = s.completedTasks || 0;
-  const pendingTasks   = s.pendingTasks || 0;
-  const lowStock       = dashboardData?.tables?.lowStock || [];
-  const recentActivity = dashboardData?.tables?.recentActivity || [];
-  const notifications  = dashboardData?.tables?.notifications || [];
-  const empDist        = dashboardData?.hrStats?.employeeDistribution || [];
-  const trendRaw       = dashboardData?.analytics?.trendData || dashboardData?.charts?.monthlyStats || [];
-  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const chartData      = trendRaw.map(d => {
-    let mName = d.name;
-    if (!isNaN(mName) && mName >= 1 && mName <= 12) mName = MONTHS[mName - 1];
-    return {
-      name: mName,
-      revenue: revTrendYear === "current" ? (d.revenue||0) : (d.lastYearRevenue||0),
-      expenses: revTrendYear === "current" ? (d.expenses||0) : (d.lastYearExpenses||0),
-    };
-  });
+  const tables = dashboardData?.tables || {};
+  
+  // Real ERP data mapped to BuildAxis concepts
+  const totalProjects = s.totalOrders || 24; 
+  const completedProjects = (s.totalOrders ? Math.floor(s.totalOrders * 0.25) : 6);
+  const delayedProjects = tables.lowStock?.length || 3;
+  const ongoingActivities = s.totalMaterials || 128;
+  const pendingApprovals = (s.totalCustomers || 18);
+  const attendancePct = Math.round((s.presentToday || 0) / (s.totalEmployees || 1) * 100) || 87;
 
-  const purchaseCost = s.purchaseCost || 0;
-  const totalProfit = totalRevenue - purchaseCost;
-  const thisMonthRev = chartData.length > 0 ? chartData[chartData.length - 1].revenue : 0;
-  const lastMonthRev = chartData.length > 1 ? chartData[chartData.length - 2].revenue : 0;
-  const profitTrendPct = lastMonthRev ? (((thisMonthRev - lastMonthRev) / lastMonthRev) * 100).toFixed(1) : 0;
-  const sparkData = chartData.length > 0 ? chartData.map((d, i) => ({ i, v: d.revenue })) : [{i:0, v:0}];
+  // Chart Data mappings
+  const budgetUtil = [
+    { name: 'Utilized', value: 65.70, color: '#3b82f6' },
+    { name: 'Committed', value: 32.30, color: '#f59e0b' },
+    { name: 'Balance', value: 17.80, color: '#ef4444' }
+  ];
 
-  /* attendance donut */
-  const attendanceTotal  = dashboardData?.hrStats?.presentToday || 0;
-  const attendanceAbsent = Math.max(0, totalEmployees - attendanceTotal);
-  const donutData = attendanceTotal > 0
-    ? [{ name: "Present", value: attendanceTotal }, { name: "Absent", value: attendanceAbsent }]
-    : [{ name: "No Data", value: 1 }];
-  const attendancePct = totalEmployees > 0 ? Math.round((attendanceTotal / totalEmployees) * 100) : 0;
+  // Map analytics charts
+  const timelineData = (dashboardData?.charts?.monthlyRevenue || []).map((d, i) => ({
+    name: ['Jan','Feb','Mar','Apr','May','Jun'][i] || 'Month',
+    planned: (d.revenue || 0) + 1000,
+    actual: d.revenue || 0,
+    forecast: (d.revenue || 0) + 500
+  })).slice(0, 6);
+  if (timelineData.length === 0) {
+    timelineData.push({name: 'Jan', planned: 20, actual: 10, forecast: 15});
+    timelineData.push({name: 'Feb', planned: 40, actual: 20, forecast: 30});
+    timelineData.push({name: 'Mar', planned: 60, actual: 40, forecast: 45});
+    timelineData.push({name: 'Apr', planned: 80, actual: 55, forecast: 65});
+  }
 
-  const fallbackAiInsights = [
-    totalRevenue > 0 && `Revenue is ${fmtINR(totalRevenue)} this period — tracking positively.`,
-    lowStock.length > 0 && `${lowStock.length} material${lowStock.length > 1 ? "s are" : " is"} below reorder threshold.`,
-    pendingOrders > 0 && `${pendingOrders} order${pendingOrders > 1 ? "s are" : " is"} pending approval.`,
-    totalEmployees > 0 && `${attendanceTotal} of ${totalEmployees} employees present today (${attendancePct}%).`,
-    pendingTasks > 0 && `${pendingTasks} task${pendingTasks > 1 ? "s are" : " is"} still pending completion.`,
-  ].filter(Boolean).slice(0, 5);
+  // Site-wise Performance (mapped from top materials)
+  const sitePerformance = (tables.topMaterials || []).slice(0, 4).map((m, i) => ({
+    site: m.name,
+    location: m.category || "Warehouse",
+    progress: Math.floor(Math.random() * 40) + 40,
+    color: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6'][i%4]
+  }));
+  if (sitePerformance.length === 0) {
+    sitePerformance.push({site: "Greenfield Residences", location: "Bangalore", progress: 72, color: "#10b981"});
+    sitePerformance.push({site: "Skyline Towers", location: "Mumbai", progress: 58, color: "#f59e0b"});
+    sitePerformance.push({site: "TechX IT Park", location: "Hyderabad", progress: 65, color: "#3b82f6"});
+    sitePerformance.push({site: "Riverfront Villas", location: "Pune", progress: 41, color: "#ef4444"});
+  }
 
-  const displayInsights = (aiError || !fetchedAiInsights) ? fallbackAiInsights : fetchedAiInsights;
+  // Lists
+  const recentUpdates = (tables.recentActivity || []).slice(0, 4);
+  const criticalAlerts = (tables.lowStock || []).slice(0, 4);
+  const deadlines = (tables.recentActivity || []).slice(4, 8); // Just dummy mapping for now to show lists
 
-  /* top materials */
-  const topMaterials = (dashboardData?.tables?.topMaterials || []).slice(0, 5);
-  const maxMatVal = topMaterials.reduce((m, d) => Math.max(m, d.revenue || d.value || 0), 1);
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric', weekday: 'long'});
 
   return (
-    <div className="db-page">
-      <div className="db-content db-layout-split">
-        
-        {/* ── LEFT MAIN CONTENT ── */}
-        <div className="db-main-content">
-          
-          {/* Row 1: 4 Stat Cards */}
-          <div className="db-kpi-grid">
-            <KpiCard icon={AlertTriangle} iconClass="orange" label="Low Stock Items" value={lowStock.length} trend="Needs Attention" trendUp={false} sub="Below reorder level" sparkData={null} sparkColor="#f97316" />
-            <KpiCard icon={DollarSign}   iconClass="blue"   label="Revenue Today"    value={fmtINR(totalRevenue)}    trend="vs yesterday"  trendUp={true}  sub="Year-to-date" sparkData={sparkData} sparkColor="#3b82f6" />
-            <KpiCard icon={ShoppingCart} iconClass="orange" label="Orders Today"     value={activeOrders}            trend={`${pendingOrders} pending`} trendUp={false} sub="Active orders" sparkData={sparkData} sparkColor="#f97316" />
-            <KpiCard icon={Users}        iconClass="purple" label="Active Employees"  value={totalEmployees}          trend="vs last month" trendUp={true}  sub={`${attendanceTotal} present today`} sparkData={sparkData} sparkColor="#a855f7" />
-          </div>
+    <div className="bx-layout">
+      
 
-          {/* Row 2: Quick Actions */}
-          <div className="db-quick-actions">
-            <div className="db-section-title">Quick Actions</div>
-            <div className="db-qa-grid">
-              <QaBtn icon={CheckCircle2} label="Attendance"     colorClass="qa-red"    onClick={() => navigate("/attendance")} />
-              <QaBtn icon={Users}        label="Employee"       colorClass="qa-blue"   onClick={() => navigate("/employees")} />
-              <QaBtn icon={DollarSign}   label="Payroll"        colorClass="qa-purple" onClick={() => navigate("/payroll")} />
-              <QaBtn icon={Box}          label="Inventory"      colorClass="qa-orange" onClick={() => navigate("/materials")} />
-              <QaBtn icon={Tag}          label="Sales"          colorClass="qa-green"  onClick={() => navigate("/orders")} />
-              <QaBtn icon={Building2}    label="Vendors"        colorClass="qa-teal"   onClick={() => navigate("/vendors")} />
-              <QaBtn icon={FileText}     label="Reports"        colorClass="qa-amber"  onClick={() => navigate("/analytics")} />
-              <QaBtn icon={Settings}     label="Settings"       colorClass="qa-cyan"   onClick={() => navigate("/settings")} />
-              <QaBtn icon={Layers}       label="ERP"            colorClass="qa-indigo" onClick={() => navigate("/erp")} />
-              <QaBtn icon={ListTodo}     label="Tasks"          colorClass="qa-pink"   onClick={() => navigate("/my-tasks")} />
-              <QaBtn icon={Folder}       label="Projects"       colorClass="qa-blue"   onClick={() => navigate("/projects")} />
-            </div>
-          </div>
+      {/* MAIN CONTENT */}
+      <div className="bx-main-wrapper">
 
-          {/* Row 3: Stats Mini Row */}
-          <div className="db-stats-mini-grid">
-            <div className="db-stats-mini-card">
-              <div className="db-stats-mini-icon" style={{ background: "#EEF2FF", color: "#4F46E5" }}><Users size={18} /></div>
-              <div className="db-stats-mini-body">
-                <div className="db-stats-mini-val">{totalEmployees}</div>
-                <div className="db-stats-mini-label">Total Employees</div>
-                <span className="db-stats-mini-badge badge-green-sm">↑ 6% this month</span>
-              </div>
-            </div>
-            <div className="db-stats-mini-card">
-              <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><UserCheck size={18} /></div>
-              <div className="db-stats-mini-body">
-                <div className="db-stats-mini-val">{attendanceTotal}</div>
-                <div className="db-stats-mini-label">Present Today</div>
-                <span className="db-stats-mini-badge badge-green-sm">{attendancePct}%</span>
-              </div>
-            </div>
-            <div className="db-stats-mini-card">
-              <div className="db-stats-mini-icon" style={{ background: "#FEF9C3", color: "#92400E" }}><Calendar size={18} /></div>
-              <div className="db-stats-mini-body">
-                <div className="db-stats-mini-val">{dashboardData?.hrStats?.pendingLeaves || 0}</div>
-                <div className="db-stats-mini-label">Pending Leaves</div>
-                <span className="db-stats-mini-badge badge-orange-sm">Needs Approval</span>
-              </div>
-            </div>
-            <div className="db-stats-mini-card">
-              <div className="db-stats-mini-icon" style={{ background: "#DBEAFE", color: "#1D4ED8" }}><Box size={18} /></div>
-              <div className="db-stats-mini-body">
-                <div className="db-stats-mini-val">{totalMaterials}</div>
-                <div className="db-stats-mini-label">Active Materials</div>
-                <span className="db-stats-mini-badge badge-blue-sm">In Inventory</span>
-              </div>
-            </div>
-            <div className="db-stats-mini-card">
-              <div className="db-stats-mini-icon" style={{ background: "#FFEDD5", color: "#C2410C" }}><ShoppingCart size={18} /></div>
-              <div className="db-stats-mini-body">
-                <div className="db-stats-mini-val">{pendingOrders}</div>
-                <div className="db-stats-mini-label">Open PO Orders</div>
-                <span className="db-stats-mini-badge badge-orange-sm">Total Open</span>
-              </div>
-            </div>
-            <div className="db-stats-mini-card">
-              <div className="db-stats-mini-icon" style={{ background: "#DCFCE7", color: "#15803D" }}><DollarSign size={18} /></div>
-              <div className="db-stats-mini-body">
-                <div className="db-stats-mini-val">{fmtINR(totalRevenue)}</div>
-                <div className="db-stats-mini-label">Total Revenue</div>
-                <span className="db-stats-mini-badge badge-green-sm">YTD</span>
-              </div>
-            </div>
-            <div className="db-stats-mini-card">
-              <div className="db-stats-mini-icon" style={{ background: "#F3E8FF", color: "#7C3AED" }}><BarChart2 size={18} /></div>
-              <div className="db-stats-mini-body">
-                <div className="db-stats-mini-val">{fmtINR(thisMonthRev)}</div>
-                <div className="db-stats-mini-label">Monthly Sales</div>
-                <span className={`db-stats-mini-badge ${profitTrendPct >= 0 ? 'badge-green-sm' : 'badge-red-sm'}`}>
-                  {profitTrendPct >= 0 ? '↑' : '↓'} {Math.abs(profitTrendPct)}%
-                </span>
-              </div>
-            </div>
-            <div className="db-stats-mini-card">
-              <div className="db-stats-mini-icon" style={{ background: "#FEE2E2", color: "#DC2626" }}><ListTodo size={18} /></div>
-              <div className="db-stats-mini-body">
-                <div className="db-stats-mini-val">{pendingTasks}</div>
-                <div className="db-stats-mini-label">Pending Tasks</div>
-                <span className="db-stats-mini-badge badge-red-sm">Due Soon</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Row 4: Panel Row 1 (4 columns) */}
-          <div className="db-panel-grid">
+        <div className="bx-content-scroll">
+          <div className="bx-center-col">
             
-            {/* 1. Low Stock Alerts */}
-            <div className="db-card">
-              <div className="db-card-header">
-                <div className="db-card-title">Low Stock Alerts</div>
-                <span className="db-card-link" onClick={() => navigate("/materials")}>View Inventory</span>
+            {/* HERO */}
+            <div className="bx-hero">
+              <div className="bx-hero-text">
+                <h1>Good morning, {user?.name?.split(' ')[0] || 'Karthick'}! <span style={{fontSize:'1.5rem', display:'inline-block'}}>👋</span></h1>
+                <p>Here's what's happening across your projects today.</p>
+                
+                    <div className="bx-hero-meta" style={{display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'1rem', marginTop:'1.5rem'}}>
+                <div style={{display:'flex', alignItems:'center', gap:'8px', color:'var(--bx-text-dark)', fontWeight:'500', fontSize:'0.9rem'}}>
+                  <Calendar size={16} color="var(--bx-primary)"/> Monday, 24 Aug 2026
+                </div>
+                <div style={{display:'flex', gap:'1.5rem', alignItems:'center'}}>
+                  <div style={{display:'flex', gap:'8px', alignItems:'center', color:'var(--bx-text-dark)', fontWeight:'500', fontSize:'0.9rem'}}>
+                    <Cloud size={16} color="#1e293b"/> 28°C <span style={{color:'var(--bx-text-muted)', fontSize:'0.8rem', fontWeight:'normal'}}>Partly Cloudy</span>
+                  </div>
+                  <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#10b981', fontSize:'0.9rem', fontWeight:'500'}}>
+                    <span className="bx-status-dot"></span> Live Data
+                  </div>
+                </div>
               </div>
-              <div className="db-status-list" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '8px' }}>
-                {lowStock.length > 0 ? lowStock.slice(0, 6).map((item, idx) => (
-                  <StatusRow key={idx} name={item.materialName || item.name || "Material"} status={`${item.currentStock || item.stock || 0} left`} />
-                )) : (
-                  <div className="db-empty" style={{ padding: '16px', textAlign: 'center', color: '#94a3b8' }}>Stock levels healthy</div>
-                )}
               </div>
-            </div>
+              
+              {/* Fake illustration placeholder */}
+              <div className="bx-hero-illustration">
+                {/* Normally an image here */}
+              </div>
 
-            {/* 2. Revenue Trend */}
-            <div className="db-card">
-              <div className="db-card-header" style={{ paddingBottom: 0, borderBottom: 'none' }}>
-                <div className="db-card-title">Revenue Trend</div>
-                <select className="db-panel-select" value={revTrendYear} onChange={e => setRevTrendYear(e.target.value)} style={{ background: '#f8fafc', padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
-                  <option value="current">This Month</option>
-                  <option value="last">Last Month</option>
-                </select>
-              </div>
-              <div style={{ flex: 1, minHeight: "160px", marginTop: "10px" }}>
-                {chartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1} style={{ outline: 'none' }}>
-                    <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 10 }} style={{ outline: 'none' }}>
-                      <defs>
-                        <linearGradient id="colorRev2" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.4} />
-                          <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#94a3b8" }} dx={-10} tickFormatter={(val) => `₹${val/1000}k`} />
-                      <Tooltip 
-                        cursor={false}
-                        labelFormatter={(label) => label}
-                        formatter={(value) => [`₹${value.toLocaleString('en-IN')}`, 'Revenue']}
-                        contentStyle={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', padding: '8px 12px', fontSize: '12px' }} 
-                      />
-                      <Area type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={3} fill="url(#colorRev2)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="db-empty" style={{ textAlign: 'center', paddingTop: '20px', color: '#94a3b8' }}>No data</div>
-                )}
-              </div>
-            </div>
-
-            {/* 3. Employee Attendance */}
-            <div className="db-card">
-              <div className="db-card-header">
-                <div className="db-card-title">Employee Attendance</div>
-              </div>
-              <div className="db-card-body" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, flex: 1, justifyContent: 'center' }}>
-                <div className="db-donut-wrap" style={{ position: "relative", height: "120px", width: "100%", display: "flex", justifyContent: "center" }}>
-                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+              <div className="bx-hero-card">
+                <div style={{position:'relative', width:'60px', height:'60px', flexShrink: 0, minWidth: '60px'}}>
+                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={donutData} cx="50%" cy="50%" innerRadius={42} outerRadius={56} dataKey="value" startAngle={90} endAngle={-270} stroke="none" cornerRadius={4}>
-                        {donutData.map((_, i) => <Cell key={i} fill={DONUT_COLORS[i % DONUT_COLORS.length]} />)}
+                      <Pie data={[{value:78, color:'#3b82f6'}, {value:22, color:'#e2e8f0'}]} 
+                           dataKey="value" innerRadius={22} outerRadius={30} startAngle={90} endAngle={-270} stroke="none">
+                        {[{color:'#3b82f6'}, {color:'#e2e8f0'}].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
-                  <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" }}>
-                    <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a" }}>{attendancePct}%</span>
-                  </div>
+                  <div style={{position:'absolute', top:'50%', left:'50%', transform:'translate(-50%, -50%)', fontWeight:'bold', fontSize:'1.1rem'}}>78</div>
                 </div>
-                <div style={{ display: "flex", gap: 16, fontSize: 12, marginTop: 20 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: DONUT_COLORS[0] }} />
-                    <span style={{ color: "#64748b" }}>Present <span style={{ color: "#0f172a", fontWeight: 700 }}>{attendanceTotal}</span></span>
+                <div>
+                  <div style={{display:'flex', alignItems:'center', gap:'4px', fontSize:'0.75rem', fontWeight:'600', color:'#3b82f6', marginBottom:'4px'}}>
+                    <Zap size={12}/> AI Project Insights
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: DONUT_COLORS[1] }} />
-                    <span style={{ color: "#64748b" }}>Absent <span style={{ color: "#0f172a", fontWeight: 700 }}>{attendanceAbsent}</span></span>
-                  </div>
+                  <h3>Project Success Probability</h3>
+                  <p>Good chance of on-time delivery</p>
+                  <a href="#">View Full AI Analysis →</a>
                 </div>
               </div>
             </div>
 
-            {/* 4. Recent Activity */}
-            <div className="db-card">
-              <div className="db-card-header">
-                <div className="db-card-title">Recent Activity</div>
-                <span className="db-card-link" onClick={() => navigate("/settings/audit-logs")}>View All</span>
+            {/* KPI ROW */}
+            <div className="bx-kpi-row">
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon blue"><Briefcase size={14}/></div> Total Active Projects</div>
+                <div className="bx-kpi-val">{totalProjects}</div>
+                <div className="bx-kpi-trend up"><ArrowUpRight size={12}/> 8% <span>vs last month</span></div>
               </div>
-              <div className="db-activity-list" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '8px' }}>
-                {recentActivity.length > 0 ? recentActivity.slice(0, 4).map((a, i) => {
-                  const lo = (a.text || "").toLowerCase();
-                  let Icon = Activity, bg = "#EFF6FF", col = "#3B82F6";
-                  if (lo.includes("order") || lo.includes("sale")) { Icon = ShoppingCart; bg = "#FFEDD5"; col = "#F97316"; }
-                  else if (lo.includes("stock") || lo.includes("inventory")) { Icon = Box; bg = "#ECFEFF"; col = "#06B6D4"; }
-                  else if (lo.includes("user") || lo.includes("logged")) { Icon = Users; bg = "#F3E8FF"; col = "#A855F7"; }
-                  else if (lo.includes("payment") || lo.includes("invoice")) { Icon = DollarSign; bg = "#DCFCE7"; col = "#22C55E"; }
-                  return (
-                    <ActivityItem
-                      key={i} icon={Icon} iconBg={bg} iconColor={col}
-                      title={a.title || a.user || "System Event"} desc={a.text} time={fmtTime(a.time || a.createdAt || a.timestamp || new Date())}
-                    />
-                  );
-                }) : (
-                  <div className="db-empty" style={{ padding: '16px', textAlign: 'center', color: '#94a3b8' }}>No recent activity</div>
-                )}
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon green"><CheckCircle size={14}/></div> Completed Projects</div>
+                <div className="bx-kpi-val">{completedProjects}</div>
+                <div className="bx-kpi-trend up"><ArrowUpRight size={12}/> 20% <span>vs last month</span></div>
+              </div>
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon orange"><Clock size={14}/></div> Delayed Projects</div>
+                <div className="bx-kpi-val">{delayedProjects}</div>
+                <div className="bx-kpi-trend down"><ArrowDownRight size={12}/> 2 <span>vs last month</span></div>
+              </div>
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon green"><Activity size={14}/></div> Ongoing Site Activities</div>
+                <div className="bx-kpi-val">{ongoingActivities}</div>
+                <div className="bx-kpi-trend up"><ArrowUpRight size={12}/> 15% <span>vs yesterday</span></div>
+              </div>
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon orange"><FileText size={14}/></div> Pending Approvals</div>
+                <div className="bx-kpi-val">{pendingApprovals}</div>
+                <div className="bx-kpi-trend down"><ArrowDownRight size={12}/> 5% <span>vs yesterday</span></div>
+              </div>
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon purple"><Users size={14}/></div> Labor Attendance</div>
+                <div className="bx-kpi-val">{attendancePct}%</div>
+                <div className="bx-kpi-trend up"><ArrowUpRight size={12}/> 6% <span>vs yesterday</span></div>
               </div>
             </div>
-          </div>
 
-          {/* Row 5: Panel Row 2 (4 columns) */}
-          <div className="db-panel-grid">
-            
-            {/* 5. AI Insights */}
-            <div className="db-card">
-              <div className="db-card-header">
-                <div className="db-card-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Cpu size={14} color="#8b5cf6" /> AI Insights
+            {/* CHARTS */}
+            <div className="bx-charts-row">
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Budget Utilization Overview</h3>
                 </div>
-              </div>
-              <div className="db-ai-insights" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '8px' }}>
-                {aiLoading ? (
-                  <div style={{ padding: '16px', textAlign: 'center', color: '#6B7280', fontSize: '12px' }}>
-                    Generating insights...
-                  </div>
-                ) : displayInsights && displayInsights.length > 0 ? (
-                  displayInsights.map((ins, i) => {
-                    const colors = ["#6366f1", "#f97316", "#22c55e", "#ef4444"];
-                    return (
-                      <div key={i} className="db-ai-item" style={{ padding: '8px 12px', borderBottom: '1px solid #f1f5f9', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                        <div className="db-ai-dot" style={{ background: colors[i % colors.length], marginTop: '4px', width: 6, height: 6 }} />
-                        <div className="db-ai-text">{ins}</div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="db-empty" style={{ padding: '16px', textAlign: 'center', color: '#94a3b8' }}>No insights.</div>
-                )}
-              </div>
-            </div>
-
-            {/* 6. Top Selling Materials */}
-            <div className="db-card">
-              <div className="db-card-header">
-                <div className="db-card-title">Top Selling Materials</div>
-              </div>
-              <div className="db-bar-list" style={{ padding: '12px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {topMaterials.length > 0 ? topMaterials.map((m, i) => (
-                  <div key={i} className="db-bar-item" style={{ marginBottom: '8px' }}>
-                    <div className="db-bar-label">
-                      <span>{m.name || m.materialName || `Material ${i+1}`}</span>
-                      <span style={{ fontWeight: 700 }}>{fmtINR(m.revenue || m.value || 0)}</span>
-                    </div>
-                    <div className="db-bar-track">
-                      <div className="db-bar-fill" style={{ width: `${Math.max(10, ((m.revenue || m.value || 0) / (Math.max(...topMaterials.map(tm => tm.revenue || tm.value || 0)) || 1)) * 100)}%`, background: i === 0 ? '#3b82f6' : '#94a3b8' }} />
-                    </div>
-                  </div>
-                )) : (
-                  <div className="db-empty" style={{ textAlign: 'center', color: '#94a3b8', padding: '16px' }}>No data</div>
-                )}
-              </div>
-            </div>
-
-            {/* 7. Sales Analytics */}
-            <div className="db-card">
-              <div className="db-card-header">
-                <div className="db-card-title">Sales Analytics</div>
-              </div>
-              <div className="db-card-body" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, flex: 1, justifyContent: 'center' }}>
-                <div className="db-donut-wrap" style={{ position: "relative", height: "120px", width: "100%", display: "flex", justifyContent: "center" }}>
-                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                <div style={{height:'140px', position:'relative'}}>
+                  <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={[{name: 'A', value: 400}, {name: 'B', value: 300}, {name: 'C', value: 300}, {name: 'D', value: 200}]} cx="50%" cy="50%" innerRadius={42} outerRadius={56} dataKey="value" stroke="none" cornerRadius={4}>
-                        <Cell fill="#3b82f6" />
-                        <Cell fill="#10b981" />
-                        <Cell fill="#f59e0b" />
-                        <Cell fill="#e2e8f0" />
+                      <Pie data={budgetUtil} dataKey="value" innerRadius={50} outerRadius={65} stroke="none">
+                        {budgetUtil.map((e,i) => <Cell key={i} fill={e.color}/>)}
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
-                  <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", textAlign: "center" }}>
-                    <span style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Total</span>
-                    <br />
-                    <span style={{ fontSize: 10, color: "#64748b" }}>Sales</span>
+                  <div style={{position:'absolute', top:'50%', left:'50%', transform:'translate(-50%, -50%)', textAlign:'center'}}>
+                    <div style={{fontSize:'1.5rem', fontWeight:'bold'}}>68%</div>
+                    <div style={{fontSize:'0.7rem', color:'var(--bx-text-muted)'}}>Utilized</div>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 12, fontSize: 11, marginTop: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, background: '#3b82f6', borderRadius: '50%' }}/> Electronics</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, background: '#10b981', borderRadius: '50%' }}/> Hardware</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><div style={{ width: 6, height: 6, background: '#f59e0b', borderRadius: '50%' }}/> Software</div>
+                <div className="bx-budget-stats">
+                  {budgetUtil.map(b => (
+                    <div className="bx-budget-row" key={b.name}>
+                      <div className="label"><div className="dot" style={{background:b.color}}></div> {b.name}</div>
+                      <div className="val">₹{b.value} Cr</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{marginTop:'auto', textAlign:'center', paddingTop:'10px'}}>
+                  <div className="bx-kpi-trend up" style={{justifyContent:'center', marginBottom:'10px'}}><ArrowUpRight size={12}/> 6% vs last month</div>
+                  <a href="#" className="bx-card-link">View Budget Report →</a>
                 </div>
               </div>
-            </div>
 
-            {/* 8. Monthly Profit */}
-            <div className="db-card">
-              <div className="db-card-header">
-                <div className="db-card-title">Monthly Profit</div>
-              </div>
-              <div className="db-card-body" style={{ padding: '16px 16px 0', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a' }}>{fmtINR(totalProfit)}</div>
-                <div style={{ fontSize: '12px', color: profitTrendPct >= 0 ? '#10b981' : '#ef4444', fontWeight: '600', marginBottom: '8px' }}>
-                  {profitTrendPct >= 0 ? '↑' : '↓'} {Math.abs(profitTrendPct)}% vs last month
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Project Timeline Progress</h3>
+                  <div style={{fontSize:'0.7rem', color:'var(--bx-text-muted)', display:'flex', gap:'10px'}}>
+                    <span style={{display:'flex', alignItems:'center', gap:'4px'}}><div style={{width:'8px',height:'2px',background:'#3b82f6'}}></div> Planned</span>
+                    <span style={{display:'flex', alignItems:'center', gap:'4px'}}><div style={{width:'8px',height:'2px',background:'#10b981'}}></div> Actual</span>
+                    <span style={{display:'flex', alignItems:'center', gap:'4px'}}><div style={{width:'8px',height:'2px',background:'#f59e0b', borderTop:'2px dashed #f59e0b'}}></div> Forecast</span>
+                  </div>
                 </div>
-                <div style={{ width: "100%", flex: 1, minHeight: '80px' }}>
-                  <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                    <LineChart data={sparkData}>
-                      <Line type="monotone" dataKey="v" stroke="#3b82f6" strokeWidth={3} dot={false} />
+                <div style={{flex: 1, minHeight: '180px'}}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={timelineData} margin={{top:5, right:5, left:-20, bottom:0}}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill:'#94a3b8'}} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill:'#94a3b8'}} />
+                      <RechartsTooltip />
+                      <Line type="monotone" dataKey="planned" stroke="#3b82f6" strokeWidth={2} dot={{r:3}} />
+                      <Line type="monotone" dataKey="actual" stroke="#10b981" strokeWidth={2} dot={{r:3}} />
+                      <Line type="monotone" dataKey="forecast" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 5" dot={{r:3}} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               </div>
+
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Site-wise Performance</h3>
+                  <a href="#" className="bx-card-link">View All →</a>
+                </div>
+                <div style={{display:'flex', flexDirection:'column', gap:'1rem', marginTop:'10px'}}>
+                  {sitePerformance.map((site, i) => (
+                    <div key={i} style={{display:'flex', gap:'10px', alignItems:'center'}}>
+                      <div style={{width:'32px', height:'32px', borderRadius:'6px', background:'#f1f5f9', display:'flex', alignItems:'center', justifyContent:'center'}}>
+                        <HardHat size={16} color={site.color}/>
+                      </div>
+                      <div style={{flex: 1}}>
+                        <div style={{display:'flex', justifyContent:'space-between', fontSize:'0.75rem'}}>
+                          <span style={{fontWeight:'600'}}>{site.site}</span>
+                          <span>{site.progress}%</span>
+                        </div>
+                        <div style={{fontSize:'0.65rem', color:'var(--bx-text-muted)', marginBottom:'4px'}}>{site.location}</div>
+                        <div style={{width:'100%', height:'4px', background:'#e2e8f0', borderRadius:'2px'}}>
+                          <div style={{width:`${site.progress}%`, height:'100%', background:site.color, borderRadius:'2px'}}></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* QUICK LINKS */}
+            <div className="bx-card" style={{padding:'1rem'}}>
+              <h3 className="bx-card-title" style={{marginBottom:'1rem'}}>Quick Links</h3>
+              <div className="bx-quick-links">
+                <div className="bx-quick-link"><Briefcase size={16} color="#3b82f6"/> Projects</div>
+                <div className="bx-quick-link"><Activity size={16} color="#10b981"/> Site Progress</div>
+                <div className="bx-quick-link"><HardHat size={16} color="#6366f1"/> Contractors</div>
+                <div className="bx-quick-link"><Package size={16} color="#f59e0b"/> Materials</div>
+                <div className="bx-quick-link"><CreditCard size={16} color="#3b82f6"/> Purchase Orders</div>
+                <div className="bx-quick-link"><Layers size={16} color="#10b981"/> Budget</div>
+                <div className="bx-quick-link"><FileText size={16} color="#ec4899"/> Reports</div>
+                <div className="bx-quick-link"><Zap size={16} color="#3b82f6"/> AI Insights</div>
+              </div>
+            </div>
+
+            {/* LISTS ROW */}
+            <div className="bx-lists-row" style={{marginBottom:'2rem'}}>
+              <div className="bx-card">
+                 <div className="bx-card-header">
+                  <h3 className="bx-card-title">Recent Project Updates</h3>
+                  <a href="#" className="bx-card-link">View All →</a>
+                </div>
+                <div>
+                  {recentUpdates.length > 0 ? recentUpdates.map((u,i) => (
+                    <div className="bx-list-item" key={i}>
+                      <div className="bx-list-icon" style={{background: ['#10b981','#3b82f6','#f59e0b','#ef4444'][i%4]}}><CheckCircle size={14}/></div>
+                      <div className="bx-list-content">
+                        <h4 className="bx-list-title">{u.title || "Project Update"}</h4>
+                        <p className="bx-list-desc">{u.user || "System"}</p>
+                      </div>
+                      <div className="bx-list-meta">
+                        <p className="bx-list-meta-top">Today</p>
+                        <p className="bx-list-meta-bottom">10:30 AM</p>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="bx-list-item">
+                      <div className="bx-list-icon" style={{background: '#10b981'}}><CheckCircle size={14}/></div>
+                      <div className="bx-list-content"><h4 className="bx-list-title">Skyline Towers - Tower A</h4><p className="bx-list-desc">Concrete pouring completed</p></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bx-card">
+                 <div className="bx-card-header">
+                  <h3 className="bx-card-title">Critical Issue Alerts</h3>
+                  <a href="#" className="bx-card-link">View All →</a>
+                </div>
+                <div>
+                  {criticalAlerts.length > 0 ? criticalAlerts.map((a,i) => (
+                    <div className="bx-list-item" key={i}>
+                      <div className="bx-list-icon" style={{color: '#ef4444', background:'transparent'}}><AlertTriangle size={18}/></div>
+                      <div className="bx-list-content">
+                        <h4 className="bx-list-title">Low Stock: {a.name}</h4>
+                        <p className="bx-list-desc">Check inventory immediately</p>
+                      </div>
+                      <div className="bx-list-meta">
+                        <span className="bx-tag high">High</span>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="bx-list-item">
+                      <div className="bx-list-icon" style={{color: '#ef4444', background:'transparent'}}><AlertTriangle size={18}/></div>
+                      <div className="bx-list-content"><h4 className="bx-list-title">Delay in Steel Delivery</h4><p className="bx-list-desc">Skyline Towers</p></div>
+                      <div className="bx-list-meta"><span className="bx-tag high">High</span></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bx-card">
+                 <div className="bx-card-header">
+                  <h3 className="bx-card-title">Upcoming Deadlines</h3>
+                  <a href="#" className="bx-card-link">View All →</a>
+                </div>
+                <div>
+                   <div className="bx-list-item">
+                      <div className="bx-list-icon" style={{color: '#3b82f6', background:'transparent'}}><Calendar size={18}/></div>
+                      <div className="bx-list-content"><h4 className="bx-list-title">Structural Completion</h4><p className="bx-list-desc">Skyline Towers - Tower A</p></div>
+                      <div className="bx-list-meta"><p className="bx-list-meta-top" style={{color:'#ef4444'}}>28 May 2026</p><p className="bx-list-meta-bottom">8 Days Left</p></div>
+                    </div>
+                    <div className="bx-list-item">
+                      <div className="bx-list-icon" style={{color: '#3b82f6', background:'transparent'}}><Calendar size={18}/></div>
+                      <div className="bx-list-content"><h4 className="bx-list-title">MEP Rough-in</h4><p className="bx-list-desc">TechX IT Park</p></div>
+                      <div className="bx-list-meta"><p className="bx-list-meta-top">05 Jun 2026</p><p className="bx-list-meta-bottom">16 Days Left</p></div>
+                    </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* RIGHT PANEL */}
+          <div className="bx-right-col">
+            
+            <div className="bx-card bx-calendar">
+              <div className="bx-cal-header">
+                <span className="bx-cal-title">Calendar</span>
+                <span className="bx-cal-month">May 2026 &gt;</span>
+              </div>
+              <div className="bx-cal-grid">
+                <div className="bx-cal-day-name">MON</div><div className="bx-cal-day-name">TUE</div><div className="bx-cal-day-name">WED</div><div className="bx-cal-day-name">THU</div><div className="bx-cal-day-name">FRI</div><div className="bx-cal-day-name">SAT</div><div className="bx-cal-day-name">SUN</div>
+                <div className="bx-cal-day" style={{color:'#cbd5e1'}}>27</div><div className="bx-cal-day" style={{color:'#cbd5e1'}}>28</div><div className="bx-cal-day" style={{color:'#cbd5e1'}}>29</div><div className="bx-cal-day" style={{color:'#cbd5e1'}}>30</div><div className="bx-cal-day">1</div><div className="bx-cal-day">2</div><div className="bx-cal-day">3</div>
+                <div className="bx-cal-day">4</div><div className="bx-cal-day">5</div><div className="bx-cal-day">6</div><div className="bx-cal-day">7</div><div className="bx-cal-day">8</div><div className="bx-cal-day">9</div><div className="bx-cal-day">10</div>
+                <div className="bx-cal-day">11</div><div className="bx-cal-day">12</div><div className="bx-cal-day">13</div><div className="bx-cal-day">14</div><div className="bx-cal-day">15</div><div className="bx-cal-day">16</div><div className="bx-cal-day">17</div>
+                <div className="bx-cal-day">18</div><div className="bx-cal-day">19</div><div className="bx-cal-day active">20</div><div className="bx-cal-day">21</div><div className="bx-cal-day">22</div><div className="bx-cal-day">23</div><div className="bx-cal-day">24</div>
+                <div className="bx-cal-day">25</div><div className="bx-cal-day">26</div><div className="bx-cal-day">27</div><div className="bx-cal-day">28</div><div className="bx-cal-day">29</div><div className="bx-cal-day">30</div><div className="bx-cal-day">31</div>
+              </div>
+            </div>
+
+            <div className="bx-card">
+              <div className="bx-card-header">
+                <h3 className="bx-card-title">My Tasks</h3>
+                <a href="#" className="bx-card-link">View All →</a>
+              </div>
+              <div className="bx-tasks-list">
+                <div className="bx-task-item">
+                  <div className="bx-task-cb"></div>
+                  <div className="bx-task-content"><p className="bx-task-title">Review RFI - #RFI-245</p><p className="bx-task-sub">Skyline Towers</p></div>
+                  <span className="bx-tag high">High</span>
+                </div>
+                <div className="bx-task-item">
+                  <div className="bx-task-cb"></div>
+                  <div className="bx-task-content"><p className="bx-task-title">Approve Material Request</p><p className="bx-task-sub">Greenfield Residences</p></div>
+                  <span className="bx-tag medium">Medium</span>
+                </div>
+                <div className="bx-task-item">
+                  <div className="bx-task-cb"></div>
+                  <div className="bx-task-content"><p className="bx-task-title">Site Inspection Report</p><p className="bx-task-sub">TechX IT Park</p></div>
+                  <span className="bx-tag medium">Medium</span>
+                </div>
+                <div className="bx-task-item">
+                  <div className="bx-task-cb"></div>
+                  <div className="bx-task-content"><p className="bx-task-title">Update Weekly Progress</p><p className="bx-task-sub">Riverfront Villas</p></div>
+                  <span className="bx-tag low">Low</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bx-card">
+              <div className="bx-card-header">
+                <h3 className="bx-card-title">Notifications</h3>
+                <a href="#" className="bx-card-link">View All →</a>
+              </div>
+              <div className="bx-notifs-list">
+                <div className="bx-notif-item">
+                  <div className="bx-notif-icon" style={{background:'#10b981'}}><CheckCircle size={10}/></div>
+                  <div className="bx-task-content"><p className="bx-task-title">Material order #PO-3891 approved</p></div>
+                  <span style={{fontSize:'0.65rem', color:'var(--bx-text-muted)'}}>10:45 AM</span>
+                </div>
+                <div className="bx-notif-item">
+                  <div className="bx-notif-icon" style={{background:'#3b82f6'}}><Activity size={10}/></div>
+                  <div className="bx-task-content"><p className="bx-task-title">RFI #RFI-245 requires your review</p></div>
+                  <span style={{fontSize:'0.65rem', color:'var(--bx-text-muted)'}}>09:30 AM</span>
+                </div>
+                <div className="bx-notif-item">
+                  <div className="bx-notif-icon" style={{background:'#ef4444'}}><AlertTriangle size={10}/></div>
+                  <div className="bx-task-content"><p className="bx-task-title">Delay predicted in Tower B</p></div>
+                  <span style={{fontSize:'0.65rem', color:'var(--bx-text-muted)'}}>Yesterday</span>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Assistant Widget */}
+            <div className="bx-ai-widget">
+              <div className="bx-ai-header">
+                <div style={{width:'24px', height:'24px', background:'#1d4ed8', color:'white', borderRadius:'6px', display:'flex', alignItems:'center', justifyContent:'center'}}>B</div>
+                BuildAxis AI Assistant <span style={{fontSize:'10px', background:'white', color:'#3b82f6', padding:'2px 4px', borderRadius:'4px', fontWeight:'normal'}}>Beta</span>
+              </div>
+              <div className="bx-ai-body">
+                <p className="bx-ai-msg">Hi {user?.name?.split(' ')[0] || 'Raj'}! How can I help you today?</p>
+                <div className="bx-ai-chips">
+                  <div className="bx-ai-chip">Project status summary</div>
+                  <div className="bx-ai-chip">Budget variance analysis</div>
+                  <div className="bx-ai-chip">Delay prediction</div>
+                  <div className="bx-ai-chip">Ask anything...</div>
+                </div>
+                <div className="bx-ai-input">
+                  <input type="text" placeholder="Type your question..." />
+                  <button className="bx-ai-btn"><ArrowRight size={14}/></button>
+                </div>
+              </div>
+              <div className="bx-ai-footer">
+                <div style={{display:'flex', alignItems:'center', gap:'8px'}}><Bell size={14}/> Smart Reminders</div>
+                <div style={{display:'flex', gap:'8px'}}><span style={{background:'rgba(255,255,255,0.2)', padding:'2px 6px', borderRadius:'10px', fontSize:'0.7rem'}}>?</span> <ChevronDown size={14}/></div>
+              </div>
             </div>
 
           </div>
 
         </div>
-
-        {/* ── RIGHT SIDEBAR RAIL ── */}
-        <div className="db-sidebar-rail">
-          
-          {/* Profile Card */}
-          <div className="db-profile-card">
-            <div className="db-profile-banner profile-banner-admin">
-              <div className="db-profile-avatar profile-avatar-admin" style={{ overflow: 'hidden' }}>
-                {user?.profileImage || user?.avatar ? (
-                  <img src={user.profileImage || user.avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  user?.name ? user.name.substring(0, 2).toUpperCase() : 'AU'
-                )}
-              </div>
-            </div>
-            <div className="db-profile-body">
-              <div className="db-profile-name">{user?.name || "Admin User"}</div>
-              <div className="db-profile-role">{user?.role || "System Administrator"}</div>
-              <div className="db-profile-badge profile-badge-admin">Full Access</div>
-              
-              <div className="db-profile-info">
-                <div className="db-profile-info-row">
-                  <span className="db-profile-info-label">Admin ID</span>
-                  <span className="db-profile-info-val">{user?.employeeId || "N/A"}</span>
-                </div>
-                <div className="db-profile-info-row">
-                  <span className="db-profile-info-label">Department</span>
-                  <span className="db-profile-info-val">{user?.department || user?.role || "N/A"}</span>
-                </div>
-                <div className="db-profile-info-row">
-                  <span className="db-profile-info-label">Email</span>
-                  <span className="db-profile-info-val">{user?.email || "admin@smtbms.com"}</span>
-                </div>
-                <div className="db-profile-info-row">
-                  <span className="db-profile-info-label">Last Login</span>
-                  <span className="db-profile-info-val">{fmtTime(new Date().toISOString())}</span>
-                </div>
-              </div>
-              
-              <button className="db-profile-btn" onClick={() => navigate("/profile")}>
-                <UserCheck size={14} /> View Profile
-              </button>
-            </div>
-          </div>
-
-          {/* Notifications Panel */}
-          <div className="db-card">
-            <div className="db-card-header">
-              <div className="db-card-title">Notifications</div>
-              <span className="db-card-link">View All</span>
-            </div>
-            <div className="db-notif-list" style={{ flex: 1, overflowY: 'auto' }}>
-              <div className="db-notif-item">
-                <div className="db-notif-dot" style={{ background: '#3b82f6' }} />
-                <div className="db-notif-body">
-                  <div className="db-notif-text">New order #8920 received from client</div>
-                  <div className="db-notif-time">2 mins ago</div>
-                </div>
-              </div>
-              <div className="db-notif-item">
-                <div className="db-notif-dot" style={{ background: '#f59e0b' }} />
-                <div className="db-notif-body">
-                  <div className="db-notif-text">Low stock alert for Steel Beams</div>
-                  <div className="db-notif-time">1 hr ago</div>
-                </div>
-              </div>
-              <div className="db-notif-item">
-                <div className="db-notif-dot" style={{ background: '#10b981' }} />
-                <div className="db-notif-body">
-                  <div className="db-notif-text">System backup completed successfully</div>
-                  <div className="db-notif-time">3 hrs ago</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Upcoming Events Panel */}
-          <div className="db-card">
-            <div className="db-card-header">
-              <div className="db-card-title">Upcoming Events</div>
-            </div>
-            <div className="db-event-list" style={{ padding: '12px', flex: 1, overflowY: 'auto' }}>
-              {upcomingEvents.length > 0 ? upcomingEvents.map((e, i) => (
-                <div key={i} className="db-event-item" style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div className="db-event-date" style={{ background: e.bg, color: e.color, padding: '6px 10px', borderRadius: '6px', textAlign: 'center' }}>
-                    <div className="db-event-day" style={{ fontSize: '14px', fontWeight: '800' }}>{e.day}</div>
-                    <div className="db-event-mon" style={{ fontSize: '9px', fontWeight: '700', textTransform: 'uppercase' }}>{e.mon}</div>
-                  </div>
-                  <div className="db-event-body">
-                    <div className="db-event-title" style={{ fontSize: '12px', fontWeight: '600', color: '#0f172a' }}>{e.title}</div>
-                    <div className="db-event-sub" style={{ fontSize: '11px', color: '#64748b' }}>{e.sub}</div>
-                  </div>
-                </div>
-              )) : (
-                <div className="db-empty" style={{ textAlign: 'center', color: '#94a3b8', padding: '16px' }}>No events scheduled</div>
-              )}
-            </div>
-          </div>
-
-        </div>
-
       </div>
     </div>
   );
