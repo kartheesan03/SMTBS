@@ -203,7 +203,7 @@ const AdminDashboard = () => {
           
           {/* Row 1: 4 Stat Cards */}
           <div className="db-kpi-grid">
-            <KpiCard icon={Activity}     iconClass="green"  label="System Health"    value="100%"                    trend="Excellent"    trendUp={true}  sub="All services running" sparkData={sparkData} sparkColor="#22c55e" />
+            <KpiCard icon={AlertTriangle} iconClass="orange" label="Low Stock Items" value={lowStock.length} trend="Needs Attention" trendUp={false} sub="Below reorder level" sparkData={null} sparkColor="#f97316" />
             <KpiCard icon={DollarSign}   iconClass="blue"   label="Revenue Today"    value={fmtINR(totalRevenue)}    trend="vs yesterday"  trendUp={true}  sub="Year-to-date" sparkData={sparkData} sparkColor="#3b82f6" />
             <KpiCard icon={ShoppingCart} iconClass="orange" label="Orders Today"     value={activeOrders}            trend={`${pendingOrders} pending`} trendUp={false} sub="Active orders" sparkData={sparkData} sparkColor="#f97316" />
             <KpiCard icon={Users}        iconClass="purple" label="Active Employees"  value={totalEmployees}          trend="vs last month" trendUp={true}  sub={`${attendanceTotal} present today`} sparkData={sparkData} sparkColor="#a855f7" />
@@ -300,18 +300,18 @@ const AdminDashboard = () => {
           {/* Row 4: Panel Row 1 (4 columns) */}
           <div className="db-panel-grid">
             
-            {/* 1. System Status */}
+            {/* 1. Low Stock Alerts */}
             <div className="db-card">
               <div className="db-card-header">
-                <div className="db-card-title">System Status</div>
+                <div className="db-card-title">Low Stock Alerts</div>
+                <span className="db-card-link" onClick={() => navigate("/materials")}>View Inventory</span>
               </div>
               <div className="db-status-list" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px', paddingBottom: '8px' }}>
-                <StatusRow name="Backend API" status="Healthy" />
-                <StatusRow name="Database" status="Healthy" />
-                <StatusRow name="Authentication" status="Healthy" />
-                <StatusRow name="Storage" status="Healthy" />
-                <StatusRow name="Backup" status="Healthy" />
-                <StatusRow name="Mail Service" status="Healthy" />
+                {lowStock.length > 0 ? lowStock.slice(0, 6).map((item, idx) => (
+                  <StatusRow key={idx} name={item.materialName || item.name || "Material"} status={`${item.currentStock || item.stock || 0} left`} />
+                )) : (
+                  <div className="db-empty" style={{ padding: '16px', textAlign: 'center', color: '#94a3b8' }}>Stock levels healthy</div>
+                )}
               </div>
             </div>
 

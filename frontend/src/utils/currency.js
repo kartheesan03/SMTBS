@@ -1,6 +1,6 @@
 export const formatCurrency = (val, compact = false) => {
     if (val === undefined || val === null || isNaN(val)) return '0';
-    const currency = localStorage.getItem('currency') || 'USD';
+    const currency = localStorage.getItem('currency') || 'INR';
     const locale = currency === 'INR' ? 'en-IN' : 'en-US';
     const options = {
         style: 'currency',

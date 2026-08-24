@@ -1,12 +1,13 @@
 /* ── Global Header Styles ── */
 .rd-header {
-    min-height: 64px;
+    min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
-    background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #E2E8F0;
 }
 
 .rd-icon-btn {

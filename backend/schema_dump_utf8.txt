@@ -1,0 +1,157 @@
+﻿=== SCHEMA DDL ===
+
+-- Table: Test
+CREATE TABLE `Test` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` VARCHAR(255), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: User
+CREATE TABLE `User` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL, `email` VARCHAR(255) NOT NULL UNIQUE, `password` VARCHAR(255), `phone` VARCHAR(255), `googleId` VARCHAR(255) UNIQUE, `picture` VARCHAR(255), `role` TEXT DEFAULT 'Employee', `active` TINYINT(1) DEFAULT 1, `isProfileComplete` TINYINT(1) DEFAULT 0, `provider` VARCHAR(255) DEFAULT 'local', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, `birthday` DATE, `bio` TEXT, `skills` VARCHAR(255))
+
+-- Table: Employee
+CREATE TABLE `Employee` (`id` INTEGER PRIMARY KEY, `employeeId` VARCHAR(255) NOT NULL UNIQUE, `userIdField` INTEGER REFERENCES `User` (`id`), `firstName` VARCHAR(255) NOT NULL, `lastName` VARCHAR(255), `department` VARCHAR(255), `designation` VARCHAR(255), `salary` VARCHAR(255), `joinDate` DATETIME, `contact` VARCHAR(255), `phone` VARCHAR(255), `address` TEXT, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Customer
+CREATE TABLE `Customer` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL, `userId` INTEGER REFERENCES `User` (`id`), `email` VARCHAR(255) UNIQUE, `phone` VARCHAR(255), `company` VARCHAR(255), `customerType` TEXT DEFAULT 'Individual', `address` TEXT, `industry` VARCHAR(255), `website` VARCHAR(255), `notes` TEXT, `status` VARCHAR(255) DEFAULT 'Active', `gstNumber` VARCHAR(255), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, `createdByField` INTEGER REFERENCES `User` (`id`) ON DELETE SET NULL ON UPDATE CASCADE)
+
+-- Table: Vendor
+CREATE TABLE `Vendor` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL, `userId` INTEGER REFERENCES `User` (`id`), `contactPerson` VARCHAR(255), `email` VARCHAR(255), `phone` VARCHAR(255), `address` TEXT, `category` VARCHAR(255), `gstNumber` VARCHAR(255), `website` VARCHAR(255), `status` TEXT DEFAULT 'Vendor Created', `materialsSupplied` TEXT, `rating` FLOAT DEFAULT '0', `outstanding` FLOAT DEFAULT '0', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Material
+CREATE TABLE `Material` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL, `sku` VARCHAR(255) UNIQUE, `category` VARCHAR(255), `quantity` INTEGER DEFAULT '0', `reservedQuantity` INTEGER DEFAULT '0', `lowStockThreshold` INTEGER DEFAULT '10', `unit` VARCHAR(255) DEFAULT 'pcs', `price` DOUBLE PRECISION DEFAULT '0', `status` TEXT DEFAULT 'In Stock', `vendorId` INTEGER REFERENCES `Vendor` (`id`), `latitude` DOUBLE PRECISION, `longitude` DOUBLE PRECISION, `isActive` TINYINT(1) DEFAULT 1, `condition` VARCHAR(255) DEFAULT 'New', `source` VARCHAR(255), `certifications` JSON DEFAULT '[]', `used_in` JSON DEFAULT '[]', `specs` JSON DEFAULT '{}', `images` JSON DEFAULT '[]', `warehouse` VARCHAR(255) DEFAULT NULL, `rack` VARCHAR(255) DEFAULT NULL, `shelf` VARCHAR(255) DEFAULT NULL, `location` VARCHAR(255) DEFAULT NULL, `gpsStatus` TEXT DEFAULT 'At Warehouse', `locationUpdatedAt` DATETIME DEFAULT NULL, `deliveryDestination` VARCHAR(255) DEFAULT NULL, `deliveryEta` DATETIME DEFAULT NULL, `deliveryDispatchedAt` DATETIME DEFAULT NULL, `deliveryCompletedAt` DATETIME DEFAULT NULL, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Attendance
+CREATE TABLE `Attendance` (`id` INTEGER PRIMARY KEY, `userId` INTEGER NOT NULL, `employeeId` INTEGER REFERENCES `Employee` (`id`), `role` VARCHAR(255), `date` DATE, `status` TEXT DEFAULT 'Present', `shift` TEXT DEFAULT 'Day', `checkInTime` VARCHAR(255), `checkOutTime` VARCHAR(255), `totalHours` FLOAT, `location` JSON, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Leave
+CREATE TABLE `Leave` (`id` INTEGER PRIMARY KEY, `employeeId` INTEGER NOT NULL REFERENCES `Employee` (`id`), `type` TEXT NOT NULL, `startDate` DATETIME NOT NULL, `endDate` DATETIME NOT NULL, `reason` TEXT DEFAULT '', `status` TEXT DEFAULT 'Pending', `reviewedById` INTEGER REFERENCES `User` (`id`), `reviewNote` TEXT DEFAULT '', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Salary
+CREATE TABLE `Salary` (`id` INTEGER PRIMARY KEY, `employeeId` INTEGER NOT NULL REFERENCES `Employee` (`id`), `month` VARCHAR(255) NOT NULL, `basicSalary` DOUBLE PRECISION NOT NULL, `allowances` DOUBLE PRECISION DEFAULT '0', `deductions` DOUBLE PRECISION DEFAULT '0', `netSalary` DOUBLE PRECISION NOT NULL, `status` TEXT DEFAULT 'Awaiting Approval', `paymentDate` DATETIME, `transactionId` VARCHAR(255), `paidBy` INTEGER, `paymentMethod` VARCHAR(255), `paymentDetails` JSON, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Lead
+CREATE TABLE `Lead` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL, `companyName` VARCHAR(255), `email` VARCHAR(255), `phone` VARCHAR(255), `status` TEXT DEFAULT 'New', `source` VARCHAR(255), `dealValue` FLOAT DEFAULT '0', `notes` TEXT, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Order
+CREATE TABLE `Order` (`id` INTEGER PRIMARY KEY, `orderNumber` VARCHAR(255) UNIQUE, `customerId` INTEGER REFERENCES `Customer` (`id`), `leadId` INTEGER REFERENCES `Lead` (`id`), `customerModel` TEXT DEFAULT 'Customer', `vendorId` INTEGER REFERENCES `Vendor` (`id`), `items` JSON, `totalAmount` DOUBLE PRECISION, `status` TEXT DEFAULT 'Order Created', `approvalStatus` TEXT DEFAULT 'Pending', `managerApproval` TEXT DEFAULT 'Pending', `employeeApproval` TEXT DEFAULT 'Not Started', `deliveryStatus` TEXT DEFAULT 'Pending', `employeeId` INTEGER, `liveLocation` JSON, `routePath` JSON, `deliveryETA` DATETIME, `distanceRemaining` DOUBLE PRECISION, `trackingStatus` TEXT DEFAULT 'Not Started', `sourcedLocation` VARCHAR(255), `deliveryNotes` TEXT, `holdReason` TEXT, `approvedById` INTEGER, `approvedDate` DATETIME, `deliveryDate` DATETIME, `deliveredAt` DATETIME, `orderDate` DATETIME, `expectedDeliveryDate` DATETIME, `invoiceNumber` VARCHAR(255), `invoiceDate` DATETIME, `invoiceDueDate` DATETIME, `paymentStatus` TEXT DEFAULT 'Pending', `invoiceGenerated` TINYINT(1) DEFAULT 0, `orderType` TEXT NOT NULL, `createdById` INTEGER REFERENCES `User` (`id`), `updatedById` INTEGER REFERENCES `User` (`id`), `notes` TEXT, `grandTotal` DOUBLE PRECISION DEFAULT '0', `trackingTimeline` JSON, `workflow` JSON, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Task
+CREATE TABLE `Task` (`id` INTEGER PRIMARY KEY, `title` VARCHAR(255) NOT NULL, `description` TEXT, `assignedTo` JSON, `assignedById` INTEGER REFERENCES `User` (`id`), `completions` JSON, `priority` TEXT DEFAULT 'Medium', `dueDate` DATETIME, `isBroadcast` TINYINT(1) DEFAULT 0, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Ticket
+CREATE TABLE `Ticket` (`id` INTEGER PRIMARY KEY, `ticketNumber` VARCHAR(255) NOT NULL UNIQUE, `customerId` INTEGER REFERENCES `Customer` (`id`), `leadId` INTEGER REFERENCES `Lead` (`id`), `customerModel` TEXT DEFAULT 'Customer', `subject` VARCHAR(255) NOT NULL, `description` TEXT NOT NULL, `priority` TEXT DEFAULT 'Medium', `status` TEXT DEFAULT 'Open', `category` VARCHAR(255) DEFAULT 'General Query', `assignedToId` INTEGER REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, `submittedById` INTEGER REFERENCES `User` (`id`), `attachment` VARCHAR(255))
+
+-- Table: Notification
+CREATE TABLE `Notification` (`id` INTEGER PRIMARY KEY, `module` VARCHAR(255) NOT NULL, `referenceId` VARCHAR(255), `userId` INTEGER REFERENCES `User` (`id`), `role` VARCHAR(255), `title` VARCHAR(255) NOT NULL, `message` TEXT NOT NULL, `type` TEXT DEFAULT 'info', `status` TEXT DEFAULT 'unread', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: MaterialMovement
+CREATE TABLE `MaterialMovement` (`id` INTEGER PRIMARY KEY, `materialId` INTEGER NOT NULL REFERENCES `Material` (`id`), `type` TEXT NOT NULL, `quantity` INTEGER NOT NULL, `previousQuantity` INTEGER, `newQuantity` INTEGER, `reason` VARCHAR(255), `referenceOrderId` INTEGER REFERENCES `Order` (`id`), `performedById` INTEGER REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: CommunicationLog
+CREATE TABLE `CommunicationLog` (`id` INTEGER PRIMARY KEY, `customerId` INTEGER NOT NULL REFERENCES `Customer` (`id`), `type` TEXT NOT NULL, `subject` VARCHAR(255) NOT NULL, `notes` TEXT, `contactDate` DATETIME, `createdById` INTEGER REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: AuditLog
+CREATE TABLE `AuditLog` (`id` INTEGER PRIMARY KEY, `userId` INTEGER REFERENCES `User` (`id`), `userName` VARCHAR(255), `action` TEXT NOT NULL, `module` TEXT NOT NULL, `targetId` INTEGER, `description` TEXT, `changes` JSON, `ipAddress` VARCHAR(255), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Role
+CREATE TABLE `Role` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL UNIQUE, `description` VARCHAR(255), `permissions` JSON NOT NULL DEFAULT '[]', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: ai_copilot_logs
+CREATE TABLE `ai_copilot_logs` (`id` INTEGER PRIMARY KEY, `userId` INTEGER NOT NULL, `role` VARCHAR(255) NOT NULL, `question` TEXT NOT NULL, `generatedSql` TEXT, `executionTimeMs` INTEGER, `success` TINYINT(1) DEFAULT 0, `errorMessage` TEXT, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: AIChatSessions
+CREATE TABLE `AIChatSessions` (`id` INTEGER PRIMARY KEY, `userId` INTEGER NOT NULL, `title` VARCHAR(255) NOT NULL DEFAULT 'New Chat', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: AIChatMessages
+CREATE TABLE `AIChatMessages` (`id` INTEGER PRIMARY KEY, `sessionId` INTEGER NOT NULL REFERENCES `AIChatSessions` (`id`), `role` TEXT NOT NULL, `content` TEXT NOT NULL, `actionTaken` VARCHAR(255), `sqlQuery` TEXT, `chartData` TEXT, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: OcrDocument
+CREATE TABLE `OcrDocument` (`id` INTEGER PRIMARY KEY, `fileName` VARCHAR(255) NOT NULL, `uploaderId` INTEGER NOT NULL REFERENCES `User` (`id`), `module` VARCHAR(255), `documentType` VARCHAR(255), `tables` JSON NOT NULL DEFAULT '[]', `details` JSON DEFAULT '{}', `rawText` TEXT, `confidence` FLOAT, `status` TEXT DEFAULT 'Extracted', `rejectReason` VARCHAR(255), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Post
+CREATE TABLE `Post` (`id` INTEGER PRIMARY KEY, `authorId` INTEGER NOT NULL REFERENCES `User` (`id`), `text` TEXT, `imageUrl` TEXT, `media` JSON, `visibility` TEXT DEFAULT 'Anyone', `targetTeams` JSON, `type` TEXT DEFAULT 'Standard', `articleTitle` VARCHAR(255), `articleBody` TEXT, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: PostAcknowledgement
+CREATE TABLE `PostAcknowledgement` (`id` INTEGER PRIMARY KEY, `postId` INTEGER NOT NULL UNIQUE REFERENCES `Post` (`id`), `userId` INTEGER NOT NULL UNIQUE REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: StoryView
+CREATE TABLE `StoryView` (`id` INTEGER PRIMARY KEY, `postId` INTEGER NOT NULL UNIQUE, `userId` INTEGER NOT NULL UNIQUE, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, `viewerId` INTEGER REFERENCES `User` (`id`), `storyId` INTEGER REFERENCES `Post` (`id`) ON DELETE SET NULL ON UPDATE CASCADE)
+
+-- Table: TicketMessage
+CREATE TABLE `TicketMessage` (`id` INTEGER PRIMARY KEY, `ticketId` INTEGER NOT NULL REFERENCES `Ticket` (`id`), `senderId` INTEGER NOT NULL REFERENCES `User` (`id`), `message` TEXT NOT NULL, `attachment` VARCHAR(255), `isInternal` TINYINT(1) DEFAULT 0, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: StockRequest
+CREATE TABLE `StockRequest` (`id` INTEGER PRIMARY KEY, `materialId` INTEGER NOT NULL REFERENCES `Material` (`id`), `employeeId` INTEGER NOT NULL REFERENCES `User` (`id`), `managerId` INTEGER REFERENCES `User` (`id`), `currentStock` INTEGER NOT NULL DEFAULT '0', `requiredQuantity` INTEGER NOT NULL DEFAULT '1', `reason` TEXT, `managerMessage` TEXT, `status` TEXT DEFAULT 'Pending', `orderId` INTEGER REFERENCES `Order` (`id`), `history` TEXT DEFAULT '[]', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Backup
+CREATE TABLE `Backup` (`id` INTEGER PRIMARY KEY, `backupName` VARCHAR(255) NOT NULL, `backupType` VARCHAR(255) NOT NULL, `filePath` VARCHAR(255) NOT NULL, `fileSize` VARCHAR(255), `createdById` INTEGER REFERENCES `User` (`id`), `status` VARCHAR(255) DEFAULT 'Success', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: BackupSchedule
+CREATE TABLE `BackupSchedule` (`id` INTEGER PRIMARY KEY, `frequency` VARCHAR(255) DEFAULT 'Daily', `time` VARCHAR(255) DEFAULT '23:00', `storage` JSON DEFAULT '{"local":true,"gdrive":false,"onedrive":false,"s3":false}', `enabled` TINYINT(1) DEFAULT 1, `keepLast` VARCHAR(255) DEFAULT '30 Backups', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: RestoreLog
+CREATE TABLE `RestoreLog` (`id` INTEGER PRIMARY KEY, `backupIdField` INTEGER NOT NULL REFERENCES `Backup` (`id`), `restoredById` INTEGER NOT NULL REFERENCES `User` (`id`), `status` VARCHAR(255) DEFAULT 'Success', `remarks` VARCHAR(255), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: projects
+CREATE TABLE `projects` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL, `status` TEXT DEFAULT 'Planning', `progress` INTEGER DEFAULT '0', `deadline` DATETIME, `manager` VARCHAR(255), `priority` TEXT DEFAULT 'Medium', `color` VARCHAR(255) DEFAULT '#3b82f6', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Quotation
+CREATE TABLE `Quotation` (`id` INTEGER PRIMARY KEY, `quotationNumber` VARCHAR(255) NOT NULL UNIQUE, `customer` INTEGER NOT NULL REFERENCES `Customer` (`id`), `customerName` VARCHAR(255) NOT NULL, `date` DATETIME, `validUntil` DATETIME NOT NULL, `items` JSON DEFAULT '[]', `subTotal` FLOAT NOT NULL, `taxAmount` FLOAT DEFAULT '0', `grandTotal` FLOAT NOT NULL, `status` VARCHAR(255) DEFAULT 'Draft', `notes` TEXT, `termsAndConditions` TEXT DEFAULT 'Quotation valid until the specified date. All prices are final unless changed by mutual agreement.', `createdBy` INTEGER, `createdByName` VARCHAR(255), `salesOrderId` INTEGER, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: SalesGoal
+CREATE TABLE `SalesGoal` (`id` INTEGER PRIMARY KEY, `assignedTo` INTEGER NOT NULL REFERENCES `User` (`id`), `period` VARCHAR(255) DEFAULT 'Monthly', `startDate` DATETIME NOT NULL, `endDate` DATETIME NOT NULL, `targetAmount` FLOAT DEFAULT '0', `targetOrders` INTEGER DEFAULT '0', `createdBy` INTEGER REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: TrainingCourse
+CREATE TABLE `TrainingCourse` (`id` INTEGER PRIMARY KEY, `title` VARCHAR(255) NOT NULL, `description` TEXT, `category` TEXT DEFAULT 'other', `instructor` VARCHAR(255), `duration` VARCHAR(255), `capacity` INTEGER DEFAULT '30', `status` TEXT DEFAULT 'Not Started', `badge` VARCHAR(255), `rating` FLOAT DEFAULT '0', `color` VARCHAR(255) DEFAULT '#3b82f6', `dueDate` DATE, `createdBy` INTEGER, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: TrainingEnrollment
+CREATE TABLE `TrainingEnrollment` (`id` INTEGER PRIMARY KEY, `courseId` INTEGER NOT NULL REFERENCES `TrainingCourse` (`id`), `userId` INTEGER NOT NULL, `progress` INTEGER DEFAULT '0', `status` TEXT DEFAULT 'Not Started', `completedAt` DATETIME, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Holiday
+CREATE TABLE `Holiday` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL, `date` DATE NOT NULL, `type` TEXT DEFAULT 'Company', `description` TEXT, `color` VARCHAR(255) DEFAULT '#6366f1', `isRecurring` TINYINT(1) DEFAULT 0, `createdBy` INTEGER, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: JobPosting
+CREATE TABLE `JobPosting` (`id` INTEGER PRIMARY KEY, `title` VARCHAR(255) NOT NULL, `department` VARCHAR(255), `location` VARCHAR(255), `type` TEXT DEFAULT 'Full-time', `status` TEXT DEFAULT 'Open', `description` TEXT, `requirements` TEXT, `salaryMin` INTEGER, `salaryMax` INTEGER, `deadline` DATE, `openings` INTEGER DEFAULT '1', `createdBy` INTEGER, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Candidate
+CREATE TABLE `Candidate` (`id` INTEGER PRIMARY KEY, `jobId` INTEGER NOT NULL REFERENCES `JobPosting` (`id`), `name` VARCHAR(255) NOT NULL, `email` VARCHAR(255), `phone` VARCHAR(255), `stage` TEXT DEFAULT 'Applied', `source` VARCHAR(255), `notes` TEXT, `rating` INTEGER DEFAULT '0', `appliedAt` DATETIME, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: SocialPost
+CREATE TABLE `SocialPost` (`id` INTEGER PRIMARY KEY, `content` TEXT NOT NULL, `type` TEXT DEFAULT 'Standard', `authorId` INTEGER NOT NULL REFERENCES `User` (`id`), `mediaUrl` VARCHAR(255), `likesCount` INTEGER DEFAULT '0', `commentsCount` INTEGER DEFAULT '0', `isPinned` TINYINT(1) DEFAULT 0, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: SocialComment
+CREATE TABLE `SocialComment` (`id` INTEGER PRIMARY KEY, `content` TEXT NOT NULL, `postId` INTEGER NOT NULL REFERENCES `SocialPost` (`id`), `authorId` INTEGER NOT NULL REFERENCES `User` (`id`), `likesCount` INTEGER DEFAULT '0', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: SocialReaction
+CREATE TABLE `SocialReaction` (`id` INTEGER PRIMARY KEY, `type` TEXT NOT NULL, `postId` INTEGER REFERENCES `SocialPost` (`id`), `commentId` INTEGER REFERENCES `SocialComment` (`id`), `userId` INTEGER NOT NULL REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: SocialConnection
+CREATE TABLE `SocialConnection` (`id` INTEGER PRIMARY KEY, `requesterId` INTEGER NOT NULL REFERENCES `User` (`id`), `recipientId` INTEGER NOT NULL REFERENCES `User` (`id`), `status` TEXT DEFAULT 'Pending', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: SocialMessage
+CREATE TABLE `SocialMessage` (`id` INTEGER PRIMARY KEY, `senderId` INTEGER NOT NULL REFERENCES `User` (`id`), `receiverId` INTEGER NOT NULL REFERENCES `User` (`id`), `content` TEXT NOT NULL, `isRead` TINYINT(1) DEFAULT 0, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: PostComment
+CREATE TABLE `PostComment` (`id` INTEGER PRIMARY KEY, `postId` INTEGER NOT NULL REFERENCES `Post` (`id`), `authorId` INTEGER NOT NULL REFERENCES `User` (`id`), `text` TEXT NOT NULL, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: PostLike
+CREATE TABLE `PostLike` (`id` INTEGER PRIMARY KEY, `postId` INTEGER NOT NULL REFERENCES `Post` (`id`), `userId` INTEGER NOT NULL REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: PostRepost
+CREATE TABLE `PostRepost` (`id` INTEGER PRIMARY KEY, `postId` INTEGER NOT NULL REFERENCES `Post` (`id`), `userId` INTEGER NOT NULL REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: SavedPost
+CREATE TABLE `SavedPost` (`id` INTEGER PRIMARY KEY, `userId` INTEGER NOT NULL REFERENCES `User` (`id`), `postId` INTEGER NOT NULL REFERENCES `Post` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: News
+CREATE TABLE `News` (`id` INTEGER PRIMARY KEY, `title` VARCHAR(255) NOT NULL, `content` TEXT NOT NULL, `imageUrl` VARCHAR(255), `publishedAt` DATETIME, `authorId` INTEGER NOT NULL REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Event
+CREATE TABLE `Event` (`id` INTEGER PRIMARY KEY, `title` VARCHAR(255) NOT NULL, `description` TEXT, `eventDate` DATETIME NOT NULL, `location` VARCHAR(255), `type` TEXT DEFAULT 'Other', `organizerId` INTEGER REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: Follow
+CREATE TABLE `Follow` (`id` INTEGER PRIMARY KEY, `followerId` INTEGER NOT NULL UNIQUE REFERENCES `User` (`id`), `followingId` INTEGER NOT NULL UNIQUE REFERENCES `User` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: PurchaseRequest
+CREATE TABLE `PurchaseRequest` (`id` INTEGER PRIMARY KEY, `purchaseRequestId` VARCHAR(255) NOT NULL UNIQUE, `orderId` INTEGER REFERENCES `Order` (`id`), `vendorId` INTEGER REFERENCES `Vendor` (`id`), `items` JSON NOT NULL, `status` TEXT DEFAULT 'Pending', `priority` TEXT DEFAULT 'Normal', `requestedById` INTEGER REFERENCES `User` (`id`), `notes` TEXT, `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL)
+
+-- Table: User_backup
+CREATE TABLE `User_backup` (`id` INTEGER PRIMARY KEY, `name` VARCHAR(255) NOT NULL, `email` VARCHAR(255) NOT NULL UNIQUE, `password` VARCHAR(255), `phone` VARCHAR(255), `googleId` VARCHAR(255) UNIQUE, `picture` VARCHAR(255), `role` TEXT DEFAULT 'Employee', `active` TINYINT(1) DEFAULT 1, `isProfileComplete` TINYINT(1) DEFAULT 0, `provider` VARCHAR(255) DEFAULT 'local', `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, `birthday` DATE, `bio` TEXT, `skills` VARCHAR(255))

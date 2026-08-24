@@ -368,7 +368,7 @@ const OrderManagement = () => {
             </div>{" "}
             <div style={{ height: 200 }}>
               {" "}
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 {" "}
                 <BarChart data={statusDistData} barSize={24}>
                   {" "}
@@ -459,7 +459,7 @@ const OrderManagement = () => {
             </div>{" "}
             <div style={{ height: 200 }}>
               {" "}
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 {" "}
                 <BarChart data={revenueChartData} barGap={4} barSize={16}>
                   {" "}

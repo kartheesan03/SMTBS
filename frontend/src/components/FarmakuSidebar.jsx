@@ -231,9 +231,17 @@ const FarmakuSidebar = () => {
             </div>
 
 
-            <div className="farmaku-sidebar-footer" style={{ borderTop: '1px solid #E2E8F0', padding: '12px 16px' }}>
-                <div className="farmaku-logout-item" onClick={logout}>
-                    <Icons.LogOut size={18} />
+            <div className="farmaku-sidebar-footer" style={{ borderTop: '1px solid #E5E7EB', padding: '16px' }}>
+                <div style={{ display: 'flex', background: '#F3F4F6', borderRadius: '8px', padding: '4px', marginBottom: '16px' }}>
+                    <div style={{ flex: 1, textAlign: 'center', padding: '6px', background: '#FFFFFF', borderRadius: '6px', fontSize: '12px', fontWeight: 600, color: '#3B82F6', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        <Icons.Sun size={14} /> Light
+                    </div>
+                    <div style={{ flex: 1, textAlign: 'center', padding: '6px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, color: '#6B7280', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        <Icons.Moon size={14} /> Dark
+                    </div>
+                </div>
+                <div className="farmaku-logout-item" onClick={logout} style={{ margin: 0, padding: '10px' }}>
+                    <Icons.LogOut size={16} />
                     <span>Logout</span>
                 </div>
             </div>
