@@ -16,6 +16,7 @@ import {
 import "../components/AdminDashboard/DashboardLayout.css";
 import LiveOrganizationWidget from '../components/AdminDashboard/LiveOrganizationWidget';
 import SystemHealthMonitorWidget from '../components/AdminDashboard/SystemHealthMonitorWidget';
+import OrderFinancesWidget from '../components/AdminDashboard/OrderFinancesWidget';
 import { LoadingState, ErrorState } from "../components/DataStates";
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -233,27 +234,7 @@ const AdminDashboard = () => {
 
             {/* CHARTS */}
             <div className="bx-charts-row" style={{ gridTemplateColumns: '1fr', gap: '1rem' }}>
-
-              <div className="bx-card" style={{ width: '100%' }}>
-                <div className="bx-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 className="bx-card-title">Order Finances (Current Year)</h3>
-                </div>
-                <div style={{height: '250px', marginTop: '20px'}}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={timelineData} margin={{top: 15, right: 10, left: 10, bottom: 20}}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 11, fill:'#64748b', dy: 10}} interval={0} />
-                      <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{fontSize: 11, fill:'#64748b', dx: -10}} tickFormatter={(v) => `₹${v/1000}k`} />
-                      <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{fontSize: 11, fill:'#64748b', dx: 10}} tickFormatter={(v) => `₹${v/1000}k`} />
-                      <RechartsTooltip content={<CustomTooltip />} cursor={{fill: '#f8fafc'}} />
-                      <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '12px', paddingTop: '20px' }} iconType="square" />
-                      <Bar yAxisId="left" dataKey="revenue" name="Receivable (Sales)" fill="#4472c4" maxBarSize={35} />
-                      <Line yAxisId="right" type="linear" dataKey="purchase" name="Payable (Purchases)" stroke="#ed7d31" strokeWidth={3} dot={false} activeDot={{r: 6, fill: '#ed7d31', stroke: '#fff', strokeWidth: 2}} />
-                    </ComposedChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
+              <OrderFinancesWidget />
             </div>
 
             {/* QUICK LINKS */}

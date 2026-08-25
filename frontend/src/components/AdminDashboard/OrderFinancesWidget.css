@@ -1,0 +1,151 @@
+.bx-of-panel {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  margin-bottom: 24px;
+  color: #0f172a;
+  padding: 24px;
+}
+
+.bx-of-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.bx-of-title-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.bx-of-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.bx-of-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.bx-of-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bx-of-year-selector {
+  padding: 6px 28px 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0f172a;
+  background: #f8fafc;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+.bx-of-link {
+  font-size: 0.8rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+.bx-of-link:hover {
+  color: #1d4ed8;
+}
+
+.bx-of-legend-container {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.bx-of-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.bx-of-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+.bx-of-legend-dot.sales {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+}
+.bx-of-legend-dot.purchases {
+  background: #f97316;
+  border-radius: 50%;
+}
+
+.bx-of-chart-container {
+  height: 300px;
+  width: 100%;
+}
+
+/* Custom Tooltip Styling */
+.bx-of-custom-tooltip {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+}
+
+.bx-of-tooltip-label {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  text-align: center;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 4px;
+}
+
+.bx-of-tooltip-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.8rem;
+}
+
+.bx-of-tooltip-item:last-child {
+  margin-bottom: 0;
+}
+
+.bx-of-tooltip-name {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bx-of-tooltip-value {
+  font-weight: 700;
+  color: #0f172a;
+}
