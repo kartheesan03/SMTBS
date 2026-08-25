@@ -54,20 +54,18 @@ const greeting = () => {
 };
 
 const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub }) => (
-  <div className="db-kpi-card">
-    <div className="db-kpi-top">
-      <div className={`db-kpi-icon ${iconClass}`}><Icon size={22} /></div>
-      {trend && (
-        <span className={`db-kpi-trend ${trendUp ? "up" : "down"}`}>
-          {trendUp ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {trend}
-        </span>
-      )}
+  <div className="bx-kpi-card">
+    <div className="bx-kpi-header">
+      <div className={`bx-kpi-icon ${iconClass}`}><Icon size={14} /></div>
+      {label}
     </div>
-    <div>
-      <div className="db-kpi-value">{value}</div>
-      <div className="db-kpi-label">{label}</div>
-    </div>
-    {sub && <div className="db-kpi-sub">{sub}</div>}
+    <div className="bx-kpi-val">{value}</div>
+    {trend && (
+      <div className={`bx-kpi-trend ${trendUp ? "up" : "down"}`}>
+        {trendUp ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />} {trend}
+        {sub && <span> {sub}</span>}
+      </div>
+    )}
   </div>
 );
 
@@ -383,7 +381,7 @@ const TrackingDashboard = () => {
       (m) => (m.status || "").toUpperCase() === "PENDING"
     ).length;
     return (
-      <div className="db-kpi-grid">
+      <div className="bx-kpi-row" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
         <KpiCard
           title="Available Stock"
           label="Available Stock"
@@ -1145,7 +1143,7 @@ const TrackingDashboard = () => {
     const pending = movements.filter((m) => String(m.status).toLowerCase() === "pending").length;
 
     return (
-      <div className="db-kpi-grid">
+      <div className="bx-kpi-row" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
         <KpiCard label="Total Movements" value={movements.length} trend="All time" trendUp={true} icon={Layers} iconClass="blue" />
         <KpiCard label="IN Movements" value={inMovs} trend="Stock additions" trendUp={true} icon={ArrowDownRight} iconClass="green" />
         <KpiCard label="OUT Movements" value={outMovs} trend="Stock reductions" trendUp={true} icon={ArrowUpRight} iconClass="orange" />

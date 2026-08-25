@@ -25,7 +25,10 @@ body {
 
 .bx-layout {
   display: flex;
-  min-height: 100vh;
+  flex: 1;
+  margin: -24px;
+  padding: 16px;
+  min-height: calc(100vh - 64px);
   background-color: var(--bx-bg);
 }
 
@@ -221,33 +224,33 @@ body {
 
 .bx-content-scroll {
   flex: 1;
-  padding: 1.5rem;
+  padding: 0;
   display: flex;
   flex-wrap: nowrap;
-  gap: 1.5rem;
-  justify-content: center;
+  gap: 20px;
+  justify-content: stretch;
   overflow-x: auto;
 }
 
 .bx-center-col {
   flex: 1;
-  max-width: 900px;
   min-width: 500px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 16px;
 }
 
 /* Hero Section */
 .bx-hero {
-  background-color: var(--bx-primary-light);
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%); /* Vibrant corporate blue gradient */
   border-radius: 12px;
-  padding: 2rem;
+  padding: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(29, 78, 216, 0.3);
 }
 
 .bx-hero-text {
@@ -256,8 +259,8 @@ body {
 }
 .bx-hero-text h1 {
   margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-  color: var(--bx-text-dark) !important;
+  font-size: 1.6rem;
+  color: #ffffff !important;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -266,7 +269,7 @@ body {
 }
 .bx-hero-text p {
   margin: 0 0 2rem 0;
-  color: var(--bx-text-muted);
+  color: #cbd5e1;
   max-width: 250px;
 }
 
@@ -275,7 +278,7 @@ body {
   gap: 1.5rem;
   align-items: center;
   font-size: 0.85rem;
-  color: var(--bx-text-dark);
+  color: #f1f5f9;
   font-weight: 500;
   flex-wrap: wrap;
   margin-top: 1rem;
@@ -322,17 +325,16 @@ body {
   font-weight: 600;
 }
 
-/* KPI Row */
 .bx-kpi-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 .bx-kpi-card {
   background: var(--bx-card-bg);
   border: 1px solid var(--bx-border);
   border-radius: 8px;
-  padding: 1rem;
+  padding: 16px;
 }
 .bx-kpi-header {
   display: flex;
@@ -375,19 +377,16 @@ body {
 /* Charts Row */
 .bx-charts-row {
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 1.5rem;
-  align-items: start;
-}
-.bx-charts-row > .bx-card:nth-child(2) {
-  grid-row: span 2;
-  height: 100%;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: stretch;
 }
 .bx-card {
   background: var(--bx-card-bg);
   border: 1px solid var(--bx-border);
   border-radius: 12px;
-  padding: 1.25rem;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-direction: column;
 }
@@ -398,7 +397,7 @@ body {
   margin-bottom: 1rem;
 }
 .bx-card-title {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   margin: 0;
 }
@@ -423,8 +422,9 @@ body {
 .bx-budget-row .label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--bx-text-muted);
+  font-size: 0.8rem;
 }
 .bx-budget-row .dot {
   width: 8px;
@@ -433,6 +433,8 @@ body {
 }
 .bx-budget-row .val {
   font-weight: 600;
+  color: var(--bx-text-dark);
+  font-size: 0.85rem;
 }
 
 /* Quick Links */
@@ -466,27 +468,27 @@ body {
 /* Bottom Lists Row */
 .bx-lists-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  align-items: start;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: stretch;
 }
 .bx-list-item {
   display: flex;
-  gap: 10px;
-  padding: 0.75rem 0;
+  gap: 6px;
+  padding: 0.4rem 0;
   border-bottom: 1px solid var(--bx-border);
 }
 .bx-list-item:last-child {
   border-bottom: none;
 }
 .bx-list-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: white;
   flex-shrink: 0;
 }
@@ -494,12 +496,12 @@ body {
   flex: 1;
 }
 .bx-list-title {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0.1rem 0;
 }
 .bx-list-desc {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--bx-text-muted);
   margin: 0;
 }
@@ -507,12 +509,12 @@ body {
   text-align: right;
 }
 .bx-list-meta-top {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--bx-text-muted);
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0.1rem 0;
 }
 .bx-list-meta-bottom {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--bx-text-muted);
   margin: 0;
 }
@@ -619,7 +621,6 @@ body {
 
 /* AI Assistant */
 .bx-ai-widget {
-  margin-top: auto;
   border: 1px solid var(--bx-primary-light);
   border-radius: 12px;
   overflow: hidden;

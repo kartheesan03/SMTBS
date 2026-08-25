@@ -10,7 +10,7 @@ import {
   FileText,
   Play,
   CheckCircle,
-  DollarSign,
+  IndianRupee,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import API from "../api/axios";
@@ -175,7 +175,7 @@ const Payroll = () => {
             title="Provident Fund"
             value={formatCurrency(totalPF, "short")}
             colorTheme="purple"
-            icon={DollarSign}
+            icon={IndianRupee}
             trendValue="12% PF"
             trendPositive={true}
           />
@@ -279,7 +279,7 @@ const Payroll = () => {
                 style={{ background: "#6366f1" }}
                 onClick={() => navigate("/payroll/generate")}
               >
-                <DollarSign
+                <IndianRupee
                   size={16}
                   style={{ marginRight: 8, verticalAlign: "middle" }}
                 />

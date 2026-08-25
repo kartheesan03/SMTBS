@@ -6,7 +6,7 @@ import {
   ShoppingCart,
   Clock,
   CheckCircle,
-  DollarSign,
+  IndianRupee,
   Search,
   Eye,
   Truck,
@@ -357,7 +357,7 @@ const ERP = () => {
             title="Total PO Value"
             value={formatCurrency(totalPOValue)}
             colorTheme="purple"
-            icon={DollarSign}
+            icon={IndianRupee}
             trendValue="Total spent"
             trendPositive={true}
           />{" "}
@@ -371,7 +371,7 @@ const ERP = () => {
               )
             )}
             colorTheme="peach"
-            icon={DollarSign}
+            icon={IndianRupee}
             trendValue="Total revenue"
             trendPositive={true}
           />{" "}

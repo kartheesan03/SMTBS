@@ -5,7 +5,7 @@ import {
   Target,
   Zap,
   Handshake,
-  DollarSign,
+  IndianRupee,
   Search,
   ArrowRight,
 } from "lucide-react";
@@ -159,7 +159,7 @@ const Leads = () => {
             title="Pipeline Value"
             value={formatCurrency(pipelineValue)}
             colorTheme="mint"
-            icon={DollarSign}
+            icon={IndianRupee}
             trendValue="Potential revenue"
             trendPositive={true}
           />{" "}

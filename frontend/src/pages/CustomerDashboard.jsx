@@ -5,8 +5,8 @@ import { useAiInsights } from "../hooks/useAiInsights";
 import API from "../api/axios";
 import {
   ShoppingCart, Package, Truck, CheckCircle, Plus, FileText,
-  XCircle, Clock, MapPin, DollarSign, TrendingUp, TrendingDown,
-  Bell, ArrowRight, Activity, User, ExternalLink,
+  XCircle, Clock, MapPin, IndianRupee, TrendingUp, TrendingDown,
+  Bell, ArrowRight, Activity, User, ExternalLink, Calendar, ChevronDown, ArrowUpRight, ArrowDownRight, Settings
 } from "lucide-react";
 import {
   AreaChart, Area, PieChart, Pie, Cell,
@@ -35,7 +35,6 @@ const QaBtn=({icon:Icon,label,colorClass,onClick})=>(
     <span className="db-qa-label">{label}</span>
   </div>
 );
-const SPARK=[3,5,4,7,5,9,7,11,8,13,10,12];
 
 const CustomerDashboard = () => {
   const navigate = useNavigate();
@@ -67,14 +66,22 @@ const CustomerDashboard = () => {
   const totalSpend    = orders.reduce((s,o)=>s+(o.totalAmount||o.amount||0),0);
 
   const statusData=[
-    {name:"Pending",   value:pendingOrders||2},
-    {name:"Processing",value:orders.filter(o=>o.status==="Processing").length||1},
-    {name:"Shipped",   value:orders.filter(o=>o.status==="Shipped").length||2},
-    {name:"Delivered", value:deliveredOrds||5},
-    {name:"Cancelled", value:orders.filter(o=>o.status==="Cancelled").length||0},
+    {name:"Pending",   value:pendingOrders},
+    {name:"Processing",value:orders.filter(o=>o.status==="Processing").length},
+    {name:"Shipped",   value:orders.filter(o=>o.status==="Shipped").length},
+    {name:"Delivered", value:deliveredOrds},
+    {name:"Cancelled", value:orders.filter(o=>o.status==="Cancelled").length},
   ];
 
-  const orderTrend=SPARK.map((v,i)=>({name:`M${i+1}`,orders:v}));
+  const monthlyCounts = new Array(12).fill(0);
+  orders.forEach(o => {
+    if(o.createdAt || o.date) {
+      const m = new Date(o.createdAt || o.date).getMonth();
+      monthlyCounts[m]++;
+    }
+  });
+  const allMonths = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const orderTrend = allMonths.map((m, i) => ({ name: m, orders: monthlyCounts[i] }));
 
   const upcomingDeliveries=orders
     .filter(o=>["Shipped","Processing"].includes(o.status))
@@ -91,253 +98,251 @@ const CustomerDashboard = () => {
 
   const displayInsights = (aiError || !fetchedAiInsights) ? fallbackAiInsights : fetchedAiInsights;
 
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric', weekday: 'long'});
+  const calendarDays = [];
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const startOffset = firstDay === 0 ? 6 : firstDay - 1; 
+  for(let i=0; i<startOffset; i++) calendarDays.push(<div key={`empty-${i}`} className="bx-cal-day" style={{color:'transparent'}}>-</div>);
+  for(let i=1; i<=daysInMonth; i++) {
+    const isToday = i === today.getDate();
+    calendarDays.push(<div key={`day-${i}`} className={`bx-cal-day ${isToday ? 'active' : ''}`}>{i}</div>);
+  }
+
   return (
-    <div className="db-page">
-      <div className="db-content">
-
-        <div className="db-greeting-bar">
-          <div className="db-greeting-left">
-            <div className="db-greeting-text">{greeting()}, {profile?.name||user?.name?.split(" ")[0]||"Customer"}! 👋</div>
-            <div className="db-greeting-sub">Here's your order overview and activity.</div>
-          </div>
-          <div className="db-greeting-right">
-            <div className="db-datetime">{now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})} · {now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}</div>
-            <div className="db-status-pill"><div className="db-status-dot"/>Customer Portal Active</div>
-          </div>
-        </div>
-
-        <div className="db-kpi-grid">
-          <KpiCard icon={ShoppingCart} iconClass="blue"   label="My Orders"       value={totalOrders}         trend="All time"     trendUp={true}  sub="Total placed" />
-          <KpiCard icon={Clock}        iconClass="orange" label="Pending Orders"   value={pendingOrders}       trend="In progress"  trendUp={false} sub="Processing now" />
-          <KpiCard icon={CheckCircle}  iconClass="green"  label="Delivered"        value={deliveredOrds}       trend="Successfully" trendUp={true}  sub="Received orders" />
-          <KpiCard icon={DollarSign}   iconClass="purple" label="Total Spend"      value={fmtINR(totalSpend)}  trend="All orders"   trendUp={true}  sub="Lifetime value" />
-        </div>
-
-        <div className="db-quick-actions">
-          <div className="db-section-title">Quick Actions</div>
-          <div className="db-qa-grid">
-            <QaBtn icon={Plus}         label="New Order"    colorClass="qa-blue"   onClick={()=>navigate("/orders")}/>
-            <QaBtn icon={Truck}        label="Track Order"  colorClass="qa-orange" onClick={()=>navigate("/tracking-overview")}/>
-            <QaBtn icon={FileText}     label="Invoices"     colorClass="qa-purple" onClick={()=>navigate("/invoices")}/>
-            <QaBtn icon={Bell}         label="Support"      colorClass="qa-teal"   onClick={()=>navigate("/support")}/>
-            <QaBtn icon={User}         label="My Profile"   colorClass="qa-green"  onClick={()=>navigate("/profile")}/>
-            <QaBtn icon={ExternalLink} label="Catalog"      colorClass="qa-amber"  onClick={()=>navigate("/materials")}/>
-          </div>
-        </div>
-
-        <div className="db-stats-mini-grid">
-          {[
-            [ShoppingCart,"#DBEAFE","#1D4ED8","Total Orders",   totalOrders,       "badge-blue-sm","All Time"],
-            [Clock,       "#FFEDD5","#C2410C","Pending",         pendingOrders,     "badge-orange-sm","In Progress"],
-            [CheckCircle, "#DCFCE7","#15803D","Delivered",       deliveredOrds,     "badge-green-sm","Received"],
-            [DollarSign,  "#F3E8FF","#7C3AED","Total Spend",    fmtINR(totalSpend),"badge-blue-sm","Lifetime"],
-          ].map(([Icon,bg,col,label,val,badge,badgeText],i)=>(
-            <div key={i} className="db-stats-mini-card">
-              <div className="db-stats-mini-icon" style={{ background:bg,color:col }}><Icon size={18}/></div>
-              <div className="db-stats-mini-body"><div className="db-stats-mini-val">{val}</div><div className="db-stats-mini-label">{label}</div><span className={`db-stats-mini-badge ${badge}`}>{badgeText}</span></div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Bento Grid ── */}
-        <div className="db-bento">
-          {/* Row 1 */}
-          <div className="db-card db-col-3">
-            <div className="db-profile-banner profile-banner-customer"/>
-
-            <div className="db-profile-body">
-              <div className="db-profile-name">{profile?.name||user?.name||"Customer"}</div>
-              <div className="db-profile-role">{profile?.type||"Customer"} Account</div>
-              <span className="db-profile-badge profile-badge-customer">Customer Access</span>
-              <div className="db-profile-info">
-                <div className="db-profile-info-row"><span className="db-profile-info-label">Customer ID</span><span className="db-profile-info-val">CUS-{String(user?.id||7001).padStart(4,"0")}</span></div>
-                <div className="db-profile-info-row"><span className="db-profile-info-label">Email</span><span className="db-profile-info-val" style={{ fontSize:11 }}>{profile?.email||user?.email||"—"}</span></div>
-                <div className="db-profile-info-row"><span className="db-profile-info-label">Total Spend</span><span className="db-profile-info-val">{fmtINR(totalSpend)}</span></div>
-              </div>
-              <button className="db-profile-btn" onClick={()=>navigate("/profile")}>View Profile <ArrowRight size={13}/></button>
-            </div>
-          </div>
-
-          <div className="db-card db-col-6" style={{ background: "#ffffff", border: "1px solid #e2e8f0", boxShadow: "0 10px 30px -10px rgba(29, 78, 216, 0.15)", position: "relative", overflow: "hidden", padding: 0, display: "flex", flexDirection: "column" }}>
-            <div className="db-card-header" style={{ borderBottom: "none", padding: "24px 24px 0 24px", margin: 0, display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
-              <div>
-                <div className="db-card-title" style={{ color: "#64748b", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                  <ShoppingCart size={16} color="#1d4ed8" />
-                  Order History
-                </div>
-                <div style={{ fontSize: 32, fontWeight: 900, color: "#0f172a", marginTop: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
-                  {totalOrders}
-                  <span style={{ fontSize: 13, padding: "3px 10px", background: "#dbeafe", color: "#1e40af", borderRadius: "12px", fontWeight: 700 }}>
-                    Orders
-                  </span>
+    <div className="bx-layout">
+      <div className="bx-main-wrapper">
+        <div className="bx-content-scroll">
+          <div className="bx-center-col">
+            
+            {/* HERO */}
+            <div className="bx-hero">
+              <div className="bx-hero-text">
+                <h1>Good morning, {profile?.name||user?.name?.split(' ')[0]||"Customer"}! <span style={{fontSize:'1.5rem', display:'inline-block'}}>👋</span></h1>
+                <p>Here's your order overview and activity.</p>
+                <div className="bx-hero-meta" style={{display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'1rem', marginTop:'1.5rem'}}>
+                  <div style={{display:'flex', alignItems:'center', gap:'8px', color:'#f8fafc', fontWeight:'500', fontSize:'0.9rem'}}>
+                    <Calendar size={16} color="#93c5fd"/> {dateStr}
+                  </div>
+                  <div style={{display:'flex', gap:'1.5rem', alignItems:'center'}}>
+                    <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.9rem', fontWeight:'500'}}>
+                      <span className="bx-status-dot" style={{backgroundColor: '#34d399'}}></span> Customer Portal Active
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={orderTrend} margin={{top:4,right:4,left:0,bottom:0}}>
-                  <defs>
-                    <linearGradient id="custGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#1D4ED8" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#1D4ED8" stopOpacity={0.05}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dy={10}/>
-                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} width={40}/>
-                  <Tooltip cursor={{ stroke: '#bfdbfe', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
-                  <Area type="monotone" dataKey="orders" stroke="#1D4ED8" strokeWidth={4} fill="url(#custGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#1d4ed8", strokeWidth: 3 }}/>
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
 
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Order Status Split</div></div>
-            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
-              <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={statusData} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
-                      {["#EAB308","#3B82F6","#14B8A6","#22C55E","#EF4444"].map((c,i)=><Cell key={i} fill={c}/>)}
-                    </Pie>
-                    <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
-                  </PieChart>
-                </ResponsiveContainer>
-                <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <div style={{ fontSize:26,fontWeight:800,color:"#111827", lineHeight: 1 }}>{totalOrders}</div>
-                  <div style={{ fontSize:12,color:"#64748b", fontWeight: 700, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>Orders</div>
+            {/* KPI ROW */}
+            <div className="bx-kpi-row">
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon blue"><ShoppingCart size={14}/></div> My Orders</div>
+                <div className="bx-kpi-val">{totalOrders}</div>
+                <div className="bx-kpi-trend up"><ArrowUpRight size={12}/> All time</div>
+              </div>
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon orange"><Clock size={14}/></div> Pending Orders</div>
+                <div className="bx-kpi-val">{pendingOrders}</div>
+                <div className="bx-kpi-trend down"><ArrowDownRight size={12}/> In progress</div>
+              </div>
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon green"><CheckCircle size={14}/></div> Delivered</div>
+                <div className="bx-kpi-val">{deliveredOrds}</div>
+                <div className="bx-kpi-trend up"><ArrowUpRight size={12}/> Successfully</div>
+              </div>
+            </div>
+
+
+            {/* QUICK LINKS */}
+            <div className="bx-card" style={{marginBottom:'1rem'}}>
+              <h3 className="bx-card-title" style={{marginBottom:'1rem'}}>Quick Actions</h3>
+              <div className="bx-quick-links">
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={()=>navigate("/orders")}><Plus size={16} color="#3b82f6"/> New Order</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={()=>navigate("/tracking-overview")}><Truck size={16} color="#f97316"/> Track Order</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={()=>navigate("/invoices")}><FileText size={16} color="#a855f7"/> Invoices</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={()=>navigate("/support")}><Bell size={16} color="#14b8a6"/> Support</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={()=>navigate("/profile")}><User size={16} color="#22c55e"/> My Profile</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={()=>navigate("/materials")}><ExternalLink size={16} color="#f59e0b"/> Catalog</div>
+              </div>
+            </div>
+
+            {/* CHARTS ROW */}
+            <div className="bx-charts-row">
+              <div className="bx-card" style={{gridColumn:'span 2'}}>
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Order History</h3>
                 </div>
-              </div>
-              <div style={{ display:"flex",flexWrap:"wrap",gap:8,justifyContent:"center", fontSize: 11, marginTop: 8 }}>
-                {[["Pending","#EAB308"],["Processing","#3B82F6"],["Shipped","#14B8A6"],["Delivered","#22C55E"]].map(([l,c],i)=>(
-                  <span key={i} style={{ color:"#64748b", fontWeight: 600 }}><span style={{ color:c,fontWeight:800 }}>●</span> {l}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Row 2 */}
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Order Status</div></div>
-            <div className="db-status-list">
-              {[["Pending",   pendingOrders,                                         "status-warning"],
-                ["Processing",orders.filter(o=>o.status==="Processing").length,      "status-warning"],
-                ["Shipped",   orders.filter(o=>o.status==="Shipped").length,         "status-healthy"],
-                ["Delivered", deliveredOrds,                                          "status-healthy"],
-                ["Cancelled", orders.filter(o=>o.status==="Cancelled").length,       "status-critical"],
-              ].map(([n,v,cls],i)=>(
-                <div key={i} className="db-status-row"><span className="db-status-name">{n}</span><span className={`db-status-badge ${cls}`}>{v}</span></div>
-              ))}
-            </div>
-          </div>
-
-          <div className="db-card db-col-6">
-            <div className="db-card-header"><div className="db-card-title">Recent Orders</div><span className="db-card-link" onClick={()=>navigate("/my-orders")}>View All</span></div>
-            <div className="db-activity-list">
-              {orders.slice(0,5).map((o,i)=>{
-                const statusColors={Pending:"#EAB308",Processing:"#3B82F6",Shipped:"#14B8A6",Delivered:"#22C55E",Cancelled:"#EF4444"};
-                const color=statusColors[o.status]||"#6B7280";
-                return <div key={i} className="db-activity-item">
-                  <div className="db-activity-icon" style={{ background:"#DBEAFE",color:"#1D4ED8" }}><Package size={14}/></div>
-                  <div className="db-activity-body"><div className="db-activity-title">Order #{o.orderNumber||o._id?.slice(-4)||`00${i+1}`}</div><div className="db-activity-desc">{fmtINR(o.totalAmount||o.amount||0)} · <span style={{ color, fontWeight:600 }}>{o.status}</span></div></div>
-                  <div className="db-activity-time">{o.createdAt?fmtTime(o.createdAt):"—"}</div>
-                </div>;
-              })}
-              {orders.length===0&&<div className="db-empty">No orders placed yet</div>}
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Notifications</div></div>
-            <div className="db-notif-list">
-              <div className="db-empty">No new notifications</div>
-            </div>
-          </div>
-
-          {/* Row 3 */}
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">My Profile</div></div>
-            <div className="db-status-list">
-              <div className="db-status-row"><span className="db-status-name">Name</span><span className="db-status-badge status-healthy">{profile?.name||user?.name||"Customer"}</span></div>
-              <div className="db-status-row"><span className="db-status-name">Type</span><span className="db-status-badge status-healthy">{profile?.type||"Regular"}</span></div>
-              <div className="db-status-row"><span className="db-status-name">City</span><span className="db-status-badge status-healthy">{profile?.city||"—"}</span></div>
-              <div className="db-status-row"><span className="db-status-name">Member Since</span><span className="db-status-badge status-healthy">{profile?.createdAt?new Date(profile.createdAt).getFullYear():"2024"}</span></div>
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Upcoming Deliveries</div></div>
-            <div className="db-event-list">
-              <br/>
-              {upcomingDeliveries.length>0?upcomingDeliveries.map((ev,i)=>(
-                <div key={i} className="db-event-item"><div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div><div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div></div>
-              )) : <div className="db-empty">No upcoming deliveries</div>}
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">AI Insights</div></div>
-            <div className="db-ai-insights">
-              <br/>
-              {aiLoading ? (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
-                  <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
-                  Generating insights...
-                </div>
-              ) : displayInsights && displayInsights.length > 0 ? (
-                displayInsights.map((text,i)=>{const colors=["#1D4ED8","#22C55E","#F97316","#6366F1","#EAB308"];return<div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
-              ) : (
-                <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
-              )}
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Order History Breakdown</div></div>
-            <div className="db-bar-list">
-              <br/>
-              {[["Delivered",deliveredOrds,"#22C55E"],["Processing",orders.filter(o=>o.status==="Processing").length,"#3B82F6"],["Pending",pendingOrders,"#EAB308"],["Cancelled",orders.filter(o=>o.status==="Cancelled").length,"#EF4444"]].map(([label,val,color],i)=>{const max=Math.max(1,totalOrders);return<div key={i} className="db-bar-item"><div className="db-bar-label"><span>{label}</span><span style={{ fontWeight:600 }}>{val}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((val/max)*100)}%`,background:color }}/></div></div>;})} 
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Order Status</div></div>
-            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
-              <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={statusData} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
-                      {["#EAB308","#3B82F6","#14B8A6","#22C55E","#EF4444"].map((c,i)=><Cell key={i} fill={c}/>)}
-                    </Pie>
-                    <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header">
-              <div className="db-card-title">Total Spend</div>
-              <span style={{ fontSize: 11, color: "#6B7280" }}>Lifetime</span>
-            </div>
-            <div className="db-card-body" style={{ padding: 0 }}>
-              <div className="db-profit-val">{fmtINR(totalSpend)}</div>
-              <div className="db-profit-sub">Lifetime purchase value</div>
-              <div style={{ width: "100%", height: "120px" }}>
-                {orderTrend && orderTrend.length > 0 ? (
+                <div style={{height:'220px', width:'100%'}}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={orderTrend}>
-                      <Line type="monotone" dataKey="orders" stroke="#1D4ED8" strokeWidth={3} dot={false}/>
-                    </LineChart>
+                    <AreaChart data={orderTrend} margin={{ top:5, right:20, bottom:5, left:0 }}>
+                      <defs>
+                        <linearGradient id="custColor" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#1D4ED8" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#1D4ED8" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} dy={10} interval={0} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} width={40} />
+                      <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px rgba(0,0,0,0.1)'}}/>
+                      <Area type="monotone" dataKey="orders" stroke="#1D4ED8" strokeWidth={3} fillOpacity={1} fill="url(#custColor)" />
+                    </AreaChart>
                   </ResponsiveContainer>
-                ) : <div className="db-empty" style={{ paddingTop: "40px" }}>No spend trend data</div>}
+                </div>
+              </div>
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Order Status Split</h3>
+                </div>
+                <div style={{height:'220px', width:'100%', display:'flex', flexDirection:'column', alignItems:'center'}}>
+                  <ResponsiveContainer width="100%" height="70%">
+                    <PieChart>
+                      <Pie data={statusData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} dataKey="value" stroke="none">
+                        {["#EAB308","#3B82F6","#14B8A6","#22C55E","#EF4444"].map((c,i) => <Cell key={i} fill={c}/>)}
+                      </Pie>
+                      <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px rgba(0,0,0,0.1)'}}/>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="bx-budget-stats" style={{width:'100%', marginTop:'0'}}>
+                    <div className="bx-budget-row">
+                      <div className="label"><div className="dot" style={{background:'#EAB308'}}></div> Pending</div>
+                      <div className="val">{pendingOrders}</div>
+                    </div>
+                    <div className="bx-budget-row">
+                      <div className="label"><div className="dot" style={{background:'#22C55E'}}></div> Delivered</div>
+                      <div className="val">{deliveredOrds}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* LISTS ROW */}
+            <div className="bx-lists-row" style={{marginBottom:'2rem', marginTop: '1rem'}}>
+              
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Order Status</h3>
+                </div>
+                <div>
+                  {[
+                    ["Pending", pendingOrders, "#f59e0b"],
+                    ["Processing", orders.filter(o=>o.status==="Processing").length, "#f59e0b"],
+                    ["Shipped", orders.filter(o=>o.status==="Shipped").length, "#22c55e"],
+                    ["Delivered", deliveredOrds, "#22c55e"],
+                    ["Cancelled", orders.filter(o=>o.status==="Cancelled").length, "#ef4444"],
+                  ].map(([n,v,cls],i) => (
+                    <div className="bx-list-item" key={i}>
+                      <div className="bx-list-icon" style={{background: cls}}><Package size={14}/></div>
+                      <div className="bx-list-content" style={{ minWidth: 0 }}>
+                        <h4 className="bx-list-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{n}</h4>
+                        <p className="bx-list-desc" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v} Orders</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Recent Orders</h3>
+                  <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/my-orders'); }}>View All →</a>
+                </div>
+                <div>
+                  {orders.slice(0,5).map((o,i) => (
+                    <div className="bx-list-item" key={i}>
+                      <div className="bx-list-icon" style={{background: "#DBEAFE", color:"#1D4ED8"}}><Package size={14}/></div>
+                      <div className="bx-list-content" style={{ minWidth: 0 }}>
+                        <h4 className="bx-list-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Order #{o.orderNumber||o._id?.slice(-4)||`00${i+1}`}</h4>
+                        <p className="bx-list-desc" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{fmtINR(o.totalAmount||o.amount||0)} · {o.status}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {orders.length === 0 && (
+                    <div className="bx-list-item">
+                      <div className="bx-list-content"><h4 className="bx-list-title">No orders placed yet</h4></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Upcoming Deliveries</h3>
+                </div>
+                <div>
+                  {upcomingDeliveries.length > 0 ? upcomingDeliveries.map((ev,i) => (
+                    <div className="bx-list-item" key={i}>
+                      <div className="bx-list-icon" style={{background: ev.color}}><Truck size={14}/></div>
+                      <div className="bx-list-content" style={{ minWidth: 0 }}>
+                        <h4 className="bx-list-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ev.title}</h4>
+                        <p className="bx-list-desc" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ev.mon} {ev.day}</p>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="bx-list-item">
+                      <div className="bx-list-content"><h4 className="bx-list-title">No upcoming deliveries</h4></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* RIGHT PANEL */}
+          <div className="bx-right-col">
+            
+            <div className="bx-card bx-calendar">
+              <div className="bx-cal-header">
+                <span className="bx-cal-title">Calendar</span>
+                <span className="bx-cal-month">{today.toLocaleString('default', {month:'long', year:'numeric'})}</span>
+              </div>
+              <div className="bx-cal-grid">
+                <div className="bx-cal-day-name">MON</div><div className="bx-cal-day-name">TUE</div><div className="bx-cal-day-name">WED</div><div className="bx-cal-day-name">THU</div><div className="bx-cal-day-name">FRI</div><div className="bx-cal-day-name">SAT</div><div className="bx-cal-day-name">SUN</div>
+                {calendarDays}
+              </div>
+            </div>
+
+            <div className="bx-card">
+              <div className="bx-card-header">
+                <h3 className="bx-card-title">Notifications</h3>
+                <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>View All →</a>
+              </div>
+              <div className="bx-notifs-list">
+                <div className="bx-notif-item"><div className="bx-task-content"><p className="bx-task-title">No new notifications</p></div></div>
+              </div>
+            </div>
+
+            <div className="bx-ai-widget">
+              <div className="bx-ai-header">
+                <div style={{width:'24px', height:'24px', background:'#1d4ed8', color:'white', borderRadius:'6px', display:'flex', alignItems:'center', justifyContent:'center'}}>B</div>
+                BuildAxis AI Insights <span style={{fontSize:'10px', background:'white', color:'#3b82f6', padding:'2px 4px', borderRadius:'4px', fontWeight:'normal'}}>Beta</span>
+              </div>
+              <div className="bx-ai-body" style={{maxHeight:'250px', overflowY:'auto'}}>
+                <p className="bx-ai-msg">Hi {profile?.name||user?.name?.split(' ')[0]||"Customer"}! Here are your latest insights:</p>
+                {aiLoading ? (
+                  <p className="bx-ai-msg" style={{background:'#f1f5f9'}}>Analyzing data...</p>
+                ) : displayInsights && displayInsights.length > 0 ? (
+                  displayInsights.map((insight, i) => (
+                    <p className="bx-ai-msg" key={i} style={{background:'#f1f5f9', marginTop:'8px', fontSize:'0.75rem'}}>{insight}</p>
+                  ))
+                ) : (
+                  <p className="bx-ai-msg" style={{background:'#f1f5f9'}}>No new insights generated today.</p>
+                )}
+              </div>
+              <div className="bx-ai-footer">
+                <div style={{display:'flex', alignItems:'center', gap:'8px'}}><Bell size={14}/> Smart Reminders</div>
+                <div style={{display:'flex', gap:'8px'}}><span style={{background:'rgba(255,255,255,0.2)', padding:'2px 6px', borderRadius:'10px', fontSize:'0.7rem'}}>?</span> <ChevronDown size={14}/></div>
+              </div>
+            </div>
+
           </div>
         </div>
-
       </div>
     </div>
   );

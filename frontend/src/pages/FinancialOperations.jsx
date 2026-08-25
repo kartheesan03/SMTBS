@@ -4,7 +4,7 @@ import {
   TrendingUp,
   CreditCard,
   AlertTriangle,
-  DollarSign,
+  IndianRupee,
   Search,
   Wallet,
 } from "lucide-react";
@@ -285,7 +285,7 @@ const FinancialOperations = () => {
             title="Outstanding Recv."
             value={formatCurrency(outstandingRecv)}
             colorTheme="peach"
-            icon={DollarSign}
+            icon={IndianRupee}
             trendValue="Pending inflow"
             trendPositive={true}
           />{" "}

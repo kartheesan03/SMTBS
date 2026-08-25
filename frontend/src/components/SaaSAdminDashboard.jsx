@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
     Search, Bell, MessageSquare, Send, Paperclip, AlertCircle, 
     Clock, CheckCircle2, User, Activity, ChevronDown, ChevronRight, Home, Inbox, Settings, Plus,
-    Package, Users, Briefcase, CheckSquare, DollarSign, LifeBuoy, HelpCircle, PieChart
+    Package, Users, Briefcase, CheckSquare, IndianRupee, LifeBuoy, HelpCircle, PieChart
 } from 'lucide-react';
 
 const MOCK_TICKETS = [
@@ -182,7 +182,7 @@ export default function SaaSAdminDashboard() {
                         { icon: Briefcase, label: 'ERP', collapsible: true },
                         { icon: PieChart, label: 'CRM', collapsible: true },
                         { icon: CheckSquare, label: 'Tasks & Projects', collapsible: true },
-                        { icon: DollarSign, label: 'Financial Operations', collapsible: true },
+                        { icon: IndianRupee, label: 'Financial Operations', collapsible: true },
                         { icon: LifeBuoy, label: 'Support Management', active: true },
                         { icon: Bell, label: 'Notifications', badge: 3 },
                         { divider: true },

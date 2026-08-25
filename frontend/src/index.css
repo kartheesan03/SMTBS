@@ -29,11 +29,11 @@
   --info-text: #1E40AF;
 
   /* ─── Neutrals & Surfaces ─── */
-  --bg-app: #F3F4F6;
+  --bg-app: #f4f7fa; /* BuildAxis light blue-grey background */
   --bg-surface: #FFFFFF;
-  --bg-hover: #F9FAFB;
-  --bg-active: #E5E7EB;
-  --bg-subtle: #F3F4F6;
+  --bg-hover: #F8FAFC;
+  --bg-active: #E2E8F0;
+  --bg-subtle: #F1F5F9;
   --bg-input: #FFFFFF;
   --bg-body: var(--bg-app);
 
@@ -195,6 +195,94 @@ body.logged-in.sidebar-collapsed .main-content.with-sidebar {
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 /* ─── UNIFIED DESIGN SYSTEM COMPONENTS ─── */
+
+/* ─── BUILDAXIS DESIGN SYSTEM ─── */
+.bx-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px; /* Slightly sharper than Prodex */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  overflow: hidden;
+}
+.bx-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.bx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+.bx-btn-primary {
+  background: var(--primary);
+  color: white;
+}
+.bx-btn-primary:hover {
+  background: var(--primary-hover);
+}
+.bx-btn-secondary {
+  background: white;
+  border: 1px solid var(--border-strong);
+  color: var(--text-heading);
+}
+.bx-btn-secondary:hover {
+  background: var(--bg-hover);
+}
+
+.bx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.bx-badge.green { background: #d1fae5; color: #065f46; }
+.bx-badge.orange { background: #fef3c7; color: #92400e; }
+.bx-badge.red { background: #fee2e2; color: #991b1b; }
+.bx-badge.blue { background: #dbeafe; color: #1e40af; }
+.bx-badge.gray { background: #f1f5f9; color: #475569; }
+
+.bx-table-wrapper {
+  overflow-x: auto;
+}
+.bx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.bx-table th {
+  text-align: left;
+  padding: 12px 16px;
+  color: var(--text-muted);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+.bx-table td {
+  padding: 12px 16px;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-light);
+}
+.bx-table tbody tr:hover td {
+  background: var(--bg-hover);
+}
+.bx-table tbody tr:last-child td {
+  border-bottom: none;
+}
 
 /* 1. Premium Cards */
 .premium-card, .ui-card, .dashboard-card-3d, .kpi-card, .chart-card, .card {
@@ -1071,3 +1159,27 @@ td.col-email {
   }
 }
 
+/* ─── Search Bar ─── */
+.rd-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid var(--border-subtle, #E5E7EB);
+  border-radius: 6px;
+  background-color: var(--bg-input, #FFFFFF);
+  position: relative;
+}
+
+.rd-search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 14px;
+  color: var(--text-main, #374151);
+}
+
+.rd-search-input::placeholder {
+  color: var(--text-muted, #9CA3AF);
+}

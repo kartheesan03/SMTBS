@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   BarChart as BarChartIcon,
   TrendingUp,
-  DollarSign,
+  IndianRupee,
   Award,
   Users,
   Crosshair,
@@ -254,7 +254,7 @@ const SalesPipeline = () => {
               title="Avg Deal Size"
               value={formatShortCurrency(avgDealSize)}
               colorTheme="purple"
-              icon={DollarSign}
+              icon={IndianRupee}
               trendValue="Steady"
               trendPositive={true}
             />{" "}

@@ -5,7 +5,7 @@ import {
   Building2,
   CheckCircle,
   AlertTriangle,
-  DollarSign,
+  IndianRupee,
   Star,
   Plus,
   Eye,
@@ -245,7 +245,7 @@ const Vendors = () => {
             title="Total Outstanding"
             value={formatCurrency(totalOutstanding)}
             colorTheme="pink"
-            icon={DollarSign}
+            icon={IndianRupee}
             trendValue="Unpaid balance"
             trendPositive={false}
           />{" "}

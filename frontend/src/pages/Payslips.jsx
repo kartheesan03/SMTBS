@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import API from "../api/axios";
 import {
-  DollarSign,
+  IndianRupee,
   Download,
   Eye,
   X,
@@ -79,7 +79,7 @@ const Payslips = () => {
         {history.length === 0 ? (
           <div className="premium-card no-salary-card">
             <div className="no-salary-icon-wrapper">
-              <DollarSign size={32} className="no-salary-icon" />
+              <IndianRupee size={32} className="no-salary-icon" />
             </div>
             <h3>No Salary Records Found</h3>
             <p>Payroll has not been generated for any employees yet.</p>

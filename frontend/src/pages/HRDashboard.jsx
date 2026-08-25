@@ -5,16 +5,17 @@ import { useDashboardData } from "../hooks/useDashboardData";
 import { useAiInsights } from "../hooks/useAiInsights";
 import API from "../api/axios";
 import {
-  Users, DollarSign, Calendar, UserCheck, AlertTriangle, Activity,
+  Users, IndianRupee, Calendar, UserCheck, AlertTriangle, Activity,
   FileText, Plus, Settings, TrendingUp, TrendingDown, ArrowRight,
-  Briefcase, Bell, Clock, Star, Moon,
+  Briefcase, Bell, Clock, Star, Moon, ChevronDown, ArrowUpRight, ArrowDownRight, Cloud
 } from "lucide-react";
 import {
   AreaChart, Area, PieChart, Pie, Cell,
-  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line,
+  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, BarChart, Bar
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
 import { LoadingState } from "../components/DataStates";
+import OperationalIntelligenceWidget from '../components/AdminDashboard/OperationalIntelligenceWidget';
 
 const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<18)return"Good Afternoon"; return"Good Evening"; };
 const fmtINR = (v) => { if(!v&&v!==0)return"₹0"; const abs=Math.abs(v); if(abs>=100000)return`₹${(abs/100000).toFixed(2)}L`; if(abs>=1000)return`₹${(abs/1000).toFixed(1)}k`; return`₹${abs}`; };
@@ -36,7 +37,6 @@ const QaBtn=({icon:Icon,label,colorClass,onClick})=>(
     <span className="db-qa-label">{label}</span>
   </div>
 );
-const SPARK=[4,7,5,9,6,11,8,13,10,15,12,14];
 
 const HRDashboard = () => {
   const navigate = useNavigate();
@@ -80,7 +80,8 @@ const HRDashboard = () => {
   const monthlyPayroll= salariesData.reduce((sum,p)=>sum+(p.netSalary||p.basicSalary||0),0);
   const empDist      = dashboardData?.hrStats?.employeeDistribution||[];
   const trendRaw     = dashboardData?.analytics?.trendData||dashboardData?.charts?.monthlyStats||[];
-  const chartData    = trendRaw.map(d=>({name:d.name,employees:d.employees||Math.round((Math.random()*10+totalEmp*0.9))}));
+  const chartData    = trendRaw.map(d=>({name:d.name,employees:d.employees||0}));
+  const employeeTrend = dashboardData?.analytics?.employeeTrend || [];
   const attendancePct= totalEmp>0?Math.round((presentToday/totalEmp)*100):0;
   const donutData    = [{name:"Present",value:presentToday},{name:"Absent",value:Math.max(0,totalEmp-presentToday)}];
   const recentActivity=dashboardData?.tables?.recentActivity||[];
@@ -96,270 +97,264 @@ const HRDashboard = () => {
 
   const displayInsights = (aiError || !fetchedAiInsights) ? fallbackAiInsights : fetchedAiInsights;
 
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric', weekday: 'long'});
+  const calendarDays = [];
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const startOffset = firstDay === 0 ? 6 : firstDay - 1; 
+  for(let i=0; i<startOffset; i++) calendarDays.push(<div key={`empty-${i}`} className="bx-cal-day" style={{color:'transparent'}}>-</div>);
+  for(let i=1; i<=daysInMonth; i++) {
+    const isToday = i === today.getDate();
+    calendarDays.push(<div key={`day-${i}`} className={`bx-cal-day ${isToday ? 'active' : ''}`}>{i}</div>);
+  }
+
   return (
-    <div className="db-page">
-      <div className="db-content">
-
-        <div className="db-greeting-bar">
-          <div className="db-greeting-left">
-            <div className="db-greeting-text">{greeting()}, {user?.name?.split(" ")[0]||"HR Manager"}! 👋</div>
-            <div className="db-greeting-sub">Here's your people & HR operations overview.</div>
-          </div>
-          <div className="db-greeting-right">
-            <div className="db-datetime">{now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})} · {now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}</div>
-            <div className="db-status-pill"><div className="db-status-dot"/>All Systems Operational</div>
-          </div>
-        </div>
-
-        <div className="db-kpi-grid">
-          <KpiCard icon={Users}       iconClass="purple" label="Total Employees"  value={totalEmp}            trend="vs last month" trendUp={true}  sub="All departments" />
-          <KpiCard icon={UserCheck}   iconClass="green"  label="Present Today"    value={presentToday}        trend={`${attendancePct}%`} trendUp={true} sub="Attendance rate" />
-          <KpiCard icon={Calendar}    iconClass="orange" label="Pending Leaves"   value={pendingLeaves}       trend="Needs review"  trendUp={false} sub="Awaiting approval" />
-          <KpiCard icon={DollarSign}  iconClass="blue"   label="Monthly Payroll"  value={fmtINR(monthlyPayroll)} trend="Processed" trendUp={true} sub="This month" />
-        </div>
-
-        <div className="db-quick-actions">
-          <div className="db-section-title">Quick Actions</div>
-          <div className="db-qa-grid">
-            <QaBtn icon={UserCheck}   label="Attendance"   colorClass="qa-red"    onClick={()=>navigate("/hr/attendance")}/>
-            <QaBtn icon={DollarSign}  label="Payroll"      colorClass="qa-purple" onClick={()=>navigate("/hr/payroll")}/>
-            <QaBtn icon={Calendar}    label="Leave Mgmt"   colorClass="qa-green"  onClick={()=>navigate("/hr/leave")}/>
-            <QaBtn icon={Briefcase}   label="Recruitment"  colorClass="qa-blue"   onClick={()=>navigate("/hr/employees")}/>
-            <QaBtn icon={FileText}    label="HR Reports"   colorClass="qa-amber"  onClick={()=>navigate("/analytics")}/>
-            <QaBtn icon={Users}       label="Employees"    colorClass="qa-teal"   onClick={()=>navigate("/hr/employees")}/>
-            <QaBtn icon={Star}        label="Performance"  colorClass="qa-orange" onClick={()=>navigate("/hr/employees")}/>
-            <QaBtn icon={Settings}    label="Settings"     colorClass="qa-cyan"   onClick={()=>navigate("/settings")}/>
-          </div>
-        </div>
-
-        <div className="db-stats-mini-grid">
-          {[
-            [Users,   "#F5F3FF","#7C3AED","Total Employees",  totalEmp,           "badge-blue-sm","All Depts"],
-            [UserCheck,"#DCFCE7","#15803D","Present Today",   presentToday,       "badge-green-sm",`${attendancePct}%`],
-            [Calendar, "#FEF9C3","#92400E","Pending Leaves",  pendingLeaves,      "badge-orange-sm","Needs Approval"],
-            [DollarSign,"#DBEAFE","#1D4ED8","Monthly Payroll",fmtINR(monthlyPayroll),"badge-blue-sm","This Month"],
-          ].map(([Icon,bg,col,label,val,badge,badgeText],i)=>(
-            <div key={i} className="db-stats-mini-card">
-              <div className="db-stats-mini-icon" style={{ background:bg, color:col }}><Icon size={18}/></div>
-              <div className="db-stats-mini-body">
-                <div className="db-stats-mini-val">{val}</div>
-                <div className="db-stats-mini-label">{label}</div>
-                <span className={`db-stats-mini-badge ${badge}`}>{badgeText}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Bento Grid ── */}
-        <div className="db-bento">
-          {/* Row 1 */}
-          <div className="db-card db-col-3">
-            <div className="db-profile-banner profile-banner-hr"/>
-
-            <div className="db-profile-body">
-              <div className="db-profile-name">{user?.name||"HR Manager"}</div>
-              <div className="db-profile-role">Human Resources</div>
-              <span className="db-profile-badge profile-badge-hr">HR Access</span>
-              <div className="db-profile-info">
-                <div className="db-profile-info-row"><span className="db-profile-info-label">HR ID</span><span className="db-profile-info-val">HR-{String(user?.id||3001).padStart(4,"0")}</span></div>
-                <div className="db-profile-info-row"><span className="db-profile-info-label">Email</span><span className="db-profile-info-val" style={{ fontSize:11 }}>{user?.email||"—"}</span></div>
-                <div className="db-profile-info-row"><span className="db-profile-info-label">Team Count</span><span className="db-profile-info-val">{totalEmp} employees</span></div>
-              </div>
-              <button className="db-profile-btn" onClick={()=>navigate("/profile")}>View Profile <ArrowRight size={13}/></button>
-            </div>
-          </div>
-
-          <div className="db-card db-col-6" style={{ background: "#ffffff", border: "1px solid #e2e8f0", boxShadow: "0 10px 30px -10px rgba(124, 58, 237, 0.15)", position: "relative", overflow: "hidden", padding: 0, display: "flex", flexDirection: "column" }}>
-            <div className="db-card-header" style={{ borderBottom: "none", padding: "24px 24px 0 24px", margin: 0, display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
-              <div>
-                <div className="db-card-title" style={{ color: "#64748b", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                  <Activity size={16} color="#7c3aed" />
-                  Attendance Trend
-                </div>
-                <div style={{ fontSize: 32, fontWeight: 900, color: "#0f172a", marginTop: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
-                  {attendancePct}%
-                  <span style={{ fontSize: 13, padding: "3px 10px", background: "#ecfdf5", color: "#10b981", borderRadius: "12px", fontWeight: 700 }}>
-                    Excellent
-                  </span>
-                </div>
-              </div>
-            </div>
+    <div className="bx-layout">
+      <div className="bx-main-wrapper">
+        <div className="bx-content-scroll">
+          <div className="bx-center-col">
             
-            <div style={{ flex: 1, minHeight: "220px", marginTop: "20px", padding: "0 20px 10px 0" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={SPARK.map((v,i)=>({name:`W${i+1}`,pct:Math.min(100,v*7)}))} margin={{top:4,right:4,left:0,bottom:0}}>
-                  <defs><linearGradient id="hrGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#7C3AED" stopOpacity={0.4}/><stop offset="95%" stopColor="#7C3AED" stopOpacity={0.05}/></linearGradient></defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false}/>
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} dy={10}/>
-                  <YAxis axisLine={false} tickLine={false} tick={{fontSize:12,fill:"#94a3b8", fontWeight: 600}} width={40}/>
-                  <Tooltip cursor={{ stroke: '#c4b5fd', strokeWidth: 2, strokeDasharray: '4 4' }} contentStyle={{fontSize:12,borderRadius:8,border:"none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)"}}/>
-                  <Area type="monotone" dataKey="pct" stroke="#7C3AED" strokeWidth={4} fill="url(#hrGrad)" activeDot={{ r: 6, fill: "#fff", stroke: "#7c3aed", strokeWidth: 3 }}/>
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Attendance Split</div></div>
-            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
-              <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={donutData} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" startAngle={90} endAngle={-270} stroke="none" cornerRadius={6}>
-                      {["#7C3AED","#E5E7EB"].map((c,i)=><Cell key={i} fill={c}/>)}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-                <div style={{ position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <div style={{ fontSize:26,fontWeight:900,color:"#1e293b", lineHeight: 1 }}>{attendancePct}%</div>
-                  <div style={{ fontSize:12,color:"#64748b", fontWeight: 700, marginTop: 4, textTransform: "uppercase", letterSpacing: "0.5px" }}>Present</div>
-                </div>
-              </div>
-              <div style={{ display:"flex",gap:24,fontSize:13, marginTop: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#7c3aed" }} />
-                  <span style={{ color:"#64748b",fontWeight:600 }}>Present <span style={{ color: "#0f172a", fontWeight: 800, marginLeft: 2 }}>{presentToday}</span></span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#e5e7eb" }} />
-                  <span style={{ color:"#64748b",fontWeight:600 }}>Absent <span style={{ color: "#0f172a", fontWeight: 800, marginLeft: 2 }}>{Math.max(0,totalEmp-presentToday)}</span></span>
+            {/* HERO */}
+            <div className="bx-hero">
+              <div className="bx-hero-text">
+                <h1>Good morning, {user?.name?.split(' ')[0] || 'HR Manager'}! <span style={{fontSize:'1.5rem', display:'inline-block'}}>👋</span></h1>
+                <p>Here's your people & HR operations overview for today.</p>
+                <div className="bx-hero-meta" style={{display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'1rem', marginTop:'1.5rem'}}>
+                  <div style={{display:'flex', alignItems:'center', gap:'8px', color:'#f8fafc', fontWeight:'500', fontSize:'0.9rem'}}>
+                    <Calendar size={16} color="#93c5fd"/> {dateStr}
+                  </div>
+                  <div style={{display:'flex', gap:'1.5rem', alignItems:'center'}}>
+                    <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.9rem', fontWeight:'500'}}>
+                      <span className="bx-status-dot" style={{backgroundColor: '#34d399'}}></span> All Systems Operational
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Row 2 */}
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Department Status</div></div>
-            <div className="db-status-list">
-              {empDist.length>0 ? empDist.slice(0,6).map((d,i)=>(
-                <div key={i} className="db-status-row">
-                  <span className="db-status-name">{d.name}</span>
-                  <span className="db-status-badge status-healthy">{d.value} staff</span>
-                </div>
-              )) : <div className="db-empty">No department data</div>}
-            </div>
-          </div>
-
-          <div className="db-card db-col-6">
-            <div className="db-card-header"><div className="db-card-title">Recent HR Activity</div><span className="db-card-link" onClick={()=>navigate("/settings/audit-logs")}>View All</span></div>
-            <div className="db-activity-list">
-              {recentActivity.slice(0,5).map((a,i)=>{
-                const lo=(a.text||"").toLowerCase();
-                let Icon=Activity,bg="#F5F3FF",col="#7C3AED";
-                if(lo.includes("leave"))      {Icon=Calendar;bg="#FEF9C3";col="#D97706";}
-                else if(lo.includes("hire")||lo.includes("employee")){Icon=Users;bg="#DCFCE7";col="#22C55E";}
-                else if(lo.includes("payroll")){Icon=DollarSign;bg="#DBEAFE";col="#3B82F6";}
-                return <div key={i} className="db-activity-item">
-                  <div className="db-activity-icon" style={{ background:bg,color:col }}><Icon size={14}/></div>
-                  <div className="db-activity-body"><div className="db-activity-title" style={{ textTransform:"capitalize" }}>{a.type||"HR Activity"}</div><div className="db-activity-desc">{a.text}</div></div>
-                  <div className="db-activity-time">{fmtTime(a.time)}</div>
-                </div>;
-              })}
-              {recentActivity.length===0&&<div className="db-empty">No recent activity</div>}
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Notifications</div><span className="db-card-link" onClick={()=>navigate("/notifications")}>View All</span></div>
-            <div className="db-notif-list">
-              {notifications.slice(0,5).map((n,i)=>{
-                const colors=["#7C3AED","#22C55E","#F97316","#3B82F6","#EAB308"];
-                return <div key={i} className="db-notif-item"><div className="db-notif-dot" style={{ background:colors[i%colors.length] }}/><div className="db-notif-body"><div className="db-notif-text">{n.text}</div><div className="db-notif-time">{fmtTime(n.time)}</div></div></div>;
-              })}
-              {notifications.length===0&&<div className="db-empty">No new notifications</div>}
-            </div>
-          </div>
-
-          {/* Row 3 */}
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Leave Requests</div></div>
-            <div className="db-status-list">
-              {leavesData.filter(l=>l.status==="Pending").slice(0,5).map((l,i)=>(
-                <div key={i} className="db-status-row">
-                  <span className="db-status-name" style={{ fontSize:12 }}>{l.employeeName||l.employee?.name||"Employee"}</span>
-                  <span className="db-status-badge status-warning">Pending</span>
-                </div>
-              ))}
-              {leavesData.filter(l=>l.status==="Pending").length===0&&<div className="db-empty">No pending requests 🎉</div>}
-            </div>
-          </div>
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Upcoming Events</div></div>
-            <div className="db-event-list">
-              <br/>
-              {upcomingEvents.length>0?upcomingEvents.map((ev,i)=>(
-                <div key={i} className="db-event-item">
-                  <div className="db-event-date" style={{ background:ev.color }}><div className="db-event-day">{ev.day}</div><div className="db-event-mon">{ev.mon}</div></div>
-                  <div className="db-event-body"><div className="db-event-title">{ev.title}</div><div className="db-event-sub">{ev.sub}</div></div>
-                </div>
-              )) : <div className="db-empty">No upcoming events</div>}
-            </div>
-          </div>
-
-
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">AI HR Insights</div></div>
-            <div className="db-ai-insights">
-              <br/>
-              {aiLoading ? (
-                <div style={{ padding: '20px', textAlign: 'center', color: '#6B7280', fontSize: '13px' }}>
-                  <div className="db-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #8b5cf6', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '8px' }}></div><br />
-                  Generating insights...
-                </div>
-              ) : displayInsights && displayInsights.length > 0 ? (
-                displayInsights.map((text,i)=>{const colors=["#7C3AED","#22C55E","#F97316","#3B82F6","#EAB308"];return <div key={i} className="db-ai-item"><div className="db-ai-dot" style={{ background:colors[i%colors.length] }}/><div className="db-ai-text">{text}</div></div>;})
-              ) : (
-                <div className="db-empty" style={{padding: "10px"}}>AI has no new insights.</div>
-              )}
-            </div>
-          </div>
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Department Headcount</div></div>
-            <div className="db-bar-list">
-              <br/>
-              {empDist.length>0?empDist.map((d,i)=>{
-                const colors=["#7C3AED","#3B82F6","#22C55E","#F97316","#EF4444"];
-                const max=Math.max(1,...empDist.map(x=>x.value));
-                return <div key={i} className="db-bar-item"><div className="db-bar-label"><span>{d.name}</span><span style={{ fontWeight:600 }}>{d.value}</span></div><div className="db-bar-track"><div className="db-bar-fill" style={{ width:`${Math.round((d.value/max)*100)}%`,background:colors[i%colors.length] }}/></div></div>;
-              }) : <div className="db-empty">No headcount data</div>}
-            </div>
-          </div>
-          <div className="db-card db-col-3">
-            <div className="db-card-header"><div className="db-card-title">Leave Type Breakdown</div></div>
-            <div className="db-card-body" style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:12 }}>
-              <div className="db-donut-wrap" style={{ position:"relative", height: "160px", width: "100%", display: "flex", justifyContent: "center" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={[]} cx="50%" cy="50%" innerRadius={58} outerRadius={76} dataKey="value" stroke="none" cornerRadius={6}>
-                      {["#7C3AED","#22C55E","#F97316","#9CA3AF"].map((c,i)=><Cell key={i} fill={c}/>)}
-                    </Pie>
-                    <Tooltip contentStyle={{ fontSize:11,borderRadius:8, border: "none", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.2)" }}/>
-                  </PieChart>
-                </ResponsiveContainer>
+            {/* KPI ROW */}
+            <div className="bx-kpi-row">
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon purple"><Users size={14}/></div> Total Employees</div>
+                <div className="bx-kpi-val">{totalEmp}</div>
+                <div className="bx-kpi-trend up"><ArrowUpRight size={12}/> {totalEmp > 0 ? 'Active' : 'N/A'}</div>
+              </div>
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon green"><UserCheck size={14}/></div> Present Today</div>
+                <div className="bx-kpi-val">{presentToday}</div>
+                <div className="bx-kpi-trend up"><ArrowUpRight size={12}/> {attendancePct}% <span>attendance</span></div>
+              </div>
+              <div className="bx-kpi-card">
+                <div className="bx-kpi-header"><div className="bx-kpi-icon orange"><Calendar size={14}/></div> Pending Leaves</div>
+                <div className="bx-kpi-val">{pendingLeaves}</div>
+                <div className="bx-kpi-trend down"><ArrowDownRight size={12}/> {pendingLeaves > 0 ? 'Needs approval' : 'Clear'}</div>
               </div>
             </div>
-          </div>
-          <div className="db-card db-col-3">
-            <div className="db-card-header">
-              <div className="db-card-title">Monthly Payroll</div>
-              <span style={{ fontSize: 11, color: "#6B7280" }}>This Month</span>
-            </div>
-            <div className="db-card-body" style={{ padding: 0 }}>
-              <div className="db-profit-val">{fmtINR(monthlyPayroll)}</div>
-              <div className="db-profit-sub">Total payroll this month</div>
-              <div style={{ width: "100%", height: "120px" }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={[]}>
-                    <Line type="monotone" dataKey="v" stroke="#7C3AED" strokeWidth={3} dot={false}/>
-                  </LineChart>
-                </ResponsiveContainer>
+
+
+            {/* QUICK LINKS */}
+            <div className="bx-card" style={{marginBottom:'1rem'}}>
+              <h3 className="bx-card-title" style={{marginBottom:'1rem'}}>Quick Links</h3>
+              <div className="bx-quick-links">
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={() => navigate('/attendance')}><UserCheck size={16} color="#ef4444"/> Attendance</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={() => navigate('/payroll')}><IndianRupee size={16} color="#a855f7"/> Payroll</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={() => navigate('/leave-management')}><Calendar size={16} color="#10b981"/> Leave Mgmt</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={() => navigate('/hrms/add-employee')}><Briefcase size={16} color="#3b82f6"/> Recruitment</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={() => navigate('/hr-reports')}><FileText size={16} color="#f59e0b"/> HR Reports</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={() => navigate('/hrms')}><Users size={16} color="#14b8a6"/> Employee Data</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={() => navigate('/team-performance')}><Star size={16} color="#f97316"/> Performance</div>
+                <div className="bx-quick-link" style={{cursor: 'pointer'}} onClick={() => navigate('/settings')}><Settings size={16} color="#06b6d4"/> Settings</div>
               </div>
             </div>
+
+            {/* CHARTS ROW */}
+            <div className="bx-charts-row">
+              <div className="bx-card" style={{gridColumn:'span 2'}}>
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Attendance Trend</h3>
+                </div>
+                <div style={{height:'220px', width:'100%'}}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={employeeTrend} margin={{top:5, right:20, bottom:5, left:0}}>
+                      <defs>
+                        <linearGradient id="hrColor" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} dy={10} interval={0} />
+                      <YAxis axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} width={40}/>
+                      <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px rgba(0,0,0,0.1)'}}/>
+                      <Area type="monotone" dataKey="efficiency" stroke="#7C3AED" strokeWidth={3} fillOpacity={1} fill="url(#hrColor)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Attendance Split</h3>
+                </div>
+                <div style={{height:'220px', width:'100%', display:'flex', flexDirection:'column', alignItems:'center'}}>
+                  <ResponsiveContainer width="100%" height="70%">
+                    <PieChart>
+                      <Pie data={donutData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} dataKey="value" stroke="none">
+                        {["#7C3AED","#E5E7EB"].map((c,i)=><Cell key={i} fill={c}/>)}
+                      </Pie>
+                      <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px rgba(0,0,0,0.1)'}}/>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="bx-budget-stats" style={{width:'100%', marginTop:'0'}}>
+                    <div className="bx-budget-row">
+                      <div className="label"><div className="dot" style={{background:'#7C3AED'}}></div> Present</div>
+                      <div className="val">{presentToday}</div>
+                    </div>
+                    <div className="bx-budget-row">
+                      <div className="label"><div className="dot" style={{background:'#E5E7EB'}}></div> Absent</div>
+                      <div className="val">{Math.max(0,totalEmp-presentToday)}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* LISTS ROW */}
+            <div className="bx-lists-row" style={{marginBottom:'2rem', marginTop: '1rem'}}>
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Pending Leave Requests</h3>
+                  <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/hr/leave'); }}>View All →</a>
+                </div>
+                <div>
+                  {leavesData.filter(l=>l.status==="Pending").slice(0,5).map((l,i) => (
+                    <div className="bx-list-item" key={i}>
+                      <div className="bx-list-icon" style={{background: '#f59e0b'}}><Clock size={14}/></div>
+                      <div className="bx-list-content" style={{ minWidth: 0 }}>
+                        <h4 className="bx-list-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.employeeName||l.employee?.name||"Employee"}</h4>
+                        <p className="bx-list-desc" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Pending Approval</p>
+                      </div>
+                    </div>
+                  ))}
+                  {leavesData.filter(l=>l.status==="Pending").length === 0 && (
+                    <div className="bx-list-item">
+                      <div className="bx-list-content"><h4 className="bx-list-title">No pending requests</h4></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Upcoming Events</h3>
+                </div>
+                <div>
+                  {upcomingEvents.length > 0 ? upcomingEvents.map((ev,i) => (
+                    <div className="bx-list-item" key={i}>
+                      <div className="bx-list-icon" style={{background: ev.color}}><Star size={14}/></div>
+                      <div className="bx-list-content" style={{ minWidth: 0 }}>
+                        <h4 className="bx-list-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ev.title}</h4>
+                        <p className="bx-list-desc" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{ev.mon} {ev.day}</p>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="bx-list-item">
+                      <div className="bx-list-content"><h4 className="bx-list-title">No upcoming events</h4></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bx-card">
+                <div className="bx-card-header">
+                  <h3 className="bx-card-title">Department Headcount</h3>
+                </div>
+                <div>
+                  {empDist.length>0 ? empDist.slice(0,5).map((d,i) => (
+                    <div className="bx-list-item" key={i}>
+                      <div className="bx-list-icon" style={{background: ['#7C3AED','#3B82F6','#22C55E','#F97316','#EF4444'][i%5]}}><Users size={14}/></div>
+                      <div className="bx-list-content" style={{ minWidth: 0 }}>
+                        <h4 className="bx-list-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.name}</h4>
+                        <p className="bx-list-desc" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.value} Staff</p>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="bx-list-item">
+                      <div className="bx-list-content"><h4 className="bx-list-title">No headcount data</h4></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* RIGHT PANEL */}
+          <div className="bx-right-col">
+            
+            <div className="bx-card bx-calendar">
+              <div className="bx-cal-header">
+                <span className="bx-cal-title">Calendar</span>
+                <span className="bx-cal-month">{today.toLocaleString('default', {month:'long', year:'numeric'})}</span>
+              </div>
+              <div className="bx-cal-grid">
+                <div className="bx-cal-day-name">MON</div><div className="bx-cal-day-name">TUE</div><div className="bx-cal-day-name">WED</div><div className="bx-cal-day-name">THU</div><div className="bx-cal-day-name">FRI</div><div className="bx-cal-day-name">SAT</div><div className="bx-cal-day-name">SUN</div>
+                {calendarDays}
+              </div>
+            </div>
+
+            <div className="bx-card">
+              <div className="bx-card-header">
+                <h3 className="bx-card-title">Recent HR Activity</h3>
+                <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/settings/audit-logs'); }}>View All →</a>
+              </div>
+              <div className="bx-tasks-list">
+                {recentActivity.length > 0 ? recentActivity.slice(0,4).map((a,i) => {
+                    const lo=(a.text||"").toLowerCase();
+                    let ActIcon=Activity,bg="#F5F3FF",col="#7C3AED";
+                    if(lo.includes("leave"))      {ActIcon=Calendar;col="#D97706";}
+                    else if(lo.includes("hire")||lo.includes("employee")){ActIcon=Users;col="#22C55E";}
+                    else if(lo.includes("payroll")){ActIcon=IndianRupee;col="#3B82F6";}
+                    return (
+                      <div className="bx-task-item" key={i}>
+                        <div className="bx-activity-icon" style={{width: '32px', height: '32px', borderRadius: '8px', background: bg, color: col, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px', flexShrink: 0}}><ActIcon size={16}/></div>
+                        <div className="bx-task-content">
+                          <p className="bx-task-title">
+                            {String(a.type).trim().toLowerCase() === 'info' ? (a.text?.match(/\(([^)]+)\)/)?.[1] ? `${a.text.match(/\(([^)]+)\)/)[1]} Activity` : "System Activity") : (a.type || "HR Activity")}
+                          </p>
+                          <p className="bx-task-sub">{a.text}</p>
+                        </div>
+                      </div>
+                    );
+                }) : (
+                  <div className="bx-task-item"><div className="bx-task-content"><p className="bx-task-title">No recent activity</p></div></div>
+                )}
+              </div>
+            </div>
+
+            <div className="bx-card">
+              <div className="bx-card-header">
+                <h3 className="bx-card-title">Notifications</h3>
+                <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>View All →</a>
+              </div>
+              <div className="bx-notifs-list">
+                {notifications.length > 0 ? notifications.slice(0,4).map((n,i) => (
+                  <div className="bx-notif-item" key={i}>
+                    <div className="bx-notif-icon" style={{background: ['#10b981','#3b82f6','#ef4444','#f59e0b'][i%4]}}><Bell size={10}/></div>
+                    <div className="bx-task-content"><p className="bx-task-title">{n.text}</p></div>
+                    <span style={{fontSize:'0.65rem', color:'var(--bx-text-muted)', whiteSpace: 'nowrap'}}>{n.time ? new Date(n.time).toLocaleTimeString(undefined, {hour:'2-digit', minute:'2-digit'}) : 'Recent'}</span>
+                  </div>
+                )) : (
+                  <div className="bx-notif-item"><div className="bx-task-content"><p className="bx-task-title">No notifications</p></div></div>
+                )}
+              </div>
+            </div>
+
+            <OperationalIntelligenceWidget />
           </div>
         </div>
-
       </div>
     </div>
   );

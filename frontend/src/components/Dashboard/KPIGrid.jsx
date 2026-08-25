@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, DollarSign, ShoppingCart, Users, TrendingUp, TrendingDown } from 'lucide-react';
+import { Activity, IndianRupee, ShoppingCart, Users, TrendingUp, TrendingDown } from 'lucide-react';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 
 const KPICard = ({ title, value, icon: Icon, color, trend, trendValue, sparkData }) => {
@@ -55,7 +55,7 @@ const KPIGrid = ({ stats, sparkData, profitTrendPct }) => {
       <KPICard 
         title="Revenue Today" 
         value={formatCurrency(stats?.todaysRevenue || 0)} 
-        icon={DollarSign} 
+        icon={IndianRupee} 
         color="kpi-purple"
         trend={profitTrendPct >= 0 ? 'up' : 'down'}
         trendValue={Math.abs(profitTrendPct)}

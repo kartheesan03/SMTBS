@@ -121,6 +121,9 @@ const PORT = process.env.PORT || 5000;
 
 const { autoMarkAbsent } = require('./src/controllers/attendancecontroller');
 
+const { spawn } = require('child_process');
+const fs = require('fs');
+
 const startServer = async () => {
     try {
         await connectDB();
@@ -132,6 +135,43 @@ const startServer = async () => {
                 gpsSimulator.start();
             } catch (gpsErr) {
                 console.error('GPS Simulator failed to start:', gpsErr);
+            }
+
+            // Start Python OCR Service automatically on a dynamic free port
+            try {
+                const ocrDir = path.join(__dirname, 'ocr_service');
+                const pyScript = path.join(ocrDir, 'main.py');
+                let pythonExe = 'python';
+                
+                const venvExe = path.join(ocrDir, 'venv', 'Scripts', 'python.exe');
+                if (fs.existsSync(venvExe)) {
+                    pythonExe = venvExe;
+                }
+
+                const freePortServer = require('net').createServer().listen(0, () => {
+                    const ocrPort = freePortServer.address().port;
+                    freePortServer.close(() => {
+                        console.log(`Starting OCR Service using ${pythonExe} on port ${ocrPort}...`);
+                        process.env.OCR_SERVICE_URL = `http://127.0.0.1:${ocrPort}`;
+                        
+                        const ocrProcess = spawn(pythonExe, [pyScript], {
+                            cwd: ocrDir,
+                            stdio: 'pipe',
+                            env: { ...process.env, PORT: ocrPort.toString() }
+                        });
+
+                        ocrProcess.stdout.on('data', (data) => console.log(`[OCR]: ${data.toString().trim()}`));
+                        ocrProcess.stderr.on('data', (data) => console.error(`[OCR Error]: ${data.toString().trim()}`));
+                        ocrProcess.on('close', (code) => console.log(`OCR Service exited with code ${code}`));
+
+                        // Ensure python process is killed when node exits
+                        process.on('exit', () => ocrProcess.kill());
+                        process.on('SIGINT', () => { ocrProcess.kill(); process.exit(); });
+                        process.on('SIGTERM', () => { ocrProcess.kill(); process.exit(); });
+                    });
+                });
+            } catch (ocrErr) {
+                console.error('Failed to start OCR Service:', ocrErr);
             }
 
             const cron = require('node-cron');

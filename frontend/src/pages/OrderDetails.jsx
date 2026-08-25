@@ -10,7 +10,7 @@ import {
   FileText,
   Truck,
   Calendar,
-  DollarSign,
+  IndianRupee,
   User,
   Building2,
   Sparkles,
@@ -562,7 +562,7 @@ const OrderDetails = () => {
                 gap: "6px",
               }}
             >
-              <DollarSign size={16} /> Order Value
+              <IndianRupee size={16} /> Order Value
             </div>
             <div
               style={{ fontSize: "28px", fontWeight: "bold", color: "#3b82f6" }}

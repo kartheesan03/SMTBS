@@ -13,7 +13,7 @@ import {
   AlertCircle,
   User,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Clock,
   Building2,
   Hash,
@@ -470,7 +470,7 @@ const PayrollPayment = () => {
                 gap: "8px",
               }}
             >
-              <DollarSign size={16} style={{ color: "#10b981" }} />
+              <IndianRupee size={16} style={{ color: "#10b981" }} />
               <h3
                 style={{
                   margin: 0,

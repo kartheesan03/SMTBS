@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import API from "../api/axios";
 import {
-  DollarSign,
+  IndianRupee,
   TrendingUp,
   Calendar,
   ShoppingCart,
@@ -169,7 +169,7 @@ const RevenueDashboard = () => {
         {/* KPI Grid */}
         <div className="db-kpi-grid">
           <KpiCard
-            icon={DollarSign}
+            icon={IndianRupee}
             iconClass="green"
             label="Total Revenue"
             value={fmtINR(totalRevenue)}

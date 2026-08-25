@@ -10,7 +10,7 @@ import {
   Building2,
   UserCheck,
   AlertCircle,
-  DollarSign,
+  IndianRupee,
   Users,
   ArrowUpRight,
   ArrowDownRight,
@@ -229,7 +229,7 @@ const Customers = ({ directoryOnly }) => {
             title="LTV / Revenue"
             value={formatCurrency(totalRevenue)}
             colorTheme="purple"
-            icon={DollarSign}
+            icon={IndianRupee}
             trendValue="Lifetime"
             trendPositive={true}
           />

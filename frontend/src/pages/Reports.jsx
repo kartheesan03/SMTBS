@@ -7,7 +7,7 @@ import {
   FileText,
   RefreshCw,
   TrendingUp,
-  DollarSign,
+  IndianRupee,
   Package,
   Users,
   ShoppingCart,
@@ -80,7 +80,7 @@ const Reports = () => {
       trend: Math.abs(analytics.kpis.revenueGrowth),
       isUp: analytics.kpis.revenueGrowth >= 0,
       subtitle: "Sales active",
-      icon: DollarSign,
+      icon: IndianRupee,
       colorTheme: "mint",
     },
     {

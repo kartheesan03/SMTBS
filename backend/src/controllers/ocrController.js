@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 const FormData = require('form-data');
 
-const FASTAPI_URL = process.env.OCR_SERVICE_URL || process.env.FASTAPI_URL || 'http://localhost:8000';
+const getFastApiUrl = () => process.env.OCR_SERVICE_URL || process.env.FASTAPI_URL || 'http://localhost:8000';
 
 const extractText = async (req, res) => {
     if (!req.file) {
@@ -14,7 +14,7 @@ const extractText = async (req, res) => {
     try {
         // Health Check before sending massive file
         try {
-            await axios.get(`${FASTAPI_URL}/health`, { timeout: 3000 });
+            await axios.get(`${getFastApiUrl()}/health`, { timeout: 3000 });
         } catch (healthErr) {
             console.error('[OCR] Health check failed:', healthErr.message);
             try { fs.unlinkSync(filePath); } catch (_) {}
@@ -28,7 +28,7 @@ const extractText = async (req, res) => {
         const fileBuffer = fs.readFileSync(filePath);
         formData.append('file', fileBuffer, { filename: originalname });
 
-        const response = await axios.post(`${FASTAPI_URL}/api/ocr`, formData, {
+        const response = await axios.post(`${getFastApiUrl()}/api/ocr`, formData, {
             headers: {
                 ...formData.getHeaders(),
             },
@@ -50,7 +50,7 @@ const extractText = async (req, res) => {
         let errorMsg = err.response?.data?.detail || err.message || 'OCR processing failed.';
         
         if (err.code === 'ECONNREFUSED' || err.message.includes('ECONNREFUSED')) {
-            errorMsg = `Failed to connect to OCR Engine at ${FASTAPI_URL}. Is the Python backend running?`;
+            errorMsg = `Failed to connect to OCR Engine at ${getFastApiUrl()}. Is the Python backend running?`;
         } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
             errorMsg = 'Connection to OCR Engine timed out. The document might be too large or the server is busy.';
         }
@@ -65,7 +65,7 @@ const extractText = async (req, res) => {
 const exportDocx = async (req, res) => {
     try {
         const queryStr = req.url.split('?')[1] ? `?${req.url.split('?')[1]}` : '';
-        const response = await axios.post(`${FASTAPI_URL}/export/docx${queryStr}`, req.body, {
+        const response = await axios.post(`${getFastApiUrl()}/export/docx${queryStr}`, req.body, {
             responseType: 'stream',
             timeout: 60000
         });
@@ -80,7 +80,7 @@ const exportDocx = async (req, res) => {
         console.error('[OCR] Error exporting docx:', err.message);
         let errorMsg = err.response?.data?.detail || err.message || 'Docx generation failed.';
         if (err.code === 'ECONNREFUSED' || err.message.includes('ECONNREFUSED')) {
-            errorMsg = `Failed to connect to OCR Engine at ${FASTAPI_URL}. Is the Python backend running?`;
+            errorMsg = `Failed to connect to OCR Engine at ${getFastApiUrl()}. Is the Python backend running?`;
         } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
             errorMsg = 'Connection to OCR Engine timed out.';
         }
@@ -94,7 +94,7 @@ const exportDocx = async (req, res) => {
 const exportTxt = async (req, res) => {
     try {
         const queryStr = req.url.split('?')[1] ? `?${req.url.split('?')[1]}` : '';
-        const response = await axios.post(`${FASTAPI_URL}/export/txt${queryStr}`, req.body, {
+        const response = await axios.post(`${getFastApiUrl()}/export/txt${queryStr}`, req.body, {
             responseType: 'stream',
             timeout: 60000
         });
@@ -108,7 +108,7 @@ const exportTxt = async (req, res) => {
         console.error('[OCR] Error exporting txt:', err.message);
         let errorMsg = err.response?.data?.detail || err.message || 'Txt generation failed.';
         if (err.code === 'ECONNREFUSED' || err.message.includes('ECONNREFUSED')) {
-            errorMsg = `Failed to connect to OCR Engine at ${FASTAPI_URL}. Is the Python backend running?`;
+            errorMsg = `Failed to connect to OCR Engine at ${getFastApiUrl()}. Is the Python backend running?`;
         } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
             errorMsg = 'Connection to OCR Engine timed out.';
         }
@@ -122,7 +122,7 @@ const exportTxt = async (req, res) => {
 const exportPdf = async (req, res) => {
     try {
         const queryStr = req.url.split('?')[1] ? `?${req.url.split('?')[1]}` : '';
-        const response = await axios.post(`${FASTAPI_URL}/export/pdf${queryStr}`, req.body, {
+        const response = await axios.post(`${getFastApiUrl()}/export/pdf${queryStr}`, req.body, {
             responseType: 'stream',
             timeout: 60000
         });
@@ -136,7 +136,7 @@ const exportPdf = async (req, res) => {
         console.error('[OCR] Error exporting pdf:', err.message);
         let errorMsg = err.response?.data?.detail || err.message || 'Pdf generation failed.';
         if (err.code === 'ECONNREFUSED' || err.message.includes('ECONNREFUSED')) {
-            errorMsg = `Failed to connect to OCR Engine at ${FASTAPI_URL}. Is the Python backend running?`;
+            errorMsg = `Failed to connect to OCR Engine at ${getFastApiUrl()}. Is the Python backend running?`;
         } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
             errorMsg = 'Connection to OCR Engine timed out.';
         }

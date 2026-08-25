@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import API from "../api/axios";
 import DataTable from "../components/Dashboard/DataTable";
 import {
-  DollarSign,
+  IndianRupee,
   Download,
   Eye,
   X,
@@ -76,7 +76,7 @@ const MySalaryPage = () => {
       <div className="module-content">
         {history.length === 0 ? (
           <div className="premium-card no-salary-card">
-            <DollarSign size={48} className="no-salary-icon" />
+            <IndianRupee size={48} className="no-salary-icon" />
             <h3>No Salary Generated</h3>
             <p>
               Your payroll has not been generated yet. Please contact HR or your

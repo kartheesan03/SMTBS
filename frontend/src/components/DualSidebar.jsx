@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { 
     LayoutDashboard, ShoppingCart, Users, Briefcase, Settings as SettingsIcon,
     ChevronLeft, ChevronRight, LogOut, Home, BarChart2, CheckSquare, Bell,
-    UserPlus, FileText, DollarSign, Box, Truck, Clock, Calendar, Wallet, Package,
+    UserPlus, FileText, IndianRupee, Box, Truck, Clock, Calendar, Wallet, Package,
     HelpCircle, User, Activity, List, Key, Shield, PieChart, Info, Map, 
     BookOpen, Layers, Archive, PackageCheck, Target, Navigation, ScanLine, TrendingUp, Camera
 } from 'lucide-react';
@@ -83,7 +83,7 @@ const DualSidebar = () => {
                     links: [
                         { name: 'Employee Management', path: '/hrms', icon: <Users /> },
                         { name: 'Leave Management', path: '/leave-management', icon: <Calendar /> },
-                        { name: 'Payroll', path: '/payroll', icon: <DollarSign /> },
+                        { name: 'Payroll', path: '/payroll', icon: <IndianRupee /> },
                         { name: 'Salary', path: '/my-salary', icon: <Wallet /> },
                     ]
                 }

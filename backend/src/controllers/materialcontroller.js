@@ -395,9 +395,10 @@ const getMaterialMovements = async (req, res) => {
 };
 const getAllMovements = async (req, res) => {
     try {
-        const movements = await MaterialMovement.find({})
+        let movements = await MaterialMovement.find({})
             .sort({ createdAt: -1 })
             .limit(100);
+            
         const materials = await Material.find({});
         const matMap = {};
         materials.forEach(m => {

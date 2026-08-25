@@ -3,7 +3,7 @@ import {
   Building,
   Package,
   AlertTriangle,
-  DollarSign,
+  IndianRupee,
   MapPin,
   Plus,
   Box,
@@ -262,7 +262,7 @@ const Warehouses = () => {
               maximumFractionDigits: 0,
             })}`}
             colorTheme="mint"
-            icon={DollarSign}
+            icon={IndianRupee}
             trendValue="Across all warehouses"
             trendPositive={true}
           />

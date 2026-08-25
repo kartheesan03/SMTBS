@@ -5,7 +5,7 @@ import {
   Package,
   Truck,
   CheckCircle,
-  DollarSign,
+  IndianRupee,
   Search,
   Plus,
   Eye,
@@ -296,7 +296,7 @@ const OrderManagement = () => {
             title="Sales Revenue"
             value={formatCurrency(salesRevenue)}
             colorTheme="blue"
-            icon={DollarSign}
+            icon={IndianRupee}
             trendValue="Total incoming"
             trendPositive={true}
           />{" "}

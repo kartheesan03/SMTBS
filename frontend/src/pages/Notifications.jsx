@@ -24,7 +24,7 @@ import {
   Zap,
   Filter,
   ChevronDown,
-  DollarSign,
+  IndianRupee,
   Calendar,
   Briefcase,
   Shield,
@@ -53,7 +53,7 @@ const CATEGORY_CONFIG = {
   },
   system: { icon: Settings, bg: "#f8fafc", color: "#64748b", label: "System" },
   Payroll: {
-    icon: DollarSign,
+    icon: IndianRupee,
     bg: "#fef3c7",
     color: "#d97706",
     label: "Payroll",
