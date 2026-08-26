@@ -27,7 +27,7 @@
 /* ── COMMON CARD STYLE ── */
 .att-card {
     background: #ffffff;
-    border-radius: 0px;
+    border-radius: 8px;
     padding: 20px;
     border: 1px solid #E5E7EB;
     box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 1px 2px rgba(0,0,0,0.02);
@@ -42,7 +42,7 @@
 
 /* ── WORK SESSION HERO ── */
 .att-hero-card {
-    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    background: #ffffff; border: 1px solid #E5EAF2; border-radius: 8px;
     display: flex;
     flex-direction: column;
     padding: 24px;
@@ -60,8 +60,8 @@
 .att-avatar {
     width: 64px;
     height: 64px;
-    border-radius: 0px;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border-radius: 8px;
+    background: #ffffff; border: 1px solid #E5EAF2; border-radius: 8px;
     color: white;
     display: flex;
     align-items: center;
@@ -69,7 +69,7 @@
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 8px;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .att-greeting {
@@ -93,7 +93,7 @@
     padding: 6px 12px;
     background: #dcfce7;
     color: #16a34a;
-    border-radius: 0px;
+    border-radius: 8px;
     font-size: 12px;
     font-weight: 600;
     margin-top: 4px;
@@ -103,7 +103,7 @@
 .att-status-dot {
     width: 8px;
     height: 8px;
-    border-radius: 0px;
+    border-radius: 8px;
     background: currentColor;
 }
 
@@ -166,13 +166,13 @@
 .att-progress-bar-container {
     height: 8px;
     background: #e2e8f0;
-    border-radius: 0px;
+    border-radius: 8px;
     overflow: hidden;
 }
 .att-progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #6366f1, #4f46e5);
-    border-radius: 0px;
+    background: #ffffff; border: 1px solid #E5EAF2; border-radius: 8px;
+    border-radius: 8px;
     transition: width 1s ease;
 }
 
@@ -186,7 +186,7 @@
 .att-hero-btn {
     width: 100%;
     height: 44px;
-    border-radius: 0px;
+    border-radius: 8px;
     font-weight: 600;
     font-size: 14px;
     display: flex;
@@ -197,9 +197,9 @@
     cursor: pointer;
     transition: all 0.2s ease;
 }
-.att-hero-btn.primary { background: #4f46e5; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
+.att-hero-btn.primary { background: #4f46e5; color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .att-hero-btn.primary:hover { background: #4338ca; transform: translateY(-1px); }
-.att-hero-btn.danger { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+.att-hero-btn.danger { background: #ef4444; color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 .att-hero-btn.danger:hover { background: #dc2626; transform: translateY(-1px); }
 .att-hero-btn.outline { background: white; border: 1px solid #e2e8f0; color: #334155; }
 .att-hero-btn.outline:hover { background: #f8fafc; }
@@ -228,7 +228,7 @@
 .att-kpi-icon {
     width: 32px;
     height: 32px;
-    border-radius: 0px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -274,7 +274,7 @@
     top: 4px;
     width: 10px;
     height: 10px;
-    border-radius: 0px;
+    border-radius: 8px;
     background: #4f46e5;
     border: 2px solid white;
     box-shadow: 0 0 0 2px #e0e7ff;
@@ -298,7 +298,7 @@
 }
 .att-cal-day {
     aspect-ratio: 1;
-    border-radius: 0px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -326,7 +326,7 @@
 .att-action-pill {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 0px;
+    border-radius: 8px;
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -338,7 +338,7 @@
 }
 .att-action-pill:hover {
     border-color: #c7d2fe;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     transform: translateY(-2px);
 }
 .att-action-pill svg { color: #4f46e5; transition: transform 0.2s; }
@@ -356,7 +356,7 @@
 .att-feed-icon {
     width: 28px;
     height: 28px;
-    border-radius: 0px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;

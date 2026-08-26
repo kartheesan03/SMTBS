@@ -19,6 +19,9 @@ import SystemHealthMonitorWidget from '../components/AdminDashboard/SystemHealth
 import OrderFinancesWidget from '../components/AdminDashboard/OrderFinancesWidget';
 import { LoadingState, ErrorState } from "../components/DataStates";
 
+
+const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<17)return"Good Afternoon"; if(h<21)return"Good Evening"; return"Good Night"; };
+
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -176,27 +179,70 @@ const AdminDashboard = () => {
             
             {/* HERO */}
             <div className="bx-hero">
-              <div className="bx-hero-text">
-                <h1>{now.getHours() < 12 ? 'Good morning' : now.getHours() < 18 ? 'Good afternoon' : 'Good evening'}, {user?.name?.split(' ')[0] || user?.firstName || 'Admin'}! <span style={{fontSize:'1.5rem', display:'inline-block'}}>👋</span></h1>
+              {/* Subtle decorative ring */}
+              <div className="bx-hero-ring bx-hero-ring-1"/>
+              <div className="bx-hero-ring bx-hero-ring-2"/>
+
+              {/* LEFT: existing greeting text */}
+              <div className="bx-hero-text" style={{zIndex:2}}>
+                <h1>{greeting()}, {user?.name?.split(' ')[0] || user?.firstName || 'Admin'}! <span style={{fontSize:'1.5rem', display:'inline-block'}}>👋</span></h1>
                 <p>Here's what's happening across your projects today.</p>
-                
-                    <div className="bx-hero-meta" style={{display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'1rem', marginTop:'1.5rem'}}>
-                <div style={{display:'flex', alignItems:'center', gap:'8px', color:'#f8fafc', fontWeight:'500', fontSize:'0.9rem'}}>
-                  <Calendar size={16} color="#93c5fd"/> {dateStr}
-                </div>
-                <div style={{display:'flex', gap:'1.5rem', alignItems:'center'}}>
-                  <div style={{display:'flex', gap:'8px', alignItems:'center', color:'#f8fafc', fontWeight:'500', fontSize:'0.9rem'}}>
-                    <Cloud size={16} color="#93c5fd"/> {weather.temp} <span style={{color:'#cbd5e1', fontSize:'0.8rem', fontWeight:'normal'}}>{weather.condition}</span>
+                <div className="bx-hero-meta" style={{display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'0.6rem', marginTop:'1.2rem'}}>
+                  <div style={{display:'flex', alignItems:'center', gap:'8px', color:'#f8fafc', fontWeight:'500', fontSize:'0.88rem'}}>
+                    <Calendar size={15} color="#93c5fd"/> {dateStr}
                   </div>
-                  <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.9rem', fontWeight:'500'}}>
-                    <span className="bx-status-dot" style={{backgroundColor: '#34d399'}}></span> Live Data
+                  <div style={{display:'flex', gap:'1.5rem', alignItems:'center'}}>
+                    <div style={{display:'flex', gap:'8px', alignItems:'center', color:'#f8fafc', fontWeight:'500', fontSize:'0.88rem'}}>
+                      <Cloud size={15} color="#93c5fd"/> {weather.temp} <span style={{color:'#cbd5e1', fontSize:'0.75rem', fontWeight:'normal'}}>{weather.condition}</span>
+                    </div>
+                    <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.88rem', fontWeight:'500'}}>
+                      <span className="bx-status-dot" style={{backgroundColor: '#34d399'}}></span> Live Data
+                    </div>
                   </div>
                 </div>
               </div>
+
+              {/* RIGHT: stat pills */}
+              <div className="bx-hero-stats">
+                <div className="bx-hero-stat">
+                  <div className="bx-hero-stat-icon bx-hero-stat-icon--purple">
+                    <Briefcase size={16}/>
+                  </div>
+                  <div className="bx-hero-stat-body">
+                    <div className="bx-hero-stat-val">{totalProjects}</div>
+                    <div className="bx-hero-stat-lbl">Active Projects</div>
+                  </div>
+                </div>
+                <div className="bx-hero-stat">
+                  <div className="bx-hero-stat-icon bx-hero-stat-icon--green">
+                    <CheckCircle size={16}/>
+                  </div>
+                  <div className="bx-hero-stat-body">
+                    <div className="bx-hero-stat-val">{completedProjects}</div>
+                    <div className="bx-hero-stat-lbl">Completed</div>
+                  </div>
+                </div>
+                <div className="bx-hero-stat">
+                  <div className="bx-hero-stat-icon bx-hero-stat-icon--amber">
+                    <Clock size={16}/>
+                  </div>
+                  <div className="bx-hero-stat-body">
+                    <div className="bx-hero-stat-val">{delayedProjects}</div>
+                    <div className="bx-hero-stat-lbl">Delayed</div>
+                  </div>
+                </div>
+                <div className="bx-hero-stat">
+                  <div className="bx-hero-stat-icon bx-hero-stat-icon--cyan">
+                    <FileText size={16}/>
+                  </div>
+                  <div className="bx-hero-stat-body">
+                    <div className="bx-hero-stat-val">{pendingApprovals}</div>
+                    <div className="bx-hero-stat-lbl">Pending Approvals</div>
+                  </div>
+                </div>
               </div>
-              
-              {/* Removed Fake illustration and Piechart block */}
             </div>
+
 
             {/* KPI ROW */}
             <div className="bx-kpi-row">

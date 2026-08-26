@@ -45,21 +45,25 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
     padding: 6px 12px;
-    border-radius: 6px;
+    border-radius: 4px;
     width: 480px;
     max-width: 100%;
     transition: all 0.2s;
+    cursor: text;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+.header-search-bar:hover {
+    border-color: #94a3b8;
 }
 .header-search-bar:focus-within {
-    background: #ffffff;
-    border-color: #cbd5e1;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 .header-search-bar svg {
-    color: #94a3b8;
+    color: #64748b;
     flex-shrink: 0;
 }
 .header-search-bar input {
@@ -78,14 +82,15 @@
 }
 .search-shortcut {
     font-size: 11px;
+    font-family: inherit;
     font-weight: 500;
     color: #64748b;
-    background: #ffffff;
+    background: #f8fafc;
     border: 1px solid #e2e8f0;
     padding: 2px 6px;
     border-radius: 4px;
     flex-shrink: 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    margin-left: auto;
 }
 
 /* ── Right Side ── */

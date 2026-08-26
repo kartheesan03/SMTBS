@@ -161,7 +161,14 @@ const startServer = async () => {
                         });
 
                         ocrProcess.stdout.on('data', (data) => console.log(`[OCR]: ${data.toString().trim()}`));
-                        ocrProcess.stderr.on('data', (data) => console.error(`[OCR Error]: ${data.toString().trim()}`));
+                        ocrProcess.stderr.on('data', (data) => {
+                            const output = data.toString().trim();
+                            if (output.includes('INFO:')) {
+                                console.log(`[OCR]: ${output}`);
+                            } else {
+                                console.error(`[OCR Error]: ${output}`);
+                            }
+                        });
                         ocrProcess.on('close', (code) => console.log(`OCR Service exited with code ${code}`));
 
                         // Ensure python process is killed when node exits

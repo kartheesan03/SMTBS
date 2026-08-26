@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, { useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
@@ -7,35 +7,24 @@ import * as Icons from 'lucide-react';
 import API from '../api/axios';
 import './FarmakuSidebar.css';
 
-const MODULE_COLORS = {
-    'Dashboard':           'icon-bg-rose',
-    'Attendance':          'icon-bg-green',
-    'Material Tracking':   'icon-bg-orange',
-    'HRMS':                'icon-bg-purple',
-    'ERP':                 'icon-bg-cyan',
-    'CRM':                 'icon-bg-rose',
-    'Tasks & Projects':    'icon-bg-yellow',
-    'Financial Operations':'icon-bg-teal',
-    'Reports & Analytics': 'icon-bg-indigo',
-    'Notifications':       'icon-bg-rose',
-    'Help & Support':      'icon-bg-gray',
-    'Settings':            'icon-bg-gray',
-    'Audit Logs':          'icon-bg-rose',
-    'Employee Management': 'icon-bg-purple',
-    'Leave Management':    'icon-bg-yellow',
-    'Payroll':             'icon-bg-teal',
-    'Performance':         'icon-bg-green',
-    'Recruitment':         'icon-bg-blue',
-    'Training':            'icon-bg-cyan',
-    'Reports':             'icon-bg-indigo',
-    'Holiday Calendar':    'icon-bg-rose',
-    'Inventory':           'icon-bg-orange',
-    'Purchase':            'icon-bg-blue',
-    'Vendors':             'icon-bg-cyan',
-    'Sales & CRM':         'icon-bg-rose',
-    'User Management':     'icon-bg-purple',
-    'Backup & Restore':    'icon-bg-gray'
-};
+const SECTIONS_CONFIG = [
+    {
+        label: 'WORKSPACE',
+        items: ['Dashboard', 'Tasks & Projects', 'Company Feed']
+    },
+    {
+        label: 'OPERATIONS',
+        items: ['Material Tracking', 'ERP', 'CRM', 'Financial Operations']
+    },
+    {
+        label: 'PEOPLE',
+        items: ['HRMS', 'Attendance']
+    },
+    {
+        label: 'SYSTEM',
+        items: [] // Catch-all for others
+    }
+];
 
 const FarmakuSidebar = () => {
     const { user, logout } = useContext(AuthContext);
@@ -86,44 +75,40 @@ const FarmakuSidebar = () => {
         setExpandedMenu((prev) => (prev === menuTitle ? '' : menuTitle));
     };
 
-    const renderIcon = (iconName, title) => {
+    const renderIcon = (iconName) => {
         const IconComponent = Icons[iconName] || Icons.Circle;
-        const colorClass = MODULE_COLORS[title] || 'icon-bg-gray';
         return (
-            <div className={`icon-wrapper ${colorClass}`}>
+            <div className="icon-wrapper">
                 <IconComponent />
             </div>
         );
     };
 
-    const renderNavItem = (item, index) => {
+    const renderNavItem = (item, index, extraProps = {}) => {
         const hasChildren = item.children && item.children.length > 0;
         const leafActive = isParentActive(item.children || []) || isLeafActive(item.path);
         const isExpanded = expandedMenu === item.title;
-        const isNotifications = item.path === '/notifications';
+        const isNotifications = item.path === '/notifications' || item.title === 'Notifications';
 
         if (hasChildren) {
             return (
                 <li key={index ?? item.title}>
                     <div 
-                        className={`farmaku-nav-item ${leafActive ? 'active' : ''}`}
+                        className={`farmaku-nav-item ${leafActive ? 'active' : ''} ${isExpanded ? 'expanded' : ''}`}
                         onClick={() => toggleMenu(item.title)}
-                        style={{ cursor: 'pointer' }}
+                        {...extraProps}
                     >
-                        {renderIcon(item.icon, item.title)}
+                        {renderIcon(item.icon)}
                         <span>{item.title}</span>
-                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-                            {isExpanded ? <Icons.ChevronDown size={16} /> : <Icons.ChevronRight size={16} />}
-                        </div>
+                        <Icons.ChevronRight className="chevron-icon" />
                     </div>
                     {isExpanded && (
-                        <div className="farmaku-submenu" style={{ paddingLeft: '40px', marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div className="farmaku-submenu">
                             {item.children.map((child, cIdx) => (
                                 <NavLink
                                     key={cIdx}
                                     to={child.path || '#'}
                                     className={() => `farmaku-subnav-item ${isLeafActive(child.path) ? 'active' : ''}`}
-                                    style={{ fontSize: '13px', color: isLeafActive(child.path) ? 'var(--li-primary)' : 'var(--li-text-2)', textDecoration: 'none', padding: '6px 0', fontWeight: isLeafActive(child.path) ? 600 : 400 }}
                                 >
                                     {child.title}
                                 </NavLink>
@@ -141,8 +126,9 @@ const FarmakuSidebar = () => {
                 <NavLink
                     to={targetPath}
                     className={() => `farmaku-nav-item${leafActive ? ' active' : ''}`}
+                    {...extraProps}
                 >
-                    {renderIcon(item.icon, item.title)}
+                    {renderIcon(item.icon)}
                     <span>{item.title}</span>
                     {isNotifications && unreadCount > 0 && (
                         <span className="farmaku-badge">
@@ -160,81 +146,132 @@ const FarmakuSidebar = () => {
         )
     );
 
+    // Group navigation items based on SECTIONS_CONFIG
+    const groupedNavigation = useMemo(() => {
+        const groups = {
+            WORKSPACE: [],
+            OPERATIONS: [],
+            PEOPLE: [],
+            SYSTEM: []
+        };
+
+        const categorizedTitles = new Set();
+
+        navigation.forEach(item => {
+            if (item.title === 'Settings') return; // Handled separately if needed, or put in SYSTEM
+            
+            let placed = false;
+            for (const section of SECTIONS_CONFIG) {
+                if (section.items.includes(item.title)) {
+                    groups[section.label].push(item);
+                    categorizedTitles.add(item.title);
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed) {
+                groups['SYSTEM'].push(item);
+            }
+        });
+
+        return groups;
+    }, [navigation]);
+
     return (
         <aside className="farmaku-sidebar">
             {/* ── Logo Header ── */}
             <div className="farmaku-sidebar-header">
                 <div className="farmaku-logo-container">
                     <div className="farmaku-logo-icon">
-                        <Icons.Layers size={20} />
+                        <Icons.Layers />
                     </div>
                     <div className="farmaku-logo-text-wrapper">
                         <span className="farmaku-logo-text">SMTBMS</span>
+                        <span className="farmaku-logo-subtitle">Smart Material Tracking</span>
                     </div>
                 </div>
             </div>
 
             {/* ── Nav Content ── */}
             <div className="farmaku-sidebar-content">
-                <ul className="farmaku-nav-list">
-                    {loading ? (
-                        <div style={{ padding: '20px 10px', color: '#94A3B8', fontSize: 13, textAlign: 'center' }}>
-                            Loading menu…
-                        </div>
-                    ) : (
-                        // Flat list rendering (Removed section labels)
-                        navigation
-                            .filter(item => item.title !== 'Settings')
-                            .map((item, index) => renderNavItem(item, `nav-${index}`))
-                    )}
+                {loading ? (
+                    <div style={{ padding: '20px 10px', color: '#94A3B8', fontSize: 13, textAlign: 'center' }}>
+                        Loading menu…
+                    </div>
+                ) : (
+                    <>
+                        {SECTIONS_CONFIG.map(section => {
+                            const items = groupedNavigation[section.label];
+                            // For SYSTEM section, we inject static items if they are not dynamically provided
+                            if (section.label === 'SYSTEM') {
+                                return (
+                                    <div key={section.label} className="farmaku-nav-section">
+                                        <div className="farmaku-section-label">{section.label}</div>
+                                        <ul className="farmaku-nav-list">
+                                            {items.map((item, index) => renderNavItem(item, `sys-${index}`))}
+                                            
+                                            {!dynamicPaths.has('/notifications') && (
+                                                <li>
+                                                    <NavLink to="/notifications" end className={() => `farmaku-nav-item${isLeafActive('/notifications') ? ' active' : ''}`}>
+                                                        <div className="icon-wrapper"><Icons.Bell /></div>
+                                                        <span>Notifications</span>
+                                                        {unreadCount > 0 && (
+                                                            <span className="farmaku-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+                                                        )}
+                                                    </NavLink>
+                                                </li>
+                                            )}
 
-                    {!dynamicPaths.has('/notifications') && (
-                        <li>
-                            <NavLink to="/notifications" end className={() => `farmaku-nav-item${isLeafActive('/notifications') ? ' active' : ''}`}>
-                                <div className="icon-wrapper icon-bg-rose"><Icons.Bell /></div>
-                                <span>Notifications</span>
-                                {unreadCount > 0 && (
-                                    <span className="farmaku-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
-                                )}
-                            </NavLink>
-                        </li>
-                    )}
+                                            {!dynamicPaths.has('/support') && (
+                                                <li>
+                                                    <NavLink to="/support" end className={() => `farmaku-nav-item${isLeafActive('/support') ? ' active' : ''}`}>
+                                                        <div className="icon-wrapper"><Icons.HelpCircle /></div>
+                                                        <span>Help &amp; Support</span>
+                                                    </NavLink>
+                                                </li>
+                                            )}
 
-                    {!dynamicPaths.has('/support') && (
-                        <li>
-                            <NavLink to="/support" end className={() => `farmaku-nav-item${isLeafActive('/support') ? ' active' : ''}`}>
-                                <div className="icon-wrapper icon-bg-gray"><Icons.HelpCircle /></div>
-                                <span>Help &amp; Support</span>
-                            </NavLink>
-                        </li>
-                    )}
+                                            <li>
+                                                <NavLink to="/ocr" end className={() => `farmaku-nav-item${isLeafActive('/ocr') ? ' active' : ''}`}>
+                                                    <div className="icon-wrapper"><Icons.Scan /></div>
+                                                    <span>OCR Tool</span>
+                                                </NavLink>
+                                            </li>
 
-                    <li>
-                        <NavLink to="/ocr" end className={() => `farmaku-nav-item${isLeafActive('/ocr') ? ' active' : ''}`}>
-                            <div className="icon-wrapper icon-bg-teal"><Icons.Scan /></div>
-                            <span>OCR Tool</span>
-                        </NavLink>
-                    </li>
+                                            <li>
+                                                <div className="farmaku-nav-item" onClick={() => openAria()} role="button">
+                                                    <div className="icon-wrapper"><Icons.Bot /></div>
+                                                    <span>AI Assistant</span>
+                                                </div>
+                                            </li>
 
-                    <li>
-                        <div className="farmaku-nav-item" onClick={() => openAria()} role="button">
-                            <div className="icon-wrapper icon-bg-blue"><Icons.Bot /></div>
-                            <span>AI Assistant</span>
-                        </div>
-                    </li>
+                                            {!loading && navigation.find((item) => item.title === 'Settings') &&
+                                                renderNavItem(navigation.find((item) => item.title === 'Settings'), 'settings')}
+                                        </ul>
+                                    </div>
+                                );
+                            }
 
-                    {!loading && navigation.find((item) => item.title === 'Settings') &&
-                        renderNavItem(navigation.find((item) => item.title === 'Settings'), 'settings')}
-
-                    <div style={{ flex: 1, minHeight: '20px' }}></div>
-                </ul>
+                            if (items && items.length > 0) {
+                                return (
+                                    <div key={section.label} className="farmaku-nav-section">
+                                        <div className="farmaku-section-label">{section.label}</div>
+                                        <ul className="farmaku-nav-list">
+                                            {items.map((item, index) => renderNavItem(item, `${section.label}-${index}`))}
+                                        </ul>
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })}
+                    </>
+                )}
             </div>
 
-
-            <div className="farmaku-sidebar-footer" style={{ borderTop: '1px solid #E5E7EB', padding: '16px' }}>
-
-                <div className="farmaku-logout-item" onClick={logout} style={{ margin: 0, padding: '10px' }}>
-                    <Icons.LogOut size={16} />
+            {/* ── Footer ── */}
+            <div className="farmaku-sidebar-footer">
+                <div className="farmaku-logout-item" onClick={logout}>
+                    <Icons.LogOut />
                     <span>Logout</span>
                 </div>
             </div>

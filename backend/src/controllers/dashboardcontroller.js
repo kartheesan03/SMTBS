@@ -1769,7 +1769,7 @@ const getSystemHealth = async (req, res) => {
   requestCount++;
   try {
     const User = require("../models/User");
-    const activeUsers = await User.countDocuments().catch(() => 124);
+    const activeUsers = await User.countDocuments({ active: true }).catch(() => 124);
     
     // Real memory usage
     const totalMem = os.totalmem();

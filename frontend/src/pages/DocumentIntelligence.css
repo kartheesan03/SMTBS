@@ -360,7 +360,7 @@
 .ocr-preview-area img {
     max-width: 100%;
     border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 .ocr-preview-area object {
     width: 100%;

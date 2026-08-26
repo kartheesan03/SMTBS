@@ -135,6 +135,7 @@ const DynamicOCRTable = ({
 const DocumentIntelligence = () => {
   const { user } = useContext(AuthContext);
   const canEdit = ["Admin", "Manager"].includes(user?.role);
+  const canUpload = ["Admin", "Manager", "HR", "Sales", "Employee"].includes(user?.role) || true; // Allow all roles as requested
 
   const [activeDoc, setActiveDoc] = useState(null);
   const [file, setFile] = useState(null);
@@ -426,7 +427,7 @@ const DocumentIntelligence = () => {
           </div>
 
           <div className="doc-intel-main">
-            {canEdit ? (
+            {canUpload ? (
               <div
                 className={`doc-intel-workspace-center${isDragging ? " dragging" : ""}`}
                 onDrop={handleDrop}

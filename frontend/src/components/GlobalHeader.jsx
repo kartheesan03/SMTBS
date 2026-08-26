@@ -53,8 +53,9 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher }) => {
                 </button>
                 
                 <div className="header-search-bar" onClick={() => setIsCommandPaletteOpen(true)}>
-                    <Search size={16} />
+                    <Search size={16} color="#64748b" />
                     <input type="text" placeholder="Search orders, materials, employees, documents..." readOnly />
+                    <span className="search-shortcut">Ctrl K</span>
                 </div>
             </div>
             

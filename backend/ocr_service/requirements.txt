@@ -9,3 +9,10 @@ reportlab
 google-generativeai
 pymupdf
 easyocr
+anthropic
+mammoth
+python-magic-bin; sys_platform == 'win32'
+python-magic; sys_platform != 'win32'
+pydantic-settings
+slowapi
+python-dotenv

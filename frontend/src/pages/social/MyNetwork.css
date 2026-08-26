@@ -37,7 +37,7 @@
 }
 
 .network-stat-card:hover {
-    box-shadow: 0 4px 12px rgba(10,102,194,0.08);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     border-color: var(--mn-accent);
 }
 
@@ -173,13 +173,13 @@
 
 .network-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(10,102,194,0.1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .network-card-banner {
     width: 100%;
     height: 60px;
-    background: linear-gradient(135deg, var(--mn-accent-soft), var(--mn-accent-pale));
+    background: #ffffff; border: 1px solid #E5EAF2; border-radius: 8px;
 }
 
 .network-card-avatar {

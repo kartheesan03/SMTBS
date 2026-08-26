@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes.ocr import router as ocr_router
 from routes.export_routes import router as export_router
+from routes.extract import router as extract_router, limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
 
 app = FastAPI(title="SMTBMS OCR Service")
 
@@ -15,6 +18,9 @@ app.add_middleware(
 
 app.include_router(ocr_router)
 app.include_router(export_router, prefix="/export")
+app.include_router(extract_router)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.get("/health")
 def health_check():
