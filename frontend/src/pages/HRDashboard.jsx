@@ -9,7 +9,7 @@ import {
   Briefcase, Bell, Clock, Star, ArrowUpRight, ArrowDownRight, Cloud
 } from "lucide-react";
 import {
-  AreaChart, Area, PieChart, Pie, Cell,
+  ComposedChart, Bar, Line, Legend, PieChart, Pie, Cell,
   ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
@@ -211,21 +211,24 @@ const HRDashboard = () => {
                   <h3 className="bx-card-title">Attendance Efficiency Trend</h3>
                 </div>
                 <div style={{height:'220px', width:'100%'}}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={employeeTrend} margin={{top:5, right:20, bottom:5, left:0}}>
-                      <defs>
-                        <linearGradient id="hrColor" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} dy={10} interval={0}/>
-                      <YAxis axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} width={40}/>
-                      <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px rgba(0,0,0,0.1)'}}/>
-                      <Area type="monotone" dataKey="efficiency" stroke="#7C3AED" strokeWidth={3} fillOpacity={1} fill="url(#hrColor)"/>
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  {employeeTrend && employeeTrend.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ComposedChart 
+                        data={employeeTrend.map(d => ({ ...d, target: 85 }))} 
+                        margin={{top:20, right:20, bottom:5, left:0}}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} width={40}/>
+                        <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px rgba(0,0,0,0.1)'}} cursor={{fill: '#f1f5f9'}} />
+                        <Legend iconType="circle" wrapperStyle={{fontSize: '12px', paddingBottom: '20px'}}/>
+                        <Bar dataKey="efficiency" name="Efficiency" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                        <Line type="monotone" dataKey="target" name="Target" stroke="#F97316" strokeWidth={3} dot={{r: 4, fill: '#fff', stroke: '#F97316', strokeWidth: 2}} activeDot={{r: 6}} />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8'}}>No trend data available</div>
+                  )}
                 </div>
               </div>
               <div className="bx-card">
@@ -359,29 +362,25 @@ const HRDashboard = () => {
 
             <div className="bx-card">
               <div className="bx-card-header">
-                <h3 className="bx-card-title">Recent HR Activity</h3>
-                <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/settings/audit-logs'); }}>View All →</a>
+                <h3 className="bx-card-title">Recent Payslips</h3>
+                <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/payroll'); }}>View All →</a>
               </div>
               <div className="bx-tasks-list">
-                {recentActivity.length > 0 ? recentActivity.slice(0,4).map((a,i) => {
-                  const lo = (a.text || "").toLowerCase();
-                  let ActIcon = Activity, bg = "#F5F3FF", col = "#7C3AED";
-                  if (lo.includes("leave")) { ActIcon = Calendar; col = "#D97706"; bg = "#FEF3C7"; }
-                  else if (lo.includes("hire") || lo.includes("employee")) { ActIcon = Users; col = "#22C55E"; bg = "#DCFCE7"; }
-                  else if (lo.includes("payroll")) { ActIcon = IndianRupee; col = "#3B82F6"; bg = "#DBEAFE"; }
-                  return (
-                    <div className="bx-task-item" key={i}>
-                      <div className="bx-activity-icon" style={{width:'32px', height:'32px', borderRadius:'8px', background:bg, color:col, display:'flex', alignItems:'center', justifyContent:'center', marginRight:'12px', flexShrink:0}}><ActIcon size={16}/></div>
-                      <div className="bx-task-content">
-                        <p className="bx-task-title">
-                          {String(a.type).trim().toLowerCase() === 'info' ? (a.text?.match(/\(([^)]+)\)/)?.[1] ? `${a.text.match(/\(([^)]+)\)/)[1]} Activity` : "System Activity") : (a.type || "HR Activity")}
-                        </p>
-                        <p className="bx-task-sub">{a.text}</p>
-                      </div>
+                {salariesData.length > 0 ? salariesData.slice(0,4).map((s,i) => (
+                  <div className="bx-task-item" key={i}>
+                    <div className="bx-activity-icon" style={{width:'32px', height:'32px', borderRadius:'8px', background:'#DBEAFE', color:'#3B82F6', display:'flex', alignItems:'center', justifyContent:'center', marginRight:'12px', flexShrink:0}}>
+                      <FileText size={16}/>
                     </div>
-                  );
-                }) : (
-                  <div className="bx-task-item"><div className="bx-task-content"><p className="bx-task-title">No recent activity</p></div></div>
+                    <div className="bx-task-content">
+                      <p className="bx-task-title">{s.employeeName || s.employee?.name || "Employee Payslip"}</p>
+                      <p className="bx-task-sub">{s.month || "Current Month"} • {fmtINR(s.netSalary || s.basicSalary || 0)}</p>
+                    </div>
+                    <div style={{cursor: 'pointer', color: '#7C3AED'}} title="Download Payslip">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="bx-task-item"><div className="bx-task-content"><p className="bx-task-title">No recent payslips</p></div></div>
                 )}
               </div>
             </div>

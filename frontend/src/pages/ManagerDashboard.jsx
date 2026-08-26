@@ -10,7 +10,7 @@ import {
   ArrowUpRight, ArrowDownRight, Cloud, BarChart2
 } from "lucide-react";
 import {
-  AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar,
+  ComposedChart, Bar, Line, Legend, AreaChart, Area, PieChart, Pie, Cell,
   ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
@@ -223,21 +223,24 @@ const ManagerDashboard = () => {
                   <h3 className="bx-card-title">Revenue Trend</h3>
                 </div>
                 <div style={{height:'220px', width:'100%'}}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{top:5, right:20, bottom:5, left:0}}>
-                      <defs>
-                        <linearGradient id="mgrColor" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#D97706" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#D97706" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} dy={10} interval={0}/>
-                      <YAxis axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} width={40} tickFormatter={(v) => v >= 1000 ? `${v/1000}k` : v}/>
-                      <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px rgba(0,0,0,0.1)'}}/>
-                      <Area type="monotone" dataKey="revenue" stroke="#D97706" strokeWidth={3} fillOpacity={1} fill="url(#mgrColor)"/>
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  {chartData && chartData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ComposedChart 
+                        data={chartData.map(d => ({ ...d, target: d.revenue ? d.revenue * 0.8 : 0 }))} 
+                        margin={{top:20, right:20, bottom:5, left:0}}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} width={40} tickFormatter={(v) => v >= 1000 ? `${v/1000}k` : v}/>
+                        <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px rgba(0,0,0,0.1)'}} cursor={{fill: '#f1f5f9'}} />
+                        <Legend iconType="circle" wrapperStyle={{fontSize: '12px', paddingBottom: '20px'}}/>
+                        <Bar dataKey="revenue" name="Revenue" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                        <Line type="monotone" dataKey="target" name="Target" stroke="#F97316" strokeWidth={3} dot={{r: 4, fill: '#fff', stroke: '#F97316', strokeWidth: 2}} activeDot={{r: 6}} />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8'}}>No revenue data available</div>
+                  )}
                 </div>
               </div>
               <div className="bx-card">
@@ -375,29 +378,13 @@ const ManagerDashboard = () => {
 
             <div className="bx-card">
               <div className="bx-card-header">
-                <h3 className="bx-card-title">Recent Activity</h3>
-                <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/settings/audit-logs'); }}>View All →</a>
+                <h3 className="bx-card-title">My Payslips</h3>
+                <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/payslips'); }}>View All →</a>
               </div>
               <div className="bx-tasks-list">
-                {recentActivity.length > 0 ? recentActivity.slice(0,4).map((a,i) => {
-                  const lo = (a.text || "").toLowerCase();
-                  let col = "#3B82F6", ActIcon = Activity, bg = "#DBEAFE";
-                  if (lo.includes("created")) { col="#22C55E"; ActIcon=FileText; bg="#DCFCE7"; }
-                  else if (lo.includes("delete") || lo.includes("warning")) { col="#D97706"; ActIcon=AlertTriangle; bg="#FEF3C7"; }
-                  return (
-                    <div className="bx-task-item" key={i}>
-                      <div className="bx-activity-icon" style={{width:'32px', height:'32px', borderRadius:'8px', background:bg, color:col, display:'flex', alignItems:'center', justifyContent:'center', marginRight:'12px', flexShrink:0}}><ActIcon size={16}/></div>
-                      <div className="bx-task-content">
-                        <p className="bx-task-title">
-                          {String(a.type).trim().toLowerCase() === 'info' ? (a.text?.match(/\(([^)]+)\)/)?.[1] ? `${a.text.match(/\(([^)]+)\)/)[1]} Activity` : "System Activity") : (a.type || "Activity")}
-                        </p>
-                        <p className="bx-task-sub">{a.text}</p>
-                      </div>
-                    </div>
-                  );
-                }) : (
-                  <div className="bx-task-item"><div className="bx-task-content"><p className="bx-task-title">No recent activity</p></div></div>
-                )}
+                <div className="bx-task-item" style={{justifyContent: 'center', padding: '20px', color: '#64748b'}}>
+                  No recent payslips
+                </div>
               </div>
             </div>
 
