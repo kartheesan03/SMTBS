@@ -82,6 +82,10 @@ const EmployeeSequelize = sequelize.define('Employee', {
     address: {
         type: DataTypes.TEXT,
         allowNull: true
+    },
+    performanceOverrides: {
+        type: DataTypes.JSON,
+        allowNull: true
     }
 });
 

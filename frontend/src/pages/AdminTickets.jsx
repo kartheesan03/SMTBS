@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageHeader from '../components/PageHeader';
+import { StatsCard, StatsGrid } from '../components/ui/StatsCard';
 import './AdminTickets.css';
 
 /* ─── Pill Dropdown ─── */
@@ -264,24 +265,47 @@ const AdminTickets = () => {
                 />
 
                 {/* Stats */}
-                <div className="at-stats-grid">
-                    {[
-                        { label: 'Total Tickets', val: stats.total, sub: 'All tickets', cls: 'icon-total', Icon: Inbox },
-                        { label: 'Open', val: stats.open, sub: 'Needs attention', cls: 'icon-open', Icon: Activity },
-                        { label: 'In Progress', val: stats.inProgress, sub: 'Being worked on', cls: 'icon-progress', Icon: Clock },
-                        { label: 'Resolved', val: stats.resolved, sub: 'Completed', cls: 'icon-resolved', Icon: CheckCircle2 },
-                        { label: 'Critical', val: stats.critical, sub: 'High severity', cls: 'icon-critical', Icon: AlertCircle },
-                    ].map(({ label, val, sub, cls, Icon }) => (
-                        <div key={label} className="at-stat-card">
-                            <div className={`at-stat-icon ${cls}`}><Icon size={17} /></div>
-                            <div className="at-stat-body">
-                                <span className="at-stat-label">{label}</span>
-                                <span className="at-stat-value">{loading ? '—' : val}</span>
-                                <span className="at-stat-sub">{sub}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <StatsGrid columns={5} style={{ marginBottom: '16px' }}>
+                    <StatsCard
+                        title="Total Tickets"
+                        value={loading ? '—' : stats.total}
+                        icon={Inbox}
+                        colorTheme="blue"
+                        subtext="All tickets"
+                    />
+                    <StatsCard
+                        title="Open"
+                        value={loading ? '—' : stats.open}
+                        icon={Activity}
+                        colorTheme="amber"
+                        trendPositive={false}
+                        subtext="Needs attention"
+                    />
+                    <StatsCard
+                        title="In Progress"
+                        value={loading ? '—' : stats.inProgress}
+                        icon={Clock}
+                        colorTheme="teal"
+                        trendPositive={true}
+                        subtext="Being worked on"
+                    />
+                    <StatsCard
+                        title="Resolved"
+                        value={loading ? '—' : stats.resolved}
+                        icon={CheckCircle2}
+                        colorTheme="green"
+                        trendPositive={true}
+                        subtext="Completed"
+                    />
+                    <StatsCard
+                        title="Critical"
+                        value={loading ? '—' : stats.critical}
+                        icon={AlertCircle}
+                        colorTheme="red"
+                        trendPositive={false}
+                        subtext="High severity"
+                    />
+                </StatsGrid>
             </div>
 
             {/* ── Main Workspace ── */}

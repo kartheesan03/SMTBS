@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import API from "../api/axios";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import { motion } from "framer-motion";
+import PageHeader from "../components/PageHeader";
 import {
   Calendar,
   Users,
@@ -139,48 +140,11 @@ const LeaveBalance = () => {
     >
       <div className="rd-content">
         {/* ── Header ── */}
-        <div
-          className="rd-module-header"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 24,
-          }}
-        >
-          <div className="rd-module-info">
-            <div
-              className="rd-module-title-row"
-              style={{ display: "flex", alignItems: "center", gap: 6 }}
-            >
-              <span
-                className="rd-module-title"
-                style={{
-                  fontSize: 28,
-                  fontWeight: 700,
-                  color: "#0f172a",
-                  margin: 0,
-                }}
-              >
-                Leave Balance
-              </span>
-              <span
-                className="rd-module-badge"
-                style={{
-                  background: "#f1f5f9",
-                  color: "#0f172a",
-                  padding: "3px 8px",
-                  borderRadius: 0,
-                  fontSize: 10,
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                }}
-              >
-                HRMS
-              </span>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Leave Balance"
+          badge="HRMS"
+          subtitle="View remaining leave quotas, accruals, and entitlements for all leave types."
+        />
         {/* ── KPIs ── */}
         <StatsGrid columns={4}>
           <StatsCard

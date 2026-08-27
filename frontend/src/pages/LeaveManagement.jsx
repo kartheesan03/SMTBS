@@ -1,14 +1,7 @@
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Search,
-  FileText,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Plus,
-  Calendar,
-} from "lucide-react";
+import { Search, FileText, Clock, CheckCircle, XCircle, Plus, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 import API from "../api/axios";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
@@ -35,130 +28,93 @@ const LeaveManagement = () => {
   }, [fetchLeaves]);
   const handleReview = async (id, status) => {
     try {
-      await API.put(`/leaves/${id}/review`, { status, reviewNote: "" });
+      await API.put(`/leaves/${id}/review`, {
+        status,
+        reviewNote: ""
+      });
       fetchLeaves();
     } catch (err) {
       alert(err.response?.data?.message || `Failed to mark leave as ${status}`);
     }
   };
   const totalRequests = leaves.length;
-  const pendingCount = leaves.filter((l) => l.status === "Pending").length;
-  const approvedCount = leaves.filter((l) => l.status === "Approved").length;
-  const rejectedCount = leaves.filter((l) => l.status === "Rejected").length;
-  const approvalRate =
-    totalRequests > 0 ? Math.round((approvedCount / totalRequests) * 100) : 0;
-  const getStatusBadge = (status) => {
-    if (status === "Approved")
-      return (
-        <span className="rd-status-badge rd-status-green">
-          <span
-            className="rd-legend-dot"
-            style={{
-              background: "#10b981",
-              display: "inline-block",
-              marginRight: 6,
-            }}
-          ></span>
+  const pendingCount = leaves.filter(l => l.status === "Pending").length;
+  const approvedCount = leaves.filter(l => l.status === "Approved").length;
+  const rejectedCount = leaves.filter(l => l.status === "Rejected").length;
+  const approvalRate = totalRequests > 0 ? Math.round(approvedCount / totalRequests * 100) : 0;
+  const getStatusBadge = status => {
+    if (status === "Approved") return <span className="rd-status-badge rd-status-green">
+          <span className="rd-legend-dot" style={{
+        background: "#10b981",
+        display: "inline-block",
+        marginRight: 6
+      }}></span>
           Approved
-        </span>
-      );
-    if (status === "Rejected")
-      return (
-        <span className="rd-status-badge rd-status-red">
-          <span
-            className="rd-legend-dot"
-            style={{
-              background: "#ef4444",
-              display: "inline-block",
-              marginRight: 6,
-            }}
-          ></span>
+        </span>;
+    if (status === "Rejected") return <span className="rd-status-badge rd-status-red">
+          <span className="rd-legend-dot" style={{
+        background: "#ef4444",
+        display: "inline-block",
+        marginRight: 6
+      }}></span>
           Rejected
-        </span>
-      );
-    if (status === "Pending")
-      return (
-        <span className="rd-status-badge rd-status-orange">
-          <span
-            className="rd-legend-dot"
-            style={{
-              background: "#f59e0b",
-              display: "inline-block",
-              marginRight: 6,
-            }}
-          ></span>
+        </span>;
+    if (status === "Pending") return <span className="rd-status-badge rd-status-orange">
+          <span className="rd-legend-dot" style={{
+        background: "#f59e0b",
+        display: "inline-block",
+        marginRight: 6
+      }}></span>
           Pending
-        </span>
-      );
+        </span>;
     return <span className="rd-status-badge rd-status-blue">{status}</span>;
   };
-  const getTypePill = (type) => {
-    if (type === "Casual")
-      return (
-        <span
-          style={{
-            background: "#eff6ff",
-            color: "#3b82f6",
-            border: "1px solid #bfdbfe",
-            padding: "4px 10px",
-            borderRadius: 0,
-            fontSize: 12,
-            fontWeight: 600,
-          }}
-        >
+  const getTypePill = type => {
+    if (type === "Casual") return <span style={{
+      background: "#eff6ff",
+      color: "#3b82f6",
+      border: "1px solid #bfdbfe",
+      padding: "4px 10px",
+      borderRadius: 0,
+      fontSize: 12,
+      fontWeight: 600
+    }}>
           {type}
-        </span>
-      );
-    if (type === "Sick")
-      return (
-        <span
-          style={{
-            background: "#fdf2f8",
-            color: "#ec4899",
-            border: "1px solid #fbcfe8",
-            padding: "4px 10px",
-            borderRadius: 0,
-            fontSize: 12,
-            fontWeight: 600,
-          }}
-        >
+        </span>;
+    if (type === "Sick") return <span style={{
+      background: "#fdf2f8",
+      color: "#ec4899",
+      border: "1px solid #fbcfe8",
+      padding: "4px 10px",
+      borderRadius: 0,
+      fontSize: 12,
+      fontWeight: 600
+    }}>
           {type}
-        </span>
-      );
-    if (type === "Annual")
-      return (
-        <span
-          style={{
-            background: "#ecfdf5",
-            color: "#10b981",
-            border: "1px solid #a7f3d0",
-            padding: "4px 10px",
-            borderRadius: 0,
-            fontSize: 12,
-            fontWeight: 600,
-          }}
-        >
+        </span>;
+    if (type === "Annual") return <span style={{
+      background: "#ecfdf5",
+      color: "#10b981",
+      border: "1px solid #a7f3d0",
+      padding: "4px 10px",
+      borderRadius: 0,
+      fontSize: 12,
+      fontWeight: 600
+    }}>
           {type}
-        </span>
-      );
-    return (
-      <span
-        style={{
-          background: "#f1f5f9",
-          color: "#64748b",
-          padding: "4px 10px",
-          borderRadius: 0,
-          fontSize: 12,
-          fontWeight: 600,
-        }}
-      >
+        </span>;
+    return <span style={{
+      background: "#f1f5f9",
+      color: "#64748b",
+      padding: "4px 10px",
+      borderRadius: 0,
+      fontSize: 12,
+      fontWeight: 600
+    }}>
         {type}
-      </span>
-    );
+      </span>;
   };
-  const getInitials = (firstName, lastName) =>
-    `${(firstName || "")[0] || ""}${(lastName || "")[0] || ""}`.toUpperCase() ||
-    "??";
+  const getInitials = (firstName, lastName) => `${(firstName || "")[0] || ""}${(lastName || "")[0] || ""}`.toUpperCase() || "??";
   const calculateDays = (start, end) => {
     if (!start || !end) return "—";
     const s = new Date(start);
@@ -167,117 +123,74 @@ const LeaveManagement = () => {
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24)) + 1;
     return `${diffDays}d`;
   };
-  const formatDate = (isoString) => {
+  const formatDate = isoString => {
     if (!isoString) return "—";
     return new Date(isoString).toLocaleDateString();
   };
-  const filteredLeaves = leaves.filter((leave) => {
+  const filteredLeaves = leaves.filter(leave => {
     const emp = leave.employee || {};
     const name = `${emp.firstName || ""} ${emp.lastName || ""}`.toLowerCase();
-    const matchesSearch =
-      !searchTerm ||
-      name.includes(searchTerm.toLowerCase()) ||
-      (emp.employeeId || "").toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "All" || leave.status === statusFilter;
+    const matchesSearch = !searchTerm || name.includes(searchTerm.toLowerCase()) || (emp.employeeId || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "All" || leave.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="rd-container"
-    >
+  return <motion.div initial={{
+    opacity: 0,
+    y: 15
+  }} animate={{
+    opacity: 1,
+    y: 0
+  }} transition={{
+    duration: 0.4
+  }} className="rd-container">
       <div className="rd-content">
         {/* Module Header */}
-        <div className="rd-module-header">
-          <div className="rd-module-info">
-            <div className="rd-module-title-row">
-              <span className="rd-module-title">All Leave Requests</span>
-              <span className="rd-module-badge">HRMS</span>
-            </div>
-          </div>
-        </div>
+        <PageHeader title="All Leave Requests" />
         <StatsGrid>
-          <StatsCard
-            title="Total Requests"
-            value={totalRequests}
-            colorTheme="blue"
-            icon={FileText}
-            trendValue="All time"
-            trendPositive={true}
-          />
-          <StatsCard
-            title="Pending"
-            value={pendingCount}
-            colorTheme="peach"
-            icon={Clock}
-            trendValue="Action required"
-            trendPositive={false}
-          />
-          <StatsCard
-            title="Approved"
-            value={approvedCount}
-            colorTheme="mint"
-            icon={CheckCircle}
-            trendValue={`${approvalRate}% approved`}
-            trendPositive={true}
-          />
-          <StatsCard
-            title="Rejected"
-            value={rejectedCount}
-            colorTheme="pink"
-            icon={XCircle}
-            trendValue="Declined leaves"
-            trendPositive={false}
-          />
+          <StatsCard title="Total Requests" value={totalRequests} colorTheme="blue" icon={FileText} trendValue="All time" trendPositive={true} />
+          <StatsCard title="Pending" value={pendingCount} colorTheme="peach" icon={Clock} trendValue="Action required" trendPositive={false} />
+          <StatsCard title="Approved" value={approvedCount} colorTheme="mint" icon={CheckCircle} trendValue={`${approvalRate}% approved`} trendPositive={true} />
+          <StatsCard title="Rejected" value={rejectedCount} colorTheme="pink" icon={XCircle} trendValue="Declined leaves" trendPositive={false} />
         </StatsGrid>
         {/* Table Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-          className="rd-table-card"
-        >
-          <div
-            className="rd-table-header"
-            style={{ borderBottom: "none", flexWrap: "wrap", gap: 16 }}
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: 16,
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              <div
-                className="rd-search-bar"
-                style={{ minWidth: 250, flexShrink: 0, background: "#fff" }}
-              >
+        <motion.div initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        delay: 0.2,
+        duration: 0.4
+      }} className="rd-table-card">
+          <div className="rd-table-header" style={{
+          borderBottom: "none",
+          flexWrap: "wrap",
+          gap: 16
+        }}>
+            <div style={{
+            display: "flex",
+            gap: 16,
+            alignItems: "center",
+            flexWrap: "wrap"
+          }}>
+              <div className="rd-search-bar" style={{
+              minWidth: 250,
+              flexShrink: 0,
+              background: "#fff"
+            }}>
                 <Search size={16} color="#94a3b8" />
-                <input
-                  type="text"
-                  className="rd-search-input"
-                  placeholder="Search employee..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                <input type="text" className="rd-search-input" placeholder="Search employee..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
               </div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                style={{
-                  padding: "8px 16px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: 0,
-                  outline: "none",
-                  background: "#fff",
-                  color: "#64748b",
-                  fontSize: 14,
-                }}
-              >
+              <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{
+              padding: "8px 16px",
+              border: "1px solid #e2e8f0",
+              borderRadius: 0,
+              outline: "none",
+              background: "#fff",
+              color: "#64748b",
+              fontSize: 14
+            }}>
                 <option value="All">All Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Approved">Approved</option>
@@ -287,10 +200,9 @@ const LeaveManagement = () => {
             </div>
           </div>
           <div className="rd-table-scroll">
-            <table
-              className="rd-table rd-table-responsive"
-              style={{ width: "100%" }}
-            >
+            <table className="rd-table rd-table-responsive" style={{
+            width: "100%"
+          }}>
               <thead>
                 <tr>
                   <th>Employee</th>
@@ -300,169 +212,128 @@ const LeaveManagement = () => {
                   <th>To</th>
                   <th>Days</th>
                   <th>Status</th>
-                  <th style={{ width: 140, textAlign: "center" }}>Actions</th>
+                  <th style={{
+                  width: 140,
+                  textAlign: "center"
+                }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {loading ? (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      style={{
-                        textAlign: "center",
-                        padding: 32,
-                        color: "#94a3b8",
-                      }}
-                    >
+                {loading ? <tr>
+                    <td colSpan={8} style={{
+                  textAlign: "center",
+                  padding: 32,
+                  color: "#94a3b8"
+                }}>
                       Loading leave data...
                     </td>
-                  </tr>
-                ) : filteredLeaves.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      style={{
-                        textAlign: "center",
-                        padding: 32,
-                        color: "#94a3b8",
-                      }}
-                    >
+                  </tr> : filteredLeaves.length === 0 ? <tr>
+                    <td colSpan={8} style={{
+                  textAlign: "center",
+                  padding: 32,
+                  color: "#94a3b8"
+                }}>
                       No leave requests found
                     </td>
-                  </tr>
-                ) : (
-                  filteredLeaves.map((leave, i) => {
-                    const emp = leave.employee || {};
-                    return (
-                      <tr key={leave._id || leave.id || i}>
+                  </tr> : filteredLeaves.map((leave, i) => {
+                const emp = leave.employee || {};
+                return <tr key={leave._id || leave.id || i}>
                         <td data-label="Employee">
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 12,
-                            }}
-                          >
-                            <div
-                              className="rd-avatar"
-                              style={{
-                                width: 32,
-                                height: 32,
-                                fontSize: 12,
-                                background: "var(--rd-purple-grad)",
-                              }}
-                            >
+                          <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12
+                    }}>
+                            <div className="rd-avatar" style={{
+                        width: 32,
+                        height: 32,
+                        fontSize: 12,
+                        background: "var(--rd-purple-grad)"
+                      }}>
                               {getInitials(emp.firstName, emp.lastName)}
                             </div>
                             <div>
-                              <div
-                                style={{
-                                  fontWeight: 700,
-                                  color: "var(--rd-text-main)",
-                                }}
-                              >
-                                {`${emp.firstName || ""} ${
-                                  emp.lastName || ""
-                                }`.trim()}
+                              <div style={{
+                          fontWeight: 700,
+                          color: "var(--rd-text-main)"
+                        }}>
+                                {`${emp.firstName || ""} ${emp.lastName || ""}`.trim()}
                               </div>
-                              <div
-                                style={{
-                                  fontSize: 11,
-                                  color: "#94a3b8",
-                                  marginTop: 2,
-                                }}
-                              >
+                              <div style={{
+                          fontSize: 11,
+                          color: "#94a3b8",
+                          marginTop: 2
+                        }}>
                                 {emp.employeeId || "—"}
                               </div>
                             </div>
                           </div>
                         </td>
-                        <td style={{ color: "#64748b" }} data-label="Dept">
+                        <td style={{
+                    color: "#64748b"
+                  }} data-label="Dept">
                           {emp.department || "—"}
                         </td>
                         <td data-label="Leave Type">
                           {getTypePill(leave.type)}
                         </td>
-                        <td style={{ fontWeight: 500 }} data-label="From">
+                        <td style={{
+                    fontWeight: 500
+                  }} data-label="From">
                           {formatDate(leave.startDate)}
                         </td>
-                        <td style={{ fontWeight: 500 }} data-label="To">
+                        <td style={{
+                    fontWeight: 500
+                  }} data-label="To">
                           {formatDate(leave.endDate)}
                         </td>
                         <td data-label="Days">
-                          <span
-                            style={{
-                              fontWeight: 700,
-                              color: "var(--rd-text-main)",
-                            }}
-                          >
+                          <span style={{
+                      fontWeight: 700,
+                      color: "var(--rd-text-main)"
+                    }}>
                             {calculateDays(leave.startDate, leave.endDate)}
                           </span>
                         </td>
                         <td data-label="Status">
                           {getStatusBadge(leave.status)}
                         </td>
-                        <td
-                          style={{ textAlign: "center" }}
-                          data-label="Actions"
-                        >
-                          {leave.status === "Pending" ? (
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: 6,
-                                justifyContent: "center",
-                              }}
-                            >
-                              <button
-                                className="rd-btn-compact"
-                                onClick={() =>
-                                  handleReview(
-                                    leave._id || leave.id,
-                                    "Approved"
-                                  )
-                                }
-                                style={{
-                                  background: "#ecfdf5",
-                                  color: "#10b981",
-                                  border: "1px solid #a7f3d0",
-                                }}
-                              >
+                        <td style={{
+                    textAlign: "center"
+                  }} data-label="Actions">
+                          {leave.status === "Pending" ? <div style={{
+                      display: "flex",
+                      gap: 6,
+                      justifyContent: "center"
+                    }}>
+                              <button className="rd-btn-compact" onClick={() => handleReview(leave._id || leave.id, "Approved")} style={{
+                        background: "#ecfdf5",
+                        color: "#10b981",
+                        border: "1px solid #a7f3d0"
+                      }}>
                                 Approve
                               </button>
-                              <button
-                                className="rd-btn-compact"
-                                onClick={() =>
-                                  handleReview(
-                                    leave._id || leave.id,
-                                    "Rejected"
-                                  )
-                                }
-                                style={{
-                                  background: "#fef2f2",
-                                  color: "#ef4444",
-                                  border: "1px solid #fecaca",
-                                }}
-                              >
+                              <button className="rd-btn-compact" onClick={() => handleReview(leave._id || leave.id, "Rejected")} style={{
+                        background: "#fef2f2",
+                        color: "#ef4444",
+                        border: "1px solid #fecaca"
+                      }}>
                                 Reject
                               </button>
-                            </div>
-                          ) : (
-                            <span style={{ color: "#94a3b8", fontSize: 12 }}>
+                            </div> : <span style={{
+                      color: "#94a3b8",
+                      fontSize: 12
+                    }}>
                               —
-                            </span>
-                          )}
+                            </span>}
                         </td>
-                      </tr>
-                    );
-                  })
-                )}
+                      </tr>;
+              })}
               </tbody>
             </table>
           </div>
         </motion.div>
       </div>
-    </motion.div>
-  );
+    </motion.div>;
 };
 export default LeaveManagement;

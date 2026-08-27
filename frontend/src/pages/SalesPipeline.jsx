@@ -23,6 +23,7 @@ import {
   Pie,
 } from "recharts";
 import { motion } from "framer-motion";
+import PageHeader from "../components/PageHeader";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import toast from "react-hot-toast";
@@ -210,22 +211,12 @@ const SalesPipeline = () => {
       transition={{ duration: 0.4 }}
       className="rd-container"
     >
-      {" "}
       <div className="rd-content">
-        {" "}
-        <div className="rd-module-header">
-          {" "}
-          <div className="rd-module-info">
-            {" "}
-            <div className="rd-module-title-row">
-              {" "}
-              <span className="rd-module-title">
-                Sales Pipeline Overview
-              </span>{" "}
-              <span className="rd-module-badge">PIPELINE</span>{" "}
-            </div>{" "}
-          </div>{" "}
-        </div>{" "}
+        <PageHeader
+          title="Sales Pipeline Overview"
+          badge="PIPELINE"
+          subtitle="Monitor deal stages, track revenue potential, and manage your active sales pipeline."
+        />
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

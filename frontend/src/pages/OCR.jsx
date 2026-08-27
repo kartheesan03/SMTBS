@@ -8,6 +8,7 @@ import {
 import toast from "react-hot-toast";
 import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
+import PageHeader from "../components/PageHeader";
 import "./DocumentIntelligence.css";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
@@ -419,12 +420,11 @@ const DocumentIntelligence = () => {
       {/* ── IDLE STATE ────────────────────────────────────────────────────── */}
       {workflowState === "idle" && (
         <>
-          <div className="doc-intel-header">
-            <div className="doc-intel-header-left">
-              <h1>Universal Document Extraction</h1>
-              <p>Upload any supported document or image file to automatically extract structured data.</p>
-            </div>
-          </div>
+          <PageHeader
+            title="OCR"
+            badge="AI TOOL"
+            subtitle="Upload any supported document or image file to automatically extract structured data."
+          />
 
           <div className="doc-intel-main">
             {canUpload ? (
@@ -460,12 +460,11 @@ const DocumentIntelligence = () => {
       {/* ── PROCESSING STATE ──────────────────────────────────────────────── */}
       {workflowState === "processing" && (
         <div className="doc-intel-main" style={{ padding: "0 32px 32px" }}>
-          <div className="doc-intel-header">
-            <div className="doc-intel-header-left">
-              <h1>Universal Document Extraction</h1>
-              <p>Processing your file...</p>
-            </div>
-          </div>
+          <PageHeader
+            title="OCR"
+            badge="AI TOOL"
+            subtitle="Processing your file — please wait while the AI engine extracts structured data."
+          />
           <div className="upload-status">
             <div className="upload-meta">
               <div className="meta-item"><span>File</span><span>{file?.name}</span></div>

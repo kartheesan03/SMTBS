@@ -30,6 +30,7 @@ import {
   Eye,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import PageHeader from "../components/PageHeader";
 import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
@@ -491,8 +492,8 @@ const DailyTab = ({ canEdit }) => {
             trendValue={
               stats.totalEmployees > 0
                 ? `${Math.round(
-                    (stats.presentToday / stats.totalEmployees) * 100
-                  )}% workforce`
+                  (stats.presentToday / stats.totalEmployees) * 100
+                )}% workforce`
                 : "—"
             }
             trendPositive={true}
@@ -758,17 +759,15 @@ const DailyTab = ({ canEdit }) => {
                           }}
                         >
                           <UserAvatar
-                            name={`${emp.firstName || ""} ${
-                              emp.lastName || ""
-                            }`.trim()}
+                            name={`${emp.firstName || ""} ${emp.lastName || ""
+                              }`.trim()}
                             size={32}
                             fontSize={12}
                             style={{ flexShrink: 0 }}
                           />
                           <span style={{ fontWeight: 600, color: "#1e293b" }}>
-                            {`${emp.firstName || ""} ${
-                              emp.lastName || ""
-                            }`.trim() || "—"}
+                            {`${emp.firstName || ""} ${emp.lastName || ""
+                              }`.trim() || "—"}
                           </span>
                         </div>
                       </td>
@@ -1587,17 +1586,15 @@ const HistoryTab = () => {
                           }}
                         >
                           <UserAvatar
-                            name={`${emp.firstName || ""} ${
-                              emp.lastName || ""
-                            }`.trim()}
+                            name={`${emp.firstName || ""} ${emp.lastName || ""
+                              }`.trim()}
                             size={30}
                             fontSize={11}
                             style={{ flexShrink: 0 }}
                           />
                           <span style={{ fontWeight: 600, color: "#1e293b" }}>
-                            {`${emp.firstName || ""} ${
-                              emp.lastName || ""
-                            }`.trim() || "—"}
+                            {`${emp.firstName || ""} ${emp.lastName || ""
+                              }`.trim() || "—"}
                           </span>
                         </div>
                       </td>
@@ -1720,18 +1717,11 @@ const MasterAttendance = () => {
     >
       <div className="rd-content">
         {/* Page Header */}
-        <div className="rd-module-header">
-          <div className="rd-module-info">
-            <div className="rd-module-title-row">
-              <span className="rd-module-title">Master Attendance</span>
-              <span className="rd-module-badge">HRMS</span>
-            </div>
-            <p style={{ margin: "4px 0 0", fontSize: 13, color: "#64748b" }}>
-              Full attendance oversight for all employees · Logged in as{" "}
-              <strong>{user?.role}</strong>
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="Master Attendance"
+          badge="HRMS"
+          subtitle="Complete attendance records, shift logs, and workforce time tracking for all employees."
+        />
         {/* Tab Bar */}
         <div
           style={{

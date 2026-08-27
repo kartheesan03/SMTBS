@@ -474,15 +474,15 @@ const NotificationsPage = () => {
               {filter === "unread"
                 ? "All caught up!"
                 : searchQuery
-                ? "No results found"
-                : "No notifications yet"}
+                  ? "No results found"
+                  : "No notifications yet"}
             </p>
             <p style={{ margin: 0, fontSize: "13px" }}>
               {filter === "unread"
                 ? "You have no unread notifications."
                 : searchQuery
-                ? "Try a different search term."
-                : "Notifications will appear here as events occur."}
+                  ? "Try a different search term."
+                  : "Notifications will appear here as events occur."}
             </p>
           </div>
           {notifications.length === 0 && canAdmin && (

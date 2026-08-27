@@ -16,6 +16,7 @@ import {
   AlertCircle,
   Check,
 } from "lucide-react";
+import PageHeader from "../components/PageHeader";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
@@ -502,119 +503,84 @@ const HolidayCalendar = () => {
       )}
       <div className="rd-content">
         {/* Header */}
-        <div
-          className="rd-module-header"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 24,
-          }}
-        >
-          <div className="rd-module-info">
-            <div
-              className="rd-module-title-row"
-              style={{ display: "flex", alignItems: "center", gap: 6 }}
-            >
-              <span
-                className="rd-module-title"
+        <PageHeader
+          title="Holiday Calendar"
+          badge="HRMS"
+          subtitle="View company-wide public holidays, regional observances, and planned leave blackout dates."
+          actions={
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              {/* Year navigation */}
+              <div
                 style={{
-                  fontSize: 28,
-                  fontWeight: 700,
-                  color: "#0f172a",
-                  margin: 0,
-                }}
-              >
-                Holiday Calendar
-              </span>
-              <span
-                className="rd-module-badge"
-                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
                   background: "#f1f5f9",
-                  color: "#0f172a",
-                  padding: "3px 8px",
                   borderRadius: 0,
-                  fontSize: 10,
-                  fontWeight: 700,
-                  textTransform: "uppercase",
+                  padding: "4px 10px",
                 }}
               >
-                HRMS
-              </span>
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            {/* Year navigation */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                background: "#f1f5f9",
-                borderRadius: 0,
-                padding: "4px 10px",
-              }}
-            >
+                <button
+                  onClick={() => setYear((y) => y - 1)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#64748b",
+                    display: "flex",
+                  }}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "#0f172a",
+                    minWidth: 40,
+                    textAlign: "center",
+                  }}
+                >
+                  {year}
+                </span>
+                <button
+                  onClick={() => setYear((y) => y + 1)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#64748b",
+                    display: "flex",
+                  }}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
               <button
-                onClick={() => setYear((y) => y - 1)}
+                onClick={() => {
+                  setEditHoliday(null);
+                  setShowModal(true);
+                }}
                 style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#64748b",
                   display: "flex",
-                }}
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <span
-                style={{
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: "#0f172a",
-                  minWidth: 40,
-                  textAlign: "center",
-                }}
-              >
-                {year}
-              </span>
-              <button
-                onClick={() => setYear((y) => y + 1)}
-                style={{
-                  background: "none",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "8px 16px",
+                  borderRadius: 0,
                   border: "none",
+                  background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                  color: "#fff",
+                  fontWeight: 600,
+                  fontSize: 13,
                   cursor: "pointer",
-                  color: "#64748b",
-                  display: "flex",
+                  boxShadow: "0 4px 12px rgba(99, 102, 241, 0.2)",
                 }}
               >
-                <ChevronRight size={16} />
+                <Plus size={15} /> Add Holiday
               </button>
             </div>
-            <button
-              onClick={() => {
-                setEditHoliday(null);
-                setShowModal(true);
-              }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 16px",
-                borderRadius: 0,
-                border: "none",
-                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-                color: "#fff",
-                fontWeight: 600,
-                fontSize: 13,
-                cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(99, 102, 241, 0.2)",
-              }}
-            >
-              <Plus size={15} /> Add Holiday
-            </button>
-          </div>
-        </div>
+          }
+        />
         {/* KPI Cards */}
         <StatsGrid>
           <StatsCard

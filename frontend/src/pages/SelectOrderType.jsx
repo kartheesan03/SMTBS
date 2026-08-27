@@ -1,16 +1,19 @@
+import PageHeader from '../components/PageHeader';
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ShoppingCart, PackageOpen, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 const SelectOrderType = () => {
   const navigate = useNavigate();
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="page-container"
-    >
+  return <motion.div initial={{
+    opacity: 0,
+    y: 15
+  }} animate={{
+    opacity: 1,
+    y: 0
+  }} transition={{
+    duration: 0.4
+  }} className="page-container">
       <div className="breadcrumb-nav">
         <span className="crumb" onClick={() => navigate("/erp")}>
           ERP Operations
@@ -18,34 +21,32 @@ const SelectOrderType = () => {
         <span className="separator">/</span>
         <span className="crumb active">Select Order Type</span>
       </div>
-      <header
-        className="module-header"
-        style={{ textAlign: "center", marginBottom: "40px" }}
-      >
-        <h1 className="header-title" style={{ margin: "0 0 8px 0" }}>
-          Create New Order
-        </h1>
+      <header className="module-header" style={{
+      textAlign: "center",
+      marginBottom: "40px"
+    }}>
+        <PageHeader title="Create New Order" />
         <p className="header-subtitle">
           Select the type of order you wish to create.
         </p>
       </header>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1, duration: 0.4 }}
-        className="module-content"
-        style={{
-          display: "flex",
-          gap: "32px",
-          flexWrap: "wrap",
-          justifyContent: "center",
-        }}
-      >
+      <motion.div initial={{
+      opacity: 0,
+      scale: 0.95
+    }} animate={{
+      opacity: 1,
+      scale: 1
+    }} transition={{
+      delay: 0.1,
+      duration: 0.4
+    }} className="module-content" style={{
+      display: "flex",
+      gap: "32px",
+      flexWrap: "wrap",
+      justifyContent: "center"
+    }}>
         {/* Sales Order Card */}
-        <div
-          className="order-type-card"
-          onClick={() => navigate("/erp/customers/select")}
-        >
+        <div className="order-type-card" onClick={() => navigate("/erp/customers/select")}>
           <div className="icon-wrapper sales-icon">
             <ShoppingCart size={36} />
           </div>
@@ -57,10 +58,7 @@ const SelectOrderType = () => {
           <button className="select-btn sales-btn">Select</button>
         </div>
         {/* Purchase Order Card */}
-        <div
-          className="order-type-card"
-          onClick={() => navigate("/erp/vendors/select")}
-        >
+        <div className="order-type-card" onClick={() => navigate("/erp/vendors/select")}>
           <div className="icon-wrapper purchase-icon">
             <PackageOpen size={36} />
           </div>
@@ -192,7 +190,6 @@ const SelectOrderType = () => {
           color: #ffffff;
         }
       `}</style>
-    </motion.div>
-  );
+    </motion.div>;
 };
 export default SelectOrderType;

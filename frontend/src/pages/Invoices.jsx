@@ -38,14 +38,14 @@ const Invoices = () => {
     const isPurchase = order.orderType === "purchase";
     let billToName = isPurchase
       ? order.vendor?.companyName ||
-        order.vendor?.name ||
-        order.vendorName ||
-        "Unassigned"
+      order.vendor?.name ||
+      order.vendorName ||
+      "Unassigned"
       : order.customer?.company ||
-        order.customer?.companyName ||
-        order.customer?.name ||
-        order.customerName ||
-        "Unassigned";
+      order.customer?.companyName ||
+      order.customer?.name ||
+      order.customerName ||
+      "Unassigned";
     let billToEmail = isPurchase
       ? order.vendor?.email || order.vendorEmail || ""
       : order.customer?.email || order.customerEmail || "";
@@ -61,10 +61,9 @@ const Invoices = () => {
     doc.text(`Invoice Number: ${invoiceNum}`, 14, 32);
     doc.text(`Order Number: ${order.orderNumber}`, 14, 38);
     doc.text(
-      `Date: ${
-        order.invoiceDate
-          ? new Date(order.invoiceDate).toLocaleDateString()
-          : new Date(order.createdAt).toLocaleDateString()
+      `Date: ${order.invoiceDate
+        ? new Date(order.invoiceDate).toLocaleDateString()
+        : new Date(order.createdAt).toLocaleDateString()
       }`,
       14,
       44

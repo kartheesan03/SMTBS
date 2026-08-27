@@ -15,9 +15,11 @@ import {
   Send,
   Bell,
   AlertCircle,
+  ListTodo,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import PageHeader from "../components/PageHeader";
+import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 const MyTasks = () => {
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -221,65 +223,42 @@ const MyTasks = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.4 }}
-          className="task-stats"
           style={{ marginBottom: "24px" }}
         >
-          <div className="premium-card stat-card">
-            <div className="stat-icon pending-icon">
-              <Clock size={20} />
-            </div>
-            <div className="stat-info">
-              <span
-                className="stat-value"
-                style={{ color: "var(--text-heading)" }}
-              >
-                {pendingCount}
-              </span>
-              <span className="stat-label">Pending</span>
-            </div>
-          </div>
-          <div className="premium-card stat-card">
-            <div className="stat-icon progress-icon">
-              <PlayCircle size={20} />
-            </div>
-            <div className="stat-info">
-              <span
-                className="stat-value"
-                style={{ color: "var(--text-heading)" }}
-              >
-                {inProgressCount}
-              </span>
-              <span className="stat-label">In Progress</span>
-            </div>
-          </div>
-          <div className="premium-card stat-card">
-            <div className="stat-icon done-icon">
-              <CheckCircle2 size={20} />
-            </div>
-            <div className="stat-info">
-              <span
-                className="stat-value"
-                style={{ color: "var(--text-heading)" }}
-              >
-                {completedCount}
-              </span>
-              <span className="stat-label">Completed</span>
-            </div>
-          </div>
-          <div className="premium-card stat-card">
-            <div className="stat-icon total-icon">
-              <Bell size={20} />
-            </div>
-            <div className="stat-info">
-              <span
-                className="stat-value"
-                style={{ color: "var(--text-heading)" }}
-              >
-                {tasks.length}
-              </span>
-              <span className="stat-label">Total Tasks</span>
-            </div>
-          </div>
+          <StatsGrid columns={4}>
+            <StatsCard
+              title="Total Tasks"
+              value={tasks.length}
+              icon={ListTodo}
+              colorTheme="blue"
+              trendPositive={true}
+              subtext="All assigned tasks"
+            />
+            <StatsCard
+              title="Pending"
+              value={pendingCount}
+              icon={Clock}
+              colorTheme="amber"
+              trendPositive={false}
+              subtext="Awaiting action"
+            />
+            <StatsCard
+              title="In Progress"
+              value={inProgressCount}
+              icon={PlayCircle}
+              colorTheme="teal"
+              trendPositive={true}
+              subtext="Being worked on"
+            />
+            <StatsCard
+              title="Completed"
+              value={completedCount}
+              icon={CheckCircle2}
+              colorTheme="green"
+              trendPositive={true}
+              subtext="Successfully done"
+            />
+          </StatsGrid>
         </motion.div>
       )}
       <motion.div

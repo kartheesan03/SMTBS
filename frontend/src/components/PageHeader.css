@@ -1,26 +1,39 @@
+/* ============================================================
+   PageHeader — Global Standard
+   Target style: Payslips / HRMS reference (Image 2)
+   ============================================================ */
+
 .rd-module-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.rd-module-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
 }
 
 .rd-module-title-row {
   display: flex !important;
   align-items: center !important;
-  gap: 12px !important;
+  gap: 10px !important;
   flex-wrap: nowrap;
 }
 
 .rd-module-title {
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 700;
   color: #0f172a;
   font-family: 'Inter', system-ui, sans-serif;
   margin: 0 !important;
   padding: 0;
-  line-height: 1.2;
+  line-height: 1.25;
   flex-shrink: 0;
+  letter-spacing: -0.3px;
 }
 
 .rd-module-badge {
@@ -28,15 +41,25 @@
   align-items: center;
   align-self: center;
   margin: 0 !important;
-  margin-left: 6px !important;
-  padding: 3px 9px;
-  background: rgba(15, 23, 42, 0.06);
-  color: #0f172a;
+  padding: 2px 8px;
+  background: #f1f5f9;
+  color: #475569;
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.5px;
-  border-radius: 0px;
+  letter-spacing: 0.6px;
+  border-radius: 4px;
   text-transform: uppercase;
   white-space: nowrap;
   flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+  line-height: 1.6;
+}
+
+.rd-module-subtitle {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 5px 0 0 0;
+  line-height: 1.5;
+  font-weight: 400;
+  font-family: 'Inter', system-ui, sans-serif;
 }

@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -8,8 +10,8 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #F8FAFC; /* Light SaaS background */
-  color: #0F172A;
+  background-color: #050510;
+  color: #f8fafc;
   overflow-x: hidden;
 }
 
@@ -25,15 +27,52 @@ body {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background-color: #F8FAFC;
+  background-color: #050510;
+  background-image: url('/smtbms-auth-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-/* ── Minimal background accents ── */
+/* ── Subtle dark overlay to keep card readable ── */
 .auth-bg-grid {
-  display: none;
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 5, 16, 0.55);
+  pointer-events: none;
 }
-.auth-glow-1, .auth-glow-2 {
-  display: none;
+
+/* ── Glow blobs matching landing page ── */
+.auth-glow-1 {
+  display: block;
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.22) 0%, transparent 70%);
+  top: -150px;
+  left: -150px;
+  pointer-events: none;
+  animation: glow-pulse 6s ease-in-out infinite alternate;
+}
+
+.auth-glow-2 {
+  display: block;
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.18) 0%, transparent 70%);
+  bottom: -100px;
+  right: -100px;
+  pointer-events: none;
+  animation: glow-pulse 8s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes glow-pulse {
+  0% { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.2); }
 }
 
 /* ══════════════════════════════════════
@@ -129,17 +168,27 @@ body {
   max-width: 440px;
   max-height: calc(100vh - 80px);
   overflow-y: auto;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  /* Firefox */
   padding: 0;
   animation: fade-in-up 0.6s ease-out forwards;
 }
+
 .auth-card-wrap::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+  display: none;
+  /* Safari and Chrome */
 }
 
 @keyframes fade-in-up {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .auth-card {
@@ -239,7 +288,7 @@ body {
 .auth-input {
   width: 100%;
   height: 44px;
-  background: #ffffff; 
+  background: #ffffff;
   border: 1px solid #CBD5E1;
   border-radius: 8px;
   padding: 0 44px 0 16px;
@@ -281,7 +330,10 @@ body {
   padding: 4px;
   transition: color 0.2s;
 }
-.auth-eye-btn:hover { color: #A1A1AA; }
+
+.auth-eye-btn:hover {
+  color: #A1A1AA;
+}
 
 /* ── Options (Remember / Forgot) ── */
 .auth-options {
@@ -302,7 +354,8 @@ body {
 }
 
 .auth-check-label input[type="checkbox"] {
-  width: 16px; height: 16px;
+  width: 16px;
+  height: 16px;
   accent-color: #4F46E5;
   cursor: pointer;
   border-radius: 4px;
@@ -315,7 +368,10 @@ body {
   text-decoration: none;
   transition: color 0.2s;
 }
-.auth-forgot:hover { color: #4338CA; }
+
+.auth-forgot:hover {
+  color: #4338CA;
+}
 
 /* ── Submit Button ── */
 .auth-submit {
@@ -336,8 +392,15 @@ body {
 .auth-submit:hover:not(:disabled) {
   background-color: #4338CA;
 }
-.auth-submit:active:not(:disabled) { transform: translateY(0); }
-.auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.auth-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 /* ── Divider ── */
 .auth-divider {
@@ -390,14 +453,20 @@ body {
   border-color: #94A3B8;
 }
 
-.auth-social-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.auth-social-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 /* ── Password Row (Register) ── */
 .auth-pw-row {
   display: flex;
   gap: 16px;
 }
-.auth-pw-row .auth-field { flex: 1; }
+
+.auth-pw-row .auth-field {
+  flex: 1;
+}
 
 /* ── Terms (Register) ── */
 .auth-terms-row {
@@ -407,25 +476,32 @@ body {
   margin-bottom: 24px;
   cursor: pointer;
 }
+
 .auth-terms-row input[type="checkbox"] {
-  width: 16px; height: 16px;
+  width: 16px;
+  height: 16px;
   margin-top: 2px;
   accent-color: #8B5CF6;
   cursor: pointer;
   flex-shrink: 0;
   border-radius: 4px;
 }
+
 .auth-terms-row span {
   font-size: 13px;
   color: #A1A1AA;
   line-height: 1.5;
 }
+
 .auth-terms-row a {
   color: #8B5CF6;
   font-weight: 500;
   text-decoration: none;
 }
-.auth-terms-row a:hover { color: #A78BFA; }
+
+.auth-terms-row a:hover {
+  color: #A78BFA;
+}
 
 /* ── Register scroll wrapper ── */
 .auth-card-wrap.register {
@@ -435,7 +511,11 @@ body {
   scrollbar-width: none;
   padding: 0;
 }
-.auth-card-wrap.register::-webkit-scrollbar { display: none; }
+
+.auth-card-wrap.register::-webkit-scrollbar {
+  display: none;
+}
+
 .auth-card-wrap.register .auth-card {
   padding: 48px;
 }
@@ -444,8 +524,20 @@ body {
    RESPONSIVE
 ══════════════════════════════════════ */
 @media (max-width: 640px) {
-  .auth-nav { padding: 24px; }
-  .auth-card { padding: 32px 24px; }
-  .auth-card-wrap.register .auth-card { padding: 32px 24px; }
-  .auth-pw-row { flex-direction: column; gap: 0; }
+  .auth-nav {
+    padding: 24px;
+  }
+
+  .auth-card {
+    padding: 32px 24px;
+  }
+
+  .auth-card-wrap.register .auth-card {
+    padding: 32px 24px;
+  }
+
+  .auth-pw-row {
+    flex-direction: column;
+    gap: 0;
+  }
 }

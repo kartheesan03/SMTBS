@@ -47,13 +47,13 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 color: '#0f172a',
-                                borderRadius: '0px',
-                                marginRight: '2px',
+                                borderRadius: '4px',
+                                marginRight: '6px',
                                 flexShrink: 0,
                             }}
                             title="Go back"
                         >
-                            <ArrowLeft size={24} />
+                            <ArrowLeft size={22} />
                         </button>
                     )}
                     <span
@@ -61,7 +61,7 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                         style={{
                             margin: 0,
                             padding: 0,
-                            lineHeight: 1.2,
+                            lineHeight: 1.25,
                             flexShrink: 0,
                         }}
                     >
@@ -72,25 +72,25 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                     )}
                     {hasInsights && (
                         <div style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '0px',
+                            width: 7,
+                            height: 7,
+                            borderRadius: '50%',
                             background: '#ef4444',
-                            marginLeft: 8,
+                            marginLeft: 6,
                             boxShadow: '0 0 0 2px rgba(239, 68, 68, 0.2)'
                         }} title="Actionable insights available" />
                     )}
                 </div>
                 {subtitle && (
-                    <p style={{ margin: 0, fontSize: 14, color: '#64748b', marginTop: 4 }}>
+                    <p className="rd-module-subtitle">
                         {subtitle}
                     </p>
                 )}
             </div>
             
-            {actions && actions.length > 0 && (
+            {actions && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    {actions.map((action, idx) => {
+                    {Array.isArray(actions) && actions.length > 0 ? actions.map((action, idx) => {
                         const Icon = action.icon;
                         return (
                             <button
@@ -112,7 +112,7 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                                 {action.label}
                             </button>
                         );
-                    })}
+                    }) : (!Array.isArray(actions) && actions)}
                 </div>
             )}
         </div>

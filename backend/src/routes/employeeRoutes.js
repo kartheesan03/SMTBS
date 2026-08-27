@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee, getMe, updateMe } = require('../controllers/employeeController');
+const { getEmployees, getEmployee, createEmployee, updateEmployee, deleteEmployee, getMe, updateMe, updatePerformance } = require('../controllers/employeeController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
     .get(protect, authorize('view_hrms', 'hrms:employeeData:view'), getEmployees)
@@ -12,4 +12,6 @@ router.route('/:id')
     .get(protect, authorize('view_hrms', 'hrms:employeeData:view'), getEmployee)
     .put(protect, authorize('manage_hrms', 'hrms:employeeData:manage'), updateEmployee)
     .delete(protect, authorize('manage_hrms', 'hrms:employeeData:manage'), deleteEmployee);
+router.route('/:id/performance')
+    .put(protect, authorize('manage_hrms', 'hrms:employeeData:manage'), updatePerformance);
 module.exports = router;

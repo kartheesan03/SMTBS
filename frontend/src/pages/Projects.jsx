@@ -533,10 +533,10 @@ const Projects = () => {
                     <div style={{ fontSize: 13, color: "#334155", fontWeight: 600 }}>
                       {project.deadline
                         ? new Date(project.deadline).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
                         : "Not set"}
                     </div>
                   </div>

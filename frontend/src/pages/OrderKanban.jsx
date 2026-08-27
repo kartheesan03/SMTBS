@@ -612,8 +612,8 @@ const OrderKanban = () => {
                             <span style={{ fontWeight: 500, color: "#475569" }}>
                               {item.deliveryEta
                                 ? new Date(
-                                    item.deliveryEta
-                                  ).toLocaleDateString()
+                                  item.deliveryEta
+                                ).toLocaleDateString()
                                 : "N/A"}
                             </span>
                           </div>

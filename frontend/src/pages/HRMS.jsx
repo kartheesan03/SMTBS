@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import API from "../api/axios";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 import StandardPageLayout from "../components/StandardPageLayout/StandardPageLayout";
+import PageHeader from "../components/PageHeader";
 import UserAvatar from "../components/UserAvatar";
 import EmailCell from "../components/ui/EmailCell";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
@@ -154,14 +155,11 @@ const HRMS = () => {
     >
       <div className="rd-content">
         {/* Module Header */}
-        <div className="rd-module-header">
-          <div className="rd-module-info">
-            <div className="rd-module-title-row">
-              <span className="rd-module-title">Employee Directory</span>
-              <span className="rd-module-badge">HRMS</span>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Employee Directory"
+          badge="HRMS"
+          subtitle="View, manage, and organize your full workforce across all departments."
+        />
         {/* KPI Cards — Real Data */}
         {/* Employee Roster Strip */}
         <StatsGrid>
@@ -338,9 +336,8 @@ const HRMS = () => {
                           }}
                         >
                           <UserAvatar
-                            name={`${emp.firstName || ""} ${
-                              emp.lastName || ""
-                            }`.trim()}
+                            name={`${emp.firstName || ""} ${emp.lastName || ""
+                              }`.trim()}
                             size={32}
                             fontSize={12}
                           />
@@ -351,9 +348,8 @@ const HRMS = () => {
                                 color: "var(--rd-text-main)",
                               }}
                             >
-                              {`${emp.firstName || ""} ${
-                                emp.lastName || ""
-                              }`.trim()}
+                              {`${emp.firstName || ""} ${emp.lastName || ""
+                                }`.trim()}
                             </div>
                             <div
                               style={{

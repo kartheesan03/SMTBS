@@ -1,5 +1,10 @@
 import React from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+
+/**
+ * StatsCard — KPI card matching the Admin Dashboard bx-kpi-card visual style.
+ * Circular colored icon, label, bold value, and colored trend row.
+ */
 export const StatsCard = ({ 
     title,
     label, 
@@ -29,76 +34,115 @@ export const StatsCard = ({
     if (!cardSubtext && trend) {
         cardSubtext = 'vs last period';
     }
-    
-    // In this minimal design, we don't use colorTheme heavily for icons, just a nice slate blue/gray
-    const iconColor = '#64748b'; // Tailwind slate-500
+
+    // Map colorTheme to bx-kpi-icon colors
+    const getTheme = (theme) => {
+        const t = (theme || 'blue').toLowerCase();
+        if (t === 'blue' || t === 'primary')    return { bg: '#eff6ff', color: '#3b82f6' };
+        if (t === 'green' || t === 'emerald' || t === 'mint' || t === 'success')
+                                                 return { bg: '#f0fdf4', color: '#22c55e' };
+        if (t === 'orange' || t === 'warning')   return { bg: '#fff7ed', color: '#f97316' };
+        if (t === 'amber' || t === 'yellow')     return { bg: '#fffbeb', color: '#f59e0b' };
+        if (t === 'purple' || t === 'violet')    return { bg: '#fdf4ff', color: '#d946ef' };
+        if (t === 'teal' || t === 'cyan')        return { bg: '#f0fdfa', color: '#14b8a6' };
+        if (t === 'pink' || t === 'rose')        return { bg: '#fdf2f8', color: '#ec4899' };
+        if (t === 'red' || t === 'danger')       return { bg: '#fef2f2', color: '#ef4444' };
+        return { bg: '#eff6ff', color: '#3b82f6' };
+    };
+
+    const theme = getTheme(colorTheme || color);
 
     return (
-        <div 
+        <div
             onClick={onClick}
+            className="kpi-panel-standard"
             style={{
                 background: '#ffffff',
-                border: '1px solid #e2e8f0', // Tailwind slate-200
-                borderRadius: '8px',
-                padding: '16px 20px',
+                border: '1px solid #e9edf3',
+                borderRadius: '12px',
+                padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
                 cursor: onClick ? 'pointer' : 'default',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
-                position: 'relative',
+                transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                 minWidth: 0,
             }}
-            className="kpi-panel-standard"
         >
-            {/* Top row: Icon + Title */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            {/* Top: circular icon + label */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                 {Icon && (
-                    <div style={{ display: 'flex', alignItems: 'center', color: iconColor }}>
-                        <Icon size={16} strokeWidth={2} />
+                    <div style={{
+                        width: '30px',
+                        height: '30px',
+                        borderRadius: '50%',
+                        background: theme.bg,
+                        color: theme.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                    }}>
+                        <Icon size={14} strokeWidth={2} />
                     </div>
                 )}
-                <div style={{ 
-                    fontSize: '11px', 
-                    fontWeight: 600, 
-                    color: '#64748b', // Tailwind slate-500
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    lineHeight: 1
+                <span style={{
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    color: '#64748b',
+                    lineHeight: 1.3,
                 }}>
                     {cardTitle}
-                </div>
+                </span>
             </div>
 
-            {/* Middle row: Value */}
-            <div style={{ 
-                fontSize: '28px', 
-                fontWeight: 700, 
-                color: '#0f172a', // Tailwind slate-900
-                fontVariantNumeric: 'tabular-nums', 
-                lineHeight: 1.2,
-                marginBottom: '8px',
+            {/* Value */}
+            <div style={{
+                fontSize: '28px',
+                fontWeight: 700,
+                color: '#0f172a',
+                fontVariantNumeric: 'tabular-nums',
+                lineHeight: 1,
+                marginBottom: '10px',
                 fontFamily: "'Inter', sans-serif",
-                letterSpacing: '-0.02em'
+                letterSpacing: '-0.02em',
             }}>
                 {value}
             </div>
 
-            {/* Bottom row: Subtext */}
-            {cardSubtext && (
-                <div style={{ 
-                    fontSize: '12px', 
-                    color: '#64748b', 
-                    fontWeight: 400,
+            {/* Trend row */}
+            {(cardTrend || cardSubtext) && (
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '3px',
+                    fontSize: '12px',
+                    fontWeight: 500,
                 }}>
-                    {cardSubtext}
+                    {cardTrend ? (
+                        <span style={{
+                            color: trendPositive ? '#22c55e' : '#ef4444',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1px',
+                        }}>
+                            {trendPositive
+                                ? <ArrowUpRight size={13} strokeWidth={2.5} />
+                                : <ArrowDownRight size={13} strokeWidth={2.5} />
+                            }
+                            {cardTrend}
+                        </span>
+                    ) : null}
+                    {cardSubtext && (
+                        <span style={{ color: '#94a3b8', fontWeight: 400 }}>{cardSubtext}</span>
+                    )}
                 </div>
             )}
-            
+
             <style>{`
                 .kpi-panel-standard:hover {
                     border-color: #cbd5e1;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
                 }
             `}</style>
         </div>
@@ -125,6 +169,7 @@ export const StatsGrid = ({ children, columns, style, className = '' }) => {
                     .minimal-stat-grid { grid-template-columns: repeat(2, 1fr); }
                 }
                 @media (min-width: 1024px) {
+                    .minimal-stat-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
                     .minimal-stat-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
                     .minimal-stat-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
                     .minimal-stat-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
@@ -133,7 +178,7 @@ export const StatsGrid = ({ children, columns, style, className = '' }) => {
             `}</style>
             {validChildren.map((child) => {
                 const { featured, colorTheme, color, ...cleanProps } = child.props;
-                return React.cloneElement(child, cleanProps);
+                return React.cloneElement(child, { ...cleanProps, colorTheme, color });
             })}
         </div>
     );

@@ -48,8 +48,7 @@ const Payslips = () => {
     try {
       setDownloading(true);
       const employeeName = record.employee
-        ? `${record.employee.firstName || ""} ${
-            record.employee.lastName || ""
+        ? `${record.employee.firstName || ""} ${record.employee.lastName || ""
           }`.trim()
         : "Employee";
       await generatePayslipPDF(record, employeeName);
@@ -156,8 +155,7 @@ const Payslips = () => {
                   <tbody>
                     {history.map((s) => {
                       const employeeName = s.employee
-                        ? `${s.employee.firstName || ""} ${
-                            s.employee.lastName || ""
+                        ? `${s.employee.firstName || ""} ${s.employee.lastName || ""
                           }`.trim()
                         : "Unknown";
                       const employeeId = s.employee?.employeeId || "—";
@@ -332,8 +330,7 @@ const Payslips = () => {
                     <span className="info-label">Name</span>
                     <span className="info-value">
                       {selectedPayslip.employee
-                        ? `${selectedPayslip.employee.firstName || ""} ${
-                            selectedPayslip.employee.lastName || ""
+                        ? `${selectedPayslip.employee.firstName || ""} ${selectedPayslip.employee.lastName || ""
                           }`.trim()
                         : "N/A"}
                     </span>

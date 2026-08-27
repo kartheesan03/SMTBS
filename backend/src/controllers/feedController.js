@@ -236,15 +236,26 @@ const deletePost = async (req, res) => {
             return res.status(404).json({ message: 'Post not found' });
         }
         
-        if (post.authorId !== req.user.id && req.user.role !== 'Admin' && req.user.role !== 'Super Admin') {
+        if (String(post.authorId) !== String(req.user.id) && req.user.role !== 'Admin' && req.user.role !== 'Super Admin') {
             return res.status(403).json({ message: 'Not authorized to delete this post' });
+        }
+
+        // Manually delete associations to prevent foreign key constraint errors
+        await PostComment.sequelizeModel.destroy({ where: { postId: post.id } });
+        await PostLike.sequelizeModel.destroy({ where: { postId: post.id } });
+        await PostRepost.sequelizeModel.destroy({ where: { postId: post.id } });
+        await SavedPost.sequelizeModel.destroy({ where: { postId: post.id } });
+        
+        if (PostAcknowledgement && PostAcknowledgement.sequelizeModel) {
+            await PostAcknowledgement.sequelizeModel.destroy({ where: { postId: post.id } });
         }
 
         await post.destroy();
         res.json({ message: 'Post removed' });
     } catch (error) {
         console.error('Error deleting post:', error);
-        res.status(500).json({ message: 'Server error' });
+        require('fs').writeFileSync('deletePostError.log', String(error.stack || error));
+        res.status(500).json({ message: 'Server error', error: String(error) });
     }
 };
 
