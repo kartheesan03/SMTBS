@@ -126,10 +126,11 @@ const fs = require('fs');
 
 const startServer = async () => {
     try {
+        console.log('[Backend] Node.js + Express starting...');
         await connectDB();
         const gpsSimulator = require('./src/services/gpsSimulator');
         app.listen(PORT, '0.0.0.0', () => {
-            console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+            console.log(`[Backend] Server running on port ${PORT}`);
             
             try {
                 gpsSimulator.start();
@@ -151,7 +152,7 @@ const startServer = async () => {
                 const freePortServer = require('net').createServer().listen(0, () => {
                     const ocrPort = freePortServer.address().port;
                     freePortServer.close(() => {
-                        console.log(`Starting OCR Service using ${pythonExe} on port ${ocrPort}...`);
+                        console.log(`[OCR] Starting OCR microservice on internal port ${ocrPort}...`);
                         process.env.OCR_SERVICE_URL = `http://127.0.0.1:${ocrPort}`;
                         
                         const ocrProcess = spawn(pythonExe, [pyScript], {

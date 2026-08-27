@@ -315,6 +315,8 @@ const connectDB = async () => {
             }
         } catch (syncError) {
             console.warn(`[Sync] Alter sync failed, falling back to standard sync: ${syncError.message}`);
+            if (syncError.errors) console.warn(JSON.stringify(syncError.errors, null, 2));
+            if (syncError.original) console.warn(syncError.original);
             if (dialect === 'sqlite') await sequelize.sync();
         }
         
