@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
-# Install native build tools required to compile sqlite3 from source on Alpine (musl libc)
-RUN apk add --no-cache python3 make g++ sqlite-dev
+# Install native build tools and system dependencies required for SQLite and OCR
+RUN apk add --no-cache python3 py3-pip make g++ sqlite-dev libmagic file tesseract-ocr tesseract-ocr-data-eng
 
 WORKDIR /app
 COPY package*.json ./
@@ -10,5 +10,11 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY . .
+
+# Set up Python virtual environment and install OCR dependencies
+RUN python3 -m venv /app/ocr_service/venv
+ENV PATH="/app/ocr_service/venv/bin:$PATH"
+RUN pip3 install --no-cache-dir -r /app/ocr_service/requirements.txt
+
 EXPOSE 5000
 CMD ["npm", "start"]

@@ -143,10 +143,15 @@ const startServer = async () => {
                 const ocrDir = path.join(__dirname, 'ocr_service');
                 const pyScript = path.join(ocrDir, 'main.py');
                 let pythonExe = 'python';
+                const winVenvExe = path.join(ocrDir, 'venv', 'Scripts', 'python.exe');
+                const linuxVenvExe = path.join(ocrDir, 'venv', 'bin', 'python3');
                 
-                const venvExe = path.join(ocrDir, 'venv', 'Scripts', 'python.exe');
-                if (fs.existsSync(venvExe)) {
-                    pythonExe = venvExe;
+                if (fs.existsSync(winVenvExe)) {
+                    pythonExe = winVenvExe;
+                } else if (fs.existsSync(linuxVenvExe)) {
+                    pythonExe = linuxVenvExe;
+                } else if (process.platform !== 'win32') {
+                    pythonExe = 'python3';
                 }
 
                 const freePortServer = require('net').createServer().listen(0, () => {
