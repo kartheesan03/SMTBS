@@ -139,5 +139,17 @@ const MaterialSequelize = sequelize.define('Material', {
         defaultValue: null
     }
 });
+const socket = require('../socket');
+
+MaterialSequelize.addHook('afterCreate', (instance, options) => {
+    try { socket.getIO().emit('erp_update', { module: 'materials', action: 'create', data: instance.toJSON() }); } catch (e) {}
+});
+MaterialSequelize.addHook('afterUpdate', (instance, options) => {
+    try { socket.getIO().emit('erp_update', { module: 'materials', action: 'update', data: instance.toJSON() }); } catch (e) {}
+});
+MaterialSequelize.addHook('afterDestroy', (instance, options) => {
+    try { socket.getIO().emit('erp_update', { module: 'materials', action: 'destroy', data: instance.toJSON() }); } catch (e) {}
+});
+
 const Material = makeBridgedModel('Material', MaterialSequelize);
 module.exports = Material;

@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   HelpCircle,
   X,
+  Trash2
 } from "lucide-react";
 import API from "../api/axios";
 import "./RolesPermissions.css";
@@ -143,7 +144,7 @@ const RolesPermissions = () => {
                   </div>
                   <div className="rp-card-title">
                     <h4>{role.name}</h4>
-                    <span>{perms.length} Permissions</span>
+                    <span>{perms.length} {perms.length === 1 ? 'Permission' : 'Permissions'}</span>
                   </div>
                 </div>
                 <div className="rp-card-body">
@@ -157,14 +158,11 @@ const RolesPermissions = () => {
                       </span>
                     )}
                     {!isInvalid &&
-                      perms.slice(0, 5).map((perm, i) => (
+                      perms.map((perm, i) => (
                         <span key={i} className="rp-tag">
                           {perm}
                         </span>
                       ))}
-                    {perms.length > 5 && (
-                      <span className="rp-tag">+{perms.length - 5} more</span>
-                    )}
                   </div>
                 </div>
                 <div className="rp-card-footer">
@@ -174,12 +172,33 @@ const RolesPermissions = () => {
                   >
                     View Access <ArrowRight size={14} />
                   </button>
-                  <button
-                    className="rp-btn-outline"
-                    onClick={() => openEditModal(role)}
-                  >
-                    Edit
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      className="rp-btn-outline"
+                      onClick={() => openEditModal(role)}
+                    >
+                      Edit
+                    </button>
+                    {!['Super Admin', 'Admin', 'Employee', 'Customer', 'Vendor', 'HR', 'Manager', 'Sales'].includes(role.name) && (
+                      <button
+                        className="rp-btn-outline"
+                        style={{ color: '#ef4444', borderColor: '#fee2e2' }}
+                        onClick={async () => {
+                          if (window.confirm(`Are you sure you want to delete the ${role.name} role?`)) {
+                            try {
+                              await API.delete(`/roles/${role._id || role.id}`);
+                              toast.success('Role deleted successfully');
+                              fetchRoles();
+                            } catch (e) {
+                              toast.error(e.response?.data?.message || 'Failed to delete role');
+                            }
+                          }
+                        }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );

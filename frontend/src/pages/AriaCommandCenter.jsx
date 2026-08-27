@@ -23,9 +23,10 @@ import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
 import { AriaContext } from '../context/AriaContext';
 import { toast } from 'react-hot-toast';
-import AriaVisualizer from '../components/ui/AriaVisualizer';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { io } from 'socket.io-client';
+import DynamicRenderer from '../components/DynamicRenderer';
 import './AriaCommandCenter.css';
 
 const StreamingText = ({ content, isStreaming, onComplete, className }) => {
@@ -60,12 +61,13 @@ const StreamingText = ({ content, isStreaming, onComplete, className }) => {
     );
 };
 
+// DynamicTable removed, moved to DynamicRenderer.jsx
+
 const AriaCommandCenter = () => {
     const { user } = useContext(AuthContext);
     const { isOpen, isMaximized, toggleMaximize, minimizeAria, closeAria } = useContext(AriaContext);
     const navigate = useNavigate();
     
-    // State
     const [input, setInput] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     
@@ -97,25 +99,85 @@ const AriaCommandCenter = () => {
     const fileInputRef = useRef(null);
     const inputRef = useRef(null);
     const endOfThreadRef = useRef(null);
+    const socketRef = useRef(null);
 
-    // Save to local storage
     useEffect(() => {
         localStorage.setItem('aria_intelligence_history', JSON.stringify(analyses));
     }, [analyses]);
 
-    // Auto focus input
+    useEffect(() => {
+        // Initialize WebSocket connection
+        socketRef.current = io(window.location.origin.replace('3000', '5000'), {
+            withCredentials: true,
+            transports: ['websocket', 'polling']
+        });
+
+        socketRef.current.on('erp_update', (data) => {
+            // When an ERP update happens, we could re-trigger the active query
+            // if it matches the module that was updated.
+            console.log('Real-time ERP update received:', data);
+            
+            setAnalyses(prev => {
+                const active = prev.find(a => a.id === activeAnalysisId);
+                if (active && active.threads.length > 0) {
+                    const lastThread = active.threads[active.threads.length - 1];
+                    // Very simplified logic: if the last thread's query is somewhat related to the update type
+                    // In a production app, we would track subscriptions or the current visible tool's data type.
+                    if (lastThread.status === 'complete' && 
+                        (lastThread.category?.toLowerCase() === data.module || 
+                         lastThread.query?.toLowerCase().includes(data.module))) {
+                        // Re-trigger silently
+                        // To keep this pure, we'd dispatch an event or call a function outside this setter.
+                        // For now we'll dispatch a custom window event to handle it outside
+                        window.dispatchEvent(new CustomEvent('aria_refresh_active_query', { detail: { queryText: lastThread.query, analysisId: activeAnalysisId } }));
+                    }
+                }
+                return prev;
+            });
+        });
+
+        return () => {
+            if (socketRef.current) socketRef.current.disconnect();
+        };
+    }, [activeAnalysisId]);
+
+    useEffect(() => {
+        const handleSilentRefresh = async (e) => {
+            const { queryText, analysisId } = e.detail;
+            if (queryText && analysisId) {
+                // Silently refresh data
+                try {
+                    const res = await API.post('/assistant/query', {
+                        message: queryText,
+                        history: getChatHistory(analysisId)
+                    });
+                    const data = res.data;
+                    const intelligence = {
+                        title: data.title || 'INTELLIGENCE',
+                        insight: data.reply || 'Data retrieved.',
+                        isStreaming: false, // Don't stream on refresh
+                        visualData: data
+                    };
+                    updateLastThread(analysisId, { status: 'complete', intelligence });
+                } catch (error) {
+                    console.error("Silent refresh failed", error);
+                }
+            }
+        };
+        window.addEventListener('aria_refresh_active_query', handleSilentRefresh);
+        return () => window.removeEventListener('aria_refresh_active_query', handleSilentRefresh);
+    }, [analyses]);
+
     useEffect(() => {
         if (inputRef.current) {
             inputRef.current.focus();
         }
     }, [activeAnalysisId]);
 
-    // Auto-scroll to bottom of thread
     useEffect(() => {
         endOfThreadRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [activeAnalysis?.threads, isAnalyzing]);
 
-    // Auto-resize textarea
     useEffect(() => {
         if (inputRef.current) {
             inputRef.current.style.height = '24px';
@@ -135,8 +197,10 @@ const AriaCommandCenter = () => {
         if (text.includes('order')) return 'Orders';
         if (text.includes('stock') || text.includes('inventory')) return 'Inventory';
         if (text.includes('sale') || text.includes('revenue')) return 'Sales';
-        if (text.includes('employee') || text.includes('attendance')) return 'HR';
-        if (text.includes('document') || text.includes('invoice') || text.includes('receipt')) return 'Documents';
+        if (text.includes('employee') || text.includes('attendance') || text.includes('payroll')) return 'HR';
+        if (text.includes('customer')) return 'Customers';
+        if (text.includes('document') || text.includes('invoice') || text.includes('receipt') || text.includes('ocr')) return 'Documents';
+        if (text.includes('material')) return 'Materials';
         return 'General';
     };
 
@@ -192,6 +256,17 @@ const AriaCommandCenter = () => {
         });
     };
 
+    const getChatHistory = (analysisId) => {
+        const analysis = analyses.find(a => a.id === analysisId);
+        if (!analysis) return [];
+        let history = [];
+        analysis.threads.forEach(t => {
+            if (t.query) history.push({ role: 'user', content: t.query });
+            if (t.intelligence && t.intelligence.insight) history.push({ role: 'assistant', content: t.intelligence.insight });
+        });
+        return history;
+    };
+
     const generateIntelligenceReport = async (queryText, currentAnalysisId) => {
         const threadId = 't_' + Date.now();
         const newThread = {
@@ -202,24 +277,21 @@ const AriaCommandCenter = () => {
         };
         
         const analysisId = createOrUpdateAnalysis(newThread, currentAnalysisId);
+        const history = getChatHistory(analysisId);
 
         try {
-            const res = await API.post('/chat', {
+            const res = await API.post('/assistant/query', {
                 message: queryText,
-                history: [],
-                context: null
+                history: history
             });
 
-            const category = determineCategory(queryText);
+            const data = res.data;
             
             const intelligence = {
-                title: `${category.toUpperCase()} INTELLIGENCE`,
-                metrics: res.data.metrics || [],
-                visualData: res.data.visualData,
-                insight: res.data.reply,
-                whyItMatters: res.data.whyItMatters || "This affects operational throughput.",
-                action: getRecommendedAction(queryText, res.data.visualData),
-                isStreaming: true
+                title: data.title || 'INTELLIGENCE',
+                insight: data.reply || 'Data retrieved.',
+                isStreaming: true,
+                visualData: data // Pass all structured data directly to the renderer
             };
 
             updateLastThread(analysisId, { status: 'complete', intelligence });
@@ -228,7 +300,7 @@ const AriaCommandCenter = () => {
             console.error("Aria error:", error);
             updateLastThread(analysisId, { 
                 status: 'error', 
-                error: "Intelligence generation failed." 
+                error: "Aria is temporarily unavailable. Please try again." 
             });
         } finally {
             setIsAnalyzing(false);
@@ -277,17 +349,13 @@ const AriaCommandCenter = () => {
 
             const intelligence = {
                 title: 'DOCUMENT INTELLIGENCE',
-                metrics: [`File: ${file.name}`, `Type: Receipt/Invoice`],
+                insight: `Document processed successfully.`,
+                isStreaming: true,
                 visualData: res.data ? {
                     type: 'document_extraction',
                     modelName: file.name,
                     data: res.data
-                } : null,
-                insight: `Document processed successfully.`,
-                whyItMatters: "Digitizing enables automated reconciliation.",
-                action: { label: "Process Invoice", path: null },
-                isStreaming: true,
-                isDocument: true
+                } : null
             };
 
             updateLastThread(analysisId, { status: 'complete', intelligence });
@@ -304,27 +372,6 @@ const AriaCommandCenter = () => {
         }
     };
 
-    const getRecommendedAction = (queryText, visualData) => {
-        const text = queryText.toLowerCase();
-        if (text.includes("order")) return { label: "Open Orders", path: "/orders/purchase" };
-        if (text.includes("sales")) return { label: "Create Invoice", path: "/orders/create/sales" };
-        if (text.includes("inventory")) return { label: "Manage Inventory", path: "/materials" };
-        return { label: "Export Report", path: null };
-    };
-
-    const handleActionClick = (action, visualData) => {
-        if (action.path) {
-            navigate(action.path);
-        } else {
-            toast.success(`${action.label} initiated`);
-        }
-    };
-
-    const clearAllAnalyses = () => {
-        setAnalyses([]);
-        setActiveAnalysisId(null);
-    };
-
     const deleteAnalysis = (id, e) => {
         e.stopPropagation();
         setAnalyses(prev => prev.filter(a => a.id !== id));
@@ -333,23 +380,11 @@ const AriaCommandCenter = () => {
 
     const handleCategoryClick = async (category) => {
         if (isAnalyzing) return;
-        let queryText = `Analyze ${category}`;
+        let queryText = `Show ${category.toLowerCase()}`;
         setIsAnalyzing(true);
-        const newThread = { id: 't_' + Date.now(), query: queryText, status: 'loading' };
-        const analysisId = createOrUpdateAnalysis(newThread, null);
-        await generateIntelligenceReport(queryText, analysisId);
-    };
-
-    const getContextForCategory = (category) => {
-        const contexts = {
-            'Orders': { title: 'Order Fulfillment', tags: ['Pending', 'Completed'], filters: ['Date', 'Status'] },
-            'Inventory': { title: 'Stock Levels', tags: ['Low Stock', 'Critical'], filters: ['Warehouse', 'Category'] },
-            'Sales': { title: 'Revenue Tracking', tags: ['Q3 Goals', 'High Value'], filters: ['Region', 'Product'] },
-            'HR': { title: 'Workforce', tags: ['Attendance', 'Leaves'], filters: ['Department', 'Role', 'Status'] },
-            'Documents': { title: 'Data Extraction', tags: ['OCR', 'Validation'], filters: ['Type', 'Confidence', 'Date'] },
-            'General': { title: 'General Operations', tags: ['Overview'], filters: ['Timeframe'] }
-        };
-        return contexts[category] || contexts['General'];
+        // Do not create a thread here, just clear active analysis and let generateIntelligenceReport create it
+        setActiveAnalysisId(null);
+        await generateIntelligenceReport(queryText, null);
     };
 
     if (!isOpen) return null;
@@ -375,7 +410,7 @@ const AriaCommandCenter = () => {
                         <button className="aria-console-new-btn" onClick={handleNewAnalysis}><Plus size={14} /> New Analysis</button>
                         <div className="aria-console-nav-section">
                             <h3>CATEGORIES</h3>
-                            {['Orders', 'Inventory', 'Sales', 'Customers', 'Employees', 'Documents', 'OCR'].map(cat => (
+                            {['Orders', 'Inventory', 'Sales', 'Customers', 'Employees'].map(cat => (
                                 <button key={cat} className="nav-item" onClick={() => handleCategoryClick(cat)}>{cat}</button>
                             ))}
                         </div>
@@ -407,7 +442,7 @@ const AriaCommandCenter = () => {
                                         {thread.status === 'loading' && (
                                             <div className="chat-message bot thread-loading">
                                                 <div className="loading-spinner"></div>
-                                                Thinking...
+                                                Aria is checking your data...
                                             </div>
                                         )}
                                         {thread.status === 'error' && (
@@ -417,8 +452,15 @@ const AriaCommandCenter = () => {
                                         )}
                                         {thread.status === 'complete' && (
                                             <div className="chat-message bot intelligence-report">
-                                                <AriaVisualizer visualData={thread.intelligence.visualData} />
                                                 <StreamingText content={thread.intelligence.insight} isStreaming={thread.intelligence.isStreaming} />
+                                                {thread.intelligence.visualData && thread.intelligence.visualData.type && thread.intelligence.visualData.type !== 'document_extraction' && (
+                                                    <DynamicRenderer data={thread.intelligence.visualData} />
+                                                )}
+                                                {thread.intelligence.visualData?.type === 'document_extraction' && (
+                                                    <div className="document-extraction-results">
+                                                        <pre>{JSON.stringify(thread.intelligence.visualData.data, null, 2)}</pre>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -467,12 +509,11 @@ const AriaCommandCenter = () => {
                         </div>
                         
                         <div className="composer-commands">
-                            <button onClick={() => { setInput("/orders "); inputRef.current?.focus(); }}>/orders</button>
-                            <button onClick={() => { setInput("/inventory "); inputRef.current?.focus(); }}>/inventory</button>
-                            <button onClick={() => { setInput("/sales "); inputRef.current?.focus(); }}>/sales</button>
-                            <button onClick={() => { setInput("/customers "); inputRef.current?.focus(); }}>/customers</button>
-                            <button onClick={() => { setInput("/employees "); inputRef.current?.focus(); }}>/employees</button>
-                            <button onClick={() => fileInputRef.current?.click()}>/ocr</button>
+                            <button onClick={() => { setInput("Show orders "); inputRef.current?.focus(); }}>orders</button>
+                            <button onClick={() => { setInput("Show inventory "); inputRef.current?.focus(); }}>inventory</button>
+                            <button onClick={() => { setInput("Show sales "); inputRef.current?.focus(); }}>sales</button>
+                            <button onClick={() => { setInput("Show customers "); inputRef.current?.focus(); }}>customers</button>
+                            <button onClick={() => { setInput("Show employees "); inputRef.current?.focus(); }}>employees</button>
                         </div>
                     </div>
                 </div>

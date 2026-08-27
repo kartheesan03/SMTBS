@@ -529,7 +529,7 @@ const DocumentIntelligence = () => {
               onClick={handleBack}
               style={{ marginRight: 4 }}
             >
-              <ArrowLeft size={14} /> Back
+              <Upload size={14} /> Upload Another Document
             </button>
             <div className="ocr-top-bar-divider" />
 
@@ -648,7 +648,7 @@ const DocumentIntelligence = () => {
 
                 {(extractionData.sections || []).length === 0 && (
                   <div style={{ padding: "40px", textAlign: "center", color: "var(--ink-soft)", fontSize: 13, background: "var(--paper)", borderRadius: "var(--radius)", border: "1px solid var(--line)" }}>
-                    No structured data was detected. The document may be empty or unreadable.
+                    No readable text was detected in this document.
                   </div>
                 )}
 
@@ -686,7 +686,30 @@ const DocumentIntelligence = () => {
                 ))}
 
                 {/* bottom spacer */}
-                <div style={{ height: 8 }} />
+                <div style={{ height: 24 }} />
+                
+                {/* Raw Text Section */}
+                {extractionData.rawText && (
+                  <div className="ocr-section-card">
+                    <div className="ocr-section-card-header">
+                      <div className="ocr-section-card-title">
+                        Raw Extracted Text
+                        <span className="ocr-section-type-badge">Text</span>
+                      </div>
+                      <div className="ocr-section-actions">
+                        <button className="btn btn-outline btn-xs" onClick={() => {
+                          navigator.clipboard.writeText(extractionData.rawText);
+                          toast.success("Copied to clipboard!");
+                        }}>
+                          Copy Text
+                        </button>
+                      </div>
+                    </div>
+                    <div style={{ padding: "16px", fontSize: "13px", color: "var(--ink-main)", whiteSpace: "pre-wrap", fontFamily: "monospace", background: "var(--paper)", borderTop: "1px solid var(--line)" }}>
+                      {extractionData.rawText}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

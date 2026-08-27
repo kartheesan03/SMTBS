@@ -74,18 +74,131 @@ def clean_ocr_text(text: str) -> str:
     
     return text.strip()
 
+def preprocess_image(img_path: str) -> str:
+    """Preprocess image for better OCR results."""
+    t0 = time.time()
+    try:
+        import cv2
+        import numpy as np
+        from PIL import Image, ImageOps
+
+        # 1. EXIF Correction (using PIL)
+        try:
+            with Image.open(img_path) as pil_img:
+                pil_img = ImageOps.exif_transpose(pil_img)
+                # Save to a temporary path if EXIF correction changed the image
+                # To be safe, just save it out so OpenCV reads the corrected version
+                ext = os.path.splitext(img_path)[1]
+                temp_path = img_path.replace(ext, f"_exif{ext}")
+                pil_img.save(temp_path)
+                img_path = temp_path
+                logger.info("[PREPROCESS] EXIF orientation corrected.")
+        except Exception as e:
+            logger.warning(f"[PREPROCESS] EXIF correction skipped or failed: {e}")
+
+        # 2. Read with OpenCV
+        img = cv2.imread(img_path)
+        if img is None:
+            logger.error("cv2.imread failed to load image.")
+            return img_path
+
+        # 3. Detect Rotation (pytesseract OSD)
+        try:
+            import pytesseract
+            osd = pytesseract.image_to_osd(img)
+            rot_match = re.search(r'Rotate: (\d+)', str(osd))
+            if rot_match:
+                angle = int(rot_match.group(1))
+                if angle == 90:
+                    img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+                elif angle == 180:
+                    img = cv2.rotate(img, cv2.ROTATE_180)
+                elif angle == 270:
+                    img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                if angle in [90, 180, 270]:
+                    logger.info(f"[PREPROCESS] Rotated image by {angle} degrees.")
+        except Exception as e:
+            logger.warning(f"[PREPROCESS] Rotation detection skipped: {e}")
+
+        # Convert to grayscale
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        # 4. Deskewing
+        try:
+            # Threshold to find text contours
+            _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+            coords = np.column_stack(np.where(thresh > 0))
+            angle = cv2.minAreaRect(coords)[-1]
+            
+            # minAreaRect returns angle in range [-90, 0)
+            if angle < -45:
+                angle = -(90 + angle)
+            else:
+                angle = -angle
+
+            if -15 <= angle <= 15 and abs(angle) > 0.5: # only deskew if reasonable angle and not ~0
+                (h, w) = img.shape[:2]
+                center = (w // 2, h // 2)
+                M = cv2.getRotationMatrix2D(center, angle, 1.0)
+                img = cv2.warpAffine(img, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                logger.info(f"[PREPROCESS] Deskewed image by {angle:.2f} degrees.")
+        except Exception as e:
+            logger.warning(f"[PREPROCESS] Deskewing failed: {e}")
+
+        # 5. Denoising
+        gray = cv2.fastNlMeansDenoising(gray, None, 10, 7, 21)
+
+        # 6. Contrast Enhancement (CLAHE)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        enhanced = clahe.apply(gray)
+        
+        # 7. Adaptive Thresholding (useful for shadows)
+        # We only apply this if contrast is low or text is very faint. 
+        # For simplicity and reliability on receipts, adaptive thresholding is often a net positive.
+        # But it can destroy images if used blindly, so we'll use a conservative approach or stick to enhanced.
+        # Let's apply a slight sharpening filter instead for blurry text
+        laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
+        if laplacian_var < 100: # Blur detected
+            kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+            enhanced = cv2.filter2D(enhanced, -1, kernel)
+            logger.info(f"[PREPROCESS] Applied sharpening (laplacian variance: {laplacian_var:.1f}).")
+
+        ext = os.path.splitext(img_path)[1]
+        out_path = img_path.replace(ext, f"_preproc{ext}")
+        cv2.imwrite(out_path, enhanced)
+        
+        # Clean up the intermediate EXIF file if we created one
+        if "_exif" in img_path and os.path.exists(img_path):
+            try: os.remove(img_path)
+            except: pass
+            
+        logger.info(f"[PREPROCESS] Image preprocessing took {time.time()-t0:.2f}s")
+        return out_path
+    except Exception as e:
+        logger.error(f"[PREPROCESS] Preprocessing failed: {e}")
+        return img_path
+
 def _ocr_image_elements(img_path: str, page_num: int = 1) -> list:
     """Run OCR and return structured bounding box elements."""
     t0 = time.time()
     logger.info(f"[TIMING] EasyOCR page {page_num}: starting...")
     
+    # Apply Image Preprocessing
+    processed_path = preprocess_image(img_path)
+    
     reader = _get_reader()
     
     try:
-        results = reader.readtext(img_path)
+        results = reader.readtext(processed_path)
     except Exception as e:
         logger.error(f"EasyOCR failed: {e}")
         return []
+    finally:
+        # Cleanup preprocessed image if it's different from original
+        if processed_path != img_path and os.path.exists(processed_path):
+            try: os.remove(processed_path)
+            except: pass
         
     logger.info(f"[TIMING] EasyOCR page {page_num}: {time.time()-t0:.1f}s")
     

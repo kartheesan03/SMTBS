@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
+const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -66,6 +67,8 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
+const assistantRoutes = require('./src/routes/assistantRoutes');
+
 app.use('/api/auth', authRoutes);
 app.use('/api/materials', materialRoutes);
 app.use('/api/employees', employeeRoutes);
@@ -95,6 +98,7 @@ app.use('/api/training', trainingRoutes);
 app.use('/api/holidays',    holidayRoutes);
 app.use('/api/recruitment', recruitmentRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/assistant', assistantRoutes);
 app.use('/api/ocr', ocrRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/search', searchRoutes);
@@ -129,7 +133,12 @@ const startServer = async () => {
         console.log('[Backend] Node.js + Express starting...');
         await connectDB();
         const gpsSimulator = require('./src/services/gpsSimulator');
-        app.listen(PORT, '0.0.0.0', () => {
+        
+        const server = http.createServer(app);
+        const socket = require('./src/socket');
+        socket.init(server);
+
+        server.listen(PORT, '0.0.0.0', () => {
             console.log(`[Backend] Server running on port ${PORT}`);
             
             try {

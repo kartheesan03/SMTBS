@@ -158,10 +158,22 @@ def process_document(elements: List[Dict]) -> Dict:
         m_date = re.search(r'(?:Date|Dt)[\s:-]*(\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4})', line_text, re.IGNORECASE)
         if m_date:
             doc_info["Date"] = m_date.group(1)
+            
+        # Look for alternative date format (e.g. 20-AUG-2026)
+        m_date2 = re.search(r'(\d{1,2}[/\-\s]+[a-zA-Z]{3}[/\-\s]+\d{2,4})', line_text)
+        if m_date2 and "Date" not in doc_info:
+            doc_info["Date"] = m_date2.group(1)
+
         # Look for Room No
         m_room = re.search(r'(?:Room\s*No|Room)[\s:-]*(\d+)', line_text, re.IGNORECASE)
         if m_room:
             doc_info["Room No"] = m_room.group(1)
+            
+        # Try generic KV extraction for everything else
+        k, v = extract_generic_kv(line)
+        if k and v:
+            if k not in doc_info:
+                doc_info[k] = v
 
     # 3. Find Table Headers
     header_keywords = ["QTY", "QUANTITY", "RATE", "PRICE", "S.NO", "ITEM", "AMOUNT", "DESCRIPTION", "NAME", "SKU", "CATEGORY", "STOCK", "STATUS", "PART", "CODE"]
@@ -203,72 +215,7 @@ def process_document(elements: List[Dict]) -> Dict:
             return val
         return ""
 
-    if is_receipt:
-        headers = ["Qty", "Item Name", "Rate", "Amount"]
-        for i in range(len(lines)):
-            line = lines[i]
-            line_text = clean_line_text(line).upper()
-            
-            m_total = re.search(r'(?:SUBTOTAL|TOTAL AMOUNT|NET PAYABLE|GRAND TOTAL|TOTAL)\s+([\d\.,\sOUloI]+)', line_text)
-            if m_total:
-                amt = clean_numeric(m_total.group(1))
-                if amt:
-                    doc_info["Total"] = amt
-                end_idx = i
-                break
-                
-            if any(k in line_text for k in ["SUBTOTAL", "TOTAL AMOUNT", "NET PAYABLE", "GRAND TOTAL", "TOTAL"]):
-                end_idx = i
-                break
-                
-            if "RATE" in line_text or "ITEM" in line_text or "TTEM" in line_text:
-                continue
-            if "ROOM NO" in line_text or "DATE" in line_text or "BILL" in line_text or "TABL" in line_text or "TIME" in line_text:
-                continue
-
-            # Clean spaces around dots to prevent numbers like '500 . 00' splitting incorrectly
-            cleaned_line = re.sub(r'\s*\.\s*', '.', line_text)
-            
-            # [Qty] [Item Name] [Rate] [Amount]
-            m = re.search(r'^\s*(?:([lIO\d]{1,3})\s+)?(.+?)(?:\s+([\dSOUIlouIqQ\(\)\.,]+))?\s+([\dSOUIlouIqQ\(\)\.,]+)\s*$', cleaned_line, re.IGNORECASE)
-            
-            logger.info(f"REGEX CHECK - Line: '{cleaned_line}' | Match: {bool(m)}")
-            if m:
-                qty_raw = m.group(1)
-                item = m.group(2).strip()
-                rate_raw = m.group(3)
-                amt_raw = m.group(4)
-                
-                qty = clean_numeric(qty_raw) if qty_raw else '1'
-                if not qty: qty = '1'
-                rate = clean_numeric(rate_raw)
-                amt = clean_numeric(amt_raw)
-
-                # Infer Qty if missing from OCR but Rate and Amount exist
-                if (not qty_raw or qty == '1') and rate and amt:
-                    try:
-                        r_val = float(rate)
-                        a_val = float(amt)
-                        if r_val > 0:
-                            inferred_qty = round(a_val / r_val)
-                            if inferred_qty > 0:
-                                qty = str(inferred_qty)
-                    except ValueError:
-                        pass
-                
-                if (rate_raw and not rate) or (amt_raw and not amt):
-                    warnings.append(f"Row with Item Name '{item}' has invalid numeric data. Requires manual review.")
-                
-                logger.info(f"REGEX EXTRACTED: Qty={qty}, Item={item}, Rate={rate}, Amount={amt}")
-                table_rows.append({
-                    "Qty": qty,
-                    "Item Name": item,
-                    "Rate": rate,
-                    "Amount": amt
-                })
-                end_idx = i
-                
-    elif best_header_idx != -1:
+    if best_header_idx != -1:
         headers = [e["text"] for e in best_headers]
         col_centers = [(e["x0"] + e["x1"]) / 2 for e in best_headers]
         
@@ -316,14 +263,13 @@ def process_document(elements: List[Dict]) -> Dict:
     # Process Summary (Total)
     summary_kv = {}
     extracted_total = None
-    if is_receipt:
-        for i in range(end_idx + 1, len(lines)):
-            line_text = clean_line_text(lines[i]).upper()
-            if "TOTAL" in line_text or "AMOUNT" in line_text or "SUBTOTAL" in line_text:
-                nums = re.findall(r'[\d\.,]+', line_text)
-                if nums:
-                    summary_kv["Total"] = nums[-1]
-                    extracted_total = parse_number(nums[-1])
+    for i in range(end_idx + 1, len(lines)):
+        line_text = clean_line_text(lines[i]).upper()
+        if "TOTAL" in line_text or "AMOUNT" in line_text or "SUBTOTAL" in line_text:
+            nums = re.findall(r'[\d\.,]+', line_text)
+            if nums:
+                summary_kv["Total"] = nums[-1]
+                extracted_total = parse_number(nums[-1])
 
     # 4. Validation Logic
     # Validate mathematical sum

@@ -158,7 +158,12 @@ const SocialPostCard = ({ post, onDelete }) => {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#1a56db' }}>
                         <ThumbsUp size={10} color="#FFFFFF" fill="#FFFFFF" />
                     </div>
-                    <span>{likesCount > 0 ? (isLiked ? `You and ${likesCount - 1} others` : `${likesCount} likes`) : ''}</span>
+                    <span 
+                        title={post.reactions && post.reactions.length > 0 ? post.reactions.map(r => r.user?.name || r.user?.username || 'Someone').join(', ') : ''}
+                        style={{ cursor: post.reactions && post.reactions.length > 0 ? 'help' : 'default' }}
+                    >
+                        {likesCount > 0 ? (isLiked ? `You and ${likesCount - 1} others` : `${likesCount} likes`) : ''}
+                    </span>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     {commentsCount > 0 && (

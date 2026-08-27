@@ -12,7 +12,11 @@ exports.getFeed = async (req, res) => {
         const posts = await SocialPost.sequelizeModel.findAll({
             include: [
                 { model: User.sequelizeModel, as: 'author', attributes: ['id', 'username'] },
-                { model: SocialReaction.sequelizeModel, as: 'reactions' }
+                { 
+                    model: SocialReaction.sequelizeModel, 
+                    as: 'reactions',
+                    include: [{ model: User.sequelizeModel, as: 'user', attributes: ['name', 'username'] }]
+                }
             ],
             order: [['createdAt', 'DESC']],
             limit: 50
@@ -79,7 +83,10 @@ exports.addComment = async (req, res) => {
             authorId: req.user.id
         });
         await SocialPost.sequelizeModel.increment('commentsCount', { by: 1, where: { id: postId } });
-        res.status(201).json(comment);
+        const commentWithAuthor = await SocialComment.sequelizeModel.findByPk(comment.id, {
+            include: [{ model: User.sequelizeModel, as: 'author', attributes: ['id', 'username', 'name', 'role', 'department'] }]
+        });
+        res.status(201).json(commentWithAuthor);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error adding comment' });
@@ -90,7 +97,7 @@ exports.getComments = async (req, res) => {
     try {
         const comments = await SocialComment.sequelizeModel.findAll({
             where: { postId: req.params.id },
-            include: [{ model: User.sequelizeModel, as: 'author', attributes: ['id', 'username'] }],
+            include: [{ model: User.sequelizeModel, as: 'author', attributes: ['id', 'username', 'name', 'role', 'department'] }],
             order: [['createdAt', 'ASC']]
         });
         res.json(comments);

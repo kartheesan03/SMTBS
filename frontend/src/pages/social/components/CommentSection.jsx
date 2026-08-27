@@ -229,7 +229,8 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
           const role      = comment.author?.role || comment.author?.department || 'Employee';
           const color     = AVATAR_COLORS[idx % AVATAR_COLORS.length];
           const timeStr   = comment.createdAt ? getRelativeTime(comment.createdAt) : 'Just now';
-          const isOwner   = user?.id === comment.author?.id || ['Admin', 'Super Admin'].includes(user?.role);
+          const userRole = user?.role ? String(user.role).toLowerCase() : '';
+          const isOwner   = (user?.id && String(user.id) === String(comment.author?.id)) || (user?._id && String(user._id) === String(comment.author?._id)) || ['admin', 'super admin'].includes(userRole);
 
           return (
             <div key={comment.id || idx} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>

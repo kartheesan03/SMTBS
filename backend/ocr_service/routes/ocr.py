@@ -55,7 +55,7 @@ async def ocr_endpoint(file: UploadFile = File(...)):
         print(f"ERROR IN OCR:\n{tb}", flush=True)
         return JSONResponse(
             status_code=500,
-            content={"success": False, "error": f"OCR processing failed: {str(e)}\n\n{tb}"}
+            content={"success": False, "error": f"Unable to process this image. Please upload a clearer document. (Details: {str(e)})"}
         )
     finally:
         if os.path.exists(file_path):
