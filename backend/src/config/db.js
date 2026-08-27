@@ -308,7 +308,20 @@ const connectDB = async () => {
         // Safely recreate logic removed as it corrupted SQLite foreign keys
         try {
             if (dialect === 'sqlite') {
+                // Drop stale backup tables created by failed Sequelize alters
+                try {
+                    const [tables] = await sequelize.query(`SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%_backup';`);
+                    for (let row of tables) {
+                        await sequelize.query(`DROP TABLE IF EXISTS \`${row.name}\`;`);
+                        console.log(`[Sync Fix] Dropped stale SQLite backup table: ${row.name}`);
+                    }
+                } catch (cleanupErr) {
+                    console.warn(`[Sync Fix] Failed to clean up stale backup tables: ${cleanupErr.message}`);
+                }
+
+                await sequelize.query('PRAGMA foreign_keys = OFF;');
                 await sequelize.sync({ alter: true });
+                await sequelize.query('PRAGMA foreign_keys = ON;');
                 console.log(`${dbName} Database tables synchronized with alter.`);
             } else {
                 console.log(`${dbName} Database tables sync skipped for remote DB.`);
