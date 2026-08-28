@@ -27,9 +27,8 @@ function MiniAvatar({ name, color, size = 36 }) {
   );
 }
 
-const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onCommentDeleted }) => {
+const CommentSection = ({ postId, comments = [], onCommentAdded, onCommentDeleted }) => {
   const { user } = useContext(AuthContext);
-  const [comments, setComments] = useState(initialComments || []);
   const [text, setText]         = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [visibleCount, setVisibleCount] = useState(3);
@@ -64,10 +63,9 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
     setSubmitting(true);
     try {
       const newComment = await addComment(postId, text);
-      setComments(prev => [...prev, newComment]);
       setText('');
       setShowEmojiPicker(false);
-      if (onCommentAdded) onCommentAdded();
+      if (onCommentAdded) onCommentAdded(newComment);
     } catch (error) {
       console.error('Failed to add comment', error);
     } finally {
@@ -79,8 +77,7 @@ const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onC
     if (!window.confirm('Delete this comment?')) return;
     try {
       await deleteComment(commentId);
-      setComments(prev => prev.filter(c => c.id !== commentId));
-      if (onCommentDeleted) onCommentDeleted();
+      if (onCommentDeleted) onCommentDeleted(commentId);
     } catch (error) {
       console.error('Failed to delete comment', error);
     }

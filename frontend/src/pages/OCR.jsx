@@ -135,7 +135,7 @@ const DynamicOCRTable = ({
 // ─── Main Component ────────────────────────────────────────────────────────────
 const DocumentIntelligence = () => {
   const { user } = useContext(AuthContext);
-  const canEdit = ["Admin", "Manager"].includes(user?.role);
+  const canEdit = user?.role === "Admin";
   const canUpload = ["Admin", "Manager", "HR", "Sales", "Employee"].includes(user?.role) || true; // Allow all roles as requested
 
   const [activeDoc, setActiveDoc] = useState(null);

@@ -499,7 +499,68 @@ async def extract_text(file_path: str, ext: Optional[str] = None) -> dict:
                 result["sections"] = [] # The new frontend will use extracted_data instead of sections
             return result
     except Exception as e:
-        logger.warning(f"Anthropic dynamic extraction failed or skipped: {e}. Falling back to EasyOCR.")
+        logger.warning(f"Anthropic dynamic extraction failed or skipped: {e}. Trying Gemini...")
+
+    # ── Try Gemini for dynamic extraction ──────────────────────────────────
+    # (Using Google Generative AI for structural understanding)
+    try:
+        import google.generativeai as genai
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if api_key and api_key != "your_gemini_api_key_here":
+            logger.info("[TIMING] Attempting dynamic extraction with Gemini...")
+            getattr(genai, "configure")(api_key=api_key)
+            model = getattr(genai, "GenerativeModel")('gemini-1.5-flash')
+            
+            with open(file_path, "rb") as f:
+                file_bytes = f.read()
+            
+            mime_type = "image/jpeg"
+            if ext in [".png"]: mime_type = "image/png"
+            elif ext in [".webp"]: mime_type = "image/webp"
+            elif ext in [".pdf"]: mime_type = "application/pdf"
+            
+            prompt = (
+                "You are an advanced Document Intelligence OCR AI. Your task is to extract text and structure it dynamically into JSON. "
+                "Classify the document type (e.g., 'Receipt', 'Invoice', 'Form', 'General'). "
+                "Output ONLY a valid JSON object matching this schema exactly:\n"
+                "{\n"
+                "  \"document\": {\"type\": \"<Document Type>\", \"confidence\": 0.98},\n"
+                "  \"extracted_data\": {\n"
+                "     // Dynamic fields here. \n"
+                "     // For a receipt, it MUST be structured exactly like: \n"
+                "     // \"merchant\": { \"name\": \"...\", \"address\": \"...\", \"phone\": \"...\", \"tin\": \"...\" },\n"
+                "     // \"receipt_details\": { \"type\": \"...\", \"bill_no\": \"...\", \"waiter\": \"...\", \"table\": \"...\", \"date\": \"...\", \"time\": \"...\" },\n"
+                "     // \"items\": [ { \"description\": \"...\", \"price\": ..., \"qty\": ..., \"total\": ... } ],\n"
+                "     // \"summary\": { \"total_quantity\": ..., \"gross_total\": ..., \"taxes\": [ {\"description\": \"...\", \"amount\": ...} ], \"net_total\": ... },\n"
+                "     // \"footer\": \"...\"\n"
+                "     // For other documents, create a clean hierarchical structure of objects and arrays.\n"
+                "  },\n"
+                "  \"rawText\": \"<Full raw text of document>\"\n"
+                "}\n"
+                "Do not include markdown blocks. Return only JSON."
+            )
+            
+            response = model.generate_content([
+                {"mime_type": mime_type, "data": file_bytes},
+                prompt
+            ])
+            
+            output_text = response.text.strip()
+            if output_text.startswith("```"):
+                lines = output_text.split('\n')
+                if lines[0].startswith("```"): lines = lines[1:]
+                if lines and lines[-1].startswith("```"): lines = lines[:-1]
+                output_text = "\n".join(lines).strip()
+                
+            result = json.loads(output_text)
+            logger.info(f"[TIMING] Gemini dynamic extraction done in {time.time()-t_start:.2f}s")
+            
+            result["success"] = True
+            if "sections" not in result:
+                result["sections"] = []
+            return result
+    except Exception as e:
+        logger.warning(f"Gemini dynamic extraction failed or skipped: {e}. Falling back to local heuristics (PaddleOCR).")
         
     t_parse = time.time()
     result = process_document(all_elements)

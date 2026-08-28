@@ -61,7 +61,13 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
   );
   const [repostCount, setRepostCount] = useState(post.reposts?.length || 0);
   const [showComments, setShowComments] = useState(false);
+  const [localComments, setLocalComments] = useState(post.comments || []);
   const [commentsCount, setCommentsCount] = useState(post.comments?.length || 0);
+
+  useEffect(() => {
+    setLocalComments(post.comments || []);
+    setCommentsCount(post.comments?.length || 0);
+  }, [post.comments]);
   const [isExpanded, setIsExpanded]   = useState(false);
   const [showMenu,   setShowMenu]     = useState(false);
   const [showReactions, setShowReactions] = useState(false);
@@ -584,9 +590,15 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
                 <div style={{ flex: 1, background: '#fdfdfc', borderTop: '1px solid #f1f5f9' }}>
                    <CommentSection 
                      postId={post.id} 
-                     comments={post.comments} 
-                     onCommentAdded={() => setCommentsCount(n => n + 1)}
-                     onCommentDeleted={() => setCommentsCount(n => n - 1)}
+                     comments={localComments} 
+                     onCommentAdded={(newComment) => {
+                        setLocalComments(prev => [...prev, newComment]);
+                        setCommentsCount(n => n + 1);
+                     }}
+                     onCommentDeleted={(commentId) => {
+                        setLocalComments(prev => prev.filter(c => c.id !== commentId));
+                        setCommentsCount(n => n - 1);
+                     }}
                    />
                 </div>
               </div>
@@ -873,9 +885,15 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
       {showComments && (
         <CommentSection
           postId={post.id}
-          comments={post.comments}
-          onCommentAdded={() => setCommentsCount(n => n + 1)}
-          onCommentDeleted={() => setCommentsCount(n => n - 1)}
+          comments={localComments}
+          onCommentAdded={(newComment) => {
+             setLocalComments(prev => [...prev, newComment]);
+             setCommentsCount(n => n + 1);
+          }}
+          onCommentDeleted={(commentId) => {
+             setLocalComments(prev => prev.filter(c => c.id !== commentId));
+             setCommentsCount(n => n - 1);
+          }}
         />
       )}
 

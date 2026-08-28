@@ -26,8 +26,8 @@ const getOcrDocumentById = async (req, res) => {
 
 const createOcrDocument = async (req, res) => {
     try {
-        if (req.user.role !== 'Admin' && req.user.role !== 'Manager') {
-            return res.status(403).json({ message: "You have view-only access to this module. Contact an admin or manager to save documents." });
+        if (req.user.role !== 'Admin') {
+            return res.status(403).json({ message: "You have view-only access to this module. Contact an admin to save documents." });
         }
         
         const { fileName, module, documentType, tables, details, rawText, confidence, status } = req.body;
@@ -65,8 +65,8 @@ const createOcrDocument = async (req, res) => {
 
 const updateOcrDocument = async (req, res) => {
     try {
-        if (req.user.role !== 'Admin' && req.user.role !== 'Manager') {
-            return res.status(403).json({ message: "You have view-only access. Contact an admin or manager to edit documents." });
+        if (req.user.role !== 'Admin') {
+            return res.status(403).json({ message: "You have view-only access. Contact an admin to edit documents." });
         }
         
         const docId = req.params.id;
@@ -132,8 +132,8 @@ const getOcrSummary = async (req, res) => {
 
 const deleteOcrDocument = async (req, res) => {
     try {
-        if (req.user.role !== 'Admin' && req.user.role !== 'Manager') {
-            return res.status(403).json({ message: "You have view-only access. Contact an admin or manager to delete documents." });
+        if (req.user.role !== 'Admin') {
+            return res.status(403).json({ message: "You have view-only access. Contact an admin to delete documents." });
         }
         
         const docId = req.params.id;
