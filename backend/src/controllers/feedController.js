@@ -318,7 +318,10 @@ const deleteComment = async (req, res) => {
             return res.status(404).json({ message: 'Comment not found' });
         }
         
-        if (comment.authorId !== req.user.id && req.user.role !== 'Admin' && req.user.role !== 'Super Admin') {
+        const post = await Post.sequelizeModel.findByPk(comment.postId);
+        const isPostAuthor = post && String(post.authorId) === String(req.user.id);
+        
+        if (String(comment.authorId) !== String(req.user.id) && !isPostAuthor && req.user.role !== 'Admin' && req.user.role !== 'Super Admin') {
             return res.status(403).json({ message: 'Not authorized to delete this comment' });
         }
 

@@ -20,7 +20,7 @@ app.include_router(ocr_router)
 app.include_router(export_router, prefix="/export")
 app.include_router(extract_router)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore
 
 @app.get("/health")
 def health_check():

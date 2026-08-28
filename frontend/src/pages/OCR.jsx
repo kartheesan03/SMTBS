@@ -1,9 +1,11 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
+import React, { useState, useRef, useEffect, useCallback, useContext } from "react";
 import {
   Upload, AlertTriangle, CheckCircle2, File,
   Search, Download, Loader2, Save, ArrowLeft,
   FileText, CheckCheck, XCircle, Plus, Trash2,
-  ChevronRight, Eye, Edit3, Shield
+  ChevronRight, Eye, Edit3, Shield, RefreshCw,
+  ZoomIn, ZoomOut, RotateCw, RotateCcw, Maximize, Image as ImageIcon,
+  Clock, User, Filter, ExternalLink, Check, X, History, Info
 } from "lucide-react";
 import toast from "react-hot-toast";
 import API from "../api/axios";
@@ -36,43 +38,195 @@ const getFileExt = (name) => {
 
 const getConfidenceClass = (score) => {
   if (!score && score !== 0) return "";
-  if (score >= 80) return "high";
-  if (score >= 50) return "medium";
+  if (score >= 0.95) return "high";
+  if (score >= 0.80) return "medium";
   return "low";
 };
 
-// Detects if a column is likely numeric (currency, numbers)
-const isNumericCol = (cIdx, rows) => {
-  const sample = (rows || []).slice(0, 5).map((r) => String(r[cIdx] || ""));
-  const numericCount = sample.filter((v) => /^[\$₹€£¥,\d.\s()-]+$/.test(v.trim()) && v.trim() !== "").length;
-  return sample.length > 0 && numericCount / sample.length >= 0.6;
+const getConfidenceColor = (scoreStr) => {
+  const score = parseFloat(scoreStr);
+  if (isNaN(score)) return "var(--ink-mid)";
+  if (score >= 95) return "var(--green)";
+  if (score >= 80) return "var(--orange)";
+  return "var(--red)";
 };
 
-// ─── Section Table Component ───────────────────────────────────────────────────
-const DynamicOCRTable = ({
-  section, sIdx, canEdit,
-  onDataChange, onAddRow, onDeleteRow, onAddColumn, onDeleteColumn, onRenameColumn
-}) => {
-  const { headers = [], rows = [], type, title } = section;
+const getCellObj = (cell) => {
+  if (typeof cell === "object" && cell !== null) {
+    return { value: cell.value ?? "", confidence: cell.confidence ?? 1.0, bbox: cell.bbox || null };
+  }
+  return { value: cell ?? "", confidence: 1.0, bbox: null };
+};
+
+const formatDate = (d) => {
+  if (!d) return "—";
+  return new Date(d).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+};
+
+// ─── Status Badge ──────────────────────────────────────────────────────────────
+const StatusBadge = ({ status }) => {
+  const map = {
+    Processing: "status-processing",
+    Extracted: "status-extracted",
+    "Needs Review": "status-needs-review",
+    "Pending Approval": "status-needs-review",
+    Approved: "status-approved",
+    Rejected: "status-rejected",
+    Failed: "status-failed",
+    Uploaded: "status-uploaded",
+    Edited: "status-extracted",
+  };
+  return (
+    <span className={`status-badge ${map[status] || ""}`}>{status}</span>
+  );
+};
+
+// ─── Processing Steps Indicator ────────────────────────────────────────────────
+const STEPS = [
+  { label: "Uploading file…", duration: 400 },
+  { label: "Analysing image quality…", duration: 600 },
+  { label: "Enhancing image…", duration: 900 },
+  { label: "Extracting text (AI/OCR)…", duration: 1000 },
+  { label: "Understanding document structure…", duration: 700 },
+  { label: "Building structured table…", duration: 500 },
+  { label: "Validating extracted data…", duration: 500 },
+  { label: "Finalising results…", duration: 400 },
+];
+
+const ProcessingSteps = ({ active }) => {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    if (!active) { setStep(0); return; }
+    let idx = 0;
+    const advance = () => {
+      idx++;
+      if (idx < STEPS.length - 1) {
+        setStep(idx);
+        setTimeout(advance, STEPS[idx].duration);
+      } else {
+        setStep(STEPS.length - 1);
+      }
+    };
+    setTimeout(advance, STEPS[0].duration);
+    return () => { idx = STEPS.length; };
+  }, [active]);
+
+  return (
+    <div className="processing-steps">
+      {STEPS.map((s, i) => (
+        <div key={i} className={`step-indicator ${i === step ? "active" : i < step ? "done" : ""}`}>
+          {i < step
+            ? <CheckCircle2 size={15} className="step-done-icon" />
+            : i === step
+              ? <Loader2 size={15} className="animate-spin step-spin-icon" />
+              : <div className="step-dot" />}
+          <span>{s.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ─── Interactive Viewer Component ─────────────────────────────────────────────
+const InteractiveViewer = ({ previewUrl, file, imgNaturalSize, allBboxes, activeBbox, onCellFocus, setImgNaturalSize, showBboxes, isEnhanced }) => {
+  const [scale, setScale] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef(null);
+
+  const handleZoomIn = () => setScale(s => Math.min(s * 1.25, 6));
+  const handleZoomOut = () => setScale(s => Math.max(s / 1.25, 0.15));
+  const handleReset = () => { setScale(1); setPos({ x: 0, y: 0 }); setRotation(0); };
+  const handleRotateL = () => setRotation(r => r - 90);
+  const handleRotateR = () => setRotation(r => r + 90);
+  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
+
+  const handleMouseDown = (e) => { setIsDragging(true); setDragStart({ x: e.clientX - pos.x, y: e.clientY - pos.y }); };
+  const handleMouseMove = (e) => { if (!isDragging) return; setPos({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }); };
+  const handleMouseUp = () => setIsDragging(false);
+
+  if (file?.type === "application/pdf") {
+    return (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+        <object data={previewUrl} type="application/pdf" style={{ width: "100%", height: "100%", minHeight: 600 }}>
+          <p style={{ padding: 24, color: "var(--ink-soft)", fontSize: 13 }}>
+            PDF preview not available in this browser. Use the download button to view the original.
+          </p>
+        </object>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`viewer-wrapper ${isFullscreen ? "fullscreen-viewer" : ""}`} ref={containerRef}>
+      <div className="viewer-toolbar">
+        <button className="btn-icon" onClick={handleZoomOut} title="Zoom Out"><ZoomOut size={15} /></button>
+        <button className="btn-icon" onClick={handleZoomIn} title="Zoom In"><ZoomIn size={15} /></button>
+        <button className="btn-icon" onClick={handleRotateL} title="Rotate Left"><RotateCcw size={15} /></button>
+        <button className="btn-icon" onClick={handleRotateR} title="Rotate Right"><RotateCw size={15} /></button>
+        <button className="btn-icon" title="Reset View" onClick={handleReset} style={{ fontSize: 11, padding: "0 4px", width: "auto" }}>Reset</button>
+        <button className="btn-icon" onClick={toggleFullscreen} title="Toggle Fullscreen"><Maximize size={15} /></button>
+      </div>
+
+      <div
+        className="viewer-canvas"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        style={{ cursor: isDragging ? "grabbing" : "grab", filter: isEnhanced ? "contrast(1.2) saturate(1.1) brightness(1.05)" : "none" }}
+      >
+        <div className="viewer-content" style={{ transform: `translate(${pos.x}px, ${pos.y}px) scale(${scale}) rotate(${rotation}deg)` }}>
+          <img
+            src={previewUrl}
+            alt="Document Preview"
+            onLoad={(e) => setImgNaturalSize({ w: e.target.naturalWidth, h: e.target.naturalHeight })}
+            draggable="false"
+          />
+          {showBboxes && imgNaturalSize && allBboxes.map((b, i) => {
+            const [x0, y0, x1, y1] = b.bbox;
+            const w = imgNaturalSize.w;
+            const h = imgNaturalSize.h;
+            const isActive = activeBbox && activeBbox.join(",") === b.bbox.join(",");
+            return (
+              <div
+                key={i}
+                className={`bbox-overlay ${b.confidence < 0.8 ? "low-confidence" : ""} ${isActive ? "active" : ""}`}
+                style={{ left: `${(x0 / w) * 100}%`, top: `${(y0 / h) * 100}%`, width: `${((x1 - x0) / w) * 100}%`, height: `${((y1 - y0) / h) * 100}%` }}
+                onClick={(e) => { e.stopPropagation(); onCellFocus(b.bbox); }}
+                title={`Confidence: ${(b.confidence * 100).toFixed(1)}%`}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Dynamic Table Component ───────────────────────────────────────────────────
+const DynamicOCRTable = ({ section, sIdx, canEdit, onDataChange, onDeleteRow, onDeleteColumn, onRenameColumn, activeBbox, onCellFocus }) => {
+  const { headers = [], rows = [], type } = section;
 
   if (!headers.length && !rows.length) {
     return (
-      <div style={{ padding: "24px", textAlign: "center", color: "var(--ink-soft)", fontSize: 13 }}>
-        No data extracted in this section.
+      <div style={{ padding: "20px 16px", textAlign: "center", color: "var(--ink-soft)", fontSize: 13 }}>
+        No structured data extracted in this section.
       </div>
     );
   }
 
   return (
     <div className="ocr-table-wrapper">
-      <table className="ocr-table">
+      <table className={`ocr-table ${type === "key-value" ? "kv-table" : ""}`}>
         <thead>
           <tr>
             {headers.map((col, cIdx) => (
-              <th
-                key={cIdx}
-                className={isNumericCol(cIdx, rows) ? "col-numeric" : ""}
-              >
+              <th key={cIdx}>
                 {canEdit ? (
                   <div className="th-inner">
                     <input
@@ -80,48 +234,49 @@ const DynamicOCRTable = ({
                       defaultValue={col}
                       onBlur={(e) => onRenameColumn(sIdx, cIdx, e.target.value)}
                       onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); }}
-                      title="Click to rename column"
                     />
-                    <button
-                      className="btn-col-del"
-                      onClick={() => onDeleteColumn(sIdx, cIdx)}
-                      title={`Delete column "${col}"`}
-                    >×</button>
+                    {type !== "key-value" && <button className="btn-col-del" onClick={() => onDeleteColumn(sIdx, cIdx)} title="Delete column">×</button>}
                   </div>
-                ) : (
-                  col
-                )}
+                ) : col}
               </th>
             ))}
-            {canEdit && <th className="th-actions" />}
+            {canEdit && type !== "key-value" && <th className="th-actions" />}
           </tr>
         </thead>
         <tbody>
           {rows.map((row, rIdx) => (
             <tr key={rIdx}>
-              {headers.map((_, cIdx) => (
-                <td
-                  key={cIdx}
-                  className={isNumericCol(cIdx, rows) ? "cell-numeric" : ""}
-                >
-                  {canEdit ? (
-                    <input
-                      className="cell-input"
-                      value={row[cIdx] ?? ""}
-                      onChange={(e) => onDataChange(sIdx, rIdx, cIdx, e.target.value)}
-                    />
-                  ) : (
-                    <span>{row[cIdx] ?? ""}</span>
-                  )}
-                </td>
-              ))}
-              {canEdit && (
+              {headers.map((header, cIdx) => {
+                const cellObj = getCellObj(row[cIdx]);
+                const isLowConf = cellObj.confidence < 0.8;
+                const isActive = activeBbox && cellObj.bbox && activeBbox.join(",") === cellObj.bbox.join(",");
+                const isConfidenceCol = header.toLowerCase() === "confidence";
+                const style = isConfidenceCol ? { color: getConfidenceColor(cellObj.value) } : {};
+                return (
+                  <td
+                    key={cIdx}
+                    className={`${isLowConf ? "table-cell-warning" : ""} ${isActive ? "table-cell-active" : ""}`}
+                    onClick={() => onCellFocus(cellObj.bbox)}
+                    style={style}
+                    title={isLowConf ? `⚠ Low confidence: ${(cellObj.confidence * 100).toFixed(1)}%` : ""}
+                  >
+                    {canEdit ? (
+                      <input
+                        className="cell-input"
+                        value={cellObj.value}
+                        onChange={(e) => onDataChange(sIdx, rIdx, cIdx, e.target.value)}
+                        onFocus={() => onCellFocus(cellObj.bbox)}
+                        style={style}
+                      />
+                    ) : (
+                      <span>{cellObj.value}</span>
+                    )}
+                  </td>
+                );
+              })}
+              {canEdit && type !== "key-value" && (
                 <td style={{ textAlign: "center", width: 36, padding: "4px 6px" }}>
-                  <button
-                    className="btn-row-del"
-                    onClick={() => onDeleteRow(sIdx, rIdx)}
-                    title="Delete row"
-                  >×</button>
+                  <button className="btn-row-del" onClick={() => onDeleteRow(sIdx, rIdx)} title="Delete row">×</button>
                 </td>
               )}
             </tr>
@@ -132,266 +287,403 @@ const DynamicOCRTable = ({
   );
 };
 
+// ─── Reject Modal ──────────────────────────────────────────────────────────────
+const RejectModal = ({ onConfirm, onCancel }) => {
+  const [reason, setReason] = useState("");
+  return (
+    <div className="modal-overlay">
+      <div className="modal-card">
+        <div className="modal-header">
+          <XCircle size={18} color="var(--red)" />
+          <span>Reject Document</span>
+        </div>
+        <div className="modal-body">
+          <p style={{ fontSize: 13, color: "var(--ink-mid)", marginBottom: 12 }}>
+            Please provide a reason for rejection. This will be stored in the document history.
+          </p>
+          <textarea
+            className="modal-textarea"
+            placeholder="e.g. OCR extraction inaccurate, wrong document type, data incomplete…"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            rows={4}
+          />
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-outline btn-sm" onClick={onCancel}>Cancel</button>
+          <button className="btn btn-danger btn-sm" onClick={() => onConfirm(reason)} disabled={!reason.trim()}>
+            <XCircle size={13} /> Reject Document
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── History Panel ──────────────────────────────────────────────────────────────
+const HistoryPanel = ({ history }) => {
+  if (!history || !history.length) {
+    return <div style={{ padding: 20, color: "var(--ink-soft)", fontSize: 13 }}>No processing history available.</div>;
+  }
+  const actionColor = {
+    Created: "var(--blue)",
+    Edited: "var(--orange)",
+    Approved: "var(--green)",
+    Rejected: "var(--red)",
+  };
+  return (
+    <div className="history-timeline">
+      {[...history].reverse().map((h, i) => (
+        <div key={i} className="history-entry">
+          <div className="history-dot" style={{ background: actionColor[h.action] || "var(--ink-faint)" }} />
+          <div className="history-content">
+            <div className="history-action" style={{ color: actionColor[h.action] || "var(--ink-mid)" }}>{h.action}</div>
+            <div className="history-meta">
+              <User size={11} /> {h.userName || "Unknown"} &nbsp;·&nbsp; <Clock size={11} /> {formatDate(h.timestamp)}
+            </div>
+            {h.note && <div className="history-note">{h.note}</div>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // ─── Main Component ────────────────────────────────────────────────────────────
 const DocumentIntelligence = () => {
   const { user } = useContext(AuthContext);
-  const canEdit = ["Admin", "Manager"].includes(user?.role);
-  const canUpload = ["Admin", "Manager", "HR", "Sales", "Employee"].includes(user?.role) || true; // Allow all roles as requested
+  // SECURITY: Only Admin can edit. All other roles are view-only.
+  const canEdit = user?.role === "Admin";
+  const canUpload = true;
 
-  const [activeDoc, setActiveDoc] = useState(null);
+  // Workflow: idle | processing | extracted | failed | viewing
+  const [workflowState, setWorkflowState] = useState("idle");
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-
-  const [workflowState, setWorkflowState] = useState("idle"); // idle | processing | extracted | failed
-  const [processingStep, setProcessingStep] = useState(0); // 0: uploading, 1: analyzing, 2: extracting, 3: structuring
   const [extractionData, setExtractionData] = useState(null);
   const [errorDetails, setErrorDetails] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-
+  const [isEnhanced, setIsEnhanced] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Viewer state
+  const [imgNaturalSize, setImgNaturalSize] = useState(null);
+  const [activeBbox, setActiveBbox] = useState(null);
+  const [showBboxes] = useState(true);
+  const [activeTab, setActiveTab] = useState("Structured Data");
 
+  // History Library state
+  const [documents, setDocuments] = useState([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [activeDoc, setActiveDoc] = useState(null); // document loaded from history
 
+  // Admin actions state
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [isActionLoading, setIsActionLoading] = useState(false);
+
+  // ─── Load document history ─────────────────────────────────────────────────
+  const loadDocuments = useCallback(async () => {
+    setLoadingDocs(true);
+    try {
+      const res = await API.get("/ocr-documents");
+      setDocuments(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      // Silently fail — table just won't show data
+    } finally {
+      setLoadingDocs(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (workflowState === "idle") loadDocuments();
+  }, [workflowState, loadDocuments]);
+
+  // ─── File Handling ─────────────────────────────────────────────────────────
   const handleFileChange = (e) => processFile(e.target.files[0]);
   const handleDrop = (e) => { e.preventDefault(); setIsDragging(false); processFile(e.dataTransfer.files[0]); };
   const handleDragOver = (e) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = () => setIsDragging(false);
 
-  const processFile = async (selectedFile) => {
+  const processFile = (selectedFile) => {
     if (!selectedFile) return;
-    
-    const fileExt = selectedFile.name.split('.').pop().toLowerCase();
-    const validExtensions = ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg', 'tiff', 'tif', 'bmp', 'webp', 'gif', 'jfif'];
-    const imageExtensions = ['png', 'jpg', 'jpeg', 'tiff', 'tif', 'bmp', 'webp', 'gif', 'jfif'];
-
-    if (!ALL_SUPPORTED_TYPES.includes(selectedFile.type) && !validExtensions.includes(fileExt)) { 
-        toast.error(`Unsupported file type: ${selectedFile.type || 'none'} (ext: ${fileExt})`); 
-        return; 
+    const fileExt = selectedFile.name.split(".").pop().toLowerCase();
+    const validExtensions = ["pdf", "doc", "docx", "png", "jpg", "jpeg", "tiff", "tif", "bmp", "webp", "gif", "jfif"];
+    if (!ALL_SUPPORTED_TYPES.includes(selectedFile.type) && !validExtensions.includes(fileExt)) {
+      toast.error(`Unsupported file type: ${fileExt}`); return;
     }
-    
-    if (selectedFile.size > MAX_FILE_SIZE) { toast.error("File exceeds 50MB limit."); return; }
+    if (selectedFile.size > MAX_FILE_SIZE) { toast.error("File exceeds 50 MB limit."); return; }
 
     setFile(selectedFile);
     setExtractionData(null);
     setActiveDoc(null);
-    setWorkflowState("processing");
     setErrorDetails("");
+    setImgNaturalSize(null);
+    setActiveBbox(null);
+    setIsEnhanced(false);
+    setActiveTab("Structured Data");
 
-    if (IMAGE_TYPES.includes(selectedFile.type) || selectedFile.type === "application/pdf" || imageExtensions.includes(fileExt) || fileExt === "pdf") {
-      const url = URL.createObjectURL(selectedFile);
-      setPreviewUrl(url);
-    } else {
-      setPreviewUrl(null);
-    }
+    const url = URL.createObjectURL(selectedFile);
+    setPreviewUrl(url);
 
     performExtraction(selectedFile);
   };
 
   const performExtraction = async (fileToProcess) => {
     setWorkflowState("processing");
-    setProcessingStep(0);
     setErrorDetails("");
-    
-    // Simulate progression steps for UX
-    const timers = [
-      setTimeout(() => setProcessingStep(1), 1500),
-      setTimeout(() => setProcessingStep(2), 3500),
-      setTimeout(() => setProcessingStep(3), 6000),
-      setTimeout(() => setProcessingStep(4), 8000),
-    ];
+
     const formData = new FormData();
     formData.append("file", fileToProcess);
 
     try {
       const response = await API.post("/ocr/extract", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 300000,
+        timeout: 300000
       });
-      if (response.data && response.data.success !== false) {
-        let data = response.data;
-        if (!data.sections && data.tables) {
-          data.sections = data.tables.map((t) => ({ ...t, type: t.type || "table" }));
-        }
-        timers.forEach(clearTimeout);
-        setExtractionData(data);
-        setWorkflowState("extracted");
-        toast.success("Document extracted successfully");
-      } else {
-        throw new Error(response.data.error || "OCR failed.");
-      }
+
+      const data = response.data;
+
+      // Compute confidence warnings
+      const warnings = [];
+      (data.sections || []).forEach(sec => {
+        (sec.rows || []).forEach(row => {
+          row.forEach(cell => {
+            const obj = getCellObj(cell);
+            if (obj.confidence < 0.8) {
+              warnings.push(`Low confidence on value: '${obj.value}'`);
+            }
+          });
+        });
+      });
+      data._warnings = warnings;
+
+      setExtractionData(data);
+      setIsEnhanced(true);
+      setWorkflowState("extracted");
+      toast.success("Extraction complete.");
     } catch (err) {
-      timers.forEach(clearTimeout);
       setWorkflowState("failed");
-      setErrorDetails(err.response?.data?.error || err.message || "Failed to extract data.");
+      const msg = err.response?.data?.error || err.message || "Failed to extract data.";
+      const friendly = msg.includes("ECONNREFUSED")
+        ? "OCR service is offline. Please start the Python OCR service and try again."
+        : msg.includes("timeout")
+          ? "OCR timed out. Please try a smaller or clearer image."
+          : msg;
+      setErrorDetails(friendly);
       toast.error("Extraction failed.");
     }
   };
 
-  const saveDocumentState = async () => {
-    if (!canEdit) return;
-    setIsSaving(true);
-    try {
-      const payload = {
-        fileName: file?.name || activeDoc?.fileName || "document",
-        module: extractionData.document?.module || "General",
-        documentType: extractionData.document?.type || "General Document",
-        tables: extractionData.sections,
-        details: extractionData.document?.details || {},
-        rawText: extractionData.rawText || "",
-        confidence: extractionData.document?.confidence || 0,
-        status: activeDoc?.status || "Needs Review",
-      };
-
-      let res;
-      if (activeDoc) {
-        res = await API.put(`/ocr-documents/${activeDoc.id}`, payload);
-      } else {
-        res = await API.post("/ocr-documents", payload);
-      }
-
-      setActiveDoc(res.data.document);
-      toast.success("Changes saved successfully");
-    } catch {
-      toast.error("Failed to save changes");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const updateDocumentStatus = async (status) => {
-    if (!canEdit) return;
-    try {
-      if (!activeDoc) {
-        await saveDocumentState();
-        return;
-      }
-      await API.put(`/ocr-documents/${activeDoc.id}`, { status });
-      toast.success(`Document marked as ${status}`);
-      setActiveDoc((prev) => ({ ...prev, status }));
-    } catch {
-      toast.error("Failed to update status");
-    }
-  };
-
-  const handleExport = async (type) => {
-    const loadingToast = toast.loading(`Generating ${type.toUpperCase()}…`);
-    try {
-      const originalName = file?.name || activeDoc?.fileName || "document";
-      const baseName = originalName.substring(0, originalName.lastIndexOf(".")) || originalName;
-      const exportFileName = `${baseName}_extracted.${type}`;
-
-      const response = await API.post(
-        `/ocr/export/${type}?filename=${encodeURIComponent(exportFileName)}`,
-        extractionData,
-        { responseType: "blob" }
-      );
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", exportFileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      toast.success(`${type.toUpperCase()} downloaded!`, { id: loadingToast });
-    } catch {
-      toast.error(`Failed to generate ${type.toUpperCase()}`, { id: loadingToast });
-    }
-  };
-
-  const handleDownloadOriginal = () => {
-    if (file) {
-      const url = URL.createObjectURL(file);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", file.name);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } else {
-      toast.error("Original file not available for historical documents.");
-    }
-  };
-
-  // ── Data mutation helpers ──────────────────────────────────────────────────
+  // ─── Table Editing ─────────────────────────────────────────────────────────
   const handleDataChange = (sectionIdx, rowIdx, colIdx, val) => {
     if (!canEdit) return;
-    setExtractionData((prev) => {
-      const n = { ...prev, sections: prev.sections.map((s, i) => i !== sectionIdx ? s : { ...s, rows: s.rows.map((r, j) => j !== rowIdx ? r : r.map((c, k) => k === colIdx ? val : c)) }) };
-      return n;
-    });
+    setExtractionData(prev => ({
+      ...prev,
+      sections: prev.sections.map((s, i) => i !== sectionIdx ? s : {
+        ...s,
+        rows: s.rows.map((r, j) => j !== rowIdx ? r : r.map((c, k) => k !== colIdx ? c :
+          typeof c === "object" && c !== null ? { ...c, value: val, confidence: 1.0 } : { value: val, confidence: 1.0, bbox: null }
+        ))
+      }),
+      _warnings: []
+    }));
   };
 
   const addRow = (sectionIdx) => {
     if (!canEdit) return;
-    setExtractionData((prev) => {
+    setExtractionData(prev => {
       const section = prev.sections[sectionIdx];
-      const newRow = new Array(section.headers?.length || 0).fill("");
+      const newRow = new Array(section.headers?.length || 0).fill(null).map(() => ({ value: "", confidence: 1.0, bbox: null }));
       return { ...prev, sections: prev.sections.map((s, i) => i !== sectionIdx ? s : { ...s, rows: [...s.rows, newRow] }) };
     });
   };
 
   const deleteRow = (sectionIdx, rowIdx) => {
     if (!canEdit) return;
-    setExtractionData((prev) => ({
-      ...prev,
-      sections: prev.sections.map((s, i) =>
-        i !== sectionIdx ? s : { ...s, rows: s.rows.filter((_, j) => j !== rowIdx) }
-      ),
-    }));
+    setExtractionData(prev => ({ ...prev, sections: prev.sections.map((s, i) => i !== sectionIdx ? s : { ...s, rows: s.rows.filter((_, j) => j !== rowIdx) }) }));
   };
 
   const addColumn = (sectionIdx) => {
     if (!canEdit) return;
     const colName = window.prompt("Enter new column name:");
     if (!colName) return;
-    setExtractionData((prev) => {
-      return {
-        ...prev,
-        sections: prev.sections.map((s, i) =>
-          i !== sectionIdx ? s : {
-            ...s,
-            headers: [...(s.headers || []), colName],
-            rows: s.rows.map((r) => [...r, ""]),
-          }
-        ),
-      };
-    });
+    setExtractionData(prev => ({
+      ...prev,
+      sections: prev.sections.map((s, i) => i !== sectionIdx ? s : {
+        ...s,
+        headers: [...(s.headers || []), colName],
+        rows: s.rows.map(r => [...r, { value: "", confidence: 1.0, bbox: null }])
+      })
+    }));
   };
 
   const deleteColumn = (sectionIdx, colIdx) => {
     if (!canEdit) return;
-    if (!window.confirm(`Delete column?`)) return;
-    setExtractionData((prev) => ({
+    if (!window.confirm("Delete this column?")) return;
+    setExtractionData(prev => ({
       ...prev,
-      sections: prev.sections.map((s, i) =>
-        i !== sectionIdx ? s : {
-          ...s,
-          headers: s.headers.filter((_, k) => k !== colIdx),
-          rows: s.rows.map((r) => r.filter((_, k) => k !== colIdx)),
-        }
-      ),
+      sections: prev.sections.map((s, i) => i !== sectionIdx ? s : {
+        ...s,
+        headers: s.headers.filter((_, k) => k !== colIdx),
+        rows: s.rows.map(r => r.filter((_, k) => k !== colIdx))
+      })
     }));
   };
 
   const renameColumn = (sectionIdx, colIdx, newCol) => {
     if (!canEdit || !newCol) return;
-    setExtractionData((prev) => {
-      const section = prev.sections[sectionIdx];
-      if (section.headers[colIdx] === newCol) return prev;
-      return {
-        ...prev,
-        sections: prev.sections.map((s, i) =>
-          i !== sectionIdx ? s : {
-            ...s,
-            headers: s.headers.map((c, k) => (k === colIdx ? newCol : c)),
-          }
-        ),
-      };
-    });
+    setExtractionData(prev => ({
+      ...prev,
+      sections: prev.sections.map((s, i) => i !== sectionIdx ? s : {
+        ...s,
+        headers: s.headers.map((c, k) => k === colIdx ? newCol : c)
+      })
+    }));
   };
 
+  // ─── Export ────────────────────────────────────────────────────────────────
+  const handleExport = async (type) => {
+    try {
+      toast.loading(`Generating ${type.toUpperCase()}…`, { id: "export" });
+      const payload = activeDoc
+        ? { sections: activeDoc.tables, rawText: activeDoc.rawText, document: { type: activeDoc.documentType } }
+        : extractionData;
+      const response = await API.post(`/ocr/export/${type}`, payload, { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      const ext = type === "excel" ? "xlsx" : type;
+      link.setAttribute("download", `${(file?.name || activeDoc?.fileName || "document").replace(/\.[^.]+$/, "")}_export.${ext}`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      toast.success(`${type.toUpperCase()} exported successfully.`, { id: "export" });
+    } catch {
+      toast.error(`Export to ${type} failed.`, { id: "export" });
+    }
+  };
 
+  // ─── Save & Approve ────────────────────────────────────────────────────────
+  const handleSave = async () => {
+    if (!canEdit || !extractionData) return;
+    setIsSaving(true);
+    try {
+      const requiresReview = extractionData._warnings?.length > 0;
+      const payload = {
+        fileName: file?.name || activeDoc?.fileName || "Untitled",
+        module: "OCR",
+        documentType: extractionData?.document?.type || "Unknown",
+        fileUrl: extractionData?.fileUrl || activeDoc?.fileUrl || null,
+        tables: extractionData?.sections || [],
+        details: extractionData?.document?.details || {},
+        rawText: extractionData?.rawText || "",
+        confidence: extractionData?.document?.confidence || 0,
+        status: requiresReview ? "Needs Review" : "Pending Approval"
+      };
+      
+      const savedId = extractionData._savedId || activeDoc?.id;
+      if (savedId) {
+        await API.put(`/ocr-documents/${savedId}`, payload);
+        toast.success("Document updated successfully.");
+      } else {
+        const res = await API.post("/ocr-documents", payload);
+        toast.success("Document saved successfully.");
+        setExtractionData(prev => ({ ...prev, _savedId: res.data.document?.id }));
+      }
+      loadDocuments();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to save document.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!canEdit) return;
+    setIsActionLoading(true);
+    try {
+      const requiresReview = extractionData?._warnings?.length > 0;
+      const savedId = extractionData?._savedId;
+
+      if (savedId) {
+        // Approve the already-saved document
+        await API.post(`/ocr-documents/${savedId}/approve`);
+      } else {
+        // Save and approve in one step
+        const payload = {
+          fileName: file?.name || "Untitled",
+          module: "OCR",
+          documentType: extractionData?.document?.type || "Unknown",
+          tables: extractionData?.sections || [],
+          details: extractionData?.document?.details || {},
+          rawText: extractionData?.rawText || "",
+          confidence: extractionData?.document?.confidence || 0,
+          status: "Approved"
+        };
+        await API.post("/ocr-documents", payload);
+      }
+      toast.success("Document approved and saved.");
+      handleBack();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to approve document.");
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  // ─── History Doc Actions ───────────────────────────────────────────────────
+  const handleApproveDoc = async (docId) => {
+    setIsActionLoading(true);
+    try {
+      await API.post(`/ocr-documents/${docId}/approve`);
+      toast.success("Document approved.");
+      loadDocuments();
+      if (activeDoc?.id === docId) setActiveDoc(prev => ({ ...prev, status: "Approved" }));
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Approval failed.");
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  const handleRejectDoc = async (docId, reason) => {
+    setIsActionLoading(true);
+    try {
+      await API.post(`/ocr-documents/${docId}/reject`, { reason });
+      toast.success("Document rejected.");
+      setShowRejectModal(false);
+      loadDocuments();
+      if (activeDoc?.id === docId) setActiveDoc(prev => ({ ...prev, status: "Rejected", rejectReason: reason }));
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Rejection failed.");
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  const handleDeleteDoc = async (docId) => {
+    if (!window.confirm("Permanently delete this OCR document?")) return;
+    try {
+      await API.delete(`/ocr-documents/${docId}`);
+      toast.success("Document deleted.");
+      loadDocuments();
+      handleBack();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Deletion failed.");
+    }
+  };
+
+  const handleViewDoc = (doc) => {
+    setActiveDoc(doc);
+    setFile(null);
+    setPreviewUrl(doc.fileUrl ? `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${doc.fileUrl}` : null);
+    setExtractionData({ sections: doc.tables, rawText: doc.rawText, document: { type: doc.documentType, confidence: doc.confidence } });
+    setActiveTab("Structured Data");
+    setWorkflowState("viewing");
+  };
 
   const handleBack = () => {
     setWorkflowState("idle");
@@ -399,321 +691,444 @@ const DocumentIntelligence = () => {
     setActiveDoc(null);
     setFile(null);
     setPreviewUrl(null);
+    setImgNaturalSize(null);
+    setActiveBbox(null);
+    setIsEnhanced(false);
+    setShowRejectModal(false);
   };
 
-  // ── Derived values ─────────────────────────────────────────────────────────
+  // ─── Derived ───────────────────────────────────────────────────────────────
+  const allBboxes = [];
+  if (extractionData) {
+    (extractionData.sections || []).forEach(sec => {
+      (sec.rows || []).forEach(row => {
+        row.forEach(cell => {
+          const obj = getCellObj(cell);
+          if (obj.bbox) allBboxes.push(obj);
+        });
+      });
+    });
+  }
+
   const docName = file?.name || activeDoc?.fileName || "Untitled Document";
-  const docStatus = activeDoc?.status || (workflowState === "extracted" ? "Extracted" : "—");
-  const docStatusKey = docStatus.toLowerCase().replace(/\s+/g, "-");
   const confidence = extractionData?.document?.confidence;
   const confClass = getConfidenceClass(confidence);
-  const uploadedDate = activeDoc?.createdAt
-    ? new Date(activeDoc.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
-    : "Just now";
+  const requiresReview = extractionData?._warnings?.length > 0;
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════════════════════════════════════════════
+  const filteredDocs = documents.filter(doc => {
+    const matchSearch = doc.fileName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.documentType?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doc.uploaderName?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = filterStatus === "All" || doc.status === filterStatus;
+    return matchSearch && matchStatus;
+  });
+
+  const STATUS_FILTERS = ["All", "Extracted", "Needs Review", "Pending Approval", "Approved", "Rejected", "Failed"];
+
+  // ─── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="doc-intel-workspace">
 
-      {/* ── IDLE STATE ────────────────────────────────────────────────────── */}
+      {/* ═══ IDLE STATE ══════════════════════════════════════════════════════════ */}
       {workflowState === "idle" && (
         <>
           <PageHeader
-            title="OCR"
-            badge="AI TOOL"
-            subtitle="Upload any supported document or image file to automatically extract structured data."
+            title="Document Intelligence"
+            badge="AI OCR"
+            subtitle="Upload any document or image to automatically extract structured data using AI-powered OCR."
           />
-
           <div className="doc-intel-main">
-            {canUpload ? (
-              <div
-                className={`doc-intel-workspace-center${isDragging ? " dragging" : ""}`}
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-              >
-                <div className="empty-state">
-                  <Upload size={40} color={isDragging ? "var(--blue)" : "var(--ink-soft)"} />
-                  <h2>Drag &amp; Drop any document or image</h2>
-                  <p>PDF • DOC • DOCX • PNG • JPG • TIFF &amp; more supported</p>
-                  <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={handleFileChange} />
+
+            {/* Upload Zone */}
+            <div
+              className={`doc-intel-workspace-center${isDragging ? " dragging" : ""}`}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+            >
+              <div className="empty-state">
+                <div className="upload-icon-wrap">
+                  <Upload size={32} color={isDragging ? "var(--blue)" : "var(--ink-soft)"} />
+                </div>
+                <h2>Drag & Drop any document or image</h2>
+                <p>PDF • DOC • DOCX • PNG • JPG • BMP • TIFF • WEBP & more supported</p>
+                <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                  <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={handleFileChange}
+                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.tiff,.tif,.bmp,.webp,.gif,.jfif" />
                   <button className="btn btn-primary" onClick={() => fileInputRef.current?.click()}>
                     <Plus size={14} /> Browse Files
                   </button>
                 </div>
+                <p style={{ fontSize: 11, color: "var(--ink-faint)" }}>Max 50 MB · Secure processing · Files are not stored permanently</p>
               </div>
-            ) : (
-              <div className="doc-intel-workspace-center">
-                <div className="empty-state">
-                  <Eye size={40} color="var(--ink-soft)" />
-                  <h2>View Mode</h2>
-                  <p>You have view-only access to this module. Please select an existing document from the system to review its extracted data.</p>
+            </div>
+
+            {/* Document Library */}
+            <div className="doc-library">
+              <div className="doc-library-header">
+                <FileText size={15} color="var(--ink-soft)" />
+                <span>OCR Document History</span>
+                <span className="doc-count-badge">{documents.length}</span>
+                <button className="btn-icon" style={{ marginLeft: "auto" }} onClick={loadDocuments} title="Refresh">
+                  <RefreshCw size={14} className={loadingDocs ? "animate-spin" : ""} />
+                </button>
+              </div>
+
+
+
+              {loadingDocs ? (
+                <div style={{ padding: "32px", textAlign: "center" }}>
+                  <Loader2 size={20} className="animate-spin" color="var(--blue)" />
                 </div>
-              </div>
-            )}
+              ) : filteredDocs.length === 0 ? (
+                <div style={{ padding: "32px", textAlign: "center", color: "var(--ink-soft)", fontSize: 13 }}>
+                  {searchQuery || filterStatus !== "All" ? "No documents match your filters." : "No OCR documents saved yet. Upload a file to get started."}
+                </div>
+              ) : (
+                <table className="doc-library-table">
+                  <thead>
+                    <tr>
+                      <th>File Name</th>
+                      <th>Type</th>
+                      <th>Confidence</th>
+                      <th>Status</th>
+                      <th>Uploaded By</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredDocs.map(doc => (
+                      <tr key={doc.id} onClick={() => handleViewDoc(doc)} style={{ cursor: "pointer" }}>
+                        <td>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <FileText size={14} color="var(--blue)" />
+                            <span style={{ fontWeight: 500, maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {doc.fileName}
+                            </span>
+                          </div>
+                        </td>
+                        <td><span style={{ fontSize: 12, color: "var(--ink-soft)" }}>{doc.documentType || "—"}</span></td>
+                        <td>
+                          {doc.confidence != null ? (
+                            <span className={`confidence-pill ${getConfidenceClass(doc.confidence)}`}>
+                              {(doc.confidence * 100).toFixed(0)}%
+                            </span>
+                          ) : "—"}
+                        </td>
+                        <td><StatusBadge status={doc.status} /></td>
+                        <td style={{ fontSize: 12, color: "var(--ink-soft)" }}>{doc.uploaderName || "—"}</td>
+                        <td style={{ fontSize: 12, color: "var(--ink-soft)" }}>{formatDate(doc.createdAt)}</td>
+                        <td>
+                          <div style={{ display: "flex", gap: 4 }}>
+                            <button className="btn btn-outline btn-xs" onClick={() => handleViewDoc(doc)} title="View">
+                              <Eye size={11} /> View
+                            </button>
+                            {canEdit && doc.status !== "Approved" && (
+                              <button className="btn btn-xs" style={{ background: "var(--green-mist)", color: "var(--green)", border: "1px solid var(--green-light)" }} onClick={() => handleApproveDoc(doc.id)} title="Approve">
+                                <Check size={11} />
+                              </button>
+                            )}
+                            {canEdit && doc.status !== "Rejected" && (
+                              <button className="btn btn-xs" style={{ background: "var(--red-mist)", color: "var(--red)", border: "1px solid var(--red-light)" }} onClick={() => { setActiveDoc(doc); setShowRejectModal(true); }} title="Reject">
+                                <X size={11} />
+                              </button>
+                            )}
+                            {canEdit && (
+                              <button className="btn btn-xs" style={{ background: "var(--red-mist)", color: "var(--red)", border: "1px solid var(--red-light)" }} onClick={() => handleDeleteDoc(doc.id)} title="Delete">
+                                <Trash2 size={11} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         </>
       )}
 
-      {/* ── PROCESSING STATE ──────────────────────────────────────────────── */}
+      {/* ═══ PROCESSING STATE ════════════════════════════════════════════════════ */}
       {workflowState === "processing" && (
         <div className="doc-intel-main" style={{ padding: "0 32px 32px" }}>
-          <PageHeader
-            title="OCR"
-            badge="AI TOOL"
-            subtitle="Processing your file — please wait while the AI engine extracts structured data."
-          />
+          <PageHeader title="Document Intelligence" badge="AI OCR" subtitle="Processing your document — please wait." />
           <div className="upload-status">
             <div className="upload-meta">
-              <div className="meta-item"><span>File</span><span>{file?.name}</span></div>
+              <div className="meta-item"><span>File</span><span style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{file?.name}</span></div>
               <div className="meta-item"><span>Format</span><span>{getFileExt(file?.name)}</span></div>
               <div className="meta-item"><span>Size</span><span>{formatBytes(file?.size)}</span></div>
-              <div className="meta-item"><span>Upload</span><span style={{ color: "var(--green)" }}>Complete ✓</span></div>
             </div>
-            
-            <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Loader2 size={32} className="animate-spin" color="var(--blue)" style={{ marginBottom: 16 }} />
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 300 }}>
-                <div className={`step-indicator ${processingStep >= 0 ? 'active' : ''}`}>
-                   {processingStep > 0 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 0 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
-                   <span>Uploading &amp; Identifying Format...</span>
-                </div>
-                <div className={`step-indicator ${processingStep >= 1 ? 'active' : ''}`}>
-                   {processingStep > 1 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 1 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
-                   <span>Analyzing Document Structure...</span>
-                </div>
-                <div className={`step-indicator ${processingStep >= 2 ? 'active' : ''}`}>
-                   {processingStep > 2 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 2 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
-                   <span>Extracting Tables &amp; Text...</span>
-                </div>
-                <div className={`step-indicator ${processingStep >= 3 ? 'active' : ''}`}>
-                   {processingStep > 3 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 3 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
-                   <span>Formatting as Structured Tables...</span>
-                </div>
-                <div className={`step-indicator ${processingStep >= 4 ? 'active' : ''}`}>
-                   {processingStep > 4 ? <CheckCircle2 size={16} color="var(--green)" /> : (processingStep === 4 ? <Loader2 size={16} className="animate-spin" /> : <div className="step-dot" />)}
-                   <span>Running OCR Engine (This may take ~60s on CPU)...</span>
-                </div>
-              </div>
-            </div>
+            <ProcessingSteps active={true} />
           </div>
         </div>
       )}
 
-      {/* ── FAILED STATE ──────────────────────────────────────────────────── */}
+      {/* ═══ FAILED STATE ════════════════════════════════════════════════════════ */}
       {workflowState === "failed" && (
         <div className="doc-intel-main" style={{ padding: "32px" }}>
           <div className="error-container">
             <AlertTriangle size={36} />
             <h3>Extraction Failed</h3>
-            <p>{errorDetails}</p>
+            <p>{errorDetails || "An unknown error occurred during OCR processing."}</p>
             <div style={{ display: "flex", gap: 8 }}>
               <button className="btn btn-outline" onClick={handleBack}>← Back</button>
-              <button className="btn btn-primary" onClick={() => performExtraction(file)}>Retry Extraction</button>
+              <button className="btn btn-primary" onClick={() => performExtraction(file)}>
+                <RefreshCw size={14} /> Retry Extraction
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── EXTRACTED STATE — FULL REVIEW WORKSPACE ───────────────────────── */}
-      {workflowState === "extracted" && extractionData && (
+      {/* ═══ EXTRACTED / VIEWING STATE ═══════════════════════════════════════════ */}
+      {(workflowState === "extracted" || workflowState === "viewing") && extractionData && (
         <div className="ocr-review-workspace animate-fadein">
 
-          {/* TOP ACTION BAR */}
+          {/* Top Action Bar */}
           <div className="ocr-top-bar">
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={handleBack}
-              style={{ marginRight: 4 }}
-            >
-              <Upload size={14} /> Upload Another Document
-            </button>
-            <div className="ocr-top-bar-divider" />
-
-            <div className="ocr-top-bar-info">
-              <div className="ocr-top-bar-title">{docName}</div>
-              <div className="ocr-top-bar-sub">
-                <span className={`status-badge status-${docStatusKey}`}>{docStatus}</span>
-                {confidence != null && (
-                  <span className={`confidence-pill ${confClass}`}>
-                    {(confidence * 100).toFixed(2)}% confidence
-                  </span>
-                )}
-                <span style={{ color: "var(--ink-faint)" }}>·</span>
-                <span>{uploadedDate}</span>
-                {canEdit ? (
-                  <span className="role-badge" style={{ marginLeft: 4 }}>
-                    <Edit3 size={10} /> Editing Enabled
-                  </span>
-                ) : (
-                  <span className="role-badge view-only" style={{ marginLeft: 4 }}>
-                    <Eye size={10} /> View Only
-                  </span>
-                )}
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button className="btn btn-ghost btn-sm" onClick={handleBack}>
+                <ArrowLeft size={14} /> Back
+              </button>
+              <div className="ocr-top-bar-divider" />
+              <div className="ocr-top-bar-info">
+                <div className="ocr-top-bar-title">{docName}</div>
+                <div className="ocr-top-bar-sub">
+                  <StatusBadge status={activeDoc?.status || (requiresReview ? "Needs Review" : "Extracted")} />
+                  {confidence != null && (
+                    <span className={`confidence-pill ${confClass}`}>
+                      Accuracy: {(confidence * 100).toFixed(1)}%
+                    </span>
+                  )}
+                  {canEdit
+                    ? <span className="role-badge"><Edit3 size={10} /> Editing Enabled</span>
+                    : <span className="role-badge view-only"><Shield size={10} /> View Only</span>
+                  }
+                </div>
               </div>
             </div>
 
-            {/* Right-side action buttons */}
-            {canEdit && (
-              <>
-                <div className="ocr-top-bar-divider" />
-                <button className="btn btn-outline btn-sm" onClick={saveDocumentState} disabled={isSaving}>
+            {/* Action Buttons */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+              <button className="btn btn-outline btn-sm" onClick={() => handleExport("txt")}>
+                <Download size={13} /> TXT
+              </button>
+              <button className="btn btn-outline btn-sm" onClick={() => handleExport("docx")}>
+                <Download size={13} /> DOCX
+              </button>
+              <button className="btn btn-outline btn-sm" onClick={() => handleExport("excel")}>
+                <Download size={13} /> Excel
+              </button>
+              <button className="btn btn-outline btn-sm" onClick={() => handleExport("pdf")}>
+                <Download size={13} /> PDF
+              </button>
+
+              {canEdit && (workflowState === "extracted" || workflowState === "viewing") && (
+                <button className="btn btn-outline btn-sm" onClick={handleSave} disabled={isSaving}>
                   {isSaving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                   Save
                 </button>
-                {(docStatusKey === "needs-review" || docStatusKey === "extracted" || !activeDoc) && (
-                  <>
-                    <button className="btn btn-success btn-sm" onClick={() => updateDocumentStatus("Approved")}>
-                      <CheckCheck size={13} /> Approve
-                    </button>
-                    <button className="btn btn-danger btn-sm" onClick={() => updateDocumentStatus("Rejected")}>
-                      <XCircle size={13} /> Reject
-                    </button>
-                  </>
-                )}
-              </>
-            )}
+              )}
 
-            <div className="ocr-top-bar-divider" />
-            <button className="btn btn-outline btn-sm" onClick={handleDownloadOriginal} disabled={!file}>
-              <Download size={13} /> Original
-            </button>
-            <button className="btn btn-outline btn-sm" onClick={() => handleExport("docx")}>
-              <Download size={13} /> Word
-            </button>
-            <button className="btn btn-outline btn-sm" onClick={() => handleExport("pdf")}>
-              <Download size={13} /> PDF
-            </button>
+              {canEdit && (workflowState === "extracted" || (workflowState === "viewing" && activeDoc?.status !== "Approved")) && (
+                <button
+                  className="btn btn-success btn-sm"
+                  onClick={workflowState === "viewing" ? () => handleApproveDoc(activeDoc.id) : handleApprove}
+                  disabled={isActionLoading || isSaving}
+                >
+                  {isActionLoading ? <Loader2 size={13} className="animate-spin" /> : <CheckCheck size={13} />}
+                  Approve
+                </button>
+              )}
+
+              {canEdit && workflowState === "viewing" && activeDoc?.status !== "Rejected" && (
+                <button className="btn btn-danger btn-sm" onClick={() => setShowRejectModal(true)} disabled={isActionLoading}>
+                  <XCircle size={13} /> Reject
+                </button>
+              )}
+
+              {canEdit && workflowState === "viewing" && (
+                <button className="btn btn-outline btn-sm" style={{ color: "var(--red)", borderColor: "var(--red-light)" }} onClick={() => handleDeleteDoc(activeDoc.id)}>
+                  <Trash2 size={13} /> Delete
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* TWO-PANEL BODY */}
+          {/* Two-panel body */}
           <div className="ocr-panels">
-
-            {/* ── LEFT: DOCUMENT PREVIEW ────────────────────────────────── */}
+            {/* Left: Document Preview */}
             <div className="ocr-left-panel">
               <div className="ocr-left-panel-header">
-                <div className="ocr-file-name">{docName}</div>
-                <div className="ocr-file-meta">
-                  <span className="ocr-file-meta-item">{getFileExt(file?.name || activeDoc?.fileName)}</span>
-                  {file?.size && <span className="ocr-file-meta-item">{formatBytes(file.size)}</span>}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <ImageIcon size={15} color="var(--ink-soft)" />
+                  <span className="ocr-file-name">{docName}</span>
+                </div>
+                {previewUrl && (
+                  <div style={{ display: "flex", gap: 4 }}>
+                    <button className={`btn btn-xs ${!isEnhanced ? "btn-primary" : "btn-outline"}`} onClick={() => setIsEnhanced(false)}>Original</button>
+                    <button className={`btn btn-xs ${isEnhanced ? "btn-primary" : "btn-outline"}`} onClick={() => setIsEnhanced(true)}>Enhanced</button>
+                  </div>
+                )}
+              </div>
+              {previewUrl ? (
+                <InteractiveViewer
+                  previewUrl={previewUrl}
+                  file={file}
+                  imgNaturalSize={imgNaturalSize}
+                  setImgNaturalSize={setImgNaturalSize}
+                  allBboxes={allBboxes}
+                  activeBbox={activeBbox}
+                  onCellFocus={setActiveBbox}
+                  showBboxes={showBboxes}
+                  isEnhanced={isEnhanced}
+                />
+              ) : (
+                <div className="ocr-preview-empty">
+                  <div className="ocr-preview-empty-icon"><FileText size={28} color="var(--ink-faint)" /></div>
+                  <h4>No image preview</h4>
+                  <p>Document preview is unavailable for historical records.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Right: Extracted Data */}
+            <div className="ocr-right-panel">
+              <div className="ocr-right-panel-header" style={{ padding: 0 }}>
+                <div style={{ display: "flex", borderBottom: "1px solid var(--line)", width: "100%" }}>
+                  {["Structured Data", "OCR Text", "History"].map(tab => (
+                    <button
+                      key={tab}
+                      className={`tab-btn ${activeTab === tab ? "active" : ""}`}
+                      onClick={() => setActiveTab(tab)}
+                    >{tab}</button>
+                  ))}
                 </div>
               </div>
 
-              <div className="ocr-preview-area">
-                {previewUrl ? (
-                  file?.type === "application/pdf" ? (
-                    <object data={previewUrl} type="application/pdf" style={{ width: "100%", height: "100%", minHeight: 500 }}>
-                      <p style={{ padding: 24, color: "var(--ink-soft)", fontSize: 13 }}>
-                        PDF preview not available in this browser. Use the download button above to view the original.
-                      </p>
-                    </object>
-                  ) : (
-                    <img src={previewUrl} alt="Document Preview" />
-                  )
-                ) : (
-                  <div className="ocr-preview-empty">
-                    <div className="ocr-preview-empty-icon">
-                      <FileText size={28} color="var(--ink-soft)" />
-                    </div>
-                    <h4>No Preview Available</h4>
-                    <p>
-                      {activeDoc
-                        ? "Preview is not stored for historical documents."
-                        : "Preview is not available for this file type."}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* ── RIGHT: EXTRACTED DATA ─────────────────────────────────── */}
-            <div className="ocr-right-panel">
-              <div className="ocr-right-panel-header">
-                <span className="ocr-right-panel-title">Extracted Data</span>
-                <span style={{ fontSize: 12, color: "var(--ink-soft)" }}>
-                  {(extractionData.sections || []).length} section{(extractionData.sections || []).length !== 1 ? "s" : ""} detected
-                </span>
-              </div>
-
               <div className="ocr-right-panel-body">
-                {confidence != null && confidence < 0.70 && (
-                  <div style={{ padding: "12px 16px", marginBottom: "16px", background: "var(--red-light, #fee2e2)", color: "var(--red-dark, #991b1b)", borderRadius: "var(--radius)", display: "flex", gap: "12px", alignItems: "center", fontSize: "13px" }}>
-                    <AlertTriangle size={16} />
-                    <span><strong>Low Confidence Extraction:</strong> The OCR engine had difficulty reading some parts of this document. Please review the extracted data carefully.</span>
-                  </div>
-                )}
 
-                {(extractionData.sections || []).length === 0 && (
-                  <div style={{ padding: "40px", textAlign: "center", color: "var(--ink-soft)", fontSize: 13, background: "var(--paper)", borderRadius: "var(--radius)", border: "1px solid var(--line)" }}>
-                    No readable text was detected in this document.
-                  </div>
-                )}
-
-                {(extractionData.sections || []).map((section, sIdx) => (
-                  <div key={sIdx} className="ocr-section-card">
-                    <div className="ocr-section-card-header">
-                      <div className="ocr-section-card-title">
-                        {section.title || `Section ${sIdx + 1}`}
-                        <span className="ocr-section-type-badge">Table</span>
-                      </div>
-                      {canEdit && (
-                        <div className="ocr-section-actions">
-                          <button className="btn btn-outline btn-xs" onClick={() => addColumn(sIdx)}>
-                            <Plus size={10} /> Col
-                          </button>
-                          <button className="btn btn-outline btn-xs" onClick={() => addRow(sIdx)}>
-                            <Plus size={10} /> Row
-                          </button>
-                        </div>
-                      )}
+                {/* Non-admin view-only banner */}
+                {!canEdit && (
+                  <div className="view-only-banner">
+                    <Shield size={15} />
+                    <div>
+                      <strong>View Only</strong> — You can view extracted data but cannot edit or approve documents.
+                      Contact an Admin for modifications.
                     </div>
-
-                    <DynamicOCRTable
-                      section={section}
-                      sIdx={sIdx}
-                      canEdit={canEdit}
-                      onDataChange={handleDataChange}
-                      onAddRow={addRow}
-                      onDeleteRow={deleteRow}
-                      onAddColumn={addColumn}
-                      onDeleteColumn={deleteColumn}
-                      onRenameColumn={renameColumn}
-                    />
                   </div>
-                ))}
+                )}
 
-                {/* bottom spacer */}
-                <div style={{ height: 24 }} />
-                
-                {/* Raw Text Section */}
-                {extractionData.rawText && (
+                {/* Review required warning */}
+                {requiresReview && activeTab === "Structured Data" && (
+                  <div className="warning-banner">
+                    <AlertTriangle size={18} />
+                    <div>
+                      <strong style={{ display: "block", marginBottom: 2 }}>
+                        {extractionData._warnings.length} field{extractionData._warnings.length > 1 ? "s" : ""} require review
+                      </strong>
+                      <div style={{ fontSize: 12 }}>Highlighted cells have low confidence. Please review before approving.</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Structured Data Tab */}
+                {activeTab === "Structured Data" && (
+                  <>
+                    {(extractionData.sections || []).length === 0 ? (
+                      <div style={{ textAlign: "center", padding: "40px", color: "var(--ink-soft)", fontSize: 13 }}>
+                        No structured data could be extracted from this document.
+                      </div>
+                    ) : (
+                      (extractionData.sections || []).map((section, sIdx) => (
+                        <div key={sIdx} className="ocr-section-card" style={{ marginBottom: 16 }}>
+                          <div className="ocr-section-card-header">
+                            <div className="ocr-section-card-title">
+                              {section.title}
+                              <span className="ocr-section-type-badge">{section.type}</span>
+                            </div>
+                            {canEdit && section.type === "table" && (
+                              <div className="ocr-section-actions">
+                                <button className="btn btn-outline btn-xs" onClick={() => addColumn(sIdx)}>
+                                  <Plus size={10} /> Col
+                                </button>
+                                <button className="btn btn-outline btn-xs" onClick={() => addRow(sIdx)}>
+                                  <Plus size={10} /> Row
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          <DynamicOCRTable
+                            section={section}
+                            sIdx={sIdx}
+                            canEdit={canEdit && workflowState === "extracted"}
+                            onDataChange={handleDataChange}
+                            onDeleteRow={deleteRow}
+                            onDeleteColumn={deleteColumn}
+                            onRenameColumn={renameColumn}
+                            activeBbox={activeBbox}
+                            onCellFocus={setActiveBbox}
+                          />
+                        </div>
+                      ))
+                    )}
+                  </>
+                )}
+
+                {/* OCR Text Tab */}
+                {activeTab === "OCR Text" && (
                   <div className="ocr-section-card">
                     <div className="ocr-section-card-header">
-                      <div className="ocr-section-card-title">
-                        Raw Extracted Text
-                        <span className="ocr-section-type-badge">Text</span>
-                      </div>
-                      <div className="ocr-section-actions">
-                        <button className="btn btn-outline btn-xs" onClick={() => {
-                          navigator.clipboard.writeText(extractionData.rawText);
-                          toast.success("Copied to clipboard!");
-                        }}>
-                          Copy Text
-                        </button>
-                      </div>
+                      <div className="ocr-section-card-title">Raw Extracted Text</div>
                     </div>
-                    <div style={{ padding: "16px", fontSize: "13px", color: "var(--ink-main)", whiteSpace: "pre-wrap", fontFamily: "monospace", background: "var(--paper)", borderTop: "1px solid var(--line)" }}>
-                      {extractionData.rawText}
-                    </div>
+                    {extractionData.rawText ? (
+                      <div style={{ padding: "16px", fontSize: "13px", fontFamily: "monospace", whiteSpace: "pre-wrap", background: "#f8f9fa", lineHeight: 1.7 }}>
+                        {extractionData.rawText}
+                      </div>
+                    ) : (
+                      <div style={{ padding: "24px", textAlign: "center", color: "var(--ink-soft)", fontSize: 13 }}>
+                        No raw text available.
+                      </div>
+                    )}
                   </div>
                 )}
+
+                {/* History Tab */}
+                {activeTab === "History" && (
+                  <div className="ocr-section-card">
+                    <div className="ocr-section-card-header">
+                      <div className="ocr-section-card-title"><History size={13} /> Processing History</div>
+                    </div>
+                    {activeDoc?.rejectReason && (
+                      <div style={{ padding: "10px 14px", background: "var(--red-mist)", borderBottom: "1px solid var(--red-light)", fontSize: 13, color: "var(--red)" }}>
+                        <strong>Rejection reason:</strong> {activeDoc.rejectReason}
+                      </div>
+                    )}
+                    <HistoryPanel history={activeDoc?.processingHistory} />
+                    {activeDoc && (
+                      <div style={{ padding: "10px 14px", borderTop: "1px solid var(--line)", fontSize: 12, color: "var(--ink-soft)", display: "flex", gap: 16 }}>
+                        {activeDoc.approvedByName && <span><Check size={11} color="var(--green)" /> Approved by <strong>{activeDoc.approvedByName}</strong> on {formatDate(activeDoc.approvedAt)}</span>}
+                        {activeDoc.uploaderName && <span><Upload size={11} /> Uploaded by <strong>{activeDoc.uploaderName}</strong></span>}
+                      </div>
+                    )}
+                  </div>
+                )}
+
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {/* ═══ REJECT MODAL ════════════════════════════════════════════════════════ */}
+      {showRejectModal && activeDoc && (
+        <RejectModal
+          onConfirm={(reason) => handleRejectDoc(activeDoc.id, reason)}
+          onCancel={() => setShowRejectModal(false)}
+        />
       )}
     </div>
   );

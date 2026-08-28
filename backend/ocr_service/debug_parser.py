@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from services.ocr_parser import detect_table, group_into_lines
+from services.ocr_parser import process_document, group_into_lines
 
 # Simulate two "Date Range" headers as they would be OCR'd
 test_elements = [
@@ -19,6 +19,5 @@ print("Lines detected:", len(lines))
 for i, line in enumerate(lines):
     print(f"  Line {i}: {[el['text'] for el in line]}")
 
-title, columns, start_idx, end_idx = detect_table(lines)
-print("Start idx:", start_idx)
-print("Column keys:", [c['key'] for c in columns])
+result = process_document(test_elements)
+print("Result:", result)

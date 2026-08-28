@@ -12,6 +12,10 @@ const OcrDocumentSequelize = sequelize.define('OcrDocument', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    fileUrl: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     uploaderId: {
         type: DataTypes.INTEGER,
         allowNull: false

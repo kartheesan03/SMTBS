@@ -1,8 +1,8 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi.responses import JSONResponse, FileResponse
 import os
 import uuid
-from services.ocr_service import extract_text
+from services.ocr_service import extract_text, preprocess_image_custom
 
 router = APIRouter()
 UPLOAD_DIR = "uploads"
@@ -63,3 +63,30 @@ async def ocr_endpoint(file: UploadFile = File(...)):
                 os.remove(file_path)
             except Exception:
                 pass
+
+@router.post("/api/ocr/enhance")
+async def enhance_image(
+    file: UploadFile = File(...),
+    denoise: bool = Form(True),
+    contrast: bool = Form(True),
+    sharpen: bool = Form(False)
+):
+    if not file or not file.filename:
+        raise HTTPException(status_code=400, detail="No file uploaded.")
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in IMAGE_EXTENSIONS:
+        return JSONResponse(status_code=400, content={"error": "Unsupported file type for enhancement."})
+    
+    file_bytes = await file.read()
+    safe_filename = f"{uuid.uuid4()}{ext}"
+    file_path = os.path.abspath(os.path.join(UPLOAD_DIR, safe_filename))
+    
+    with open(file_path, "wb") as buffer:
+        buffer.write(file_bytes)
+        
+    try:
+        out_path = preprocess_image_custom(file_path, denoise, contrast, sharpen)
+        return FileResponse(out_path, media_type=f"image/{ext.replace('.','')}", filename=f"enhanced_{file.filename}")
+    except Exception as e:
+        if os.path.exists(file_path): os.remove(file_path)
+        return JSONResponse(status_code=500, content={"error": str(e)})

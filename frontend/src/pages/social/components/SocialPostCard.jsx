@@ -214,7 +214,7 @@ const SocialPostCard = ({ post, onDelete }) => {
                     onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = showComments ? '#0f172a' : '#64748b'; }}
                 >
                     <MessageSquare size={20} fill={showComments ? '#e2e8f0' : 'none'} color={showComments ? '#0f172a' : '#64748b'} />
-                    Comment
+                    Comment {commentsCount > 0 ? `(${commentsCount})` : ''}
                 </button>
 
                 <button 
@@ -246,6 +246,7 @@ const SocialPostCard = ({ post, onDelete }) => {
                 <div style={{ backgroundColor: '#f8fafc', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
                     <CommentSection 
                         postId={post.id} 
+                        postAuthorId={post.author?.id || post.author?._id}
                         comments={post.comments} 
                         onCommentAdded={() => setCommentsCount(prev => prev + 1)}
                     />

@@ -18,4 +18,7 @@ router.post('/', protect, ocrDocumentController.createOcrDocument);
 // PUT /api/ocr-documents/:id
 router.put('/:id', protect, ocrDocumentController.updateOcrDocument);
 
+// DELETE /api/ocr-documents/:id
+router.delete('/:id', protect, ocrDocumentController.deleteOcrDocument);
+
 module.exports = router;

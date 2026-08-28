@@ -1,8 +1,10 @@
 const axios = require('axios');
 const fs = require('fs');
 const FormData = require('form-data');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
-const getFastApiUrl = () => process.env.OCR_SERVICE_URL || process.env.FASTAPI_URL || 'http://localhost:8000';
+const getFastApiUrl = () => process.env.OCR_SERVICE_URL || process.env.FASTAPI_URL || 'http://127.0.0.1:8000';
 
 const extractText = async (req, res) => {
     if (!req.file) {
@@ -17,7 +19,7 @@ const extractText = async (req, res) => {
             await axios.get(`${getFastApiUrl()}/health`, { timeout: 3000 });
         } catch (healthErr) {
             console.error('[OCR] Health check failed:', healthErr.message);
-            try { fs.unlinkSync(filePath); } catch (_) {}
+            try { fs.unlinkSync(filePath); } catch (_) { }
             return res.status(503).json({
                 success: false,
                 error: `Python OCR service is unavailable. Please start the OCR service on port 8000.`
@@ -38,17 +40,26 @@ const extractText = async (req, res) => {
         });
 
         // Clean up the temp file
-        try { fs.unlinkSync(filePath); } catch (_) {}
+        try { fs.unlinkSync(filePath); } catch (_) { }
 
-        return res.json(response.data);
+        // Save the file permanently for historical preview
+        const uniqueFileName = `${uuidv4()}-${originalname.replace(/\s+/g, '_')}`;
+        const finalDest = path.join(__dirname, '../../uploads/ocr', uniqueFileName);
+        fs.writeFileSync(finalDest, fileBuffer);
+        const fileUrl = `/uploads/ocr/${uniqueFileName}`;
+
+        return res.json({
+            ...response.data,
+            fileUrl
+        });
 
     } catch (err) {
         // Attempt to clean up even if there was an error
-        try { fs.unlinkSync(filePath); } catch (_) {}
+        try { fs.unlinkSync(filePath); } catch (_) { }
 
         console.error('[OCR] Error proxying to FastAPI:', err.message);
         let errorMsg = err.response?.data?.detail || err.message || 'OCR processing failed.';
-        
+
         if (err.code === 'ECONNREFUSED' || err.message.includes('ECONNREFUSED')) {
             errorMsg = `Failed to connect to OCR Engine at ${getFastApiUrl()}. Is the Python backend running?`;
         } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
@@ -59,6 +70,40 @@ const extractText = async (req, res) => {
             success: false,
             error: errorMsg,
         });
+    }
+};
+
+const enhanceImage = async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ success: false, error: 'No file uploaded.' });
+    }
+    const { path: filePath, originalname } = req.file;
+    try {
+        const formData = new FormData();
+        const fileBuffer = fs.readFileSync(filePath);
+        formData.append('file', fileBuffer, { filename: originalname });
+        formData.append('denoise', String(req.body.denoise ?? true));
+        formData.append('contrast', String(req.body.contrast ?? true));
+        formData.append('sharpen', String(req.body.sharpen ?? false));
+
+        const response = await axios.post(`${getFastApiUrl()}/api/ocr/enhance`, formData, {
+            headers: { ...formData.getHeaders() },
+            responseType: 'stream',
+            timeout: 60000
+        });
+
+        for (const [key, value] of Object.entries(response.headers)) {
+            res.setHeader(key, value);
+        }
+
+        // Clean up the temp file
+        try { fs.unlinkSync(filePath); } catch (_) { }
+
+        response.data.pipe(res);
+    } catch (err) {
+        try { fs.unlinkSync(filePath); } catch (_) { }
+        console.error('[OCR] Error enhancing image:', err.message);
+        return res.status(500).json({ success: false, error: 'Image enhancement failed.' });
     }
 };
 
@@ -74,7 +119,7 @@ const exportDocx = async (req, res) => {
         for (const [key, value] of Object.entries(response.headers)) {
             res.setHeader(key, value);
         }
-        
+
         response.data.pipe(res);
     } catch (err) {
         console.error('[OCR] Error exporting docx:', err.message);
@@ -102,7 +147,7 @@ const exportTxt = async (req, res) => {
         for (const [key, value] of Object.entries(response.headers)) {
             res.setHeader(key, value);
         }
-        
+
         response.data.pipe(res);
     } catch (err) {
         console.error('[OCR] Error exporting txt:', err.message);
@@ -130,7 +175,7 @@ const exportPdf = async (req, res) => {
         for (const [key, value] of Object.entries(response.headers)) {
             res.setHeader(key, value);
         }
-        
+
         response.data.pipe(res);
     } catch (err) {
         console.error('[OCR] Error exporting pdf:', err.message);
@@ -147,4 +192,32 @@ const exportPdf = async (req, res) => {
     }
 };
 
-module.exports = { extractText, exportDocx, exportTxt, exportPdf };
+const exportExcel = async (req, res) => {
+    try {
+        const queryStr = req.url.split('?')[1] ? `?${req.url.split('?')[1]}` : '';
+        const response = await axios.post(`${getFastApiUrl()}/export/excel${queryStr}`, req.body, {
+            responseType: 'stream',
+            timeout: 60000
+        });
+
+        for (const [key, value] of Object.entries(response.headers)) {
+            res.setHeader(key, value);
+        }
+
+        response.data.pipe(res);
+    } catch (err) {
+        console.error('[OCR] Error exporting excel:', err.message);
+        let errorMsg = err.response?.data?.detail || err.message || 'Excel generation failed.';
+        if (err.code === 'ECONNREFUSED' || err.message.includes('ECONNREFUSED')) {
+            errorMsg = `Failed to connect to OCR Engine at ${getFastApiUrl()}. Is the Python backend running?`;
+        } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+            errorMsg = 'Connection to OCR Engine timed out.';
+        }
+        return res.status(500).json({
+            success: false,
+            error: errorMsg,
+        });
+    }
+};
+
+module.exports = { extractText, enhanceImage, exportDocx, exportTxt, exportPdf, exportExcel };

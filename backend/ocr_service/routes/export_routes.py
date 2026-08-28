@@ -12,6 +12,12 @@ try:
 except ImportError:
     pass
 
+try:
+    import openpyxl  # type: ignore
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side  # type: ignore
+except ImportError:
+    pass
+
 router = APIRouter()
 
 class DocumentMeta(BaseModel):
@@ -50,6 +56,10 @@ def _get_clean_cols(table_data: TableData) -> List[str]:
     """Get columns."""
     return table_data.headers or table_data.columns or []
 
+def _get_cell_value(val: Any) -> str:
+    if isinstance(val, dict):
+        return str(val.get("value", ""))
+    return str(val or "")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DOCX EXPORT
@@ -246,5 +256,91 @@ async def export_pdf(data: OcrExportRequest, filename: Optional[str] = None):
     return StreamingResponse(
         buffer,
         media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={out_filename}"},
+    )
+
+# ─────────────────────────────────────────────────────────────────────────────
+# EXCEL EXPORT
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.post("/excel")
+async def export_excel(data: OcrExportRequest, filename: Optional[str] = None):
+    try:
+        import openpyxl  # type: ignore
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side  # type: ignore
+    except ImportError:
+        raise HTTPException(status_code=500, detail="openpyxl is not installed")
+
+    wb = openpyxl.Workbook()
+    ws = wb.active  # type: ignore
+    if not ws:
+        ws = wb.create_sheet()  # type: ignore
+    doc_type = (data.document.type if data.document and data.document.type else "Document")
+    ws.title = doc_type[:31]  # type: ignore
+
+    # Styles
+    header_fill = PatternFill(start_color="F1F5F9", end_color="F1F5F9", fill_type="solid")
+    header_font = Font(bold=True, color="374151")
+    align_left = Alignment(horizontal="left", vertical="center", wrap_text=True)
+    border = Border(
+        left=Side(style='thin', color='E5E7EB'), right=Side(style='thin', color='E5E7EB'),
+        top=Side(style='thin', color='E5E7EB'), bottom=Side(style='thin', color='E5E7EB')
+    )
+
+    row_idx = 1
+    sections = _resolve_sections(data)
+    
+    for section in sections:
+        cols = _get_clean_cols(section)
+        rows = section.rows or []
+        if not cols:
+            continue
+
+        if section.title and section.title not in ("Extracted Data", "Extracted Text"):
+            ws.cell(row=row_idx, column=1, value=section.title).font = Font(bold=True, size=14)  # type: ignore
+            row_idx += 2
+
+        # Headers
+        for col_idx, col_name in enumerate(cols, start=1):
+            cell = ws.cell(row=row_idx, column=col_idx, value=col_name)  # type: ignore
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = align_left
+            cell.border = border
+        row_idx += 1
+
+        # Data
+        for row in rows:
+            for col_idx, col_name in enumerate(cols, start=1):
+                val = row[col_idx-1] if isinstance(row, list) and (col_idx-1) < len(row) else (row.get(col_name, "") if isinstance(row, dict) else "")
+                cell = ws.cell(row=row_idx, column=col_idx, value=_get_cell_value(val))  # type: ignore
+                cell.alignment = align_left
+                cell.border = border
+            row_idx += 1
+            
+        row_idx += 2
+
+    # Auto-adjust column widths
+    for col in ws.columns:  # type: ignore
+        max_length = 0
+        column = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = (max_length + 2)
+        if adjusted_width > 50: adjusted_width = 50
+        ws.column_dimensions[column].width = adjusted_width  # type: ignore
+
+    buffer = io.BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    out_filename = filename or f"{doc_type.replace(' ', '_')}_extracted.xlsx"
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename={out_filename}"},
     )

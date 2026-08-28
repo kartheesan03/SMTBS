@@ -1,5 +1,4 @@
 import re
-import math
 import itertools
 from typing import List, Dict, Any, Tuple, Optional
 import logging
@@ -7,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# UTILITY: Number parsing
+# UTILITY
 # ---------------------------------------------------------------------------
 
 def parse_number(text: str) -> Optional[float]:
@@ -31,35 +30,47 @@ def parse_number(text: str) -> Optional[float]:
     except Exception:
         return None
 
-def is_mathematically_valid(nums: List[float], line_text: str = "") -> Optional[Tuple[float, float, float]]:
-    if len(nums) < 2:
-        return None
-    if len(nums) >= 3:
-        for combo in itertools.permutations(nums, 3):
-            q, r, a = combo
-            if q > 0 and r > 0 and a > 0 and abs(q * r - a) < 0.1:
-                return (q, r, a)
-    if len(nums) >= 2:
-        for r, a in itertools.combinations(nums, 2):
-            if r > 0 and abs(r - a) < 0.1:
-                return (1.0, r, a)
-    if len(nums) == 2:
-        q, a = nums[0], nums[1]
-        if q > a:
-            q, a = a, q
-        if re.search(rf'\b{int(q)}\s*[xX\*]\s+', line_text) or re.search(rf'^{int(q)}\s+', line_text):
-            if q == int(q) and 0 < q < 1000 and a > 0:
-                rate = a / q
-                return (q, rate, a)
-    return None
-
 # ---------------------------------------------------------------------------
-# LINE GROUPING
+# GEOMETRY & GROUPING
 # ---------------------------------------------------------------------------
 
-def group_into_lines(elements: List[Dict], y_tolerance: int = 10) -> List[List[Dict]]:
-    """Group elements into horizontal lines with strict y-tolerance to avoid vertical bleeding."""
+def merge_boxes(elements: List[Dict]) -> List[Dict]:
+    """Merge horizontally adjacent fragmented bounding boxes."""
+    # First sort purely by Y
     elements = sorted(elements, key=lambda e: (e['y0'] + e['y1']) / 2)
+    merged = []
+    
+    for el in elements:
+        if not merged:
+            merged.append(el)
+            continue
+            
+        last = merged[-1]
+        
+        # Are they on the same line?
+        y_mid = (el['y0'] + el['y1']) / 2
+        last_y_mid = (last['y0'] + last['y1']) / 2
+        height = last['y1'] - last['y0']
+        
+        # Roughly same line
+        if abs(y_mid - last_y_mid) < height * 0.5:
+            # Check horizontal gap
+            gap = el['x0'] - last['x1']
+            if 0 <= gap < height * 0.8:
+                # Merge!
+                last['text'] = last['text'] + " " + el['text']
+                last['x1'] = max(last['x1'], el['x1'])
+                last['y0'] = min(last['y0'], el['y0'])
+                last['y1'] = max(last['y1'], el['y1'])
+                last['confidence'] = (last['confidence'] + el['confidence']) / 2
+                continue
+        
+        merged.append(el)
+        
+    return merged
+
+def group_into_lines(elements: List[Dict], y_tolerance: int = 15) -> List[List[Dict]]:
+    elements = sorted(elements, key=lambda e: ((e['y0'] + e['y1']) / 2, e['x0']))
     lines: List[List[Dict]] = []
     current_line: List[Dict] = []
     current_y: Optional[float] = None
@@ -82,285 +93,229 @@ def group_into_lines(elements: List[Dict], y_tolerance: int = 10) -> List[List[D
 
     return lines
 
+def get_line_bbox(line: List[Dict]) -> Tuple[float, float, float, float]:
+    x0 = min([e["x0"] for e in line])
+    y0 = min([e["y0"] for e in line])
+    x1 = max([e["x1"] for e in line])
+    y1 = max([e["y1"] for e in line])
+    return (x0, y0, x1, y1)
+
+def get_line_confidence(line: List[Dict]) -> float:
+    confs = [e.get("confidence", 1.0) for e in line]
+    return sum(confs) / len(confs) if confs else 1.0
+
+def get_element_bbox(elements: List[Dict]) -> Tuple[float, float, float, float]:
+    x0 = min([e["x0"] for e in elements])
+    y0 = min([e["y0"] for e in elements])
+    x1 = max([e["x1"] for e in elements])
+    y1 = max([e["y1"] for e in elements])
+    return (x0, y0, x1, y1)
+
 # ---------------------------------------------------------------------------
-# GENERIC KV PAIR EXTRACTION
+# PARSING
 # ---------------------------------------------------------------------------
 
-def extract_generic_kv(line: List[Dict]) -> Tuple[Optional[str], Optional[str]]:
-    if not line:
-        return None, None
+def is_kv_pair(line: List[Dict]) -> bool:
     line_text = " ".join([e["text"] for e in line]).strip()
-    m = re.match(r'^([a-zA-Z\s\.]+)(?:[:\-])\s*(.*)$', line_text)
+    return bool(re.match(r'^[^:]+:\s*.*$', line_text)) or bool(re.match(r'^[^:]+\-\s*.*$', line_text))
+
+def extract_kv_pair(line: List[Dict]) -> Tuple[str, Dict]:
+    line_text = " ".join([e["text"] for e in line]).strip()
+    m = re.match(r'^([^:]+):\s*(.*)$', line_text)
+    if not m:
+        m = re.match(r'^([^:]+)\-\s*(.*)$', line_text)
+    
     if m:
         k = m.group(1).strip()
-        v = m.group(2).strip()
-        if len(k) > 1 and len(v) > 0:
-            return k, v
-    m = re.match(r'^([a-zA-Z\s]+)(?:[:\-])?\s*(\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4})$', line_text)
-    if m:
-        return m.group(1).strip(), m.group(2).strip()
-    if len(line) >= 2:
-        sorted_line = sorted(line, key=lambda x: x["x0"])
-        max_gap = 0
-        split_idx = 1
-        for i in range(1, len(sorted_line)):
-            gap = sorted_line[i]["x0"] - sorted_line[i-1]["x1"]
-            if gap > max_gap:
-                max_gap = gap
-                split_idx = i
-        if max_gap > 15:
-            k = " ".join([e["text"] for e in sorted_line[:split_idx]]).strip()
-            v = " ".join([e["text"] for e in sorted_line[split_idx:]]).strip()
-            if len(k) > 1 and len(v) > 0 and not re.search(r'\d', k):
-                return k, v
-    return None, None
+        v_text = m.group(2).strip()
+        v_elements = []
+        for e in line:
+            if e["text"] in v_text:
+                v_elements.append(e)
+        if not v_elements:
+            v_elements = line
+            
+        return k, {
+            "value": v_text,
+            "confidence": get_line_confidence(v_elements),
+            "bbox": get_element_bbox(v_elements)
+        }
+    return "", {}
 
-
-
-# ---------------------------------------------------------------------------
-# REGION SEGMENTATION & EXTRACTION
-# ---------------------------------------------------------------------------
-
-def clean_line_text(line: List[Dict]) -> str:
-    return " ".join([e["text"] for e in line]).strip()
+def build_rich_cell(elements: List[Dict], default_val: str = "") -> Dict:
+    if not elements:
+        return {"value": default_val, "confidence": 1.0, "bbox": None}
+    val = " ".join([e["text"] for e in elements]).strip()
+    return {
+        "value": val or default_val,
+        "confidence": get_line_confidence(elements),
+        "bbox": get_element_bbox(elements)
+    }
 
 def process_document(elements: List[Dict]) -> Dict:
     if not elements:
-        return {"success": True, "document": {"type": "General", "isStructured": False, "tableDetected": False, "confidence": 0.0, "details": {}}, "sections": [], "tables": []}
+        return {"success": True, "document": {"type": "General", "isStructured": False, "confidence": 0.0, "details": {}}, "sections": []}
 
+    elements = merge_boxes(elements)
     lines = group_into_lines(elements)
     
-    # 1. Determine Document Type (Receipt vs Generic)
-    is_receipt = False
-    raw_text_full = "\n".join([clean_line_text(line) for line in lines]).upper()
-    if "HOTEL" in raw_text_full or "RESTAURANT" in raw_text_full or "ROOM NO" in raw_text_full:
-        is_receipt = True
-
-    # 2. Extract Document Metadata / Header
-    doc_info = {}
-    vendor_name = None
+    # 1. Block Segmentation
+    blocks = []
+    current_block = []
+    last_y = None
     
-    # Try to grab vendor name from the first line if it's substantial (mostly for receipts/invoices)
-    if is_receipt and len(lines) > 0:
-        first_line_text = clean_line_text(lines[0])
-        if len(first_line_text) > 3 and not re.search(r'\d', first_line_text):
-            vendor_name = first_line_text
-            doc_info["Vendor"] = vendor_name
-    elif not is_receipt and len(lines) > 0:
-        # Just call it Title instead of Vendor
-        first_line_text = clean_line_text(lines[0])
-        if len(first_line_text) > 3:
-            doc_info["Title"] = first_line_text
-
-    for i, line in enumerate(lines):
-        line_text = clean_line_text(line)
-        # Look for Date
-        m_date = re.search(r'(?:Date|Dt)[\s:-]*(\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4})', line_text, re.IGNORECASE)
-        if m_date:
-            doc_info["Date"] = m_date.group(1)
-            
-        # Look for alternative date format (e.g. 20-AUG-2026)
-        m_date2 = re.search(r'(\d{1,2}[/\-\s]+[a-zA-Z]{3}[/\-\s]+\d{2,4})', line_text)
-        if m_date2 and "Date" not in doc_info:
-            doc_info["Date"] = m_date2.group(1)
-
-        # Look for Room No
-        m_room = re.search(r'(?:Room\s*No|Room)[\s:-]*(\d+)', line_text, re.IGNORECASE)
-        if m_room:
-            doc_info["Room No"] = m_room.group(1)
-            
-        # Try generic KV extraction for everything else
-        k, v = extract_generic_kv(line)
-        if k and v:
-            if k not in doc_info:
-                doc_info[k] = v
-
-    # 3. Find Table Headers
-    header_keywords = ["QTY", "QUANTITY", "RATE", "PRICE", "S.NO", "ITEM", "AMOUNT", "DESCRIPTION", "NAME", "SKU", "CATEGORY", "STOCK", "STATUS", "PART", "CODE"]
-    
-    best_header_idx = -1
-    best_headers = []
-    
-    for i, line in enumerate(lines):
-        line_text = clean_line_text(line).upper()
-        matches = sum(1 for kw in header_keywords if re.search(rf'\b{kw}\b', line_text))
-        if matches >= 2 or (matches >= 1 and len(line) >= 3):
-            best_header_idx = i
-            best_headers = line
-            break
-            
-    table_rows = []
-    headers = []
-    end_idx = len(lines)
-    summary_idx = len(lines)
-    
-    # DEBUG a: Log raw OCR text
-    logger.info("=== DEBUG: RAW OCR TEXT ===")
-    for idx, l in enumerate(lines):
-        logger.info(f"Line {idx}: {clean_line_text(l).upper()}")
-    logger.info("===========================")
-    
-    warnings = []
-    
-    def clean_numeric(val):
-        if not val:
-            return ""
-        val = val.upper()
-        val = val.replace('O', '0').replace('U', '0')
-        val = val.replace('L', '1').replace('I', '1')
-        val = val.replace('S', '5').replace('Q', '0')
-        val = val.replace('(', '0').replace(')', '0')
-        val = val.replace(' ', '')
-        if re.match(r'^[\d\.,]+$', val):
-            return val
-        return ""
-
-    if best_header_idx != -1:
-        headers = [e["text"] for e in best_headers]
-        col_centers = [(e["x0"] + e["x1"]) / 2 for e in best_headers]
+    for line in lines:
+        _, y0, _, y1 = get_line_bbox(line)
+        y_mid = (y0 + y1) / 2
         
-        end_idx = len(lines)
-        for i in range(best_header_idx + 1, len(lines)):
-            line = lines[i]
-            line_text = clean_line_text(line).upper()
-            
-            # Stop if we hit something that clearly looks like a receipt's final total (only if receipt-like)
-            if is_receipt and any(k in line_text for k in ["SUBTOTAL", "TOTAL AMOUNT", "NET PAYABLE", "GRAND TOTAL"]):
-                break
-            
-            # Also stop if we hit an entirely blank section or distinct new block (simple heuristic)
-            if not line_text.strip():
-                break
-                
-            row_data = {h: "" for h in headers}
-            for el in line:
-                el_center = (el["x0"] + el["x1"]) / 2
-                closest_idx = 0
-                min_dist = float('inf')
-                for j, c in enumerate(col_centers):
-                    dist = abs(el_center - c)
-                    if dist < min_dist:
-                        min_dist = dist
-                        closest_idx = j
-                
-                if min_dist < 400: # relaxed
-                    col_name = headers[closest_idx]
-                    if row_data[col_name]:
-                        row_data[col_name] += " " + el["text"]
-                    else:
-                        row_data[col_name] = el["text"]
-            
-            filled = sum(1 for v in row_data.values() if v.strip())
-            if filled >= 1:
-                table_rows.append(row_data)
-                end_idx = i
-
-    # DEBUG c: Log array after loop
-    logger.info("=== DEBUG: ARRAY AFTER LOOP ===")
-    logger.info(str(table_rows))
-    logger.info("===============================")
-
-    # Process Summary (Total)
-    summary_kv = {}
-    extracted_total = None
-    for i in range(end_idx + 1, len(lines)):
-        line_text = clean_line_text(lines[i]).upper()
-        if "TOTAL" in line_text or "AMOUNT" in line_text or "SUBTOTAL" in line_text:
-            nums = re.findall(r'[\d\.,]+', line_text)
-            if nums:
-                summary_kv["Total"] = nums[-1]
-                extracted_total = parse_number(nums[-1])
-
-    # 4. Validation Logic
-    # Validate mathematical sum
-    computed_sum = 0.0
-    if table_rows:
-        amount_col = next((h for h in headers if "AMOUNT" in h.upper() or "TOTAL" in h.upper() or "PRICE" in h.upper()), None)
-        if amount_col:
-            for row in table_rows:
-                val = parse_number(row.get(amount_col, ""))
-                if val is not None:
-                    computed_sum += val
-                    
-        if extracted_total is not None and abs(computed_sum - extracted_total) > 0.1:
-            warnings.append(f"Validation failed: Sum of line items ({computed_sum}) does not match extracted Total ({extracted_total}). Requires manual review.")
-            
-    # Vendor matching check
-    if vendor_name and vendor_name.upper() not in raw_text_full:
-        warnings.append(f"Validation failed: Vendor '{vendor_name}' not definitively found in raw text.")
-    if vendor_name == "Company Inc." and not any("Company Inc." in clean_line_text(l) for l in lines):
-        warnings.append("Validation failed: Mock data detected. Please review extracted fields.")
+        if last_y is None:
+            current_block.append(line)
+        else:
+            gap = y0 - last_y
+            # Start new block if gap is large (> 30px)
+            if gap > 30:
+                blocks.append(current_block)
+                current_block = [line]
+            else:
+                current_block.append(line)
+        last_y = y1
+        
+    if current_block:
+        blocks.append(current_block)
         
     sections = []
+    global_details = {}
     
-    def _build_kv_section(title, kv_dict):
-        if not kv_dict: return None
-        return {
-            "title": title,
-            "type": "table",
-            "headers": ["Field", "Value"],
-            "rows": [[k, v] for k, v in kv_dict.items()]
-        }
-
-    if doc_info:
-        sec = _build_kv_section("Document Details", doc_info)
-        if sec: sections.append(sec)
-
-    if table_rows:
-        headers = list(table_rows[0].keys())
-        rows = [[row.get(h, "") for h in headers] for row in table_rows]
+    table_count = 1
+    kv_count = 1
+    text_count = 1
+    
+    # 2. Block Classification and Extraction
+    for block in blocks:
+        # Check if table (strict heuristic: multiple rows with >= 3 aligned columns)
+        counts = [len(l) for l in block]
+        max_cols = max(counts) if counts else 0
         
-        # Append Total row at the bottom
-        if summary_kv and "Total" in summary_kv:
-            total_row = [""] * len(headers)
-            if len(headers) >= 2:
-                total_row[-2] = "TOTAL"
-                total_row[-1] = summary_kv["Total"]
-            else:
-                total_row[0] = f"TOTAL: {summary_kv['Total']}"
-            rows.append(total_row)
-            # Clear summary_kv so it isn't added as a separate section
-            summary_kv = {}
+        is_table = False
+        if max_cols >= 3:
+            rows_with_cols = sum(1 for c in counts if c >= 3)
+            if rows_with_cols >= 2:
+                is_table = True
+        elif max_cols == 2:
+            # 2 columns could be KV pairs, but if they have table-like headers and many rows, allow it
+            rows_with_cols = sum(1 for c in counts if c == 2)
+            if rows_with_cols >= 3:
+                is_table = True
+                
+        if is_table:
+            # Simple column clustering based on x-coordinates of the widest line
+            widest_line = max(block, key=len)
+            col_centers = [(e["x0"] + e["x1"]) / 2 for e in widest_line]  # type: ignore
+            col_centers.sort()
+            
+            headers = [f"Col {i+1}" for i in range(len(col_centers))]
+            
+            # If the first row looks like headers (words, no numbers)
+            first_line_text = " ".join([e["text"] for e in block[0]])
+            if not re.search(r'\d', first_line_text):
+                # Map first line to columns
+                for el in block[0]:
+                    c = (el["x0"] + el["x1"]) / 2
+                    closest_idx = min(range(len(col_centers)), key=lambda i: abs(col_centers[i] - c))
+                    headers[closest_idx] = el["text"]
+            
+            rows = []
+            for i, line in enumerate(block):
+                # Skip header row if we used it
+                if i == 0 and not re.search(r'\d', first_line_text):
+                    continue
+                    
+                row_data = {h: {"value": "", "confidence": 1.0, "bbox": None} for h in headers}
+                row_elements = {h: [] for h in headers}
+                
+                for el in line:
+                    c = (el["x0"] + el["x1"]) / 2
+                    closest_idx = min(range(len(col_centers)), key=lambda j: abs(col_centers[j] - c))
+                    # Allow slight misalignment
+                    if abs(col_centers[closest_idx] - c) < 200:
+                        h = headers[closest_idx]
+                        row_elements[h].append(el)
+                
+                for h in headers:
+                    row_data[h] = build_rich_cell(row_elements[h])
+                    
+                rows.append([row_data[h] for h in headers])
+            
+            sections.append({
+                "title": f"Table {table_count}",
+                "type": "table",
+                "headers": headers,
+                "rows": rows
+            })
+            table_count += 1
+            continue
+            
+        # Check if KV pairs
+        kv_pairs = {}
+        kv_rows = []
+        is_block_kv = False
+        
+        for line in block:
+            if is_kv_pair(line):
+                k, v_obj = extract_kv_pair(line)
+                if k and v_obj.get("value"):
+                    kv_pairs[k] = v_obj
+                    is_block_kv = True
+        
+        if is_block_kv:
+            for k, v in kv_pairs.items():
+                kv_rows.append([
+                    {"value": k, "confidence": 1.0, "bbox": None},
+                    v
+                ])
+                global_details[k] = v["value"]
+            
+            sections.append({
+                "title": f"Document Details {kv_count}" if kv_count > 1 else "Document Details",
+                "type": "table",
+                "headers": ["Field", "Value"],
+                "rows": kv_rows
+            })
+            kv_count += 1
+            continue
+            
+        # Otherwise Text Paragraph
+        text_lines = []
+        for line in block:
+            text_lines.append(build_rich_cell(line))
             
         sections.append({
-            "title": "Line Items",
-            "type": "table",
-            "headers": headers,
-            "rows": rows
+            "title": f"Text Block {text_count}",
+            "type": "table", # Rendered as a single column table for editability
+            "headers": ["Content"],
+            "rows": [[l] for l in text_lines]
         })
+        text_count += 1
 
-    if summary_kv:
-        sec = _build_kv_section("Summary", summary_kv)
-        if sec: sections.append(sec)
-
-    avg_conf = 0.95
-    if elements:
-        conf_vals = [e.get("confidence", 0) for e in elements if e.get("confidence") is not None]
-        if conf_vals:
-            avg_conf = sum(conf_vals) / len(conf_vals)
+    avg_conf = get_line_confidence(elements)
 
     res = {
         "success": True,
         "document": {
-            "type": "Receipt" if is_receipt else "General",
+            "type": "General",
             "module": "General",
             "isRelated": False,
             "isStructured": len(sections) > 0,
-            "tableDetected": len(table_rows) > 0,
+            "tableDetected": table_count > 1,
             "confidence": round(avg_conf, 4),
             "pageCount": 1,
-            "details": doc_info
+            "details": global_details
         },
         "sections": sections,
         "tables": sections,
-        "rawText": "\n".join([clean_line_text(line) for line in lines]),
-        "vendor": vendor_name,
-        "totals": summary_kv
+        "rawText": "\n".join([" ".join([e["text"] for e in l]) for l in lines])
     }
     
-    if warnings:
-        res["_warnings"] = warnings
-        
     return res
 
 def process_docx_document(file_path: str) -> Dict:
@@ -369,6 +324,7 @@ def process_docx_document(file_path: str) -> Dict:
     sections: List[Dict] = []
     kv_pairs: Dict[str, str] = {}
     raw_lines = []
+    
     for para in document.paragraphs:
         text = para.text.strip()
         if not text:
@@ -381,6 +337,7 @@ def process_docx_document(file_path: str) -> Dict:
             val = m.group("val").strip()
             if len(key) >= 2 and len(val) >= 1:
                 kv_pairs[key] = val
+                
     for tbl_idx, table in enumerate(document.tables):
         if not table.rows:
             continue
@@ -395,8 +352,10 @@ def process_docx_document(file_path: str) -> Dict:
                 continue
             row_data = []
             for col_idx in range(len(columns)):
-                row_data.append(cells[col_idx] if col_idx < len(cells) else "")
+                cell_val = cells[col_idx] if col_idx < len(cells) else ""
+                row_data.append({"value": cell_val, "confidence": 1.0, "bbox": None})
             rows.append(row_data)
+            
         if rows:
             sections.append({
                 "title": f"Table {tbl_idx + 1}",
@@ -404,25 +363,23 @@ def process_docx_document(file_path: str) -> Dict:
                 "headers": columns,
                 "rows": rows
             })
-    def _build_kv_section_docx(title, kv_dict):
-        if not kv_dict: return None
-        return {
-            "title": title,
+            
+    if kv_pairs:
+        sections.insert(0, {
+            "title": "Document Details",
             "type": "table",
             "headers": ["Field", "Value"],
-            "rows": [[k, v] for k, v in kv_dict.items()]
-        }
-    if kv_pairs:
-        kv_sec = _build_kv_section_docx("Document Details", kv_pairs)
-        if kv_sec:
-            sections.insert(0, kv_sec)
+            "rows": [[{"value": k, "confidence": 1.0, "bbox": None}, {"value": v, "confidence": 1.0, "bbox": None}] for k, v in kv_pairs.items()]
+        })
+        
     if not sections and raw_lines:
         sections.append({
             "title": "Extracted Content",
             "type": "table",
             "headers": ["Content"],
-            "rows": [[line] for line in raw_lines if line.strip()]
+            "rows": [[{"value": line, "confidence": 1.0, "bbox": None}] for line in raw_lines if line.strip()]
         })
+        
     return {
         "success": True,
         "document": {
@@ -437,8 +394,5 @@ def process_docx_document(file_path: str) -> Dict:
         },
         "sections": sections,
         "tables": sections,
-        "rawText": "",
-        "vendor": None,
-        "invoice": None,
-        "totals": None
+        "rawText": "\n".join(raw_lines)
     }

@@ -11,6 +11,9 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
+# Disable MKLDNN globally to fix ConvertPirAttribute2RuntimeAttribute crash
+os.environ["FLAGS_use_mkldnn"] = "0"
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -26,7 +29,7 @@ def _get_reader():
     if _reader is None:
         try:
             import easyocr
-            # Note: gpu=False since we assume CPU environments, but will use GPU if available
+            # Use easyocr instead of paddleocr due to paddle MKLDNN crashes
             _reader = easyocr.Reader(['en'], gpu=False)
         except ImportError:
             logger.error("EasyOCR not installed. Please run: pip install easyocr")
@@ -123,6 +126,16 @@ def preprocess_image(img_path: str) -> str:
         # Convert to grayscale
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+        # Upscale if small text (but don't make it enormous)
+        (h, w) = img.shape[:2]
+        if max(h, w) < 1200:
+            scale = 1200.0 / max(h, w)
+            # Limit scale to at most 2.5x to avoid destroying text features
+            scale = min(scale, 2.5)
+            img = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            logger.info(f"[PREPROCESS] Upscaled image by {scale:.2f}x to {img.shape[1]}x{img.shape[0]}")
+
         # 4. Deskewing
         try:
             # Threshold to find text contours
@@ -179,69 +192,138 @@ def preprocess_image(img_path: str) -> str:
         logger.error(f"[PREPROCESS] Preprocessing failed: {e}")
         return img_path
 
-def _ocr_image_elements(img_path: str, page_num: int = 1) -> list:
-    """Run OCR and return structured bounding box elements."""
-    t0 = time.time()
-    logger.info(f"[TIMING] EasyOCR page {page_num}: starting...")
+def preprocess_image_custom(img_path: str, apply_denoise: bool = True, apply_contrast: bool = True, apply_sharpen: bool = False) -> str:
+    """Preprocess image with custom parameters."""
+    import cv2
+    import numpy as np
+    img = cv2.imread(img_path)
+    if img is None: return img_path
     
-    # Apply Image Preprocessing
-    processed_path = preprocess_image(img_path)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    if apply_denoise:
+        gray = cv2.fastNlMeansDenoising(gray, None, 10, 7, 21)
+    if apply_contrast:
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        gray = clahe.apply(gray)
+    if apply_sharpen:
+        kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+        gray = cv2.filter2D(gray, -1, kernel)
+        
+    ext = os.path.splitext(img_path)[1]
+    out_path = img_path.replace(ext, f"_custom{ext}")
+    cv2.imwrite(out_path, gray)
+    return out_path
+
+
+def _compute_iou(boxA, boxB):
+    xA = max(boxA['x0'], boxB['x0'])
+    yA = max(boxA['y0'], boxB['y0'])
+    xB = min(boxA['x1'], boxB['x1'])
+    yB = min(boxA['y1'], boxB['y1'])
+
+    interArea = max(0, xB - xA + 1) * max(0, yB - yA + 1)
+    if interArea == 0:
+        return 0.0
+
+    boxAArea = (boxA['x1'] - boxA['x0'] + 1) * (boxA['y1'] - boxA['y0'] + 1)
+    boxBArea = (boxB['x1'] - boxB['x0'] + 1) * (boxB['y1'] - boxB['y0'] + 1)
+
+    return interArea / float(boxAArea + boxBArea - interArea)
+
+def _ocr_image_elements(img_path: str, page_num: int = 1) -> list:
+    import cv2
+    import numpy as np
+    import time
+    t0 = time.time()
+    logger.info(f"[TIMING] EasyOCR Multipass page {page_num}: starting...")
     
     reader = _get_reader()
     
-    try:
-        results = reader.readtext(processed_path)
-    except Exception as e:
-        logger.error(f"EasyOCR failed: {e}")
+    # 1. Base Image - Use existing preprocess_image (includes Deskew, EXIF, etc.)
+    base_img_path = preprocess_image(img_path)
+    
+    img = cv2.imread(base_img_path)
+    if img is None:
         return []
-    finally:
-        # Cleanup preprocessed image if it's different from original
-        if processed_path != img_path and os.path.exists(processed_path):
-            try: os.remove(processed_path)
-            except: pass
         
-    logger.info(f"[TIMING] EasyOCR page {page_num}: {time.time()-t0:.1f}s")
+    # No downscaling - just use the original preprocessed image to preserve text accuracy!
+    scale_factor = 1.0
+    passes = []
     
-    elements = []
+    # Pass 1: Original Preprocessed
+    pass1_path = base_img_path + "_p1.png"
+    cv2.imwrite(pass1_path, img)
+    passes.append((pass1_path, scale_factor))
     
-    for bbox, text, conf in results:
-        text = str(text)
-        if not text or not text.strip():
-            continue
-            
+    all_pass_results = []
+    
+    for path, sc in passes:
         try:
-            conf = float(conf)
-        except ValueError:
-            conf = 0.0
+            res = reader.readtext(path)
+            norm_res = []
+            for bbox, text, conf in res:
+                text = str(text)
+                if not text.strip(): continue
+                try: conf = float(conf)
+                except: conf = 0.0
+                if conf < 0: conf = 0.0
+                text = clean_ocr_text(text)
+                if not text: continue
+                
+                x0 = float(min(p[0] for p in bbox)) / sc
+                x1 = float(max(p[0] for p in bbox)) / sc
+                y0 = float(min(p[1] for p in bbox)) / sc
+                y1 = float(max(p[1] for p in bbox)) / sc
+                
+                norm_res.append({
+                    "text": text,
+                    "confidence": conf,
+                    "x0": x0,
+                    "y0": y0,
+                    "x1": x1,
+                    "y1": y1,
+                    "page": page_num
+                })
+            all_pass_results.append(norm_res)
+        except Exception as e:
+            logger.error(f"Pass failed: {e}")
+            all_pass_results.append([])
+        finally:
+            if os.path.exists(path):
+                try: os.remove(path)
+                except: pass
+                
+    if base_img_path != img_path and os.path.exists(base_img_path):
+        try: os.remove(base_img_path)
+        except: pass
+                
+    # Fallback if all passes failed
+    if not any(all_pass_results):
+        return []
             
-        if conf < 0:
-            conf = 0.0
-            
-        text = clean_ocr_text(text)
-        if not text:
-            continue
-            
-        # bbox is a list of 4 coordinates: [top_left, top_right, bottom_right, bottom_left]
-        # each coordinate is a list/tuple: [x, y]
-        # We need: x0 (min x), x1 (max x), y0 (min y), y1 (max y)
-        x_coords = [point[0] for point in bbox]
-        y_coords = [point[1] for point in bbox]
+    # Flatten all results
+    all_elements = []
+    for res in all_pass_results:
+        all_elements.extend(res)
         
-        x0 = float(min(x_coords))
-        x1 = float(max(x_coords))
-        y0 = float(min(y_coords))
-        y1 = float(max(y_coords))
-        
-        elements.append({
-            "text": text,
-            "confidence": conf,
-            "x0": x0,
-            "y0": y0,
-            "x1": x1,
-            "y1": y1,
-            "page": page_num
-        })
-    return elements
+    # NMS (Non-Maximum Suppression) based on IoU
+    # Sort by confidence descending
+    all_elements.sort(key=lambda x: x['confidence'], reverse=True)
+    
+    final_elements = []
+    for el in all_elements:
+        overlap = False
+        for f_el in final_elements:
+            if _compute_iou(el, f_el) > 0.3: # Threshold
+                overlap = True
+                break
+        if not overlap:
+            final_elements.append(el)
+            
+    logger.info(f"[TIMING] EasyOCR Multipass page {page_num}: {time.time()-t0:.1f}s")
+    return final_elements
+
 
 def extract_text(file_path: str, ext: Optional[str] = None) -> dict:
     t_start = time.time()
@@ -338,7 +420,7 @@ def extract_text(file_path: str, ext: Optional[str] = None) -> dict:
         logger.info(f"[TIMING] DOCX extraction done in {time.time()-t_start:.2f}s")
         return result
         
-    # ÔöÇÔöÇ Images: pass directly to EasyOCR ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
+    # ÔöÇÔöÇ Images: pass directly to PaddleOCR ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇ
     else:
         t_img = time.time()
         all_elements = _ocr_image_elements(file_path, page_num=1)
