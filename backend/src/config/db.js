@@ -324,7 +324,9 @@ const connectDB = async () => {
                 await sequelize.query('PRAGMA foreign_keys = ON;');
                 console.log(`${dbName} Database tables synchronized with alter.`);
             } else {
-                console.log(`${dbName} Database tables sync skipped for remote DB.`);
+                console.log(`Syncing ${dbName} remote database schema...`);
+                await sequelize.sync({ alter: true });
+                console.log(`${dbName} Database tables synchronized with alter.`);
             }
         } catch (syncError) {
             console.warn(`[Sync] Alter sync failed, falling back to standard sync: ${syncError.message}`);
