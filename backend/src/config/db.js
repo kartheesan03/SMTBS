@@ -344,18 +344,18 @@ const connectDB = async () => {
             const qi = sequelize.getQueryInterface();
             const { DataTypes } = require('sequelize');
             try {
-                await qi.addColumn('Employees', 'performanceOverrides', { type: DataTypes.JSON, allowNull: true });
-                console.log(`[Sync] Injected performanceOverrides to Employees`);
+                await qi.addColumn('Employee', 'performanceOverrides', { type: DataTypes.JSON, allowNull: true });
+                console.log(`[Sync] Injected performanceOverrides to Employee`);
             } catch (e) { console.log(`[Sync] performanceOverrides injection skipped (likely exists): ${e.message}`); }
             
             try {
-                await qi.addColumn('OcrDocuments', 'fileUrl', { type: DataTypes.TEXT, allowNull: true });
-                console.log(`[Sync] Injected fileUrl to OcrDocuments`);
+                await qi.addColumn('OcrDocument', 'fileUrl', { type: DataTypes.TEXT, allowNull: true });
+                console.log(`[Sync] Injected fileUrl to OcrDocument`);
             } catch (e) { }
             
             try {
-                await qi.addColumn('OcrDocuments', 'fileName', { type: DataTypes.STRING(255), allowNull: true });
-                console.log(`[Sync] Injected fileName to OcrDocuments`);
+                await qi.addColumn('OcrDocument', 'fileName', { type: DataTypes.STRING(255), allowNull: true });
+                console.log(`[Sync] Injected fileName to OcrDocument`);
             } catch (e) { }
         }
         
