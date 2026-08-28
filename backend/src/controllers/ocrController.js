@@ -1,150 +1,224 @@
+const OCRDocument = require('../models/OCRDocument.js');
 const axios = require('axios');
 const fs = require('fs');
 const FormData = require('form-data');
+const path = require('path');
 
-const getFastApiUrl = () => process.env.OCR_SERVICE_URL || process.env.FASTAPI_URL || 'http://localhost:8000';
+// Replace with actual python microservice URL if deployed
+const PYTHON_OCR_URL = process.env.PYTHON_OCR_URL || 'http://localhost:8000/process';
 
-const extractText = async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ success: false, error: 'No file uploaded.' });
-    }
-
-    const { path: filePath, originalname } = req.file;
-
+exports.uploadDocument = async (req, res) => {
     try {
-        // Health Check before sending massive file
-        try {
-            await axios.get(`${getFastApiUrl()}/health`, { timeout: 3000 });
-        } catch (healthErr) {
-            console.error('[OCR] Health check failed:', healthErr.message);
-            try { fs.unlinkSync(filePath); } catch (_) {}
-            return res.status(503).json({
-                success: false,
-                error: `Python OCR service is unavailable. Please start the OCR service on port 8000.`
-            });
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No file uploaded' });
         }
 
-        const formData = new FormData();
-        const fileBuffer = fs.readFileSync(filePath);
-        formData.append('file', fileBuffer, { filename: originalname });
+        const documentUrl = `/uploads/ocr/${req.file.filename}`;
+        
+        // Create initial DB record
+        const ocrDoc = await OCRDocument.create({
+            originalFilename: req.file.originalname,
+            fileType: req.file.mimetype,
+            fileSize: req.file.size,
+            documentUrl: documentUrl,
+            uploadedBy: req.user._id,
+            status: 'Processing'
+        });
 
-        const response = await axios.post(`${getFastApiUrl()}/api/ocr`, formData, {
+        res.status(202).json({
+            success: true,
+            message: 'Document uploaded and processing started',
+            data: ocrDoc
+        });
+
+        // Async processing
+        processOCR(ocrDoc._id, req.file.path).catch(console.error);
+
+    } catch (error) {
+        console.error('Error in uploadDocument:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+const processOCR = async (docId, filePath) => {
+    const startTime = Date.now();
+    try {
+        const formData = new FormData();
+        formData.append('file', fs.createReadStream(filePath));
+
+        const response = await axios.post(PYTHON_OCR_URL, formData, {
             headers: {
                 ...formData.getHeaders(),
             },
             maxContentLength: Infinity,
             maxBodyLength: Infinity,
-            timeout: 300000 // 5 minutes
+            timeout: 60000 // 60 seconds timeout for OCR
         });
 
-        // Clean up the temp file
-        try { fs.unlinkSync(filePath); } catch (_) {}
-
-        return res.json(response.data);
-
-    } catch (err) {
-        // Attempt to clean up even if there was an error
-        try { fs.unlinkSync(filePath); } catch (_) {}
-
-        console.error('[OCR] Error proxying to FastAPI:', err.message);
-        let errorMsg = err.response?.data?.detail || err.message || 'OCR processing failed.';
+        const ocrResult = response.data;
         
-        if (err.code === 'ECONNREFUSED' || err.message.includes('ECONNREFUSED')) {
-            errorMsg = `Failed to connect to OCR Engine at ${getFastApiUrl()}. Is the Python backend running?`;
-        } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-            errorMsg = 'Connection to OCR Engine timed out. The document might be too large or the server is busy.';
-        }
+        const duration = Date.now() - startTime;
 
-        return res.status(500).json({
-            success: false,
-            error: errorMsg,
+        await OCRDocument.findByIdAndUpdate(docId, {
+            status: ocrResult.confidence < 0.7 ? 'Needs Review' : 'Completed',
+            confidence: ocrResult.confidence || 0,
+            fields: ocrResult.fields || {},
+            items: ocrResult.items || [],
+            rawText: ocrResult.rawText || '',
+            pageCount: ocrResult.pageCount || 1,
+            processingDurationMs: duration
+        });
+
+    } catch (error) {
+        console.error(`OCR Processing failed for doc ${docId}:`, error.message);
+        await OCRDocument.findByIdAndUpdate(docId, {
+            status: 'Failed',
+            errorMessage: error.response?.data?.detail || error.message || 'Unknown processing error',
+            processingDurationMs: Date.now() - startTime
         });
     }
 };
 
-const exportDocx = async (req, res) => {
+exports.getDocuments = async (req, res) => {
     try {
-        const queryStr = req.url.split('?')[1] ? `?${req.url.split('?')[1]}` : '';
-        const response = await axios.post(`${getFastApiUrl()}/export/docx${queryStr}`, req.body, {
-            responseType: 'stream',
-            timeout: 60000
-        });
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const startIndex = (page - 1) * limit;
 
-        // Proxy all headers
-        for (const [key, value] of Object.entries(response.headers)) {
-            res.setHeader(key, value);
-        }
+        const total = await OCRDocument.countDocuments();
         
-        response.data.pipe(res);
-    } catch (err) {
-        console.error('[OCR] Error exporting docx:', err.message);
-        let errorMsg = err.response?.data?.detail || err.message || 'Docx generation failed.';
-        if (err.code === 'ECONNREFUSED' || err.message.includes('ECONNREFUSED')) {
-            errorMsg = `Failed to connect to OCR Engine at ${getFastApiUrl()}. Is the Python backend running?`;
-        } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-            errorMsg = 'Connection to OCR Engine timed out.';
-        }
-        return res.status(500).json({
-            success: false,
-            error: errorMsg,
+        const documents = await OCRDocument.find()
+            .populate('uploadedBy', 'name email')
+            .sort({ createdAt: -1 })
+            .skip(startIndex)
+            .limit(limit);
+
+        res.status(200).json({
+            success: true,
+            count: documents.length,
+            total,
+            pagination: { page, limit },
+            data: documents
         });
+    } catch (error) {
+        console.error('Error in getDocuments:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
 
-const exportTxt = async (req, res) => {
+exports.getDocumentById = async (req, res) => {
     try {
-        const queryStr = req.url.split('?')[1] ? `?${req.url.split('?')[1]}` : '';
-        const response = await axios.post(`${getFastApiUrl()}/export/txt${queryStr}`, req.body, {
-            responseType: 'stream',
-            timeout: 60000
-        });
+        const doc = await OCRDocument.findById(req.params.id)
+            .populate('uploadedBy', 'name email')
+            .populate('history.modifiedBy', 'name email');
 
-        for (const [key, value] of Object.entries(response.headers)) {
-            res.setHeader(key, value);
+        if (!doc) {
+            return res.status(404).json({ success: false, message: 'Document not found' });
         }
-        
-        response.data.pipe(res);
-    } catch (err) {
-        console.error('[OCR] Error exporting txt:', err.message);
-        let errorMsg = err.response?.data?.detail || err.message || 'Txt generation failed.';
-        if (err.code === 'ECONNREFUSED' || err.message.includes('ECONNREFUSED')) {
-            errorMsg = `Failed to connect to OCR Engine at ${getFastApiUrl()}. Is the Python backend running?`;
-        } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-            errorMsg = 'Connection to OCR Engine timed out.';
-        }
-        return res.status(500).json({
-            success: false,
-            error: errorMsg,
-        });
+
+        res.status(200).json({ success: true, data: doc });
+    } catch (error) {
+        console.error('Error in getDocumentById:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
 
-const exportPdf = async (req, res) => {
+exports.updateDocument = async (req, res) => {
     try {
-        const queryStr = req.url.split('?')[1] ? `?${req.url.split('?')[1]}` : '';
-        const response = await axios.post(`${getFastApiUrl()}/export/pdf${queryStr}`, req.body, {
-            responseType: 'stream',
-            timeout: 60000
-        });
+        // Enforce Admin role again just in case route middleware misses it
+        if (req.user.role.name !== 'Admin') {
+            return res.status(403).json({ success: false, message: 'Not authorized to edit OCR data' });
+        }
 
-        for (const [key, value] of Object.entries(response.headers)) {
-            res.setHeader(key, value);
+        const doc = await OCRDocument.findById(req.params.id);
+
+        if (!doc) {
+            return res.status(404).json({ success: false, message: 'Document not found' });
         }
+
+        const { fields, items, rawText } = req.body;
         
-        response.data.pipe(res);
-    } catch (err) {
-        console.error('[OCR] Error exporting pdf:', err.message);
-        let errorMsg = err.response?.data?.detail || err.message || 'Pdf generation failed.';
-        if (err.code === 'ECONNREFUSED' || err.message.includes('ECONNREFUSED')) {
-            errorMsg = `Failed to connect to OCR Engine at ${getFastApiUrl()}. Is the Python backend running?`;
-        } else if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-            errorMsg = 'Connection to OCR Engine timed out.';
-        }
-        return res.status(500).json({
-            success: false,
-            error: errorMsg,
-        });
+        const historyEntry = {
+            modifiedBy: req.user._id,
+            modifiedAt: new Date(),
+            changes: { fields, items, rawText }
+        };
+
+        doc.fields = fields || doc.fields;
+        doc.items = items || doc.items;
+        if (rawText !== undefined) doc.rawText = rawText;
+        doc.status = 'Verified'; // If admin edits, we assume it's reviewed and completed
+        doc.history.push(historyEntry);
+
+        await doc.save();
+
+        res.status(200).json({ success: true, data: doc });
+    } catch (error) {
+        console.error('Error in updateDocument:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
 
-module.exports = { extractText, exportDocx, exportTxt, exportPdf };
+exports.deleteDocument = async (req, res) => {
+    try {
+        if (req.user.role.name !== 'Admin') {
+            return res.status(403).json({ success: false, message: 'Not authorized to delete OCR data' });
+        }
+
+        const doc = await OCRDocument.findById(req.params.id);
+
+        if (!doc) {
+            return res.status(404).json({ success: false, message: 'Document not found' });
+        }
+
+        // Delete file
+        const filePath = path.join(__dirname, '../../', doc.documentUrl);
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+
+        await doc.deleteOne();
+
+        res.status(200).json({ success: true, data: {} });
+    } catch (error) {
+        console.error('Error in deleteDocument:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+exports.getDashboardStats = async (req, res) => {
+    try {
+        const total = await OCRDocument.countDocuments();
+        
+        // Get today's start date
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const processedToday = await OCRDocument.countDocuments({
+            createdAt: { $gte: today }
+        });
+
+        const failed = await OCRDocument.countDocuments({ status: 'Failed' });
+        const needsReview = await OCRDocument.countDocuments({ status: 'Needs Review' });
+
+        // Calculate average confidence
+        const docsWithConfidence = await OCRDocument.find({ confidence: { $gt: 0 } });
+        const avgConf = docsWithConfidence.length > 0 
+            ? docsWithConfidence.reduce((acc, doc) => acc + doc.confidence, 0) / docsWithConfidence.length 
+            : 0;
+
+        res.status(200).json({
+            success: true,
+            data: {
+                totalDocuments: total,
+                processedToday,
+                failedDocuments: failed,
+                needsReview,
+                averageConfidence: avgConf
+            }
+        });
+    } catch (error) {
+        console.error('Error in getDashboardStats:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};

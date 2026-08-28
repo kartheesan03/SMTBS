@@ -375,7 +375,7 @@ const AriaCommandCenter = () => {
                         <button className="aria-console-new-btn" onClick={handleNewAnalysis}><Plus size={14} /> New Analysis</button>
                         <div className="aria-console-nav-section">
                             <h3>CATEGORIES</h3>
-                            {['Orders', 'Inventory', 'Sales', 'Customers', 'Employees', 'Documents', 'OCR'].map(cat => (
+                            {['Orders', 'Inventory', 'Sales', 'Customers', 'Employees', 'Documents'].map(cat => (
                                 <button key={cat} className="nav-item" onClick={() => handleCategoryClick(cat)}>{cat}</button>
                             ))}
                         </div>

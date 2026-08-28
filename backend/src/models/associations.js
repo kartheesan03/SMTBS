@@ -18,10 +18,9 @@ const Lead = require('./Lead');
 const AICopilotLog = require('./AICopilotLog');
 const AIChatSession = require('./AIChatSession');
 const AIChatMessage = require('./AIChatMessage');
-const OcrDocument = require('./OcrDocument');
 const PostAcknowledgement = require('./PostAcknowledgement');
 const StoryView = require('./StoryView');
-
+const OCRDocument = require('./OCRDocument');
 function setupAssociations() {
     Employee.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userIdField', as: 'userId' });
     User.sequelizeModel.hasOne(Employee.sequelizeModel, { foreignKey: 'userIdField', as: 'employee' });
@@ -63,8 +62,6 @@ function setupAssociations() {
     CommunicationLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
     Customer.sequelizeModel.hasMany(CommunicationLog.sequelizeModel, { foreignKey: 'customerId', as: 'communications' });
     AuditLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
-    OcrDocument.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'uploaderId', as: 'uploader' });
-    User.sequelizeModel.hasMany(OcrDocument.sequelizeModel, { foreignKey: 'uploaderId', as: 'ocrDocuments' });
     const StockRequest = require('./StockRequest');
     StockRequest.sequelizeModel.belongsTo(Material.sequelizeModel, { foreignKey: 'materialId', as: 'material' });
     StockRequest.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'employeeId', as: 'employee' });

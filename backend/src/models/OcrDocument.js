@@ -2,59 +2,71 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/sequelize');
 const { makeBridgedModel } = require('../config/mongoose-bridge');
 
-const OcrDocumentSequelize = sequelize.define('OcrDocument', {
+const OCRDocumentSequelize = sequelize.define('OCRDocument', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    fileName: {
+    originalFilename: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    fileUrl: {
+    fileType: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
-    uploaderId: {
+    fileSize: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    module: {
+    documentUrl: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
-    documentType: {
-        type: DataTypes.STRING,
-        allowNull: true
+    uploadedBy: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
-    tables: {
-        type: DataTypes.JSON, // Stores multiple tables: { title, columns, rows }
-        allowNull: false,
-        defaultValue: []
-    },
-    details: {
-        type: DataTypes.JSON,
-        allowNull: true,
-        defaultValue: {}
-    },
-    rawText: {
-        type: DataTypes.TEXT('long'),
-        allowNull: true
+    status: {
+        type: DataTypes.ENUM('Uploaded', 'Processing', 'Completed', 'Needs Review', 'Failed', 'Verified'),
+        defaultValue: 'Uploaded'
     },
     confidence: {
         type: DataTypes.FLOAT,
-        allowNull: true
+        defaultValue: 0
     },
-    status: {
-        type: DataTypes.ENUM('Processing', 'Extracted', 'Needs Review', 'Pending Approval', 'Approved', 'Rejected', 'Failed'),
-        defaultValue: 'Extracted'
+    fields: {
+        type: DataTypes.JSON,
+        defaultValue: {}
     },
-    rejectReason: {
+    items: {
+        type: DataTypes.JSON,
+        defaultValue: []
+    },
+    processingDurationMs: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    errorMessage: {
         type: DataTypes.STRING,
-        allowNull: true
+        defaultValue: ''
+    },
+    pageCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1
+    },
+    history: {
+        type: DataTypes.JSON,
+        defaultValue: []
+    },
+    rawText: {
+        type: DataTypes.TEXT,
+        defaultValue: ''
     }
+}, {
+    timestamps: true
 });
 
-const OcrDocument = makeBridgedModel('OcrDocument', OcrDocumentSequelize);
-module.exports = OcrDocument;
+const OCRDocument = makeBridgedModel('OCRDocument', OCRDocumentSequelize);
+module.exports = OCRDocument;

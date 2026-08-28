@@ -62,6 +62,13 @@ const navigationConfig = [
         ]
     },
     {
+        title: 'Document OCR',
+        icon: 'ScanText',
+        path: '/ocr/dashboard',
+        permission: 'view_erp',
+        group: 'PROCUREMENT'
+    },
+    {
         title: 'CRM',
         icon: 'Briefcase',
         permission: 'view_crm',

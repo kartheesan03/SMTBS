@@ -2,52 +2,66 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const os = require('os');
-const { extractText, exportDocx, exportTxt, exportPdf } = require('../controllers/ocrController');
+const fs = require('fs');
 
-const upload = multer({
-    dest: os.tmpdir(),
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
-    fileFilter: (_req, file, cb) => {
-        const allowed = [
-            'image/jpeg', 'image/jpg', 'image/png', 'image/bmp',
-            'image/webp', 'image/tiff', 'image/gif', 'image/jfif',
-            'application/pdf',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/msword',
-        ];
+const { protect, authorize } = require('../middleware/authMiddleware');
+const {
+    uploadDocument,
+    getDocuments,
+    getDocumentById,
+    updateDocument,
+    deleteDocument,
+    getDashboardStats
+} = require('../controllers/ocrController');
 
-        const fileExt = file.originalname ? file.originalname.split('.').pop().toLowerCase() : '';
-        const validExtensions = ['pdf', 'doc', 'docx', 'png', 'jpg', 'jpeg', 'tiff', 'tif', 'bmp', 'webp', 'gif', 'jfif'];
+// Ensure uploads/ocr directory exists
+const ocrUploadDir = path.join(__dirname, '../../uploads/ocr');
+if (!fs.existsSync(ocrUploadDir)) {
+    fs.mkdirSync(ocrUploadDir, { recursive: true });
+}
 
-        if (allowed.includes(file.mimetype) || validExtensions.includes(fileExt)) {
-            cb(null, true);
-        } else {
-            cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE', `Unsupported file type (ext: ${fileExt})`));
-        }
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, ocrUploadDir);
     },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
 });
 
-const handleUpload = (req, res, next) => {
-    const uploadSingle = upload.single('file');
-    uploadSingle(req, res, (err) => {
-        if (err) {
-            return res.status(400).json({ success: false, error: err.message || 'File upload error' });
+const upload = multer({ 
+    storage,
+    limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB limit
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/tiff', 'application/pdf'];
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Invalid file type. Only JPG, PNG, WEBP, BMP, TIFF, and PDF are allowed.'));
         }
-        next();
-    });
-};
+    }
+});
 
-// POST /api/ocr/extract
-router.post('/extract', handleUpload, extractText);
+// All routes are protected
+router.use(protect);
 
-// POST /api/ocr/export/docx
-router.post('/export/docx', exportDocx);
+// Upload and process document
+router.post('/upload', upload.single('document'), uploadDocument);
 
-// POST /api/ocr/export/txt
-router.post('/export/txt', exportTxt);
+// Get dashboard stats
+router.get('/dashboard-stats', getDashboardStats);
 
-// POST /api/ocr/export/pdf
-router.post('/export/pdf', exportPdf);
+// Get paginated list of OCR documents
+router.get('/', getDocuments);
+
+// Get specific document by ID
+router.get('/:id', getDocumentById);
+
+// Update document (Admin only) - using authorize for 'admin' role, or we enforce via controller
+router.put('/:id', authorize('Admin'), updateDocument);
+
+// Delete document (Admin only)
+router.delete('/:id', authorize('Admin'), deleteDocument);
 
 module.exports = router;

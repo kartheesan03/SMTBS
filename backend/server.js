@@ -37,12 +37,11 @@ const trainingRoutes = require('./src/routes/trainingRoutes');
 const holidayRoutes  = require('./src/routes/holidayRoutes');
 const recruitmentRoutes = require('./src/routes/recruitmentRoutes');
 const chatRoutes = require('./src/routes/chatRoutes');
-const ocrRoutes = require('./src/routes/ocrRoutes');
 const invoiceRoutes = require('./src/routes/invoiceRoutes');
 const searchRoutes = require('./src/routes/searchRoutes');
-const ocrDocumentRoutes = require('./src/routes/ocrDocumentRoutes');
 const socialRoutes = require('./src/routes/socialRoutes');
 const feedRoutes = require('./src/routes/feedRoutes');
+const ocrRoutes = require('./src/routes/ocrRoutes');
 
 const app = express();
 
@@ -99,10 +98,9 @@ app.use('/api/holidays',    holidayRoutes);
 app.use('/api/recruitment', recruitmentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/assistant', assistantRoutes);
-app.use('/api/ocr', ocrRoutes);
 app.use('/api/invoices', invoiceRoutes);
+app.use('/api/ocr', ocrRoutes);
 app.use('/api/search', searchRoutes);
-app.use('/api/ocr-documents', ocrDocumentRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/feed', feedRoutes);
 
@@ -147,54 +145,7 @@ const startServer = async () => {
                 console.error('GPS Simulator failed to start:', gpsErr);
             }
 
-            // Start Python OCR Service automatically on a dynamic free port
-            try {
-                const ocrDir = path.join(__dirname, 'ocr_service');
-                const pyScript = path.join(ocrDir, 'main.py');
-                let pythonExe = 'python';
-                const winVenvExe = path.join(ocrDir, 'venv', 'Scripts', 'python.exe');
-                const linuxVenvExe = path.join(ocrDir, 'venv', 'bin', 'python3');
-                
-                if (fs.existsSync(winVenvExe)) {
-                    pythonExe = winVenvExe;
-                } else if (fs.existsSync(linuxVenvExe)) {
-                    pythonExe = linuxVenvExe;
-                } else if (process.platform !== 'win32') {
-                    pythonExe = 'python3';
-                }
 
-                const freePortServer = require('net').createServer().listen(0, () => {
-                    const ocrPort = freePortServer.address().port;
-                    freePortServer.close(() => {
-                        console.log(`[OCR] Starting OCR microservice on internal port ${ocrPort}...`);
-                        process.env.OCR_SERVICE_URL = `http://127.0.0.1:${ocrPort}`;
-                        
-                        const ocrProcess = spawn(pythonExe, [pyScript], {
-                            cwd: ocrDir,
-                            stdio: 'pipe',
-                            env: { ...process.env, PORT: ocrPort.toString() }
-                        });
-
-                        ocrProcess.stdout.on('data', (data) => console.log(`[OCR]: ${data.toString().trim()}`));
-                        ocrProcess.stderr.on('data', (data) => {
-                            const output = data.toString().trim();
-                            if (output.includes('INFO:')) {
-                                console.log(`[OCR]: ${output}`);
-                            } else {
-                                console.error(`[OCR Error]: ${output}`);
-                            }
-                        });
-                        ocrProcess.on('close', (code) => console.log(`OCR Service exited with code ${code}`));
-
-                        // Ensure python process is killed when node exits
-                        process.on('exit', () => ocrProcess.kill());
-                        process.on('SIGINT', () => { ocrProcess.kill(); process.exit(); });
-                        process.on('SIGTERM', () => { ocrProcess.kill(); process.exit(); });
-                    });
-                });
-            } catch (ocrErr) {
-                console.error('Failed to start OCR Service:', ocrErr);
-            }
 
             const cron = require('node-cron');
             cron.schedule('0 18 * * *', () => {

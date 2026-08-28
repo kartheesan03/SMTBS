@@ -121,7 +121,6 @@ import ErrorBoundary from './components/ErrorBoundary';
 const CompleteCustomerProfile = lazyRetry(() => import('./pages/CompleteCustomerProfile'));
 const CompleteVendorProfile = lazyRetry(() => import('./pages/CompleteVendorProfile'));
 const ComingSoonPage = lazyRetry(() => import('./pages/ComingSoonPage'));
-const OCR = lazyRetry(() => import('./pages/OCR'));
 const TaskCalendar = lazyRetry(() => import('./pages/TaskCalendar'));
 const Projects = lazyRetry(() => import('./pages/Projects'));
 const CustomerDashboard = lazyRetry(() => import('./pages/CustomerDashboard'));
@@ -139,6 +138,9 @@ const Recruitment = lazyRetry(() => import('./pages/Recruitment'));
 const LeaveBalance = lazyRetry(() => import('./pages/LeaveBalance'));
 const LandingPage = lazyRetry(() => import('./pages/LandingPage'));
 const AriaCommandCenter = lazyRetry(() => import('./pages/AriaCommandCenter'));
+const DocumentOCR = lazyRetry(() => import('./pages/DocumentOCR'));
+const OCRDashboard = lazyRetry(() => import('./pages/OCRDashboard'));
+const OCRHistory = lazyRetry(() => import('./pages/OCRHistory'));
 
 // Social Network Pages
 const SocialLayout = lazyRetry(() => import('./pages/social/SocialLayout'));
@@ -378,7 +380,6 @@ const AppContent = () => {
 
                     <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
                     <Route path="/admin-tickets-new" element={<ProtectedRoute><SaaSAdminDashboard /></ProtectedRoute>} />
-                    <Route path="/ocr" element={<ProtectedRoute><OCR /></ProtectedRoute>} />
                     <Route path="/users" element={<ProtectedRoute requiredPermission="view_settings"><UserManagement /></ProtectedRoute>} />
                     <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
@@ -437,6 +438,10 @@ const AppContent = () => {
                     <Route path="/erp/inventory" element={<ProtectedRoute><ComingSoonPage title="Inventory" /></ProtectedRoute>} />
                     <Route path="/erp/finance" element={<ProtectedRoute><FinancialOperations /></ProtectedRoute>} />
                     <Route path="/erp/assets" element={<ProtectedRoute><ComingSoonPage title="Assets" /></ProtectedRoute>} />
+                    <Route path="/ocr/dashboard" element={<ProtectedRoute requiredPermission="view_erp"><OCRDashboard /></ProtectedRoute>} />
+                    <Route path="/ocr/history" element={<ProtectedRoute requiredPermission="view_erp"><OCRHistory /></ProtectedRoute>} />
+                    <Route path="/ocr/process" element={<ProtectedRoute requiredPermission="view_erp"><DocumentOCR /></ProtectedRoute>} />
+                    <Route path="/ocr/process/:id" element={<ProtectedRoute requiredPermission="view_erp"><DocumentOCR /></ProtectedRoute>} />
                     
                     <Route path="/tasks/assigned" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/tasks/completed" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />

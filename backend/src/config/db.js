@@ -348,15 +348,6 @@ const connectDB = async () => {
                 console.log(`[Sync] Injected performanceOverrides to Employee`);
             } catch (e) { console.log(`[Sync] performanceOverrides injection skipped (likely exists): ${e.message}`); }
             
-            try {
-                await qi.addColumn('OcrDocument', 'fileUrl', { type: DataTypes.TEXT, allowNull: true });
-                console.log(`[Sync] Injected fileUrl to OcrDocument`);
-            } catch (e) { }
-            
-            try {
-                await qi.addColumn('OcrDocument', 'fileName', { type: DataTypes.STRING(255), allowNull: true });
-                console.log(`[Sync] Injected fileName to OcrDocument`);
-            } catch (e) { }
         }
         
         // Run heavy data sync asynchronously and delay by 15s so we don't block Railway's port binding and healthchecks with CPU-intensive bcrypt hashing

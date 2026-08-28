@@ -2,7 +2,11 @@
   "exclude": [
     "**/node_modules",
     "**/__pycache__",
+    "C:/__pyrefly_virtual__",
+    "C:/__pyrefly_virtual__/**",
     "c:\\__pyrefly_virtual__",
+    "c:\\__pyrefly_virtual__\\**",
+    "**/__pyrefly_virtual__/**",
     "**/*__pyrefly_virtual__*"
   ],
   "venvPath": "c:\\Users\\Admin\\Documents\\project\\backend\\ocr_service",

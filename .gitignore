@@ -28,7 +28,11 @@ venv/
 .venv/
 __pycache__/
 *.pyc
-
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+*.log
 # OCR service
 backend/ocr_service/venv/
 backend/ocr_service/uploads/

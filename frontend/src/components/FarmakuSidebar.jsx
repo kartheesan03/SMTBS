@@ -14,7 +14,7 @@ const SECTIONS_CONFIG = [
     },
     {
         label: 'OPERATIONS',
-        items: ['Material Tracking', 'ERP', 'CRM', 'Financial Operations']
+        items: ['Material Tracking', 'ERP', 'CRM', 'Financial Operations', 'Document OCR']
     },
     {
         label: 'PEOPLE',
@@ -231,12 +231,6 @@ const FarmakuSidebar = () => {
                                                 </li>
                                             )}
 
-                                            <li>
-                                                <NavLink to="/ocr" end className={() => `farmaku-nav-item${isLeafActive('/ocr') ? ' active' : ''}`}>
-                                                    <div className="icon-wrapper"><Icons.Scan /></div>
-                                                    <span>OCR Tool</span>
-                                                </NavLink>
-                                            </li>
 
                                             <li>
                                                 <div className="farmaku-nav-item" onClick={() => openAria()} role="button">
