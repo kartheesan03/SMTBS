@@ -332,7 +332,27 @@ const connectDB = async () => {
             console.warn(`[Sync] Alter sync failed, falling back to standard sync: ${syncError.message}`);
             if (syncError.errors) console.warn(JSON.stringify(syncError.errors, null, 2));
             if (syncError.original) console.warn(syncError.original);
-            if (dialect === 'sqlite') await sequelize.sync();
+            if (dialect === 'sqlite') {
+                await sequelize.sync();
+            } else {
+                // Remote database alter fallback - manually add commonly missing new columns
+                console.log(`[Sync] Attempting manual column injection for remote DB...`);
+                try {
+                    await sequelize.query('ALTER TABLE Employees ADD COLUMN performanceOverrides JSON NULL;');
+                    console.log(`[Sync] Injected performanceOverrides to Employees`);
+                } catch (e) {}
+                try {
+                    await sequelize.query('ALTER TABLE OcrDocuments ADD COLUMN fileUrl TEXT NULL;');
+                    console.log(`[Sync] Injected fileUrl to OcrDocuments`);
+                } catch (e) {}
+                try {
+                    await sequelize.query('ALTER TABLE OcrDocuments ADD COLUMN fileName VARCHAR(255) NULL;');
+                    console.log(`[Sync] Injected fileName to OcrDocuments`);
+                } catch (e) {}
+                
+                // Fallback standard sync
+                await sequelize.sync();
+            }
         }
         
         // Run heavy data sync asynchronously and delay by 15s so we don't block Railway's port binding and healthchecks with CPU-intensive bcrypt hashing
