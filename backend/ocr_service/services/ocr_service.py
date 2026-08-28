@@ -28,11 +28,10 @@ def _get_reader():
     global _reader
     if _reader is None:
         try:
-            import easyocr
-            # Use easyocr instead of paddleocr due to paddle MKLDNN crashes
-            _reader = easyocr.Reader(['en'], gpu=False)
+            from paddleocr import PaddleOCR
+            _reader = PaddleOCR(use_angle_cls=True, lang='en', use_gpu=False, show_log=False)
         except ImportError:
-            logger.error("EasyOCR not installed. Please run: pip install easyocr")
+            logger.error("PaddleOCR not installed.")
             raise
     return _reader
 
@@ -260,31 +259,33 @@ def _ocr_image_elements(img_path: str, page_num: int = 1) -> list:
     
     for path, sc in passes:
         try:
-            res = reader.readtext(path)
+            res = reader.ocr(path, cls=True) # type: ignore
             norm_res = []
-            for bbox, text, conf in res:
-                text = str(text)
-                if not text.strip(): continue
-                try: conf = float(conf)
-                except: conf = 0.0
-                if conf < 0: conf = 0.0
-                text = clean_ocr_text(text)
-                if not text: continue
-                
-                x0 = float(min(p[0] for p in bbox)) / sc
-                x1 = float(max(p[0] for p in bbox)) / sc
-                y0 = float(min(p[1] for p in bbox)) / sc
-                y1 = float(max(p[1] for p in bbox)) / sc
-                
-                norm_res.append({
-                    "text": text,
-                    "confidence": conf,
-                    "x0": x0,
-                    "y0": y0,
-                    "x1": x1,
-                    "y1": y1,
-                    "page": page_num
-                })
+            if res and res[0]:
+                for line in res[0]:
+                    bbox, (text, conf) = line
+                    text = str(text)
+                    if not text.strip(): continue
+                    try: conf = float(conf)
+                    except: conf = 0.0
+                    if conf < 0: conf = 0.0
+                    text = clean_ocr_text(text)
+                    if not text: continue
+                    
+                    x0 = float(min(p[0] for p in bbox)) / sc
+                    x1 = float(max(p[0] for p in bbox)) / sc
+                    y0 = float(min(p[1] for p in bbox)) / sc
+                    y1 = float(max(p[1] for p in bbox)) / sc
+                    
+                    norm_res.append({
+                        "text": text,
+                        "confidence": conf,
+                        "x0": x0,
+                        "y0": y0,
+                        "x1": x1,
+                        "y1": y1,
+                        "page": page_num
+                    })
             all_pass_results.append(norm_res)
         except Exception as e:
             logger.error(f"Pass failed: {e}")
@@ -325,7 +326,7 @@ def _ocr_image_elements(img_path: str, page_num: int = 1) -> list:
     return final_elements
 
 
-def extract_text(file_path: str, ext: Optional[str] = None) -> dict:
+async def extract_text(file_path: str, ext: Optional[str] = None) -> dict:
     t_start = time.time()
     ext = (ext or os.path.splitext(file_path)[1]).lower()
     all_elements = []
@@ -382,17 +383,9 @@ def extract_text(file_path: str, ext: Optional[str] = None) -> dict:
             logger.info(f"[TIMING] No text layer. Falling back to EasyOCR at t={time.time()-t_start:.2f}s")
             all_elements = [] # Clear any garbage detected
             
-            # Use lower DPI for faster OCR:
-            # - Single-page docs: 120 DPI (good quality, 36% fewer pixels vs 150)
-            # - Multi-page docs: 96 DPI and limit to first 2 pages
-            if num_pages == 1:
-                dpi = 120
-                max_pages = 1
-            else:
-                dpi = 96
-                max_pages = min(2, num_pages)
-                if num_pages > 2:
-                    logger.warning(f"[TIMING] {num_pages}-page scanned PDF ÔÇö limiting OCR to first {max_pages} pages at {dpi} DPI")
+            # - Multi-page docs: process all pages
+            dpi = 120 if num_pages == 1 else 96
+            max_pages = num_pages
                 
             for page_num in range(max_pages):
                 page = doc[page_num]
@@ -426,9 +419,111 @@ def extract_text(file_path: str, ext: Optional[str] = None) -> dict:
         all_elements = _ocr_image_elements(file_path, page_num=1)
         logger.info(f"[TIMING] Image OCR done in {time.time()-t_img:.2f}s")
         
+    # ── Try Anthropic for dynamic extraction ──────────────────────────────────
+    import json
+    import base64
+    try:
+        from anthropic import AsyncAnthropic
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if api_key and api_key != "your_anthropic_api_key_here":
+            logger.info("[TIMING] Attempting dynamic extraction with Anthropic...")
+            anthropic_client = AsyncAnthropic(api_key=api_key)
+            
+            with open(file_path, "rb") as f:
+                file_bytes = f.read()
+            
+            base64_data = base64.b64encode(file_bytes).decode('utf-8')
+            mime_type = "image/jpeg"
+            if ext in [".png"]: mime_type = "image/png"
+            elif ext in [".webp"]: mime_type = "image/webp"
+            elif ext in [".pdf"]: mime_type = "application/pdf"
+            
+            if mime_type == "application/pdf":
+                content_block = {
+                    "type": "document",
+                    "source": { "type": "base64", "media_type": "application/pdf", "data": base64_data }
+                }
+            else:
+                content_block = {
+                    "type": "image",
+                    "source": { "type": "base64", "media_type": mime_type, "data": base64_data }
+                }
+                
+            system_prompt = (
+                "You are an advanced Document Intelligence OCR AI. Your task is to extract text and structure it dynamically into JSON. "
+                "Classify the document type (e.g., 'Receipt', 'Invoice', 'Form', 'General'). "
+                "Output ONLY a valid JSON object matching this schema exactly:\n"
+                "{\n"
+                "  \"document\": {\"type\": \"<Document Type>\", \"confidence\": 0.98},\n"
+                "  \"extracted_data\": {\n"
+                "     // Dynamic fields here. \n"
+                "     // For a receipt, it MUST be structured exactly like: \n"
+                "     // \"merchant\": { \"name\": \"...\", \"address\": \"...\", \"phone\": \"...\", \"tin\": \"...\" },\n"
+                "     // \"receipt_details\": { \"type\": \"...\", \"bill_no\": \"...\", \"waiter\": \"...\", \"table\": \"...\", \"date\": \"...\", \"time\": \"...\" },\n"
+                "     // \"items\": [ { \"description\": \"...\", \"price\": ..., \"qty\": ..., \"total\": ... } ],\n"
+                "     // \"summary\": { \"total_quantity\": ..., \"gross_total\": ..., \"taxes\": [ {\"description\": \"...\", \"amount\": ...} ], \"net_total\": ... },\n"
+                "     // \"footer\": \"...\"\n"
+                "     // For other documents, create a clean hierarchical structure of objects and arrays.\n"
+                "  },\n"
+                "  \"rawText\": \"<Full raw text of document>\"\n"
+                "}\n"
+                "Do not include markdown blocks. Return only JSON."
+            )
+            
+            response = await anthropic_client.messages.create(
+                model="claude-3-5-sonnet-20240620",
+                max_tokens=4096,
+                system=system_prompt,
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        content_block,
+                        {"type": "text", "text": "Extract and structure this document perfectly into JSON."}
+                    ]
+                }]
+            )
+            
+            output_text = response.content[0].text.strip()  # type: ignore
+            if output_text.startswith("```"):
+                lines = output_text.split('\n')
+                if lines[0].startswith("```"): lines = lines[1:]
+                if lines and lines[-1].startswith("```"): lines = lines[:-1]
+                output_text = "\n".join(lines).strip()
+                
+            result = json.loads(output_text)
+            logger.info(f"[TIMING] Anthropic dynamic extraction done in {time.time()-t_start:.2f}s")
+            
+            # Add required top-level fields for backwards compatibility with legacy OCR.jsx expectations
+            result["success"] = True
+            if "sections" not in result:
+                result["sections"] = [] # The new frontend will use extracted_data instead of sections
+            return result
+    except Exception as e:
+        logger.warning(f"Anthropic dynamic extraction failed or skipped: {e}. Falling back to EasyOCR.")
+        
     t_parse = time.time()
     result = process_document(all_elements)
     logger.info(f"[TIMING] process_document done in {time.time()-t_parse:.2f}s, total={time.time()-t_start:.2f}s")
+    
+    # Map the old fallback result to the new dynamic structure if possible
+    # Just wrap the sections into extracted_data so the frontend can still render it dynamically
+    # For a purely generic fallback:
+    extracted_data = {}
+    extracted_data["legacy_tables"] = []
+    for section in result.get("sections", []):
+        headers = section.get("headers", [])
+        for row in section.get("rows", []):
+            row_dict = {}
+            for idx, h in enumerate(headers):
+                if idx < len(row):
+                    cell = row[idx]
+                    row_dict[h] = cell.get("value", "") if isinstance(cell, dict) else cell
+            extracted_data["legacy_tables"].append(row_dict)
+            
+    if result.get("document", {}).get("details"):
+        extracted_data["details"] = result["document"]["details"]
+        
+    result["extracted_data"] = extracted_data
     
     import json
     logger.info("=== DEBUG: FINAL API PAYLOAD ===")

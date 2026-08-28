@@ -287,6 +287,89 @@ const DynamicOCRTable = ({ section, sIdx, canEdit, onDataChange, onDeleteRow, on
   );
 };
 
+// ─── Dynamic JSON Renderer ─────────────────────────────────────────────────────
+const DynamicJSONRenderer = ({ data, path = [], canEdit, onDataChange }) => {
+  if (!data) return null;
+
+  if (Array.isArray(data)) {
+    if (data.length === 0) return null;
+    const isObjectArray = typeof data[0] === "object" && data[0] !== null;
+    
+    if (isObjectArray) {
+      const headers = Object.keys(data[0]);
+      return (
+        <div className="ocr-table-wrapper" style={{ marginBottom: 16 }}>
+          <table className="ocr-table">
+            <thead>
+              <tr>
+                {headers.map(h => <th key={h}>{String(h).replace(/_/g, ' ').toUpperCase()}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((row, rIdx) => (
+                <tr key={rIdx}>
+                  {headers.map(h => (
+                    <td key={h}>
+                      {canEdit ? (
+                        <input
+                          className="cell-input"
+                          value={row[h] || ""}
+                          onChange={(e) => onDataChange([...path, rIdx, h], e.target.value)}
+                        />
+                      ) : (
+                        <span>{row[h]}</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    } else {
+       return <ul style={{ paddingLeft: 20 }}>{data.map((item, i) => <li key={i}>{item}</li>)}</ul>;
+    }
+  } else if (typeof data === "object") {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 16 }}>
+        {Object.entries(data).map(([key, val]) => {
+           const friendlyKey = String(key).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+           if (typeof val === "object" && val !== null) {
+              return (
+                <div key={key} className="ocr-section-card">
+                  <div className="ocr-section-card-header">
+                    <div className="ocr-section-card-title">{friendlyKey}</div>
+                  </div>
+                  <div style={{ padding: 16 }}>
+                    <DynamicJSONRenderer data={val} path={[...path, key]} canEdit={canEdit} onDataChange={onDataChange} />
+                  </div>
+                </div>
+              );
+           } else {
+              return (
+                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 16px', borderBottom: '1px solid var(--line-light)' }}>
+                  <span style={{ fontWeight: 500, color: 'var(--ink-mid)' }}>{friendlyKey}</span>
+                  {canEdit ? (
+                     <input
+                        className="cell-input"
+                        style={{ textAlign: 'right', width: '60%' }}
+                        value={val || ""}
+                        onChange={(e) => onDataChange([...path, key], e.target.value)}
+                     />
+                  ) : (
+                     <span style={{ fontWeight: 600 }}>{val}</span>
+                  )}
+                </div>
+              );
+           }
+        })}
+      </div>
+    );
+  }
+  return <span>{data}</span>;
+};
+
 // ─── Reject Modal ──────────────────────────────────────────────────────────────
 const RejectModal = ({ onConfirm, onCancel }) => {
   const [reason, setReason] = useState("");
@@ -478,6 +561,21 @@ const DocumentIntelligence = () => {
   };
 
   // ─── Table Editing ─────────────────────────────────────────────────────────
+  const handleNestedDataChange = (path, val) => {
+    if (!canEdit) return;
+    setExtractionData(prev => {
+      const newData = { ...prev };
+      // Deep clone extracted_data
+      newData.extracted_data = JSON.parse(JSON.stringify(newData.extracted_data || {}));
+      let current = newData.extracted_data;
+      for (let i = 0; i < path.length - 1; i++) {
+         current = current[path[i]];
+      }
+      current[path[path.length - 1]] = val;
+      return newData;
+    });
+  };
+
   const handleDataChange = (sectionIdx, rowIdx, colIdx, val) => {
     if (!canEdit) return;
     setExtractionData(prev => ({
@@ -1038,13 +1136,21 @@ const DocumentIntelligence = () => {
                 {/* Structured Data Tab */}
                 {activeTab === "Structured Data" && (
                   <>
-                    {(extractionData.sections || []).length === 0 ? (
+                    {(!extractionData.sections?.length && !extractionData.extracted_data) ? (
                       <div style={{ textAlign: "center", padding: "40px", color: "var(--ink-soft)", fontSize: 13 }}>
                         No structured data could be extracted from this document.
                       </div>
                     ) : (
-                      (extractionData.sections || []).map((section, sIdx) => (
-                        <div key={sIdx} className="ocr-section-card" style={{ marginBottom: 16 }}>
+                      <>
+                        {extractionData.extracted_data && (
+                          <DynamicJSONRenderer 
+                            data={extractionData.extracted_data} 
+                            canEdit={canEdit && workflowState === "extracted"} 
+                            onDataChange={handleNestedDataChange}
+                          />
+                        )}
+                        {(!extractionData.extracted_data && extractionData.sections) && extractionData.sections.map((section, sIdx) => (
+                          <div key={sIdx} className="ocr-section-card" style={{ marginBottom: 16 }}>
                           <div className="ocr-section-card-header">
                             <div className="ocr-section-card-title">
                               {section.title}
@@ -1073,7 +1179,8 @@ const DocumentIntelligence = () => {
                             onCellFocus={setActiveBbox}
                           />
                         </div>
-                      ))
+                        ))}
+                      </>
                     )}
                   </>
                 )}

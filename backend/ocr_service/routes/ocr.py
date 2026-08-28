@@ -47,7 +47,7 @@ async def ocr_endpoint(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             buffer.write(file_bytes)
 
-        structured_data = extract_text(file_path, ext)
+        structured_data = await extract_text(file_path, ext)
         return JSONResponse(content=structured_data)
     except Exception as e:
         import traceback
