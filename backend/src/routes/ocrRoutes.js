@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const os = require('os');
-const { extractText, enhanceImage, exportDocx, exportTxt, exportPdf, exportExcel } = require('../controllers/ocrController');
+const { extractText, exportDocx, exportTxt, exportPdf } = require('../controllers/ocrController');
 
 const upload = multer({
     dest: os.tmpdir(),
@@ -41,9 +41,6 @@ const handleUpload = (req, res, next) => {
 // POST /api/ocr/extract
 router.post('/extract', handleUpload, extractText);
 
-// POST /api/ocr/enhance
-router.post('/enhance', handleUpload, enhanceImage);
-
 // POST /api/ocr/export/docx
 router.post('/export/docx', exportDocx);
 
@@ -52,8 +49,5 @@ router.post('/export/txt', exportTxt);
 
 // POST /api/ocr/export/pdf
 router.post('/export/pdf', exportPdf);
-
-// POST /api/ocr/export/excel
-router.post('/export/excel', exportExcel);
 
 module.exports = router;

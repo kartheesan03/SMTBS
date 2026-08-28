@@ -130,10 +130,44 @@ const getOcrSummary = async (req, res) => {
     }
 };
 
+const deleteOcrDocument = async (req, res) => {
+    try {
+        if (req.user.role !== 'Admin' && req.user.role !== 'Manager') {
+            return res.status(403).json({ message: "You have view-only access. Contact an admin or manager to delete documents." });
+        }
+        
+        const docId = req.params.id;
+        const doc = await OcrDocument.findById(docId);
+        
+        if (!doc) {
+            return res.status(404).json({ message: 'Document not found' });
+        }
+        
+        await OcrDocument.findByIdAndDelete(docId);
+
+        // Audit Trail for delete
+        await AuditLog.create({
+            userId: req.user.id,
+            userName: req.user.name,
+            action: 'DELETE',
+            module: 'System',
+            targetId: doc.id,
+            description: `Deleted OCR Document: ${doc.fileName}`,
+            ipAddress: req.ip
+        });
+
+        res.json({ success: true, message: 'Document deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting OCR document:', error);
+        res.status(500).json({ message: 'Failed to delete document', error: error.message });
+    }
+};
+
 module.exports = {
     getOcrDocuments,
     getOcrDocumentById,
     createOcrDocument,
     updateOcrDocument,
-    getOcrSummary
+    getOcrSummary,
+    deleteOcrDocument
 };
