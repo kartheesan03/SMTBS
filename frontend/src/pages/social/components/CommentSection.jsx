@@ -27,7 +27,7 @@ function MiniAvatar({ name, color, size = 36 }) {
   );
 }
 
-const CommentSection = ({ postId, postAuthorId, comments: initialComments, onCommentAdded, onCommentDeleted }) => {
+const CommentSection = ({ postId, comments: initialComments, onCommentAdded, onCommentDeleted }) => {
   const { user } = useContext(AuthContext);
   const [comments, setComments] = useState(initialComments || []);
   const [text, setText]         = useState('');
@@ -37,10 +37,6 @@ const CommentSection = ({ postId, postAuthorId, comments: initialComments, onCom
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const inputRef = useRef(null);
   const emojiPickerRef = useRef(null);
-
-  useEffect(() => {
-    setComments(initialComments || []);
-  }, [initialComments]);
 
   const authorName     = user?.name || user?.username || 'You';
   const authorColor    = AVATAR_COLORS[0];
@@ -233,11 +229,7 @@ const CommentSection = ({ postId, postAuthorId, comments: initialComments, onCom
           const role      = comment.author?.role || comment.author?.department || 'Employee';
           const color     = AVATAR_COLORS[idx % AVATAR_COLORS.length];
           const timeStr   = comment.createdAt ? getRelativeTime(comment.createdAt) : 'Just now';
-          const userRole = user?.role ? String(user.role).toLowerCase() : '';
-          const commentAuthorId = comment.author?.id || comment.author?._id || comment.authorId;
-          const isCommentAuthor = (user?.id && String(user.id) === String(commentAuthorId)) || (user?._id && String(user._id) === String(commentAuthorId));
-          const isPostAuthor = (user?.id && String(user.id) === String(postAuthorId)) || (user?._id && String(user._id) === String(postAuthorId));
-          const isOwner   = isCommentAuthor || isPostAuthor || ['admin', 'super admin'].includes(userRole);
+          const isOwner   = user?.id === comment.author?.id || ['Admin', 'Super Admin'].includes(user?.role);
 
           return (
             <div key={comment.id || idx} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>

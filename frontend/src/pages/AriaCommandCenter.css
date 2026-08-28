@@ -641,10 +641,3 @@
     background-color: #f3f4f6;
 }
 
-/* Dynamic Table Styles */
-.dynamic-table-container { margin-top: 1rem; width: 100%; overflow-x: auto; }
-.dynamic-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color, #e0e0e0); border-radius: 8px; }
-.dynamic-table { width: 100%; border-collapse: collapse; text-align: left; }
-.dynamic-table th { background: var(--bg-secondary, #f8f9fa); padding: 12px; font-weight: 600; border-bottom: 2px solid var(--border-color, #e0e0e0); position: sticky; top: 0; }
-.dynamic-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-color, #e0e0e0); font-size: 0.9rem; }
-.dynamic-table tr:hover { background-color: var(--hover-color, #f1f3f5); }

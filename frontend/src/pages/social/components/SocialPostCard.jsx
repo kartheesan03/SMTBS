@@ -158,12 +158,7 @@ const SocialPostCard = ({ post, onDelete }) => {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#1a56db' }}>
                         <ThumbsUp size={10} color="#FFFFFF" fill="#FFFFFF" />
                     </div>
-                    <span 
-                        title={post.reactions && post.reactions.length > 0 ? post.reactions.map(r => r.user?.name || r.user?.username || 'Someone').join(', ') : ''}
-                        style={{ cursor: post.reactions && post.reactions.length > 0 ? 'help' : 'default' }}
-                    >
-                        {likesCount > 0 ? (isLiked ? `You and ${likesCount - 1} others` : `${likesCount} likes`) : ''}
-                    </span>
+                    <span>{likesCount > 0 ? (isLiked ? `You and ${likesCount - 1} others` : `${likesCount} likes`) : ''}</span>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     {commentsCount > 0 && (
@@ -214,7 +209,7 @@ const SocialPostCard = ({ post, onDelete }) => {
                     onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = showComments ? '#0f172a' : '#64748b'; }}
                 >
                     <MessageSquare size={20} fill={showComments ? '#e2e8f0' : 'none'} color={showComments ? '#0f172a' : '#64748b'} />
-                    Comment {commentsCount > 0 ? `(${commentsCount})` : ''}
+                    Comment
                 </button>
 
                 <button 
@@ -246,7 +241,6 @@ const SocialPostCard = ({ post, onDelete }) => {
                 <div style={{ backgroundColor: '#f8fafc', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
                     <CommentSection 
                         postId={post.id} 
-                        postAuthorId={post.author?.id || post.author?._id}
                         comments={post.comments} 
                         onCommentAdded={() => setCommentsCount(prev => prev + 1)}
                     />
