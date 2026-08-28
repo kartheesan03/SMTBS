@@ -68,7 +68,13 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
                         {title}
                     </span>
                     {badge && (
-                        <span className="rd-module-badge">{badge}</span>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            {Array.isArray(badge) ? (
+                                badge.map((b, i) => <span key={i} className="rd-module-badge">{b}</span>)
+                            ) : (
+                                <span className="rd-module-badge">{badge}</span>
+                            )}
+                        </div>
                     )}
                     {hasInsights && (
                         <div style={{
