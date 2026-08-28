@@ -1,7 +1,7 @@
 FROM python:3.10-slim
 
 # Install Tesseract OCR and its dependencies
-RUN apt-get update && apt-get install -y tesseract-ocr \
+RUN apt-get update && apt-get install -y tesseract-ocr libmagic1 libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
