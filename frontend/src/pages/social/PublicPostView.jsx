@@ -105,9 +105,33 @@ const PublicPostView = () => {
                     <div style={{ marginBottom: '1.5rem', color: '#334155', lineHeight: '1.6', fontSize: '1rem' }}>
                         {post.text && <p style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{renderText(post.text)}</p>}
                     </div>
+                    {/* Single Legacy Image */}
                     {post.imageUrl && (
                         <div style={{ margin: '0 -2rem', marginBottom: '1.5rem' }}>
-                            <img src={post.imageUrl} alt="Post attachment" style={{ width: '100%', display: 'block', maxHeight: '550px', objectFit: 'cover' }} />
+                            <img src={post.imageUrl.startsWith('/uploads/') ? `${apiBaseUrl.replace('/api', '')}${post.imageUrl}` : post.imageUrl} alt="Post attachment" style={{ width: '100%', display: 'block', maxHeight: '550px', objectFit: 'cover' }} />
+                        </div>
+                    )}
+
+                    {/* Media Array Support */}
+                    {post.media && post.media.length > 0 && (
+                        <div style={{ margin: '0 -2rem', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: post.media.length === 1 ? '1fr' : '1fr 1fr', gap: '2px', background: '#000', maxHeight: post.media.length === 1 ? '500px' : '280px', overflow: 'hidden' }}>
+                            {post.media.slice(0, 4).map((item, idx) => {
+                                const url = item.url?.startsWith('/uploads/') ? `${apiBaseUrl.replace('/api', '')}${item.url}` : item.url;
+                                return (
+                                    <div key={idx} style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                        {url?.match(/\.(mp4|webm|ogg)$/i) || item.type?.startsWith('video/') ? (
+                                            <video src={url} controls style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            <img src={url} alt="Post media" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        )}
+                                        {idx === 3 && post.media.length > 4 && (
+                                            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', fontWeight: 'bold' }}>
+                                                +{post.media.length - 4} more
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                     

@@ -797,14 +797,18 @@ const DocumentIntelligence = () => {
 
   // ─── Derived ───────────────────────────────────────────────────────────────
   const allBboxes = [];
-  if (extractionData) {
-    (extractionData.sections || []).forEach(sec => {
-      (sec.rows || []).forEach(row => {
-        row.forEach(cell => {
-          const obj = getCellObj(cell);
-          if (obj.bbox) allBboxes.push(obj);
+  if (extractionData && Array.isArray(extractionData.sections)) {
+    extractionData.sections.forEach(sec => {
+      if (Array.isArray(sec.rows)) {
+        sec.rows.forEach(row => {
+          if (Array.isArray(row)) {
+            row.forEach(cell => {
+              const obj = getCellObj(cell);
+              if (obj.bbox) allBboxes.push(obj);
+            });
+          }
         });
-      });
+      }
     });
   }
 
