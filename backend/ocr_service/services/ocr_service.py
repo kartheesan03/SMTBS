@@ -29,7 +29,7 @@ def _get_reader():
     if _reader is None:
         try:
             from paddleocr import PaddleOCR
-            _reader = PaddleOCR(use_angle_cls=True, lang='en', use_gpu=False, show_log=False)
+            _reader = PaddleOCR(use_angle_cls=True, lang='en')
         except ImportError:
             logger.error("PaddleOCR not installed.")
             raise
@@ -259,7 +259,7 @@ def _ocr_image_elements(img_path: str, page_num: int = 1) -> list:
     
     for path, sc in passes:
         try:
-            res = reader.ocr(path, cls=True) # type: ignore
+            res = reader.ocr(path) # type: ignore
             norm_res = []
             if res and res[0]:
                 for line in res[0]:
