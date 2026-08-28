@@ -331,28 +331,32 @@ const connectDB = async () => {
         } catch (syncError) {
             console.warn(`[Sync] Alter sync failed, falling back to standard sync: ${syncError.message}`);
             if (syncError.errors) console.warn(JSON.stringify(syncError.errors, null, 2));
-            if (syncError.original) console.warn(syncError.original);
             if (dialect === 'sqlite') {
                 await sequelize.sync();
             } else {
-                // Remote database alter fallback - manually add commonly missing new columns
-                console.log(`[Sync] Attempting manual column injection for remote DB...`);
-                try {
-                    await sequelize.query('ALTER TABLE Employees ADD COLUMN performanceOverrides JSON NULL;');
-                    console.log(`[Sync] Injected performanceOverrides to Employees`);
-                } catch (e) {}
-                try {
-                    await sequelize.query('ALTER TABLE OcrDocuments ADD COLUMN fileUrl TEXT NULL;');
-                    console.log(`[Sync] Injected fileUrl to OcrDocuments`);
-                } catch (e) {}
-                try {
-                    await sequelize.query('ALTER TABLE OcrDocuments ADD COLUMN fileName VARCHAR(255) NULL;');
-                    console.log(`[Sync] Injected fileName to OcrDocuments`);
-                } catch (e) {}
-                
-                // Fallback standard sync
                 await sequelize.sync();
             }
+        }
+        
+        // Force inject missing columns to ensure production schema is 100% correct
+        if (dialect !== 'sqlite') {
+            console.log(`[Sync] Running forced manual column injection for remote DB using QueryInterface...`);
+            const qi = sequelize.getQueryInterface();
+            const { DataTypes } = require('sequelize');
+            try {
+                await qi.addColumn('Employees', 'performanceOverrides', { type: DataTypes.JSON, allowNull: true });
+                console.log(`[Sync] Injected performanceOverrides to Employees`);
+            } catch (e) { console.log(`[Sync] performanceOverrides injection skipped (likely exists): ${e.message}`); }
+            
+            try {
+                await qi.addColumn('OcrDocuments', 'fileUrl', { type: DataTypes.TEXT, allowNull: true });
+                console.log(`[Sync] Injected fileUrl to OcrDocuments`);
+            } catch (e) { }
+            
+            try {
+                await qi.addColumn('OcrDocuments', 'fileName', { type: DataTypes.STRING(255), allowNull: true });
+                console.log(`[Sync] Injected fileName to OcrDocuments`);
+            } catch (e) { }
         }
         
         // Run heavy data sync asynchronously and delay by 15s so we don't block Railway's port binding and healthchecks with CPU-intensive bcrypt hashing
