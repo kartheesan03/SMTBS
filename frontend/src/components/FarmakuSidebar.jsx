@@ -14,7 +14,7 @@ const SECTIONS_CONFIG = [
     },
     {
         label: 'OPERATIONS',
-        items: ['Material Tracking', 'ERP', 'CRM', 'Financial Operations', 'Document OCR']
+        items: ['Material Tracking', 'ERP', 'CRM', 'Financial Operations']
     },
     {
         label: 'PEOPLE',

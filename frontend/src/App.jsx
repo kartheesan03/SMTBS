@@ -138,9 +138,6 @@ const Recruitment = lazyRetry(() => import('./pages/Recruitment'));
 const LeaveBalance = lazyRetry(() => import('./pages/LeaveBalance'));
 const LandingPage = lazyRetry(() => import('./pages/LandingPage'));
 const AriaCommandCenter = lazyRetry(() => import('./pages/AriaCommandCenter'));
-const DocumentOCR = lazyRetry(() => import('./pages/DocumentOCR'));
-const OCRDashboard = lazyRetry(() => import('./pages/OCRDashboard'));
-const OCRHistory = lazyRetry(() => import('./pages/OCRHistory'));
 
 // Social Network Pages
 const SocialLayout = lazyRetry(() => import('./pages/social/SocialLayout'));
@@ -438,10 +435,7 @@ const AppContent = () => {
                     <Route path="/erp/inventory" element={<ProtectedRoute><ComingSoonPage title="Inventory" /></ProtectedRoute>} />
                     <Route path="/erp/finance" element={<ProtectedRoute><FinancialOperations /></ProtectedRoute>} />
                     <Route path="/erp/assets" element={<ProtectedRoute><ComingSoonPage title="Assets" /></ProtectedRoute>} />
-                    <Route path="/ocr/dashboard" element={<ProtectedRoute requiredPermission="view_erp"><OCRDashboard /></ProtectedRoute>} />
-                    <Route path="/ocr/history" element={<ProtectedRoute requiredPermission="view_erp"><OCRHistory /></ProtectedRoute>} />
-                    <Route path="/ocr/process" element={<ProtectedRoute requiredPermission="view_erp"><DocumentOCR /></ProtectedRoute>} />
-                    <Route path="/ocr/process/:id" element={<ProtectedRoute requiredPermission="view_erp"><DocumentOCR /></ProtectedRoute>} />
+
                     
                     <Route path="/tasks/assigned" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/tasks/completed" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />

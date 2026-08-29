@@ -61,13 +61,7 @@ const navigationConfig = [
             { title: 'Order Management', path: '/orders' }
         ]
     },
-    {
-        title: 'Document OCR',
-        icon: 'ScanText',
-        path: '/ocr/dashboard',
-        permission: 'view_erp',
-        group: 'PROCUREMENT'
-    },
+
     {
         title: 'CRM',
         icon: 'Briefcase',
@@ -84,9 +78,11 @@ const navigationConfig = [
     {
         title: 'Financial Operations',
         icon: 'DollarSign',
-        path: '/finance',
         permission: 'view_reports',
-        group: 'BUSINESS'
+        group: 'BUSINESS',
+        children: [
+            { title: 'Overview', path: '/finance' }
+        ]
     },
     {
         title: 'HRMS',

@@ -41,8 +41,6 @@ const invoiceRoutes = require('./src/routes/invoiceRoutes');
 const searchRoutes = require('./src/routes/searchRoutes');
 const socialRoutes = require('./src/routes/socialRoutes');
 const feedRoutes = require('./src/routes/feedRoutes');
-const ocrRoutes = require('./src/routes/ocrRoutes');
-
 const app = express();
 
 const allowedOrigins = process.env.CLIENT_URL
@@ -99,7 +97,6 @@ app.use('/api/recruitment', recruitmentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/assistant', assistantRoutes);
 app.use('/api/invoices', invoiceRoutes);
-app.use('/api/ocr', ocrRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/feed', feedRoutes);
