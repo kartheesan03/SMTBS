@@ -141,59 +141,7 @@ const AriaSidePanel = () => {
         }
     };
 
-    const handleFileUpload = async (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
 
-        const userMsg = { role: 'user', content: `Attached document: ${file.name}`, id: Date.now() };
-        setMessages(prev => [...prev, userMsg]);
-        setIsLoading(true);
-        setActiveVisualData(null);
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const res = await API.post('/ocr/extract', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-
-            if (res.data && res.data.tables && res.data.tables.length > 0) {
-                // Assuming the backend OCR returns an array of tables where each table is an array of objects
-                setActiveVisualData({
-                    type: 'table',
-                    modelName: `Extracted from ${file.name}`,
-                    data: res.data.tables[0]
-                });
-                
-                setMessages(prev => [...prev, {
-                    role: 'assistant',
-                    content: "I've extracted the data from your document. Here it is:",
-                    id: Date.now() + 1,
-                    isStreaming: true,
-                    hasVisual: true
-                }]);
-            } else {
-                setMessages(prev => [...prev, {
-                    role: 'assistant',
-                    content: "I processed the document, but couldn't find any structured tables.",
-                    id: Date.now() + 1,
-                    isStreaming: true
-                }]);
-            }
-        } catch (error) {
-            console.error('OCR error:', error);
-            toast.error("Failed to process document.");
-            setMessages(prev => [...prev, { 
-                role: 'assistant', 
-                content: "I had trouble processing that document.",
-                id: Date.now() + 1 
-            }]);
-        } finally {
-            setIsLoading(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
-        }
-    };
 
     if (!isOpen) return null;
 
@@ -268,20 +216,7 @@ const AriaSidePanel = () => {
 
                     <div className="aria-sp-input-area">
                         <div className="aria-sp-input-wrapper">
-                            <input 
-                                type="file" 
-                                ref={fileInputRef} 
-                                style={{ display: 'none' }} 
-                                onChange={handleFileUpload}
-                                accept=".pdf,.png,.jpg,.jpeg"
-                            />
-                            <button 
-                                className="aria-sp-attach-btn" 
-                                title="Attach Document (OCR)"
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                <Paperclip size={18} />
-                            </button>
+
                             <textarea
                                 ref={textareaRef}
                                 className="aria-sp-input"

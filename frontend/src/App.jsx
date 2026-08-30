@@ -116,6 +116,7 @@ const OrderManagement = lazyRetry(() => import('./pages/OrderManagement'));
 const Leads = lazyRetry(() => import('./pages/Leads'));
 const SalesPipeline = lazyRetry(() => import('./pages/SalesPipeline'));
 const InvoicePage = lazyRetry(() => import('./pages/InvoicePage'));
+const OCRPage = lazyRetry(() => import('./pages/OCRPage'));
 import ErrorBoundary from './components/ErrorBoundary';
 
 const CompleteCustomerProfile = lazyRetry(() => import('./pages/CompleteCustomerProfile'));
@@ -138,6 +139,9 @@ const Recruitment = lazyRetry(() => import('./pages/Recruitment'));
 const LeaveBalance = lazyRetry(() => import('./pages/LeaveBalance'));
 const LandingPage = lazyRetry(() => import('./pages/LandingPage'));
 const AriaCommandCenter = lazyRetry(() => import('./pages/AriaCommandCenter'));
+
+
+
 
 // Social Network Pages
 const SocialLayout = lazyRetry(() => import('./pages/social/SocialLayout'));
@@ -367,6 +371,7 @@ const AppContent = () => {
                     <Route path="/invoice/:invoiceId" element={<ProtectedRoute><InvoicePage /></ProtectedRoute>} />
                     <Route path="/invoices" element={<ProtectedRoute requiredPermission="view_erp"><Invoices /></ProtectedRoute>} />
                     <Route path="/customer/profile-settings" element={<ProtectedRoute requiredPermission="view_crm"><CustomerProfileSettings /></ProtectedRoute>} />
+                    <Route path="/ocr" element={<ProtectedRoute><OCRPage /></ProtectedRoute>} />
                     <Route path="/access-denied" element={<AccessDenied />} />
                     <Route path="/analytics" element={<ProtectedRoute requiredPermission="view_reports"><Reports /></ProtectedRoute>} />
                     <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
@@ -436,7 +441,7 @@ const AppContent = () => {
                     <Route path="/erp/finance" element={<ProtectedRoute><FinancialOperations /></ProtectedRoute>} />
                     <Route path="/erp/assets" element={<ProtectedRoute><ComingSoonPage title="Assets" /></ProtectedRoute>} />
 
-                    
+
                     <Route path="/tasks/assigned" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/tasks/completed" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
                     <Route path="/tasks/pending" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
@@ -464,6 +469,8 @@ const AppContent = () => {
                     <Route path="/settings/attendance" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><AttendanceSettings /></ProtectedRoute>} />
                     <Route path="/settings/leave" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><LeaveSettings /></ProtectedRoute>} />
                     <Route path="/settings/payroll" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr']}><PayrollSettings /></ProtectedRoute>} />
+
+
 
                     {/* Social Network Routes wrapped in SocialLayout */}
                     <Route path="/social" element={<ProtectedRoute><SocialLayout><SocialHub /></SocialLayout></ProtectedRoute>} />

@@ -14,7 +14,7 @@ const SECTIONS_CONFIG = [
     },
     {
         label: 'OPERATIONS',
-        items: ['Material Tracking', 'ERP', 'CRM', 'Financial Operations']
+        items: ['Material Tracking', 'ERP', 'CRM', 'Financial Operations', 'OCR Documents']
     },
     {
         label: 'PEOPLE',
@@ -221,6 +221,8 @@ const FarmakuSidebar = () => {
                                                     </NavLink>
                                                 </li>
                                             )}
+
+
 
                                             {!dynamicPaths.has('/support') && (
                                                 <li>

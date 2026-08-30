@@ -17,6 +17,13 @@ const navigationConfig = [
         ]
     },
     {
+        title: 'OCR Documents',
+        icon: 'FileText',
+        path: '/ocr',
+        permission: 'view_dashboard',
+        group: 'OPERATIONS'
+    },
+    {
         title: 'Company Feed',
         icon: 'Globe',
         path: '/feed',
@@ -125,6 +132,7 @@ const navigationConfig = [
         permission: 'view_reports',
         group: 'INTELLIGENCE'
     },
+
     {
         title: 'Notifications',
         icon: 'Bell',
@@ -249,6 +257,7 @@ const hrNavigationConfig = [
         permission: '',
         group: 'WORKSPACE'
     },
+
     {
         title: 'Notifications',
         icon: 'Bell',

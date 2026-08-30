@@ -20,6 +20,7 @@ const AIChatSession = require('./AIChatSession');
 const AIChatMessage = require('./AIChatMessage');
 const PostAcknowledgement = require('./PostAcknowledgement');
 const StoryView = require('./StoryView');
+const OCRDocument = require('./OCRDocument');
 
 function setupAssociations() {
     Employee.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userIdField', as: 'userId' });
@@ -37,13 +38,13 @@ function setupAssociations() {
     Order.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
     Order.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'updatedById', as: 'updatedBy' });
     Task.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedById', as: 'assignedBy' });
-    
+
     // Ticket Associations
     Ticket.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customerId', as: 'Customer' });
     Ticket.sequelizeModel.belongsTo(Lead.sequelizeModel, { foreignKey: 'leadId', as: 'Lead' });
     Ticket.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedToId', as: 'assignedTo' });
     Ticket.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'submittedById', as: 'submittedBy' });
-    
+
     const TicketMessage = require('./TicketMessage');
     Ticket.sequelizeModel.hasMany(TicketMessage.sequelizeModel, { foreignKey: 'ticketId', as: 'messages' });
     TicketMessage.sequelizeModel.belongsTo(Ticket.sequelizeModel, { foreignKey: 'ticketId', as: 'ticket' });
@@ -77,10 +78,10 @@ function setupAssociations() {
     Order.sequelizeModel.hasMany(PurchaseRequest.sequelizeModel, { foreignKey: 'orderId', as: 'purchaseRequests' });
     PurchaseRequest.sequelizeModel.belongsTo(Vendor.sequelizeModel, { foreignKey: 'vendorId', as: 'vendor' });
     PurchaseRequest.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'requestedById', as: 'requestedBy' });
-    
+
     const Quotation = require('./Quotation');
     Quotation.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customer', as: 'Customer' });
-    
+
     const SalesGoal = require('./SalesGoal');
     SalesGoal.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'assignedTo', as: 'assignedUser' });
     SalesGoal.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdBy', as: 'createdUser' });
@@ -131,10 +132,10 @@ function setupAssociations() {
     PostRepost.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
     SavedPost.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });
     SavedPost.sequelizeModel.belongsTo(Post.sequelizeModel, { foreignKey: 'postId', as: 'post' });
-    
+
     News.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'authorId', as: 'author' });
     Event.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'organizerId', as: 'organizer' });
-    
+
     Follow.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'followerId', as: 'follower' });
     Follow.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'followingId', as: 'following' });
     User.sequelizeModel.hasMany(Follow.sequelizeModel, { foreignKey: 'followerId', as: 'followingUsers' });
@@ -148,5 +149,8 @@ function setupAssociations() {
     StoryView.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'viewerId', as: 'viewer' });
     StoryView.sequelizeModel.belongsTo(Post.sequelizeModel, { foreignKey: 'storyId', as: 'story' });
     Post.sequelizeModel.hasMany(StoryView.sequelizeModel, { foreignKey: 'storyId', as: 'views' });
+
+    OCRDocument.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdBy', as: 'creator' });
+    OCRDocument.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'updatedBy', as: 'updater' });
 }
 module.exports = setupAssociations;

@@ -346,7 +346,6 @@ const AriaCommandCenter = () => {
             'Inventory': { title: 'Stock Levels', tags: ['Low Stock', 'Critical'], filters: ['Warehouse', 'Category'] },
             'Sales': { title: 'Revenue Tracking', tags: ['Q3 Goals', 'High Value'], filters: ['Region', 'Product'] },
             'HR': { title: 'Workforce', tags: ['Attendance', 'Leaves'], filters: ['Department', 'Role', 'Status'] },
-            'Documents': { title: 'Data Extraction', tags: ['OCR', 'Validation'], filters: ['Type', 'Confidence', 'Date'] },
             'General': { title: 'General Operations', tags: ['Overview'], filters: ['Timeframe'] }
         };
         return contexts[category] || contexts['General'];
@@ -438,14 +437,6 @@ const AriaCommandCenter = () => {
                                 <Paperclip size={18} />
                             </button>
                             
-                            <input 
-                                type="file" 
-                                ref={fileInputRef} 
-                                style={{ display: 'none' }} 
-                                onChange={handleFileUpload}
-                                accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
-                            />
-
                             <textarea
                                 ref={inputRef}
                                 className="composer-input"

@@ -12,6 +12,7 @@
   "venvPath": "c:\\Users\\Admin\\Documents\\project\\backend\\ocr_service",
   "venv": "venv",
   "extraPaths": [
+    "c:\\Users\\Admin\\Documents\\project\\backend",
     "c:\\Users\\Admin\\Documents\\project\\backend\\ocr_service",
     "c:\\Users\\Admin\\Documents\\project\\backend\\ocr_service\\venv\\Lib\\site-packages"
   ]
