@@ -112,6 +112,19 @@ const OCRPage = () => {
   const [hasChanges, setHasChanges]     = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  
+  // Q&A Chat UI states
+  const [chatHistory, setChatHistory] = useState([]);
+  const [questionInput, setQuestionInput] = useState('');
+  const [isAsking, setIsAsking] = useState(false);
+  const chatEndRef = useRef(null);
+
+  // Auto-scroll chat
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatHistory]);
   const [showRejectModal, setShowRejectModal] = useState(false);
 
   // Processing progress state
@@ -363,6 +376,29 @@ const OCRPage = () => {
         }),
       { loading: 'Generating export...', success: 'Export downloaded!', error: 'Export failed' }
     );
+  };
+
+  // ─── Q&A Handlers ──────────────────────────────────────────────────────────
+  const handleAskQuestion = async () => {
+    if (!questionInput.trim() || !selectedDoc) return;
+    
+    const userMsg = { role: 'user', text: questionInput };
+    setChatHistory(prev => [...prev, userMsg]);
+    setQuestionInput('');
+    setIsAsking(true);
+    
+    try {
+      const { data } = await API.post(`/ocr/${selectedDoc.id}/ask`, { question: userMsg.text });
+      if (data.success) {
+        setChatHistory(prev => [...prev, { role: 'ai', text: data.answer }]);
+      } else {
+        setChatHistory(prev => [...prev, { role: 'ai', text: 'Error: ' + data.error }]);
+      }
+    } catch (err) {
+      setChatHistory(prev => [...prev, { role: 'ai', text: 'Sorry, I encountered an error processing your question.' }]);
+    } finally {
+      setIsAsking(false);
+    }
   };
 
   // ── Upload progress overlay ─────────────────────────────────────────────────
@@ -660,6 +696,68 @@ const OCRPage = () => {
             }}>
                {editedData?.raw_text || selectedDoc?.originalOcrData?.raw_text || 'No raw text available. Please reprocess the document.'}
             </pre>
+         </div>
+      </div>
+
+      {/* AI Document Assistant */}
+      <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
+         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span style={{ fontSize: '18px' }}>🤖</span>
+            <div>
+               <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>AI Document Assistant</h3>
+               <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>Ask questions about the uploaded document (e.g. "What is the total amount?")</p>
+            </div>
+         </div>
+         <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {chatHistory.length > 0 && (
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
+                  {chatHistory.map((msg, i) => (
+                     <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                        <div style={{ 
+                           maxWidth: '80%', padding: '10px 14px', borderRadius: '8px', fontSize: '13px',
+                           background: msg.role === 'user' ? '#1a73e8' : '#f1f5f9',
+                           color: msg.role === 'user' ? '#fff' : '#1e293b',
+                           borderBottomRightRadius: msg.role === 'user' ? '0' : '8px',
+                           borderBottomLeftRadius: msg.role === 'ai' ? '0' : '8px',
+                        }}>
+                           {msg.text}
+                        </div>
+                     </div>
+                  ))}
+                  {isAsking && (
+                     <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                        <div style={{ maxWidth: '80%', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', background: '#f1f5f9', color: '#64748b', borderBottomLeftRadius: '0' }}>
+                           <Loader2 size={14} className="spin" style={{ display: 'inline-block', marginRight: '6px' }} />
+                           AI is thinking...
+                        </div>
+                     </div>
+                  )}
+                  <div ref={chatEndRef} />
+               </div>
+            )}
+            
+            <div style={{ display: 'flex', gap: '12px' }}>
+               <input 
+                  type="text" 
+                  placeholder="Ask a question..."
+                  value={questionInput}
+                  onChange={e => setQuestionInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAskQuestion()}
+                  disabled={isAsking}
+                  style={{ flex: 1, padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', outline: 'none' }}
+               />
+               <button 
+                  onClick={handleAskQuestion}
+                  disabled={isAsking || !questionInput.trim()}
+                  style={{ 
+                     background: '#1a73e8', color: '#fff', border: 'none', padding: '0 20px', 
+                     borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: (isAsking || !questionInput.trim()) ? 'not-allowed' : 'pointer',
+                     opacity: (isAsking || !questionInput.trim()) ? 0.6 : 1
+                  }}
+               >
+                  Ask
+               </button>
+            </div>
          </div>
       </div>
 

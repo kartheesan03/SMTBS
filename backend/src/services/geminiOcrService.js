@@ -41,7 +41,7 @@ async function processDocumentWithGemini(filePath) {
         const fileContent = fs.readFileSync(filePath);
         const base64Content = fileContent.toString('base64');
         
-        const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
         const prompt = `You are a professional enterprise Document OCR and Structured Data Extraction System. 
 Analyze the provided document and extract its contents into a strict JSON format.
@@ -115,6 +115,45 @@ If a field is not found, leave it as an empty string. If the document has no tab
     }
 }
 
+/**
+ * Ask a specific question about a document
+ */
+async function askDocumentQuestion(filePath, question, ocrContext = null) {
+    if (!genAI) {
+        throw new Error('GEMINI_API_KEY is not configured in backend.');
+    }
+
+    try {
+        const mimeType = getMimeType(filePath);
+        const fileContent = fs.readFileSync(filePath);
+        const base64Content = fileContent.toString('base64');
+        
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+
+        let prompt = `You are an AI Document Assistant. Please answer the user's question based on the provided document image.\n`;
+        if (ocrContext && ocrContext.raw_text) {
+            prompt += `\nHere is the raw extracted text from the document for your reference:\n"""\n${ocrContext.raw_text}\n"""\n`;
+        }
+        prompt += `\nUser Question: ${question}\n\nAnswer clearly and concisely based ONLY on the document provided. Do not use markdown wrappers unless necessary.`;
+
+        const result = await model.generateContent([
+            prompt,
+            {
+                inlineData: {
+                    data: base64Content,
+                    mimeType: mimeType
+                }
+            }
+        ]);
+
+        return result.response.text().trim();
+    } catch (error) {
+        console.error('Error in askDocumentQuestion:', error);
+        throw error;
+    }
+}
+
 module.exports = {
-    processDocumentWithGemini
+    processDocumentWithGemini,
+    askDocumentQuestion
 };

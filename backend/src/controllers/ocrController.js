@@ -847,3 +847,37 @@ ${issuesHtml}
         res.status(500).json({ error: 'Error generating PDF view' });
     }
 };
+
+
+// ─── AI Document Assistant Q&A ──────────────────────────────────────────────
+exports.askQuestion = async (req, res) => {
+    try {
+        const docId = req.params.id;
+        const { question } = req.body;
+
+        if (!question || question.trim() === '') {
+            return res.status(400).json({ success: false, error: 'Question is required' });
+        }
+
+        const OCRDocument = require('../models/OCRDocument');
+        const geminiOcrService = require('../services/geminiOcrService');
+        const doc = await OCRDocument.sequelizeModel.findByPk(docId);
+        
+        if (!doc) {
+            return res.status(404).json({ success: false, error: 'Document not found' });
+        }
+
+        if (!doc.originalImagePath) {
+            return res.status(400).json({ success: false, error: 'Document image not found' });
+        }
+
+        const path = require('path');
+        const filePath = path.join(__dirname, '../../', doc.originalImagePath);
+        const answer = await geminiOcrService.askDocumentQuestion(filePath, question, doc.originalOcrData);
+        
+        res.json({ success: true, answer });
+    } catch (error) {
+        console.error('Q&A Error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
