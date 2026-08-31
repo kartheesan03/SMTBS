@@ -7,8 +7,7 @@ const fs = require('fs');
 const axios = require('axios');
 const FormData = require('form-data');
 const { Op } = require('sequelize');
-const { processDocumentWithGemini } = require('../services/geminiOcrService');
-
+const { processDocumentWithGemini, askDocumentQuestion } = require('../services/geminiOcrService');
 // ─── Python OCR Service URL ───────────────────────────────────────────────────
 const OCR_SERVICE_URL = process.env.FASTAPI_URL
     ? `${process.env.FASTAPI_URL}/api/ocr`
@@ -859,8 +858,7 @@ exports.askQuestion = async (req, res) => {
             return res.status(400).json({ success: false, error: 'Question is required' });
         }
 
-        const OCRDocument = require('../models/OCRDocument');
-        const geminiOcrService = require('../services/geminiOcrService');
+
         const doc = await OCRDocument.sequelizeModel.findByPk(docId);
         
         if (!doc) {
@@ -873,7 +871,7 @@ exports.askQuestion = async (req, res) => {
 
         const path = require('path');
         const filePath = path.join(__dirname, '../../', doc.originalImagePath);
-        const answer = await geminiOcrService.askDocumentQuestion(filePath, question, doc.originalOcrData);
+        const answer = await askDocumentQuestion(filePath, question, doc.originalOcrData);
         
         res.json({ success: true, answer });
     } catch (error) {
