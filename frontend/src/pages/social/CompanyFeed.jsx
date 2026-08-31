@@ -591,7 +591,7 @@ export default function CompanyFeed({ activeTab, currentUserId, hashtagFilter, o
 
               {/* Type Selector Tabs */}
               <div style={{ display: 'flex', gap: '16px', borderBottom: '1px solid #e5e7eb' }}>
-                  {['Standard', 'Broadcast', ...(currentUser.role === 'Admin' || currentUser.role === 'Super Admin' ? ['Announcement'] : [])].map(type => (
+                  {['Standard', 'Broadcast', ...(['admin', 'super admin', 'hr', 'manager'].includes((currentUser.role || '').toLowerCase()) ? ['Announcement'] : [])].map(type => (
                       <button
                           key={type}
                           onClick={() => setComposerType(type)}

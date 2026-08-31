@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../../api/axios';
-import { FileText, Calendar } from 'lucide-react';
+import { FileText, Calendar, Users } from 'lucide-react';
 
 const WidgetCard = ({ title, children, showIcon = true, subtitle = '' }) => (
     <div style={{
@@ -159,6 +159,66 @@ const FeedWidgets = ({ onFilterByHashtag }) => {
                     ))}
                 </div>
             </WidgetCard>
+
+            {/* People you may know */}
+            <div style={{
+                backgroundColor: '#ffffff',
+                borderRadius: '8px',
+                border: '1px solid #e5e7eb',
+                padding: '16px',
+                marginBottom: '16px'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                    <div style={{ background: '#f0f4f8', padding: '6px', borderRadius: '8px', display: 'flex' }}>
+                        <Users size={18} color="#0a66c2" />
+                    </div>
+                    <h3 style={{ margin: '0', color: '#111827', fontSize: '15px', fontWeight: '700' }}>
+                        People you may know
+                    </h3>
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {[
+                        { initials: 'HM', name: 'HR Manager', role: 'HR' },
+                        { initials: 'M', name: 'Manager', role: 'Manager' },
+                        { initials: 'SE', name: 'System Employee', role: 'Employee' },
+                        { initials: 'ST', name: 'Sales Team', role: 'Sales' }
+                    ].map((person, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ 
+                                    width: '40px', height: '40px', 
+                                    borderRadius: '50%', background: '#0a66c2', 
+                                    color: 'white', display: 'flex', 
+                                    alignItems: 'center', justifyContent: 'center', 
+                                    fontWeight: '700', fontSize: '16px' 
+                                }}>
+                                    {person.initials}
+                                </div>
+                                <div>
+                                    <div style={{ fontWeight: '700', color: '#111827', fontSize: '14px', marginBottom: '2px' }}>{person.name}</div>
+                                    <div style={{ color: '#6b7280', fontSize: '13px' }}>{person.role}</div>
+                                </div>
+                            </div>
+                            <button style={{
+                                background: '#0a66c2',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '9999px',
+                                padding: '6px 16px',
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                            }}
+                            onMouseOver={e => e.currentTarget.style.background = '#004182'}
+                            onMouseOut={e => e.currentTarget.style.background = '#0a66c2'}
+                            >
+                                + Follow
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 };

@@ -1,0 +1,308 @@
+/* ==========================================================================
+   SMTBMS ENTERPRISE ERP DESIGN SYSTEM
+   Professional, compact, data-dense, strict UI for B2B applications.
+   ========================================================================== */
+
+:root {
+  /* Restrained Enterprise Palette */
+  --erp-bg-body: #f8fafc;
+  --erp-bg-card: #ffffff;
+  
+  --erp-primary: #2563eb;
+  --erp-primary-hover: #1d4ed8;
+  --erp-primary-light: #eff6ff;
+  
+  --erp-text-main: #0f172a;
+  --erp-text-muted: #64748b;
+  --erp-text-light: #94a3b8;
+  
+  --erp-border: #e2e8f0;
+  --erp-border-light: #f1f5f9;
+  --erp-border-hover: #cbd5e1;
+  
+  /* Status Colors */
+  --erp-status-active-bg: #dcfce7;
+  --erp-status-active-text: #166534;
+  --erp-status-active-dot: #22c55e;
+  
+  --erp-status-inactive-bg: #fee2e2;
+  --erp-status-inactive-text: #991b1b;
+  --erp-status-inactive-dot: #ef4444;
+  
+  --erp-status-pending-bg: #fef9c3;
+  --erp-status-pending-text: #854d0e;
+  --erp-status-pending-dot: #eab308;
+
+  --erp-status-info-bg: #e0f2fe;
+  --erp-status-info-text: #075985;
+  --erp-status-info-dot: #0ea5e9;
+  
+  /* Typography */
+  --erp-font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --erp-font-size-xs: 0.75rem;
+  --erp-font-size-sm: 0.8125rem; /* 13px */
+  --erp-font-size-md: 0.875rem;  /* 14px */
+  --erp-font-size-lg: 1rem;
+  --erp-font-size-xl: 1.125rem;
+  --erp-font-size-2xl: 1.5rem;
+  
+  /* Structure */
+  --erp-radius-sm: 4px;
+  --erp-radius-md: 6px;
+  --erp-radius-lg: 8px;
+  --erp-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --erp-shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Base resets for ERP layout */
+.erp-layout {
+  font-family: var(--erp-font-family);
+  background-color: var(--erp-bg-body);
+  color: var(--erp-text-main);
+  min-height: 100vh;
+  font-size: var(--erp-font-size-md);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────────────────────────────────────────────────
+   PAGE HEADER
+   ───────────────────────────────────────────────────────── */
+.erp-page-header {
+  padding: 20px 32px 16px 32px;
+  background-color: var(--erp-bg-card);
+  border-bottom: 1px solid var(--erp-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.erp-breadcrumb {
+  font-size: var(--erp-font-size-xs);
+  color: var(--erp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.erp-page-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--erp-text-main);
+  margin: 0 0 4px 0;
+  letter-spacing: -0.01em;
+}
+
+.erp-page-subtitle {
+  font-size: var(--erp-font-size-sm);
+  color: var(--erp-text-muted);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────
+   BUTTONS
+   ───────────────────────────────────────────────────────── */
+.erp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: var(--erp-font-size-sm);
+  font-weight: 500;
+  border-radius: var(--erp-radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.erp-btn-primary {
+  background-color: var(--erp-primary);
+  color: white;
+  border-color: var(--erp-primary);
+}
+.erp-btn-primary:hover { background-color: var(--erp-primary-hover); }
+
+.erp-btn-secondary {
+  background-color: var(--erp-bg-card);
+  color: var(--erp-text-main);
+  border-color: var(--erp-border-hover);
+  box-shadow: var(--erp-shadow-subtle);
+}
+.erp-btn-secondary:hover { background-color: var(--erp-border-hover); }
+
+.erp-btn-icon {
+  padding: 4px;
+  background: transparent;
+  color: var(--erp-text-muted);
+  border: none;
+  border-radius: var(--erp-radius-sm);
+}
+.erp-btn-icon:hover { color: var(--erp-text-main); background: var(--erp-border-light); }
+
+/* ─────────────────────────────────────────────────────────
+   KPI GRID & CARDS
+   ───────────────────────────────────────────────────────── */
+.erp-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  padding: 24px 32px 0 32px;
+}
+
+.erp-kpi-card {
+  background-color: var(--erp-bg-card);
+  border: 1px solid var(--erp-border);
+  border-radius: var(--erp-radius-lg);
+  padding: 24px;
+  box-shadow: var(--erp-shadow-subtle);
+  display: flex;
+  flex-direction: column;
+}
+
+.erp-kpi-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--erp-text-muted);
+}
+
+.erp-kpi-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--erp-text-main);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.erp-kpi-sub {
+  font-size: 13px;
+  color: var(--erp-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   DATA TABLE
+   ───────────────────────────────────────────────────────── */
+.erp-section-container {
+  padding: 24px 32px;
+}
+
+.erp-data-table-card {
+  background-color: var(--erp-bg-card);
+  border: 1px solid var(--erp-border);
+  border-radius: var(--erp-radius-lg);
+  box-shadow: var(--erp-shadow-subtle);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.erp-table-toolbar {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--erp-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--erp-bg-card);
+}
+
+.erp-table-toolbar-left,
+.erp-table-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.erp-search-input-wrapper {
+  position: relative;
+}
+
+.erp-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--erp-text-light);
+}
+
+.erp-search-input {
+  padding: 8px 12px 8px 32px;
+  border: 1px solid var(--erp-border-hover);
+  border-radius: var(--erp-radius-md);
+  font-size: 13px;
+  outline: none;
+  width: 260px;
+  color: var(--erp-text-main);
+  background-color: var(--erp-bg-body);
+}
+.erp-search-input:focus { border-color: var(--erp-primary); background-color: var(--erp-bg-card); }
+
+.erp-table-container {
+  overflow-x: auto;
+}
+
+.erp-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--erp-font-size-sm);
+}
+
+.erp-table th {
+  padding: 16px 24px;
+  background-color: var(--erp-bg-body);
+  color: var(--erp-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--erp-border);
+  white-space: nowrap;
+}
+
+.erp-table td {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--erp-border);
+  color: var(--erp-text-main);
+  vertical-align: middle;
+}
+
+.erp-table tr:hover td {
+  background-color: var(--erp-bg-body);
+}
+
+/* ─────────────────────────────────────────────────────────
+   STATUS BADGE
+   ───────────────────────────────────────────────────────── */
+.erp-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: var(--erp-font-size-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.erp-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* ─────────────────────────────────────────────────────────
+   PAGINATION
+   ───────────────────────────────────────────────────────── */
+.erp-pagination {
+  padding: 12px 16px;
+  border-top: 1px solid var(--erp-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--erp-font-size-xs);
+  color: var(--erp-text-muted);
+  background-color: var(--erp-bg-card);
+}

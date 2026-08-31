@@ -64,6 +64,21 @@ const AriaVisualizer = ({ visualData }) => {
         );
     }
 
+    if (type === 'kpi') {
+        return (
+            <div className="aria-vis-container" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, #f0f7ff, #e0efff)', borderRadius: '12px', border: '1px solid #cce3ff' }}>
+                <h3 style={{ margin: '0 0 0.5rem 0', color: '#1e3a8a', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {visualData.operation} {visualData.field && visualData.field !== 'Records' ? visualData.field : ''} ({modelName})
+                </h3>
+                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#1d4ed8' }}>
+                    {typeof visualData.value === 'number' && visualData.value > 1000 ? 
+                        (visualData.operation === 'SUM' || visualData.operation === 'AVG' ? '₹' : '') + visualData.value.toLocaleString() : 
+                        visualData.value}
+                </div>
+            </div>
+        );
+    }
+
     if (!Array.isArray(data) || data.length === 0) {
         return (
             <div className="aria-vis-empty">

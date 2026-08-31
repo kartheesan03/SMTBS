@@ -20,7 +20,7 @@ const navigationConfig = [
         title: 'OCR Documents',
         icon: 'FileText',
         path: '/ocr',
-        permission: 'view_dashboard',
+        permission: '',
         group: 'OPERATIONS'
     },
     {
@@ -256,6 +256,13 @@ const hrNavigationConfig = [
         path: '/coming-soon/holiday-calendar',
         permission: '',
         group: 'WORKSPACE'
+    },
+    {
+        title: 'OCR Documents',
+        icon: 'FileText',
+        path: '/ocr',
+        permission: '',
+        group: 'OPERATIONS'
     },
 
     {

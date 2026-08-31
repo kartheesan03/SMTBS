@@ -20,6 +20,14 @@ const ERP = () => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [poPage, setPoPage] = useState(1);
+  const [soPage, setSoPage] = useState(1);
+  const itemsPerPage = 6;
+
+  useEffect(() => {
+    setPoPage(1);
+    setSoPage(1);
+  }, [activeFilter, searchTerm]);
   const fetchOrders = async () => {
     try {
       const res = await API.get("/orders");
@@ -67,10 +75,52 @@ const ERP = () => {
   };
   const filteredPurchaseOrders = purchaseOrders.filter(filterFunction);
   const filteredSalesOrders = salesOrders.filter(filterFunction);
+  
+  const paginatedPurchaseOrders = filteredPurchaseOrders.slice((poPage - 1) * itemsPerPage, poPage * itemsPerPage);
+  const paginatedSalesOrders = filteredSalesOrders.slice((soPage - 1) * itemsPerPage, soPage * itemsPerPage);
   const formatCurrency = val => {
     if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
     if (val >= 1000) return `₹${(val / 1000).toFixed(0)}K`;
     return `₹${val.toLocaleString()}`;
+  };
+
+  const renderPagination = (total, currentPage, setPage) => {
+    if (total <= itemsPerPage) return null;
+    const totalPages = Math.ceil(total / itemsPerPage);
+    const start = (currentPage - 1) * itemsPerPage + 1;
+    const end = Math.min(currentPage * itemsPerPage, total);
+    return (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderTop: '1px solid var(--rd-border)' }}>
+        <div style={{ color: '#64748b', fontSize: '14px' }}>
+          Showing {start} to {end} of {total} records
+        </div>
+        <div style={{ display: 'flex', gap: '4px' }}>
+          <button 
+            disabled={currentPage === 1}
+            onClick={() => setPage(currentPage - 1)}
+            style={{ padding: '6px 12px', border: '1px solid #e2e8f0', background: '#fff', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', borderRadius: '4px', opacity: currentPage === 1 ? 0.5 : 1 }}
+          >
+            &lt;
+          </button>
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setPage(i + 1)}
+              style={{ padding: '6px 12px', border: '1px solid', background: currentPage === i + 1 ? '#6366f1' : '#fff', color: currentPage === i + 1 ? '#fff' : '#1e293b', borderColor: currentPage === i + 1 ? '#6366f1' : '#e2e8f0', cursor: 'pointer', borderRadius: '4px' }}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button 
+            disabled={currentPage === totalPages}
+            onClick={() => setPage(currentPage + 1)}
+            style={{ padding: '6px 12px', border: '1px solid #e2e8f0', background: '#fff', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', borderRadius: '4px', opacity: currentPage === totalPages ? 0.5 : 1 }}
+          >
+            &gt;
+          </button>
+        </div>
+      </div>
+    );
   };
   const renderTableRows = filteredList => {
     if (filteredList.length === 0) {
@@ -344,9 +394,10 @@ const ERP = () => {
                 }}>ACTIONS</th>{" "}
                 </tr>{" "}
               </thead>{" "}
-              <tbody> {renderTableRows(filteredPurchaseOrders)} </tbody>{" "}
+              <tbody> {renderTableRows(paginatedPurchaseOrders)} </tbody>{" "}
             </table>{" "}
           </div>{" "}
+          {renderPagination(filteredPurchaseOrders.length, poPage, setPoPage)}
         </motion.div>{" "}
         {/* Sales Orders Table */}{" "}
         <motion.div initial={{
@@ -415,9 +466,10 @@ const ERP = () => {
                 }}>ACTIONS</th>{" "}
                 </tr>{" "}
               </thead>{" "}
-              <tbody> {renderTableRows(filteredSalesOrders)} </tbody>{" "}
+              <tbody> {renderTableRows(paginatedSalesOrders)} </tbody>{" "}
             </table>{" "}
           </div>{" "}
+          {renderPagination(filteredSalesOrders.length, soPage, setSoPage)}
         </motion.div>{" "}
       </div>{" "}
     </motion.div>;

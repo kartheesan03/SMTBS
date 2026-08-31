@@ -93,12 +93,12 @@ const OCRPage = () => {
   const { user } = useContext(AuthContext);
   const uRole = (user?.role || '').toLowerCase();
 
-  // Role flags
-  const isAdmin   = ['admin', 'super admin'].includes(uRole) || user?.email === 'admin@smtbms.com';
-  const isManager = uRole === 'manager';
-  const canEdit   = isAdmin || isManager;
-  const canApproveDoc = isAdmin || isManager;
-  const isViewOnly = ['hr', 'employee', 'sales'].includes(uRole);
+  // Role flags (User requested all roles to have Admin-like access to OCR)
+  const isAdmin   = true; 
+  const isManager = true;
+  const canEdit   = true;
+  const canApproveDoc = true;
+  const isViewOnly = false;
 
   // View state
   const [view, setView]       = useState('list');

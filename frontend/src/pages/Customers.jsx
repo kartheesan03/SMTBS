@@ -122,7 +122,13 @@ const Customers = ({
   }, {
     key: "industry",
     label: "Industry",
-    sortable: true
+    sortable: true,
+    render: val => <div style={{ color: "#64748b" }}>{val || "N/A"}</div>
+  }, {
+    key: "website",
+    label: "Website",
+    sortable: true,
+    render: val => <div style={{ color: "#64748b" }}>{val || "N/A"}</div>
   }, {
     key: "status",
     label: "Status",
@@ -138,6 +144,10 @@ const Customers = ({
     label: "View Profile",
     icon: Eye,
     onClick: row => navigate(`/customers/${row._id || row.id}`)
+  }, {
+    label: "Edit",
+    icon: Edit,
+    onClick: row => navigate(`/customers/${row._id || row.id}/edit`)
   }];
   if (isAdmin) {
     actions.push({
@@ -183,7 +193,7 @@ const Customers = ({
           border: "1px solid #e2e8f0"
         }}>
               Loading customer data...
-            </div> : <DataTable title="Customer Directory" subtitle="Manage and track all registered clients and leads" columns={columns} data={customers} actions={actions} searchPlaceholder="Search by name, company, or email..." />}
+            </div> : <DataTable title="Customer Directory" subtitle="Manage and track all registered clients and leads" columns={columns} data={customers} actions={actions} primaryAction={canAddCustomer ? { label: "Add Customer", icon: Plus, onClick: () => navigate("/customers/new") } : null} searchPlaceholder="Search by name, company, or email..." />}
         </motion.div>
       </div>
     </motion.div>;

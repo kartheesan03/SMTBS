@@ -16,8 +16,9 @@ const OCR_SERVICE_URL = process.env.FASTAPI_URL
 // ─── Role helpers ─────────────────────────────────────────────────────────────
 const ADMIN_ROLES    = ['admin', 'super admin'];
 const MANAGER_ROLES  = ['manager'];
-const EDIT_ROLES     = [...ADMIN_ROLES, ...MANAGER_ROLES];
-const VIEW_ONLY      = ['hr', 'employee', 'sales', 'customer', 'vendor'];
+// Adding hr, employee, sales to EDIT_ROLES as requested by user
+const EDIT_ROLES     = [...ADMIN_ROLES, ...MANAGER_ROLES, 'hr', 'employee', 'sales'];
+const VIEW_ONLY      = ['customer', 'vendor'];
 
 function userRole(req) {
     return (req.user?.role || '').toLowerCase();

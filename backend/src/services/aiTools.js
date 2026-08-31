@@ -23,11 +23,11 @@ const aiToolsDeclarations = {
                 properties: {
                     modelName: {
                         type: "STRING",
-                        description: "The EXACT case-sensitive name of the database model to query (e.g., 'Material', 'Employee', 'Vendor', 'Order', 'Leave', 'Attendance')."
+                        description: "The EXACT case-sensitive name of the database model to query (e.g., 'Material', 'Employee', 'Vendor', 'Order', 'Customer', 'Leave', 'Attendance')."
                     },
                     whereClause: {
                         type: "OBJECT",
-                        description: "A JSON object representing the exact where clause to filter records. For example, {\"status\": \"Pending\"} or {\"department\": \"Engineering\"}. Keep it simple."
+                        description: "A JSON object representing the exact where clause to filter records. Supports simple matching ({\"status\": \"Pending\"}) and advanced operators (e.g., {\"amount\": {\"$gt\": 1000}}, {\"status\": {\"$in\": [\"Active\", \"Pending\"]}}). Supports $gt, $gte, $lt, $lte, $in, $ne."
                     }
                 },
                 required: ["modelName"]
@@ -50,6 +50,32 @@ const aiToolsDeclarations = {
                 },
                 required: ["modelName"]
             }
+        },
+        {
+            name: "calculate_metrics",
+            description: "Calculate aggregate metrics (SUM, COUNT, MIN, MAX) on a specific database table.",
+            parameters: {
+                type: "OBJECT",
+                properties: {
+                    modelName: {
+                        type: "STRING",
+                        description: "The database model name (e.g., 'Order', 'Material', 'Employee')."
+                    },
+                    operation: {
+                        type: "STRING",
+                        description: "The aggregation operation to perform: 'SUM', 'COUNT', 'MIN', 'MAX'."
+                    },
+                    field: {
+                        type: "STRING",
+                        description: "The exact database field name to perform the operation on (e.g., 'totalAmount', 'quantity'). Not required for 'COUNT'."
+                    },
+                    whereClause: {
+                        type: "OBJECT",
+                        description: "Optional. A JSON object representing the exact where clause to filter records before aggregating. Supports $gt, $gte, $lt, $lte, $in, $ne."
+                    }
+                },
+                required: ["modelName", "operation"]
+            }
         }
     ]
 };
@@ -65,17 +91,73 @@ const executeAITool = async (call) => {
             }
             const where = {};
             for (const [key, value] of Object.entries(whereClause)) {
-                if (typeof value === 'string') {
+                if (typeof value === 'object' && value !== null) {
+                    let hasOp = false;
+                    for (const [op, opVal] of Object.entries(value)) {
+                        if (op === '$gt') { where[key] = { ...where[key], [Op.gt]: opVal }; hasOp = true; }
+                        else if (op === '$gte') { where[key] = { ...where[key], [Op.gte]: opVal }; hasOp = true; }
+                        else if (op === '$lt') { where[key] = { ...where[key], [Op.lt]: opVal }; hasOp = true; }
+                        else if (op === '$lte') { where[key] = { ...where[key], [Op.lte]: opVal }; hasOp = true; }
+                        else if (op === '$in') { where[key] = { ...where[key], [Op.in]: Array.isArray(opVal) ? opVal : [opVal] }; hasOp = true; }
+                        else if (op === '$ne') { where[key] = { ...where[key], [Op.ne]: opVal }; hasOp = true; }
+                    }
+                    if (!hasOp) where[key] = value;
+                } else if (typeof value === 'string') {
                     where[key] = { [Op.like]: `%${value}%` };
                 } else {
                     where[key] = value;
                 }
             }
             const targetModel = Model.sequelizeModel || Model;
-            const results = await targetModel.findAll({ where, limit: 15, raw: true });
+            const results = await targetModel.findAll({ where, limit: 50, raw: true });
             return {
                 modelQuery: modelName,
                 results: results
+            };
+        }
+        
+        if (name === "calculate_metrics") {
+            const { modelName, field, operation, whereClause = {} } = args;
+            const Model = getModel(modelName);
+            if (!Model) return { error: `Model '${modelName}' not found.` };
+            
+            const where = {};
+            for (const [key, value] of Object.entries(whereClause)) {
+                if (typeof value === 'object' && value !== null) {
+                    let hasOp = false;
+                    for (const [op, opVal] of Object.entries(value)) {
+                        if (op === '$gt') { where[key] = { ...where[key], [Op.gt]: opVal }; hasOp = true; }
+                        else if (op === '$gte') { where[key] = { ...where[key], [Op.gte]: opVal }; hasOp = true; }
+                        else if (op === '$lt') { where[key] = { ...where[key], [Op.lt]: opVal }; hasOp = true; }
+                        else if (op === '$lte') { where[key] = { ...where[key], [Op.lte]: opVal }; hasOp = true; }
+                        else if (op === '$in') { where[key] = { ...where[key], [Op.in]: Array.isArray(opVal) ? opVal : [opVal] }; hasOp = true; }
+                        else if (op === '$ne') { where[key] = { ...where[key], [Op.ne]: opVal }; hasOp = true; }
+                    }
+                    if (!hasOp) where[key] = value;
+                } else if (typeof value === 'string') {
+                    where[key] = { [Op.like]: `%${value}%` };
+                } else {
+                    where[key] = value;
+                }
+            }
+            
+            const targetModel = Model.sequelizeModel || Model;
+            let result;
+            if (operation === 'COUNT') {
+                result = await targetModel.count({ where });
+            } else if (operation === 'SUM' && field) {
+                result = await targetModel.sum(field, { where });
+            } else if (operation === 'MIN' && field) {
+                result = await targetModel.min(field, { where });
+            } else if (operation === 'MAX' && field) {
+                result = await targetModel.max(field, { where });
+            }
+            
+            return {
+                modelQuery: modelName,
+                operation,
+                field,
+                result: result || 0
             };
         }
         if (name === "generate_report") {

@@ -86,7 +86,14 @@ const CustomerDetails = () => {
     userInfo.role &&
     (userInfo.role.toLowerCase() === "employee" ||
       userInfo.role.toLowerCase() === "sales");
-  const actions = [];
+  const actions = [
+    {
+      label: "Edit Customer",
+      icon: Edit,
+      primary: true,
+      onClick: () => navigate(`/customers/${id}/edit`),
+    }
+  ];
   const overviewContent = (
     <div className="ui-grid-2">
       <KeyValueCard
