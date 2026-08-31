@@ -11,4 +11,9 @@ router.post('/:id/approve', protect, ocrController.approveDocument);
 router.post('/:id/reject', protect, ocrController.rejectDocument);
 router.post('/:id/reprocess', protect, ocrController.reprocessDocument);
 
+// New enterprise routes
+router.get('/:id/audit', protect, ocrController.getAuditLog);
+router.get('/:id/export/word', protect, ocrController.exportWord);
+router.get('/:id/export/pdf', protect, ocrController.exportPdf);
+
 module.exports = router;

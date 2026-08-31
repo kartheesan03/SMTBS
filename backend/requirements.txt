@@ -4,3 +4,5 @@ python-multipart
 easyocr
 opencv-python
 numpy
+pymupdf
+python-docx

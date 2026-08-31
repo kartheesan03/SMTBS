@@ -293,7 +293,6 @@ const AriaCommandCenter = () => {
             updateLastThread(analysisId, { status: 'complete', intelligence });
 
         } catch (error) {
-            toast.error("Failed to process document.");
             updateLastThread(analysisId, { 
                 status: 'error', 
                 error: "Document analysis failed." 

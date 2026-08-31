@@ -1,9 +1,12 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from routes.ocr import router as ocr_router
 
 app = FastAPI(title="SMTBMS OCR Service")
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Allow requests from the React frontend
 app.add_middleware(
