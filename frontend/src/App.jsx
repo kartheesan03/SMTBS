@@ -2,6 +2,8 @@ import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { AppInitProvider, AppInitContext } from './context/AppInitContext';
+import AppLoader from './components/AppLoader';
 import FarmakuSidebar from './components/FarmakuSidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import OrderCreationRoute from './components/OrderCreationRoute';
@@ -139,6 +141,8 @@ const Recruitment = lazyRetry(() => import('./pages/Recruitment'));
 const LeaveBalance = lazyRetry(() => import('./pages/LeaveBalance'));
 const LandingPage = lazyRetry(() => import('./pages/LandingPage'));
 const AriaCommandCenter = lazyRetry(() => import('./pages/AriaCommandCenter'));
+const PublicJobView = lazyRetry(() => import('./pages/PublicJobView'));
+const PublicJobApply = lazyRetry(() => import('./pages/PublicJobApply'));
 
 
 
@@ -237,7 +241,8 @@ const AppContent = () => {
         };
     }, []);
 
-    if (loading) return <div className="app-loading">Loading...</div>;
+    const { appReady, initError, retryInit } = useContext(AppInitContext);
+    if (!appReady) return <AppLoader error={initError} onRetry={retryInit} />;
 
     return (
         <div className="app-layout">
@@ -479,6 +484,10 @@ const AppContent = () => {
                     <Route path="/social/profile/:id" element={<ProtectedRoute><SocialLayout><SocialProfile /></SocialLayout></ProtectedRoute>} />
                     <Route path="/feed" element={<FeedRouteHandler />} />
 
+                    {/* Public Job Routes - No Auth Required */}
+                    <Route path="/jobs/:jobSlug" element={<PublicJobView />} />
+                    <Route path="/jobs/:jobSlug/apply" element={<PublicJobApply />} />
+
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
@@ -498,14 +507,16 @@ const App = () => {
             <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
                 <ThemeProvider>
                     <AuthProvider>
-                        <NotificationProvider>
-                            <Router>
-                                <AriaProvider>
-                                    <Toaster position="top-right" />
-                                    <AppContent />
-                                </AriaProvider>
-                            </Router>
-                        </NotificationProvider>
+                        <AppInitProvider>
+                            <NotificationProvider>
+                                <Router>
+                                    <AriaProvider>
+                                        <Toaster position="top-right" />
+                                        <AppContent />
+                                    </AriaProvider>
+                                </Router>
+                            </NotificationProvider>
+                        </AppInitProvider>
                     </AuthProvider>
                 </ThemeProvider>
             </GoogleOAuthProvider>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import API from "../api/axios";
+import { AppInitContext } from "../context/AppInitContext";
 import {
   IndianRupee, ShoppingCart, Users, Target, TrendingUp, TrendingDown,
   FileText, PhoneCall, Clock, CheckCircle, Activity,
@@ -13,7 +13,6 @@ import {
   ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
-import { LoadingState } from "../components/DataStates";
 import SystemHealthMonitorWidget from '../components/AdminDashboard/SystemHealthMonitorWidget';
 
 const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<17)return"Good Afternoon"; if(h<21)return"Good Evening"; return"Good Night"; };
@@ -22,13 +21,16 @@ const fmtINR = (v) => { if(!v&&v!==0)return"₹0"; const abs=Math.abs(v); if(abs
 const SalesDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [dashboardData, setDashboardData] = useState(null);
-  const [leads,         setLeads]         = useState([]);
-  const [orders,        setOrders]        = useState([]);
-  const [customers,     setCustomers]     = useState([]);
-  const [tasks,         setTasks]         = useState([]);
-  const [upcomingEvents,setUpcomingEvents]= useState([]);
-  const [loading,       setLoading]       = useState(true);
+  // Consume pre-fetched data from global AppInitContext
+  const {
+    dashboardData: initDashboardData,
+    leads,
+    orders,
+    customers,
+    tasks,
+  } = useContext(AppInitContext);
+
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [now, setNow] = useState(new Date());
   const [weather, setWeather] = useState({ temp: '28°C', condition: 'Partly Cloudy' });
 
@@ -60,39 +62,23 @@ const SalesDashboard = () => {
     } else { fetchWeather(28.61, 77.21); }
   }, []);
 
+  // Derive upcoming events from pre-fetched tasks
   useEffect(() => {
-    const fetchData = () => {
-      Promise.all([
-        API.get("/dashboard/stats").catch(() => ({ data: {} })),
-        API.get("/leads").catch(() => ({ data: [] })),
-        API.get("/orders").catch(() => ({ data: [] })),
-        API.get("/customers").catch(() => ({ data: [] })),
-        API.get("/tasks").catch(() => ({ data: [] })),
-      ]).then(([statsR, leadsR, ordR, custR, taskR]) => {
-        setDashboardData(statsR.data || {});
-        setLeads(leadsR.data || []);
-        setOrders(ordR.data || []);
-        setCustomers(custR.data || []);
-        const tl = taskR.data || [];
-        setTasks(tl.filter(t => t.status !== "Completed").slice(0,5));
-        const n = new Date();
-        setUpcomingEvents(
-          tl.filter(t => t.dueDate && new Date(t.dueDate) >= n)
-            .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
-            .map((t,i) => {
-              const d = new Date(t.dueDate);
-              const colors = ["#DC2626","#6366F1","#22C55E","#F97316"];
-              return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"Sales", color: colors[i%4] };
-            })
-        );
-      }).finally(() => setLoading(false));
-    };
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    const n = new Date();
+    setUpcomingEvents(
+      (tasks || []).filter(t => t.dueDate && new Date(t.dueDate) >= n)
+        .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
+        .map((t,i) => {
+          const d = new Date(t.dueDate);
+          const colors = ["#DC2626","#6366F1","#22C55E","#F97316"];
+          return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"Sales", color: colors[i%4] };
+        })
+    );
+  }, [tasks]);
 
-  if (loading) return <LoadingState message="Loading Sales Dashboard…" height="100vh"/>;
+  const dashboardData = initDashboardData || {};
+  const filteredTasks = (tasks || []).filter(t => t.status !== "Completed").slice(0,5);
+
 
   const s              = dashboardData?.stats || {};
   const totalRevenue   = s.revenue || 0;
@@ -364,7 +350,7 @@ const SalesDashboard = () => {
                   <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/tasks'); }}>View All →</a>
                 </div>
                 <div>
-                  {tasks.slice(0,5).map((t,i) => (
+                  {filteredTasks.map((t,i) => (
                     <div className="bx-list-item" key={i}>
                       <div className="bx-list-icon" style={{background:t.priority==="High"?"#ef4444":t.priority==="Medium"?"#f59e0b":"#22c55e"}}><FileText size={14}/></div>
                       <div className="bx-list-content" style={{minWidth:0}}>
@@ -376,7 +362,7 @@ const SalesDashboard = () => {
                       </div>
                     </div>
                   ))}
-                  {tasks.length === 0 && (
+                  {filteredTasks.length === 0 && (
                     <div className="bx-list-item">
                       <div className="bx-list-content"><h4 className="bx-list-title">No pending tasks</h4></div>
                     </div>

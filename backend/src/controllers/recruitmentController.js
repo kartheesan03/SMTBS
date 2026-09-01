@@ -22,9 +22,9 @@ exports.getJobs = async (req, res) => {
 };
 exports.createJob = async (req, res) => {
     try {
-        const { title, department, location, type, status, description, requirements, salaryMin, salaryMax, deadline, openings } = req.body;
+        const { title, department, location, type, status, description, requirements, salaryMin, salaryMax, deadline, openings, skills, minExperience } = req.body;
         if (!title) return res.status(400).json({ message: 'Title is required' });
-        const job = await JobPosting.create({ title, department, location, type, status, description, requirements, salaryMin, salaryMax, deadline, openings: openings || 1, createdBy: req.user?.id });
+        const job = await JobPosting.create({ title, department, location, type, status, description, requirements, salaryMin, salaryMax, deadline: deadline || null, openings: openings || 1, createdBy: req.user?.id, skills, minExperience });
         res.status(201).json(job);
     } catch (err) {
         console.error('createJob error:', err);
@@ -110,6 +110,53 @@ exports.getStats = async (req, res) => {
         res.json({ openJobs, totalApplied, interviews, hired });
     } catch (err) {
         console.error('getStats error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.getPublicJob = async (req, res) => {
+    try {
+        const job = await JobPosting.findOne({
+            where: { slug: req.params.slug, status: 'Open' }
+        });
+        if (!job) return res.status(404).json({ message: 'Job not found or no longer available' });
+        res.json(job);
+    } catch (err) {
+        console.error('getPublicJob error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.applyForJob = async (req, res) => {
+    try {
+        const { slug } = req.params;
+        const job = await JobPosting.findOne({ where: { slug, status: 'Open' } });
+        if (!job) return res.status(404).json({ message: 'Job not found or no longer available' });
+
+        const { firstName, lastName, email, phone, coverLetter, experience, skills } = req.body;
+        if (!firstName || !lastName || !email) {
+            return res.status(400).json({ message: 'First Name, Last Name, and Email are required' });
+        }
+
+        const name = `${firstName} ${lastName}`.trim();
+        const resumePath = req.file ? `/uploads/resumes/${req.file.filename}` : null;
+
+        const candidate = await Candidate.create({
+            jobId: job.id,
+            name,
+            email,
+            phone,
+            resume: resumePath,
+            coverLetter,
+            experience,
+            skills,
+            stage: 'Applied',
+            source: 'Public Form',
+        });
+
+        res.status(201).json({ message: 'Application submitted successfully', candidateId: candidate.id });
+    } catch (err) {
+        console.error('applyForJob error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 };

@@ -18,8 +18,9 @@ import {
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
 } from "recharts";
-import { LoadingState } from "../components/DataStates";
 import "../components/AdminDashboard/DashboardLayout.css";
+import { AppInitContext } from "../context/AppInitContext";
+import { AuthContext } from "../context/AuthContext";
 
 const greeting = () => {
   const h = new Date().getHours();
@@ -57,31 +58,13 @@ const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub }) =
 );
 
 const RevenueDashboard = () => {
-  const [ordersData, setOrdersData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { orders: ordersData } = useContext(AppInitContext);
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(t);
   }, []);
-
-  const fetchRevenueData = async () => {
-    try {
-      const ordRes = await API.get("/orders").catch((e) => ({ data: [] }));
-      setOrdersData(ordRes.data || []);
-    } catch (error) {
-      console.error("Failed to load revenue stats", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRevenueData();
-  }, []);
-
-  if (loading) return <LoadingState message="Loading Revenue Dashboard…" height="100vh" />;
 
   const salesOrders = ordersData.filter((o) => {
     const t = String(o.orderType || "").toUpperCase();

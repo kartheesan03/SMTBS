@@ -185,10 +185,10 @@ const TeamPerformance = () => {
     const rtgClr = { Excellent: "#10b981", Good: "#3b82f6", Average: "#f59e0b", "Below Average": "#ef4444", "N/A": "#94a3b8" }[rtg] || "#94a3b8";
 
     const Slider = ({ label, value, color, onChg }) => (
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.6px" }}>{label}</span>
-          <div style={{ display: "flex", alignItems: "center", borderBottom: `1px solid ${color}40` }}>
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
+          <span style={{ fontSize: 14, fontWeight: 500, color: "#1e293b" }}>{label}</span>
+          <div style={{ display: "flex", alignItems: "baseline" }}>
             <input 
               type="text" 
               value={value} 
@@ -198,138 +198,172 @@ const TeamPerformance = () => {
                 else if (e.target.value === '') onChg(0);
               }}
               style={{ 
-                width: 36, textAlign: "center", fontSize: 16, fontWeight: 700, color: "#0f172a", 
+                width: 32, textAlign: "right", fontSize: 15, fontWeight: 600, color: "#0f172a", 
                 border: "none", outline: "none", background: "transparent", padding: 0, margin: 0 
               }}
             />
+            <span style={{ fontSize: 14, color: "#64748b", fontWeight: 400, marginLeft: 4 }}>/ 100</span>
           </div>
         </div>
-        <input type="range" min={0} max={100} value={value}
-          onChange={e => onChg(Number(e.target.value))}
-          style={{ width: "100%", accentColor: color, cursor: "pointer", margin: 0, height: 12 }} />
+        <div style={{ position: "relative", height: 4, background: "#e2e8f0", borderRadius: 4, margin: "0 6px" }}>
+          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${value}%`, background: color, borderRadius: 4 }} />
+          <input type="range" min={0} max={100} value={value}
+            onChange={e => onChg(Number(e.target.value))}
+            style={{ 
+              position: "absolute", inset: -10, width: "calc(100% + 20px)", opacity: 0, cursor: "pointer", margin: 0
+            }} 
+          />
+          <div style={{ 
+            position: "absolute", left: `calc(${value}% - 6px)`, top: "50%", marginTop: -6,
+            width: 12, height: 12, background: "#fff", border: `2px solid ${color}`,
+            borderRadius: "50%", pointerEvents: "none", boxShadow: "0 1px 3px rgba(0,0,0,0.12)"
+          }} />
+        </div>
       </div>
     );
 
     return (
       <div onClick={() => setEditModal(null)} style={{
         position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(15,23,42,0.5)", backdropFilter: "blur(4px)",
+        background: "rgba(15,23,42,0.4)", backdropFilter: "blur(4px)",
         display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "32px 20px"
       }}>
-        <div onClick={e => e.stopPropagation()} style={{
-          background: "#fff", borderRadius: 18, padding: "28px 32px",
-          width: "100%", maxWidth: 520,
-          boxShadow: "0 24px 60px rgba(15,23,42,0.2)",
+        <div onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === 'Escape') setEditModal(null); }}
+          tabIndex={-1} ref={el => el && el.focus()}
+          style={{
+          background: "#ffffff", borderRadius: 14, width: "100%", maxWidth: 680,
+          boxShadow: "0 10px 30px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)",
+          display: "flex", flexDirection: "column",
+          maxHeight: "calc(100vh - 64px)", overflow: "hidden",
+          outline: "none"
         }}>
           {/* Header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-            <div>
-              <h2 style={{ fontSize: 17, fontWeight: 700, color: "#0f172a", margin: 0 }}>Edit Performance</h2>
-              <p style={{ fontSize: 12, color: "#64748b", margin: "3px 0 0" }}>
-                {editModal.emp.name} · {editModal.emp.id} · {editModal.emp.dept}
-              </p>
-            </div>
+          <div style={{ padding: "24px 28px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 600, color: "#0f172a", margin: 0 }}>Edit Performance</h2>
             <button onClick={() => setEditModal(null)}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 4 }}>
-              <X size={20} />
+              style={{ background: "#f8fafc", border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", padding: 6, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
+              onMouseOver={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#0f172a"; }}
+              onMouseOut={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#64748b"; }}>
+              <X size={18} />
             </button>
           </div>
-          <div style={{ height: 1, background: "#f1f5f9", marginBottom: 20 }} />
+          
+          <div style={{ height: 1, background: "#e2e8f0" }} />
 
-          {/* Editable sliders */}
-          <Slider label="Task Score"       value={ts}  color="#6366f1" onChg={v => setEditModal(p => ({ ...p, taskScore: v }))} />
-          <Slider label="Attendance (Est)" value={att} color="#10b981" onChg={v => setEditModal(p => ({ ...p, attendance: v }))} />
-          <Slider label="Target Score"     value={tgt} color="#f59e0b" onChg={v => setEditModal(p => ({ ...p, targetScore: v }))} />
+          {/* Context Strip */}
+          <div style={{ background: "#f8fafc", padding: "12px 28px", borderBottom: "1px solid #e2e8f0" }}>
+            <span style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>
+              {editModal.emp.id} &nbsp;|&nbsp; {editModal.emp.name} &nbsp;|&nbsp; {editModal.emp.dept}
+            </span>
+          </div>
 
-          <div style={{ height: 1, background: "#f1f5f9", margin: "4px 0 18px" }} />
+          <div style={{ padding: "28px", overflowY: "auto", flex: 1, minHeight: 0 }}>
+            {/* PERFORMANCE METRICS */}
+            <h3 style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", margin: "0 0 24px" }}>
+              Performance Metrics
+            </h3>
+            
+            <Slider label="Task Score"       value={ts}  color="#6366f1" onChg={v => setEditModal(p => ({ ...p, taskScore: v }))} />
+            <Slider label="Attendance (Est.)" value={att} color="#10b981" onChg={v => setEditModal(p => ({ ...p, attendance: v }))} />
+            <Slider label="Target Score"     value={tgt} color="#f59e0b" onChg={v => setEditModal(p => ({ ...p, targetScore: v }))} />
 
-          {/* Live summary row */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
-            {/* Overall */}
-            <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6 }}>Overall</label>
-              <input 
-                type="text"
-                value={ovr}
-                onChange={e => {
-                  const val = parseInt(e.target.value, 10);
-                  if (!isNaN(val)) setEditModal(p => ({ ...p, overall: val }));
-                  else if (e.target.value === '') setEditModal(p => ({ ...p, overall: 0 }));
-                }}
-                style={{
-                  width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6,
-                  fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", boxSizing: "border-box"
-                }}
-              />
+            <div style={{ height: 1, background: "#e2e8f0", margin: "32px 0 28px" }} />
+
+            {/* PERFORMANCE SUMMARY */}
+            <h3 style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", margin: "0 0 20px" }}>
+              Performance Summary
+            </h3>
+            
+            <div style={{ display: "flex", gap: 16, marginBottom: 32 }}>
+              {/* Overall */}
+              <div style={{ flex: 1, border: "1px solid #e2e8f0", borderRadius: 8, padding: "12px 16px" }}>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>Overall</label>
+                <input 
+                  type="text" value={ovr}
+                  onChange={e => {
+                    const val = parseInt(e.target.value, 10);
+                    if (!isNaN(val)) setEditModal(p => ({ ...p, overall: val }));
+                    else if (e.target.value === '') setEditModal(p => ({ ...p, overall: 0 }));
+                  }}
+                  style={{ width: "100%", padding: 0, border: "none", background: "transparent", fontSize: 16, fontWeight: 600, color: "#0f172a", outline: "none" }}
+                />
+              </div>
+              {/* Rating */}
+              <div style={{ flex: 1, border: "1px solid #e2e8f0", borderRadius: 8, padding: "12px 16px" }}>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>Rating</label>
+                <input type="text" value={rtg}
+                  onChange={e => setEditModal(p => ({ ...p, rating: e.target.value }))}
+                  style={{ width: "100%", padding: 0, border: "none", background: "transparent", fontSize: 16, fontWeight: 600, color: rtgClr, outline: "none" }}
+                />
+              </div>
+              {/* Est. Appraisal */}
+              <div style={{ flex: 1, border: "1px solid #e2e8f0", borderRadius: 8, padding: "12px 16px" }}>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>Est. Appraisal</label>
+                <input type="text" value={apr}
+                  onChange={e => setEditModal(p => ({ ...p, appraisal: e.target.value }))}
+                  style={{ width: "100%", padding: 0, border: "none", background: "transparent", fontSize: 16, fontWeight: 600, color: "#0f172a", outline: "none" }}
+                />
+              </div>
             </div>
-            {/* Rating */}
+
+            {/* Notes */}
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6 }}>Rating</label>
-              <input
-                type="text"
-                value={rtg}
-                onChange={e => setEditModal(p => ({ ...p, rating: e.target.value }))}
+              <h3 style={{ fontSize: 13, fontWeight: 600, color: "#0f172a", margin: "0 0 16px" }}>
+                Reviewer Notes
+              </h3>
+              <textarea placeholder="Add reviewer notes, feedback, or remarks..."
+                value={editModal.notes || ""}
+                onChange={e => setEditModal(prev => ({ ...prev, notes: e.target.value }))}
                 style={{
-                  width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6,
-                  fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", boxSizing: "border-box"
-                }}
-              />
-            </div>
-            {/* Est. Appraisal */}
-            <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6 }}>Est. Appraisal</label>
-              <input
-                type="text"
-                value={apr}
-                onChange={e => setEditModal(p => ({ ...p, appraisal: e.target.value }))}
-                style={{
-                  width: "100%", padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6,
-                  fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", boxSizing: "border-box"
-                }}
+                  width: "100%", border: "1px solid #cbd5e1", borderRadius: 8,
+                  padding: "12px 16px", fontSize: 14, color: "#334155",
+                  resize: "none", outline: "none", fontFamily: "inherit",
+                  boxSizing: "border-box", height: 100, transition: "border-color 0.2s",
+                  lineHeight: 1.6, display: "block"
+                }} 
+                onFocus={e => e.currentTarget.style.borderColor = "#6366f1"}
+                onBlur={e => e.currentTarget.style.borderColor = "#cbd5e1"}
               />
             </div>
           </div>
 
-          {/* Notes */}
-          <div style={{ marginBottom: 22 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.5px" }}>Performance Notes</label>
-            <textarea rows={3} placeholder="Add reviewer notes, feedback, or remarks..."
-              value={editModal.notes}
-              onChange={e => setEditModal(prev => ({ ...prev, notes: e.target.value }))}
-              style={{
-                width: "100%", border: "1px solid #e2e8f0", borderRadius: 8,
-                padding: "10px 14px", fontSize: 13, color: "#0f172a",
-                resize: "vertical", outline: "none", fontFamily: "inherit",
-                boxSizing: "border-box", background: "#f8fafc",
-              }} />
-          </div>
-
-          {/* Actions */}
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-            <button onClick={() => setEditModal(null)}
-              style={{ padding: "9px 20px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 500, color: "#64748b", cursor: "pointer" }}>
-              Cancel
-            </button>
-            <button onClick={async () => {
-              try {
-                await API.put(`/employees/${editModal.emp.dbId}/performance`, {
-                  taskScore: ts, attendanceScore: att, targetScore: tgt,
-                  overall: ovr, rating: rtg, appraisal: apr, notes: editModal.notes,
-                });
-                toast.success(`Performance updated for ${editModal.emp.name}`);
-                setEditModal(null);
-                fetchData();
-              } catch {
-                toast.error("Failed to update performance. Please try again.");
-              }
-            }} style={{
-              padding: "9px 20px", borderRadius: 8, border: "none",
-              background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-              fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer",
-              boxShadow: "0 4px 12px rgba(99,102,241,0.3)",
-            }}>
-              Save Changes
-            </button>
+          {/* Footer */}
+          <div style={{ padding: "16px 28px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#ffffff" }}>
+            <span style={{ fontSize: 13, color: "#94a3b8", fontWeight: 500 }}>Esc to close</span>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button onClick={() => setEditModal(null)}
+                style={{ 
+                  padding: "0 20px", height: 38, borderRadius: 6, border: "1px solid #cbd5e1", background: "#ffffff", 
+                  fontSize: 14, fontWeight: 500, color: "#334155", cursor: "pointer", transition: "all 0.2s" 
+                }}
+                onMouseOver={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#0f172a"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "#ffffff"; e.currentTarget.style.color = "#334155"; }}>
+                Cancel
+              </button>
+              <button onClick={async () => {
+                try {
+                  await API.put(`/employees/${editModal.emp.dbId}/performance`, {
+                    taskScore: ts, attendanceScore: att, targetScore: tgt,
+                    overall: ovr, rating: rtg, appraisal: apr, notes: editModal.notes,
+                  });
+                  toast.success(`Performance updated for ${editModal.emp.name}`);
+                  setEditModal(null);
+                  fetchData();
+                } catch {
+                  toast.error("Failed to update performance. Please try again.");
+                }
+              }} style={{
+                padding: "0 20px", height: 38, borderRadius: 6, border: "none",
+                background: "#4f46e5",
+                fontSize: 14, fontWeight: 500, color: "#ffffff", cursor: "pointer",
+                transition: "all 0.2s"
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = "#4338ca"; }}
+              onMouseOut={e => { e.currentTarget.style.background = "#4f46e5"; }}>
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
       </div>

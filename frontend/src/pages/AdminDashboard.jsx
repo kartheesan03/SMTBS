@@ -1,8 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { useDashboardData } from "../hooks/useDashboardData";
-import { useAiInsights } from "../hooks/useAiInsights";
+import { AppInitContext } from "../context/AppInitContext";
 import { 
   Users, ArrowUpRight, ArrowDownRight, Package, Truck, Clock, RefreshCw, Bell,
   FileText, Briefcase, UserPlus, Database, Search, Filter, MessageSquare, Plus, CheckCircle, 
@@ -17,7 +16,6 @@ import "../components/AdminDashboard/DashboardLayout.css";
 import LiveOrganizationWidget from '../components/AdminDashboard/LiveOrganizationWidget';
 import SystemHealthMonitorWidget from '../components/AdminDashboard/SystemHealthMonitorWidget';
 import OrderFinancesWidget from '../components/AdminDashboard/OrderFinancesWidget';
-import { LoadingState, ErrorState } from "../components/DataStates";
 
 
 const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<17)return"Good Afternoon"; if(h<21)return"Good Evening"; return"Good Night"; };
@@ -62,8 +60,9 @@ const fmtTime = (iso) => new Date(iso).toLocaleTimeString([],{hour:"2-digit",min
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { data: dashboardData, loading, error, refetch } = useDashboardData();
-  const { aiInsights, loading: aiLoading } = useAiInsights();
+  // Consume pre-fetched data from global AppInitContext
+  const { dashboardData: initDashboardData } = useContext(AppInitContext);
+  const dashboardData = initDashboardData || {};
 
   const [now, setNow] = useState(new Date());
   const [weather, setWeather] = useState({ temp: '28°C', condition: 'Partly Cloudy' });
@@ -101,9 +100,6 @@ const AdminDashboard = () => {
       fetchWeather(28.61, 77.21);
     }
   }, []);
-
-  if (loading) return <LoadingState message="Loading dashboard…" height="100vh" />;
-  if (error)   return <ErrorState message="Failed to load dashboard." height="100vh" onRetry={refetch} />;
 
   const s = dashboardData?.stats || {};
   const tables = dashboardData?.tables || {};

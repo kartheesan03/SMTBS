@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import API from "../api/axios";
+import { AppInitContext } from "../context/AppInitContext";
 import {
   CheckCircle, Calendar, IndianRupee, Clock, UserCheck, Activity,
   FileText, Bell, AlertTriangle, Award, Star, TrendingUp, TrendingDown,
@@ -12,7 +12,6 @@ import {
   ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
-import { LoadingState } from "../components/DataStates";
 import SystemHealthMonitorWidget from '../components/AdminDashboard/SystemHealthMonitorWidget';
 
 const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<17)return"Good Afternoon"; if(h<21)return"Good Evening"; return"Good Night"; };
@@ -21,13 +20,16 @@ const fmtINR = (v) => { if(!v&&v!==0)return"₹0"; const abs=Math.abs(v); if(abs
 const EmployeeDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [myTasks,       setMyTasks]       = useState([]);
-  const [attendStats,   setAttendStats]   = useState({});
-  const [salary,        setSalary]        = useState(null);
-  const [leaveBalance,  setLeaveBalance]  = useState(null);
-  const [upcomingEvents,setUpcomingEvents]= useState([]);
+  // Consume pre-fetched data from global AppInitContext
+  const {
+    myTasks,
+    attendStats,
+    salary,
+    leaveBalance,
+  } = useContext(AppInitContext);
+
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [notifications, setNotifications] = useState([]);
-  const [loading,       setLoading]       = useState(true);
   const [now, setNow] = useState(new Date());
   const [weather, setWeather] = useState({ temp: '28°C', condition: 'Partly Cloudy' });
 
@@ -59,41 +61,20 @@ const EmployeeDashboard = () => {
     } else { fetchWeather(28.61, 77.21); }
   }, []);
 
+  // Derive upcoming events
   useEffect(() => {
-    const fetchData = () => {
-      Promise.all([
-        API.get("/tasks/my").catch(() => ({ data: [] })),
-        API.get("/attendance/my-history").catch(() => ({ data: [] })),
-        API.get("/salaries/my").catch(() => ({ data: null })),
-        API.get("/leaves/balance").catch(() => ({ data: null })),
-        API.get("/notifications").catch(() => ({ data: [] })),
-      ]).then(([taskR, attR, salR, lvR, notifR]) => {
-        const tasks = (taskR.data || []);
-        setMyTasks(tasks.filter(t => t.status !== "Completed").slice(0, 5));
-        const attArr = attR.data || [];
-        const present = attArr.filter(a => a.status === "Present" || a.checkIn).length;
-        setAttendStats({ total: attArr.length, present, pct: attArr.length > 0 ? Math.round((present/attArr.length)*100) : 0, attArr });
-        setSalary(salR.data);
-        setLeaveBalance(lvR.data);
-        setNotifications((notifR.data || []).slice(0,5));
-        const n = new Date();
-        setUpcomingEvents(
-          tasks.filter(t => t.dueDate && new Date(t.dueDate) >= n)
-            .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
-            .map((t,i) => {
-              const d = new Date(t.dueDate);
-              const colors = ["#059669","#6366F1","#F97316","#EF4444"];
-              return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.priority||"Task", color: colors[i%4] };
-            })
-        );
-      }).finally(() => setLoading(false));
-    };
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    const n = new Date();
+    setUpcomingEvents(
+      (myTasks || []).filter(t => t.dueDate && new Date(t.dueDate) >= n)
+        .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
+        .map((t,i) => {
+          const d = new Date(t.dueDate);
+          const colors = ["#059669","#6366F1","#F97316","#EF4444"];
+          return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.priority||"Task", color: colors[i%4] };
+        })
+    );
+  }, [myTasks]);
 
-  if (loading) return <LoadingState message="Loading your Dashboard…" height="100vh"/>;
 
   const taskDone   = myTasks.filter(t => t.status === "Completed").length;
   const taskTotal  = myTasks.length;

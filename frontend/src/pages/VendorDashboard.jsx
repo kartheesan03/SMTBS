@@ -39,24 +39,13 @@ const QaBtn=({icon:Icon,label,colorClass,onClick})=>(
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [profile,   setProfile]   = useState(null);
-  const [materials, setMaterials] = useState([]);
-  const [orders,    setOrders]    = useState([]);
-  const [loading,   setLoading]   = useState(true);
+  const { vendorProfile: profile, vendorMaterials: materials, vendorOrders: orders } = useContext(AppInitContext);
   const [now, setNow] = useState(new Date());
 
   const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();
 
   useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); },[]);
 
-  useEffect(()=>{
-    API.get("/vendors/my-profile")
-      .then(r=>{ setProfile(r.data.vendor); setMaterials(r.data.materials||[]); setOrders(r.data.orders||[]); })
-      .catch(()=>{})
-      .finally(()=>setLoading(false));
-  },[]);
-
-  if(loading) return <LoadingState message="Loading Vendor Dashboard…" height="100vh"/>;
 
   const activePOs   = orders.filter(o=>!["Completed","Delivered","Cancelled"].includes(o.status)).length;
   const pendingDel  = orders.filter(o=>o.status==="Shipped"||o.status==="Processing").length;

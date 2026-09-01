@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useAiInsights } from "../hooks/useAiInsights";
 import API from "../api/axios";
+import { AppInitContext } from "../context/AppInitContext";
 import {
   ShoppingCart, Package, Truck, CheckCircle, Plus, FileText,
   XCircle, Clock, MapPin, IndianRupee, TrendingUp, TrendingDown,
@@ -39,26 +40,12 @@ const QaBtn=({icon:Icon,label,colorClass,onClick})=>(
 const CustomerDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [profile, setProfile] = useState(null);
-  const [orders,  setOrders]  = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { customerProfile: profile, customerOrders: orders } = useContext(AppInitContext);
   const [now, setNow] = useState(new Date());
 
   const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();
 
   useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); },[]);
-
-  useEffect(()=>{
-    Promise.all([
-      API.get("/customers/profile").catch(()=>({data:null})),
-      API.get("/orders/customer").catch(()=>({data:[]})),
-    ]).then(([profileR,ordersR])=>{
-      setProfile(profileR.data);
-      setOrders(ordersR.data||[]);
-    }).finally(()=>setLoading(false));
-  },[]);
-
-  if(loading) return <LoadingState message="Loading Customer Dashboard…" height="100vh"/>;
 
   const totalOrders   = orders.length;
   const pendingOrders = orders.filter(o=>o.status==="Pending"||o.status==="Processing").length;

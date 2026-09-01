@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import API from "../api/axios";
+import { AppInitContext } from "../context/AppInitContext";
 import {
   Users, ShoppingCart, IndianRupee, Box, FileText, Truck,
   Bell, Calendar, ListTodo, UserCheck, Activity,
@@ -14,7 +14,6 @@ import {
   ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
-import { LoadingState } from "../components/DataStates";
 import SystemHealthMonitorWidget from '../components/AdminDashboard/SystemHealthMonitorWidget';
 
 const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<17)return"Good Afternoon"; if(h<21)return"Good Evening"; return"Good Night"; };
@@ -23,12 +22,15 @@ const fmtINR = (v) => { if(!v&&v!==0)return"₹0"; const abs=Math.abs(v); if(abs
 const ManagerDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [dashboardData, setDashboardData] = useState(null);
-  const [tasks,         setTasks]         = useState([]);
-  const [orders,        setOrders]        = useState([]);
-  const [employees,     setEmployees]     = useState([]);
-  const [upcomingEvents,setUpcomingEvents]= useState([]);
-  const [loading,       setLoading]       = useState(true);
+  // Consume pre-fetched data from global AppInitContext — no local loading needed
+  const {
+    dashboardData: initDashboardData,
+    tasks,
+    orders,
+    employees,
+  } = useContext(AppInitContext);
+
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [now, setNow] = useState(new Date());
   const [weather, setWeather] = useState({ temp: '28°C', condition: 'Partly Cloudy' });
 
@@ -60,38 +62,23 @@ const ManagerDashboard = () => {
     } else { fetchWeather(28.61, 77.21); }
   }, []);
 
+  // Derive upcoming events from pre-fetched tasks
   useEffect(() => {
-    const fetchData = () => {
-      Promise.all([
-        API.get("/dashboard/stats").catch(() => ({ data: {} })),
-        API.get("/tasks").catch(() => ({ data: [] })),
-        API.get("/employees").catch(() => ({ data: [] })),
-        API.get("/orders").catch(() => ({ data: [] })),
-      ]).then(([stats, tasksR, empR, ordR]) => {
-        setDashboardData(stats.data || {});
-        const taskList = tasksR.data || [];
-        setTasks(taskList.filter(t => t.status !== "Completed").slice(0,5));
-        const n = new Date();
-        setUpcomingEvents(
-          taskList.filter(t => t.dueDate && new Date(t.dueDate) >= n)
-            .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
-            .map((t,i) => {
-              const d = new Date(t.dueDate);
-              const colors = ["#D97706","#6366F1","#22C55E","#EF4444"];
-              return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"General", color: colors[i%4] };
-            })
-        );
-        setEmployees(empR.data || []);
-        setOrders(ordR.data || []);
-      }).finally(() => setLoading(false));
-    };
+    const n = new Date();
+    setUpcomingEvents(
+      (tasks || []).filter(t => t.dueDate && new Date(t.dueDate) >= n)
+        .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
+        .map((t,i) => {
+          const d = new Date(t.dueDate);
+          const colors = ["#D97706","#6366F1","#22C55E","#EF4444"];
+          return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"General", color: colors[i%4] };
+        })
+    );
+  }, [tasks]);
 
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const dashboardData = initDashboardData || {};
+  const filteredTasks = (tasks || []).filter(t => t.status !== "Completed").slice(0, 5);
 
-  if (loading) return <LoadingState message="Loading Manager Dashboard…" height="100vh"/>;
 
   const s            = dashboardData?.stats || {};
   const totalTeam    = employees.length || s.totalEmployees || 0;

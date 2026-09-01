@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { useDashboardData } from "../hooks/useDashboardData";
+import { AppInitContext } from "../context/AppInitContext";
 import API from "../api/axios";
 import {
   Users, IndianRupee, Calendar, UserCheck, AlertTriangle, Activity,
@@ -13,7 +13,6 @@ import {
   ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
-import { LoadingState } from "../components/DataStates";
 import SystemHealthMonitorWidget from '../components/AdminDashboard/SystemHealthMonitorWidget';
 
 const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<17)return"Good Afternoon"; if(h<21)return"Good Evening"; return"Good Night"; };
@@ -22,13 +21,18 @@ const fmtINR = (v) => { if(!v&&v!==0)return"₹0"; const abs=Math.abs(v); if(abs
 const HRDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const { data: dashboardData, loading } = useDashboardData();
-  const [employees,      setEmployees]      = useState([]);
-  const [leavesData,     setLeavesData]     = useState([]);
-  const [salariesData,   setSalariesData]   = useState([]);
-  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  // Consume pre-fetched data from global AppInitContext
+  const {
+    dashboardData: initDashboardData,
+    employees,
+    tasks,
+    leavesData,
+    salariesData,
+  } = useContext(AppInitContext);
+
   const [now, setNow] = useState(new Date());
   const [weather, setWeather] = useState({ temp: '28°C', condition: 'Partly Cloudy' });
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
 
   useEffect(() => { const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); }, []);
 
@@ -58,42 +62,24 @@ const HRDashboard = () => {
     } else { fetchWeather(28.61, 77.21); }
   }, []);
 
+  // Derive upcoming events from pre-fetched tasks
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [empR, lvR, payR, taskR] = await Promise.all([
-          API.get("/employees").catch(() => ({ data: [] })),
-          API.get("/leaves").catch(() => ({ data: [] })),
-          API.get("/salaries").catch(() => ({ data: [] })),
-          API.get("/tasks").catch(() => ({ data: [] })),
-        ]);
-        setEmployees(empR.data || []);
-        setLeavesData(lvR.data || []);
-        setSalariesData(payR.data || []);
-        const n = new Date();
-        setUpcomingEvents(
-          (taskR.data || []).filter(t => t.dueDate && new Date(t.dueDate) >= n)
-            .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).slice(0, 4)
-            .map((t, i) => {
-              const d = new Date(t.dueDate);
-              const colors = ["#7C3AED","#22C55E","#F97316","#3B82F6"];
-              return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"HR", color: colors[i%4] };
-            })
-        );
-      } catch (err) {
-        console.error("Dashboard fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    const n = new Date();
+    setUpcomingEvents(
+      (tasks || []).filter(t => t.dueDate && new Date(t.dueDate) >= n)
+        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).slice(0, 4)
+        .map((t, i) => {
+          const d = new Date(t.dueDate);
+          const colors = ["#7C3AED","#22C55E","#F97316","#3B82F6"];
+          return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"HR", color: colors[i%4] };
+        })
+    );
+  }, [tasks]);
 
-  if (loading) return <LoadingState message="Loading HR Dashboard…" height="100vh"/>;
 
+  const dashboardData = initDashboardData || {};
   const s = dashboardData?.stats || {};
+
   const totalEmp      = employees.length || s.totalEmployees || 0;
   const presentToday  = dashboardData?.hrStats?.presentToday || 0;
   const pendingLeaves = leavesData.filter(l => l.status === "Pending").length;

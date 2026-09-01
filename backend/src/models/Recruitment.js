@@ -3,6 +3,7 @@ const sequelize = require('../config/sequelize');
 const JobPosting = sequelize.define('JobPosting', {
     id:           { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     title:        { type: DataTypes.STRING,  allowNull: false },
+    slug:         { type: DataTypes.STRING,  unique: true, allowNull: true },
     department:   { type: DataTypes.STRING,  allowNull: true },
     location:     { type: DataTypes.STRING,  allowNull: true },
     type:         { type: DataTypes.ENUM('Full-time','Part-time','Contract','Internship'), defaultValue: 'Full-time' },
@@ -14,6 +15,18 @@ const JobPosting = sequelize.define('JobPosting', {
     deadline:     { type: DataTypes.DATEONLY, allowNull: true },
     openings:     { type: DataTypes.INTEGER, defaultValue: 1 },
     createdBy:    { type: DataTypes.INTEGER, allowNull: true },
+    skills:       { type: DataTypes.TEXT,    allowNull: true },
+    minExperience:{ type: DataTypes.STRING,  allowNull: true },
+}, {
+    hooks: {
+        beforeSave: (job, options) => {
+            if (job.title && (!job.slug || job.changed('title'))) {
+                const baseSlug = job.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                const randomId = Math.random().toString(36).substring(2, 8);
+                job.slug = `${baseSlug}-${randomId}`;
+            }
+        }
+    }
 });
 const Candidate = sequelize.define('Candidate', {
     id:          { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -21,6 +34,10 @@ const Candidate = sequelize.define('Candidate', {
     name:        { type: DataTypes.STRING,  allowNull: false },
     email:       { type: DataTypes.STRING,  allowNull: true },
     phone:       { type: DataTypes.STRING,  allowNull: true },
+    resume:      { type: DataTypes.STRING,  allowNull: true },
+    coverLetter: { type: DataTypes.TEXT,    allowNull: true },
+    experience:  { type: DataTypes.STRING,  allowNull: true },
+    skills:      { type: DataTypes.TEXT,    allowNull: true },
     stage:       { type: DataTypes.ENUM('Applied','Screening','Interview','Offer','Hired','Rejected'), defaultValue: 'Applied' },
     source:      { type: DataTypes.STRING,  allowNull: true },
     notes:       { type: DataTypes.TEXT,    allowNull: true },

@@ -1,7 +1,7 @@
 import PageHeader from '../components/PageHeader';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Briefcase, Users, Calendar, CheckCircle, Plus, Search, Trash2, Edit2, X, ChevronDown, Star, MapPin, Clock, UserPlus, AlertCircle, ArrowRight, Building2 } from "lucide-react";
+import { Briefcase, Users, Calendar, CheckCircle, Plus, Search, Trash2, Edit2, X, ChevronDown, Star, MapPin, Clock, UserPlus, AlertCircle, ArrowRight, Building2, Eye } from "lucide-react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
@@ -57,19 +57,24 @@ const JOB_STATUS = {
   }
 };
 const STAGES = ["Applied", "Screening", "Interview", "Offer", "Hired", "Rejected"];
-const JobModal = ({
-  job,
-  onClose,
-  onSave
-}) => {
+const JobModal = ({ job, onClose, onSave }) => {
+  const modalRef = useRef(null);
+  useEffect(() => {
+    if (modalRef.current) {
+      modalRef.current.focus();
+    }
+  }, []);
+
   const [form, setForm] = useState(job ? {
     title: job.title,
     department: job.department || "",
     location: job.location || "",
-    type: job.type,
-    status: job.status,
+    type: job.type || "Full-time",
+    status: job.status === "On Hold" ? "Draft" : (job.status === "Open" ? "Published" : job.status),
     description: job.description || "",
     requirements: job.requirements || "",
+    skills: job.skills || "",
+    minExperience: job.minExperience || "",
     salaryMin: job.salaryMin || "",
     salaryMax: job.salaryMax || "",
     deadline: job.deadline || "",
@@ -79,277 +84,275 @@ const JobModal = ({
     department: "",
     location: "",
     type: "Full-time",
-    status: "Open",
+    status: "Draft",
     description: "",
     requirements: "",
+    skills: "",
+    minExperience: "",
     salaryMin: "",
     salaryMax: "",
     deadline: "",
     openings: 1
   });
   const [saving, setSaving] = useState(false);
-  const handle = e => setForm(f => ({
-    ...f,
-    [e.target.name]: e.target.value
-  }));
-  const submit = async e => {
-    e.preventDefault();
-    if (!form.title.trim()) return toast.error("Title is required");
+  const [errors, setErrors] = useState({});
+  const handle = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const validate = () => {
+    const errs = {};
+    if (!form.title.trim()) errs.title = "Job title is required";
+    if (!form.department.trim()) errs.department = "Department is required";
+    if (!form.type) errs.type = "Employment type is required";
+    if (!form.openings || form.openings < 1) errs.openings = "At least 1 opening required";
+    if (!form.description.trim()) errs.description = "Job description is required";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const submit = async (statusOverride) => {
+    if (statusOverride === "Published" && !validate()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    if (!form.title.trim()) {
+      setErrors({ title: "Job title is required" });
+      toast.error("Job title is required");
+      return;
+    }
     setSaving(true);
+    let apiStatus = statusOverride || form.status;
+    if (apiStatus === "Draft") apiStatus = "On Hold";
+    if (apiStatus === "Published") apiStatus = "Open";
+
+    const payload = { 
+      ...form, 
+      status: apiStatus,
+      salaryMin: form.salaryMin ? parseInt(form.salaryMin, 10) : null,
+      salaryMax: form.salaryMax ? parseInt(form.salaryMax, 10) : null,
+      openings: form.openings ? parseInt(form.openings, 10) : 1,
+      deadline: form.deadline ? form.deadline : null
+    };
+    
     try {
       if (job) {
-        const {
-          data
-        } = await API.put(`/recruitment/jobs/${job.id}`, form);
-        onSave(data, "edit");
+        const { data } = await API.put(`/recruitment/jobs/${job.id}`, payload);
+        onSave(data, "edit", false);
         toast.success("Job updated!");
       } else {
-        const {
-          data
-        } = await API.post("/recruitment/jobs", form);
-        onSave(data, "add");
-        toast.success("Job posted!");
+        const { data } = await API.post("/recruitment/jobs", payload);
+        const wasPublished = statusOverride === "Published";
+        onSave(data, "add", wasPublished);
+        toast.success(wasPublished ? "Job published!" : "Job saved as draft!");
       }
       onClose();
-    } catch {
-      toast.error("Failed to save job posting");
+    } catch (err) {
+      console.error('createJob error:', err?.response?.data || err?.message || err);
+      toast.error(err?.response?.data?.message || "Failed to save job posting");
     } finally {
       setSaving(false);
     }
   };
-  const inp = {
-    width: "100%",
-    padding: "9px 12px",
-    border: "1px solid #e2e8f0",
-    borderRadius: 0,
-    fontSize: 13,
-    outline: "none",
-    boxSizing: "border-box",
-    color: "#0f172a",
-    background: "#fff"
+
+  const labelStyle = { display: "block", fontSize: 12, fontWeight: 600, color: "#475569", marginBottom: 6 };
+  const reqStar = { color: "#ef4444", marginLeft: 2 };
+  const inputStyle = {
+    width: "100%", padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: 8,
+    fontSize: 14, outline: "none", boxSizing: "border-box", color: "#0f172a", background: "#fff",
+    transition: "border-color 0.2s, box-shadow 0.2s", fontFamily: "inherit"
   };
-  return <div style={{
-    position: "fixed",
-    inset: 0,
-    background: "rgba(15,23,42,0.45)",
-    zIndex: 1000,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
-  }}>
-      <div style={{
-      background: "#fff",
-      borderRadius: 0,
-      padding: 28,
-      width: 560,
-      maxHeight: "90vh",
-      overflowY: "auto",
-      boxShadow: "0 20px 60px rgba(0,0,0,0.2)"
+  const inputFocus = (e) => { e.currentTarget.style.borderColor = "#6366f1"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.08)"; };
+  const inputBlur = (e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.boxShadow = "none"; };
+  const errBorder = { borderColor: "#fca5a5" };
+
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, background: "rgba(15,23,42,0.4)", backdropFilter: "blur(4px)",
+      zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 20px"
     }}>
-        <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 20
-      }}>
-          <h2 style={{
-          margin: 0,
-          fontSize: 17,
-          fontWeight: 800,
-          color: "#0f172a"
+      <div onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === 'Escape') onClose(); }}
+        tabIndex={-1} ref={modalRef}
+        style={{
+          background: "#fff", borderRadius: 14, width: "100%", maxWidth: 680,
+          boxShadow: "0 10px 30px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)",
+          display: "flex", flexDirection: "column", maxHeight: "calc(100vh - 64px)",
+          overflow: "hidden", outline: "none"
         }}>
-            {job ? "Edit Job Posting" : "Post New Job"}
-          </h2>
-          <button onClick={onClose} style={{
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          color: "#64748b"
-        }}>
-            <X size={20} />
+        {/* Header */}
+        <div style={{ padding: "24px 28px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: "#0f172a" }}>
+              {job ? "Edit Job Posting" : "Create Job Posting"}
+            </h2>
+            <p style={{ margin: "4px 0 0", fontSize: 13, color: "#64748b", fontWeight: 400 }}>
+              {job ? "Update the details of this position" : "Fill in the details to create a new job posting"}
+            </p>
+          </div>
+          <button onClick={onClose}
+            style={{ background: "#f8fafc", border: "1px solid #e2e8f0", cursor: "pointer", color: "#64748b", padding: 6, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
+            onMouseOver={e => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#0f172a"; }}
+            onMouseOut={e => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "#64748b"; }}>
+            <X size={18} />
           </button>
         </div>
-        <form onSubmit={submit} style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 13
-      }}>
-          <div>
-            <label style={{
-            fontSize: 12,
-            fontWeight: 600,
-            color: "#475569",
-            display: "block",
-            marginBottom: 5
-          }}>
-              Job Title *
-            </label>
-            <input name="title" value={form.title} onChange={handle} placeholder="e.g. Warehouse Manager, Procurement Officer" style={inp} required />
+        <div style={{ height: 1, background: "#e2e8f0" }} />
+
+        {/* Scrollable body */}
+        <div style={{ padding: "24px 28px", overflowY: "auto", flex: 1, minHeight: 0 }}>
+          {/* Job Title */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={labelStyle}>Job Title<span style={reqStar}>*</span></label>
+            <input name="title" value={form.title} onChange={handle}
+              placeholder="e.g. Senior Software Engineer, Operations Manager"
+              style={{ ...inputStyle, ...(errors.title ? errBorder : {}) }}
+              onFocus={inputFocus} onBlur={inputBlur} />
+            {errors.title && <span style={{ fontSize: 12, color: "#ef4444", marginTop: 4, display: "block" }}>{errors.title}</span>}
           </div>
-          <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 12
-        }}>
+
+          {/* Department + Location */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
             <div>
-              <label style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#475569",
-              display: "block",
-              marginBottom: 5
-            }}>
-                Department
-              </label>
-              <input name="department" value={form.department} onChange={handle} placeholder="e.g. Supply Chain, Logistics" style={inp} />
+              <label style={labelStyle}>Department<span style={reqStar}>*</span></label>
+              <input name="department" value={form.department} onChange={handle}
+                placeholder="e.g. Engineering, HR, Sales"
+                style={{ ...inputStyle, ...(errors.department ? errBorder : {}) }}
+                onFocus={inputFocus} onBlur={inputBlur} />
+              {errors.department && <span style={{ fontSize: 12, color: "#ef4444", marginTop: 4, display: "block" }}>{errors.department}</span>}
             </div>
             <div>
-              <label style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#475569",
-              display: "block",
-              marginBottom: 5
-            }}>
-                Location
-              </label>
-              <input name="location" value={form.location} onChange={handle} placeholder="e.g. Main Warehouse / Chennai" style={inp} />
+              <label style={labelStyle}>Location</label>
+              <input name="location" value={form.location} onChange={handle}
+                placeholder="e.g. Chennai, Remote, Hybrid"
+                style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
             </div>
           </div>
-          <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          gap: 12
-        }}>
+
+          {/* Type + Openings */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
             <div>
-              <label style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#475569",
-              display: "block",
-              marginBottom: 5
-            }}>
-                Type
-              </label>
-              <select name="type" value={form.type} onChange={handle} style={inp}>
+              <label style={labelStyle}>Employment Type<span style={reqStar}>*</span></label>
+              <select name="type" value={form.type} onChange={handle}
+                style={{ ...inputStyle, ...(errors.type ? errBorder : {}) }}
+                onFocus={inputFocus} onBlur={inputBlur}>
                 {["Full-time", "Part-time", "Contract", "Internship"].map(t => <option key={t}>{t}</option>)}
               </select>
             </div>
             <div>
-              <label style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#475569",
-              display: "block",
-              marginBottom: 5
-            }}>
-                Status
-              </label>
-              <select name="status" value={form.status} onChange={handle} style={inp}>
-                {["Open", "On Hold", "Closed", "Filled"].map(s => <option key={s}>{s}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#475569",
-              display: "block",
-              marginBottom: 5
-            }}>
-                Openings
-              </label>
-              <input type="number" name="openings" value={form.openings} onChange={handle} min={1} style={inp} />
+              <label style={labelStyle}>Number of Openings<span style={reqStar}>*</span></label>
+              <input type="text" inputMode="numeric" name="openings" value={form.openings}
+                onChange={handle} placeholder="1"
+                style={{ ...inputStyle, ...(errors.openings ? errBorder : {}) }}
+                onFocus={inputFocus} onBlur={inputBlur} />
+              {errors.openings && <span style={{ fontSize: 12, color: "#ef4444", marginTop: 4, display: "block" }}>{errors.openings}</span>}
             </div>
           </div>
-          <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          gap: 12
-        }}>
+
+          {/* Salary Range + Deadline */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
             <div>
-              <label style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#475569",
-              display: "block",
-              marginBottom: 5
-            }}>
-                Salary Min (₹)
-              </label>
-              <input type="number" name="salaryMin" value={form.salaryMin} onChange={handle} placeholder="300000" style={inp} />
+              <label style={labelStyle}>Salary Min (₹)</label>
+              <input type="text" inputMode="numeric" name="salaryMin" value={form.salaryMin}
+                onChange={handle} placeholder="300000" style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
             </div>
             <div>
-              <label style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#475569",
-              display: "block",
-              marginBottom: 5
-            }}>
-                Salary Max (₹)
-              </label>
-              <input type="number" name="salaryMax" value={form.salaryMax} onChange={handle} placeholder="600000" style={inp} />
+              <label style={labelStyle}>Salary Max (₹)</label>
+              <input type="text" inputMode="numeric" name="salaryMax" value={form.salaryMax}
+                onChange={handle} placeholder="600000" style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
             </div>
             <div>
-              <label style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#475569",
-              display: "block",
-              marginBottom: 5
-            }}>
-                Deadline
-              </label>
-              <input type="date" name="deadline" value={form.deadline} onChange={handle} style={inp} />
+              <label style={labelStyle}>Application Deadline</label>
+              <input type="date" name="deadline" value={form.deadline} onChange={handle}
+                style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
             </div>
           </div>
-          <div>
-            <label style={{
-            fontSize: 12,
-            fontWeight: 600,
-            color: "#475569",
-            display: "block",
-            marginBottom: 5
-          }}>
-              Description
-            </label>
-            <textarea name="description" value={form.description} onChange={handle} rows={3} placeholder="Job description..." style={{
-            ...inp,
-            resize: "vertical"
-          }} />
+
+          <div style={{ height: 1, background: "#f1f5f9", margin: "4px 0 20px" }} />
+
+          {/* Job Description */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={labelStyle}>Job Description<span style={reqStar}>*</span></label>
+            <textarea name="description" value={form.description} onChange={handle} rows={4}
+              placeholder="Describe the role, responsibilities, and what a typical day looks like..."
+              style={{ ...inputStyle, resize: "vertical", minHeight: 100, ...(errors.description ? errBorder : {}) }}
+              onFocus={inputFocus} onBlur={inputBlur} />
+            {errors.description && <span style={{ fontSize: 12, color: "#ef4444", marginTop: 4, display: "block" }}>{errors.description}</span>}
           </div>
-          <div>
-            <label style={{
-            fontSize: 12,
-            fontWeight: 600,
-            color: "#475569",
-            display: "block",
-            marginBottom: 5
-          }}>
-              Requirements
-            </label>
-            <textarea name="requirements" value={form.requirements} onChange={handle} rows={2} placeholder="e.g. 5+ years in material handling, inventory tracking software..." style={{
-            ...inp,
-            resize: "vertical"
-          }} />
+
+          {/* Required Skills + Min Experience */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+            <div>
+              <label style={labelStyle}>Required Skills</label>
+              <input name="skills" value={form.skills} onChange={handle}
+                placeholder="e.g. React, Node.js, SQL"
+                style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
+            </div>
+            <div>
+              <label style={labelStyle}>Minimum Experience</label>
+              <input name="minExperience" value={form.minExperience} onChange={handle}
+                placeholder="e.g. 3 years, Fresher"
+                style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
+            </div>
           </div>
-          <button type="submit" disabled={saving} style={{
-          padding: "11px 0",
-          borderRadius: 0,
-          border: "none",
-          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-          color: "#fff",
-          fontWeight: 700,
-          fontSize: 14,
-          cursor: saving ? "not-allowed" : "pointer",
-          opacity: saving ? 0.7 : 1
-        }}>
-            {saving ? "Saving…" : job ? "Save Changes" : "Post Job"}
-          </button>
-        </form>
+
+          {/* Requirements / qualifications */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={labelStyle}>Requirements / Qualifications</label>
+            <textarea name="requirements" value={form.requirements} onChange={handle} rows={3}
+              placeholder="e.g. Bachelor's degree in CS, 5+ years of experience in supply chain management..."
+              style={{ ...inputStyle, resize: "vertical", minHeight: 80 }}
+              onFocus={inputFocus} onBlur={inputBlur} />
+          </div>
+
+          {/* Job Status */}
+          <div style={{ marginBottom: 8 }}>
+            <label style={labelStyle}>Job Status</label>
+            <select name="status" value={form.status} onChange={handle}
+              style={inputStyle} onFocus={inputFocus} onBlur={inputBlur}>
+              {["Draft", "Published"].map(s => <option key={s}>{s}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: "16px 28px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fff" }}>
+          <span style={{ fontSize: 13, color: "#94a3b8", fontWeight: 500 }}>Esc to close</span>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button type="button" onClick={onClose}
+              style={{
+                padding: "0 18px", height: 38, borderRadius: 7, border: "1px solid #cbd5e1", background: "#fff",
+                fontSize: 14, fontWeight: 500, color: "#334155", cursor: "pointer", transition: "all 0.2s"
+              }}
+              onMouseOver={e => { e.currentTarget.style.background = "#f8fafc"; }}
+              onMouseOut={e => { e.currentTarget.style.background = "#fff"; }}>
+              Cancel
+            </button>
+            {!job && (
+              <button type="button" onClick={() => submit("Draft")} disabled={saving}
+                style={{
+                  padding: "0 18px", height: 38, borderRadius: 7, border: "1px solid #cbd5e1", background: "#fff",
+                  fontSize: 14, fontWeight: 500, color: "#334155", cursor: saving ? "not-allowed" : "pointer",
+                  transition: "all 0.2s", opacity: saving ? 0.7 : 1
+                }}
+                onMouseOver={e => { if (!saving) e.currentTarget.style.background = "#f8fafc"; }}
+                onMouseOut={e => { e.currentTarget.style.background = "#fff"; }}>
+                {saving ? "Saving…" : "Save as Draft"}
+              </button>
+            )}
+            <button type="button" onClick={() => submit(job ? form.status : "Published")} disabled={saving}
+              style={{
+                padding: "0 20px", height: 38, borderRadius: 7, border: "none",
+                background: "#4f46e5", fontSize: 14, fontWeight: 500, color: "#fff",
+                cursor: saving ? "not-allowed" : "pointer", transition: "all 0.2s",
+                opacity: saving ? 0.7 : 1
+              }}
+              onMouseOver={e => { if (!saving) e.currentTarget.style.background = "#4338ca"; }}
+              onMouseOut={e => { e.currentTarget.style.background = "#4f46e5"; }}>
+              {saving ? "Saving…" : job ? "Save Changes" : "Publish Job"}
+            </button>
+          </div>
+        </div>
       </div>
-    </div>;
+    </div>
+  );
 };
 const CandidateModal = ({
   jobs,
@@ -627,6 +630,49 @@ const CandidateModal = ({
       </div>
     </div>;
 };
+
+/* ─────────── Publish Success Modal ─────────── */
+const PublishSuccessModal = ({ job, onClose }) => {
+  const publicUrl = `${window.location.origin}/jobs/${job.slug}`;
+  const [copied, setCopied] = useState(false);
+  const copyLink = () => {
+    navigator.clipboard.writeText(publicUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 500, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
+        <div style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', padding: '32px 32px 24px', textAlign: 'center', position: 'relative' }}>
+          <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+          <div style={{ width: 64, height: 64, background: 'rgba(255,255,255,0.2)', borderRadius: '50%', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>🎉</div>
+          <h2 style={{ color: '#fff', margin: 0, fontSize: 20, fontWeight: 800 }}>Job Published!</h2>
+          <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: 8, fontSize: 14 }}>{job.title} is now live and accepting applications.</p>
+        </div>
+        <div style={{ padding: '28px 32px' }}>
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>Public URL</div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <div style={{ flex: 1, background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#4f46e5', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {publicUrl}
+              </div>
+              <button onClick={copyLink} style={{ flexShrink: 0, padding: '10px 16px', background: copied ? '#10b981' : '#f1f5f9', border: '1.5px solid ' + (copied ? '#10b981' : '#e2e8f0'), borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', color: copied ? '#fff' : '#475569', transition: 'all 0.2s' }}>
+                {copied ? '✓ Copied!' : 'Copy'}
+              </button>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <button onClick={onClose} style={{ flex: 1, padding: '12px', border: '1.5px solid #e2e8f0', borderRadius: 10, background: '#fff', color: '#475569', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Close</button>
+            <a href={publicUrl} target="_blank" rel="noopener noreferrer" style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', border: 'none', borderRadius: 10, color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              View Job →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Recruitment = () => {
   const [jobs, setJobs] = useState([]);
   const [candidates, setCandidates] = useState([]);
@@ -639,6 +685,7 @@ const Recruitment = () => {
   const [editJob, setEditJob] = useState(null);
   const [candModal, setCandModal] = useState(false);
   const [editCand, setEditCand] = useState(null);
+  const [publishedJob, setPublishedJob] = useState(null);
   const fetchAll = async () => {
     setLoading(true);
     try {
@@ -659,8 +706,11 @@ const Recruitment = () => {
   useEffect(() => {
     fetchAll();
   }, []);
-  const handleJobSave = (saved, action) => {
-    if (action === "add") setJobs(prev => [saved, ...prev]);else setJobs(prev => prev.map(j => j.id === saved.id ? saved : j));
+  const handleJobSave = (saved, action, wasPublished) => {
+    if (action === "add") setJobs(prev => [saved, ...prev]); else setJobs(prev => prev.map(j => j.id === saved.id ? saved : j));
+    if (wasPublished && saved.slug) {
+      setPublishedJob(saved);
+    }
     fetchAll();
   };
   const handleCandSave = (saved, action) => {
@@ -733,9 +783,12 @@ const Recruitment = () => {
       setCandModal(false);
       setEditCand(null);
     }} onSave={handleCandSave} />}
+      {publishedJob && <PublishSuccessModal job={publishedJob} onClose={() => setPublishedJob(null)} />}
       <div className="rd-content">
         {/* ── Header ── */}
-        <PageHeader title="Recruitment" />
+        <PageHeader title="Recruitment" actions={[
+          { label: "Post Job", icon: Plus, primary: true, onClick: () => setJobModal(true), style: { height: 40, borderRadius: 7, fontWeight: 500, fontSize: 14 } }
+        ]} />
         {/* ── KPI Cards ── */}
         <StatsGrid>
           <StatsCard title="Open Positions" value={loading ? "…" : stats.openJobs || 0} colorTheme="blue" icon={Briefcase} trendValue="Active job postings" trendPositive={true} />
@@ -1075,6 +1128,19 @@ const Recruitment = () => {
                       display: "flex",
                       gap: 6
                     }}>
+                              {(job.status === "Open" || job.status === "Published") && (
+                                <button onClick={() => setPublishedJob(job)} title="View Public Job" style={{
+                                  background: "#f1f5f9",
+                                  border: "none",
+                                  borderRadius: 0,
+                                  padding: "5px 8px",
+                                  cursor: "pointer",
+                                  color: "#6366f1",
+                                  display: "flex"
+                                }}>
+                                  <Eye size={13} />
+                                </button>
+                              )}
                               <button onClick={() => setEditJob(job)} style={{
                         background: "#f1f5f9",
                         border: "none",
@@ -1104,58 +1170,30 @@ const Recruitment = () => {
                 </tbody>
               </table>}
             {/* ── Candidates Table ── */}
-            {activeTab === "candidates" && <table className="rd-table rd-table-responsive" style={{
-            width: "100%"
-          }}>
+            {activeTab === "candidates" && <table className="rd-table rd-table-responsive" style={{ width: "100%" }}>
                 <thead>
                   <tr>
                     <th>Candidate</th>
                     <th>Applied For</th>
                     <th>Contact</th>
+                    <th>Experience</th>
+                    <th>Resume</th>
                     <th>Source</th>
-                    <th style={{
-                  width: 130
-                }}>Stage</th>
-                    <th>Rating</th>
+                    <th style={{ width: 130 }}>Stage</th>
                     <th>Applied On</th>
-                    <th style={{
-                  width: 80
-                }}>Actions</th>
+                    <th style={{ width: 80 }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {loading ? <tr>
-                      <td colSpan={8} style={{
-                  textAlign: "center",
-                  padding: 40,
-                  color: "#94a3b8"
-                }}>
-                        Loading…
-                      </td>
-                    </tr> : filteredCands.length === 0 ? <tr>
-                      <td colSpan={8} style={{
-                  textAlign: "center",
-                  padding: 48,
-                  color: "#94a3b8"
-                }}>
-                        <AlertCircle size={32} style={{
-                    opacity: 0.3,
-                    marginBottom: 10
-                  }} />
-                        <div style={{
-                    fontSize: 14,
-                    fontWeight: 600
-                  }}>
-                          No candidates found
-                        </div>
-                        <div style={{
-                    fontSize: 12,
-                    marginTop: 4
-                  }}>
-                          Add a candidate or change the filter.
-                        </div>
-                      </td>
-                    </tr> : filteredCands.map(c => {
+                  {loading
+                    ? <tr><td colSpan={9} style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>Loading…</td></tr>
+                    : filteredCands.length === 0
+                    ? <tr><td colSpan={9} style={{ textAlign: "center", padding: 48, color: "#94a3b8" }}>
+                        <AlertCircle size={32} style={{ opacity: 0.3, marginBottom: 10 }} />
+                        <div style={{ fontSize: 14, fontWeight: 600 }}>No candidates found</div>
+                        <div style={{ fontSize: 12, marginTop: 4 }}>Add a candidate or change the filter.</div>
+                      </td></tr>
+                    : filteredCands.map(c => {
                 const cfg = STAGE_CONFIG[c.stage] || STAGE_CONFIG.Applied;
                 const stageIdx = STAGES.indexOf(c.stage);
                 return <tr key={c.id}>
@@ -1211,6 +1249,14 @@ const Recruitment = () => {
                             {c.phone || <span style={{
                       color: "#cbd5e1"
                     }}>—</span>}
+                          </td>
+                          <td data-label="Experience" style={{ fontSize: 12, color: "#475569" }}>
+                            {c.experience || <span style={{ color: "#cbd5e1" }}>—</span>}
+                          </td>
+                          <td data-label="Resume">
+                            {c.resume
+                              ? <a href={`http://localhost:5000${c.resume}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: "#4f46e5", background: "#eef2ff", padding: "3px 10px", borderRadius: 5, textDecoration: "none", whiteSpace: "nowrap" }}>📄 View</a>
+                              : <span style={{ color: "#cbd5e1" }}>—</span>}
                           </td>
                           <td data-label="Source">
                             {c.source ? <span style={{

@@ -325,7 +325,7 @@ const connectDB = async () => {
                 console.log(`${dbName} Database tables synchronized with alter.`);
             } else {
                 console.log(`Syncing ${dbName} remote database schema...`);
-                await sequelize.sync(); // Removed alter: true to avoid hanging on startup with Railway MySQL
+                // await sequelize.sync(); // Temporarily disabled to prevent hang on Railway MySQL
                 console.log(`${dbName} Database tables synchronized.`);
             }
         } catch (syncError) {
@@ -352,6 +352,42 @@ const connectDB = async () => {
                     console.log(`[Sync] performanceOverrides already exists on Employee table.`);
                 }
             } catch (e) { console.log(`[Sync] performanceOverrides injection skipped (likely exists): ${e.message}`); }
+            
+            try {
+                const jobPostingTable = await qi.describeTable('JobPosting');
+                if (!jobPostingTable.slug) {
+                    await qi.addColumn('JobPosting', 'slug', { type: DataTypes.STRING, allowNull: true, unique: true });
+                    console.log(`[Sync] Injected slug to JobPosting`);
+                }
+                if (!jobPostingTable.skills) {
+                    await qi.addColumn('JobPosting', 'skills', { type: DataTypes.TEXT, allowNull: true });
+                    console.log(`[Sync] Injected skills to JobPosting`);
+                }
+                if (!jobPostingTable.minExperience) {
+                    await qi.addColumn('JobPosting', 'minExperience', { type: DataTypes.STRING, allowNull: true });
+                    console.log(`[Sync] Injected minExperience to JobPosting`);
+                }
+            } catch (e) { console.log(`[Sync] JobPosting column injection skipped: ${e.message}`); }
+
+            try {
+                const candidateTable = await qi.describeTable('Candidate');
+                if (!candidateTable.resume) {
+                    await qi.addColumn('Candidate', 'resume', { type: DataTypes.STRING, allowNull: true });
+                    console.log(`[Sync] Injected resume to Candidate`);
+                }
+                if (!candidateTable.coverLetter) {
+                    await qi.addColumn('Candidate', 'coverLetter', { type: DataTypes.TEXT, allowNull: true });
+                    console.log(`[Sync] Injected coverLetter to Candidate`);
+                }
+                if (!candidateTable.experience) {
+                    await qi.addColumn('Candidate', 'experience', { type: DataTypes.STRING, allowNull: true });
+                    console.log(`[Sync] Injected experience to Candidate`);
+                }
+                if (!candidateTable.skills) {
+                    await qi.addColumn('Candidate', 'skills', { type: DataTypes.TEXT, allowNull: true });
+                    console.log(`[Sync] Injected skills to Candidate`);
+                }
+            } catch (e) { console.log(`[Sync] Candidate column injection skipped: ${e.message}`); }
             
         }
         
