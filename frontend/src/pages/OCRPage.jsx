@@ -13,6 +13,7 @@ import OCRDataTable from '../components/OCR/OCRDataTable';
 import InvoiceDataPanel from '../components/OCR/InvoiceDataPanel';
 import ValidationPanel from '../components/OCR/ValidationPanel';
 import AuditHistoryPanel from '../components/OCR/AuditHistoryPanel';
+import PageHeader from '../components/PageHeader';
 
 // ─── Processing steps ─────────────────────────────────────────────────────────
 const PROCESSING_STEPS = [
@@ -538,24 +539,20 @@ const OCRPage = () => {
     return (
       <div style={{ padding: '28px', maxWidth: '1280px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            Document Intelligence
-            <span style={{ fontSize: '11px', background: '#f8fafc', color: '#475569', padding: '4px 8px', borderRadius: '4px', border: '1px solid #e2e8f0', fontWeight: '700', letterSpacing: '0.5px' }}>AI TOOL</span>
-          </h1>
-          <p style={{ color: '#64748b', fontSize: '14px', marginTop: '8px', marginBottom: 0 }}>
-            Upload any supported document or image file to automatically extract structured data using AI.
-          </p>
-          {isViewOnly && (
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              marginTop: '12px', padding: '6px 14px', borderRadius: '20px',
-              background: '#eff6ff', color: '#1d4ed8', fontSize: '12px', fontWeight: '600',
-            }}>
-              <Shield size={14} /> View Only Mode
-            </span>
-          )}
-        </div>
+        <PageHeader
+          title="Document Intelligence"
+          badge="AI TOOL"
+          subtitle="Upload any supported document or image file to automatically extract structured data using AI."
+        />
+        {isViewOnly && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            marginTop: '-12px', marginBottom: '16px', padding: '6px 14px', borderRadius: '20px',
+            background: '#eff6ff', color: '#1d4ed8', fontSize: '12px', fontWeight: '600',
+          }}>
+            <Shield size={14} /> View Only Mode
+          </span>
+        )}
 
         {/* Clean Drag & Drop Upload Zone */}
         {canEdit && (
