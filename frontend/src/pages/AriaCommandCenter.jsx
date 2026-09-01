@@ -17,7 +17,8 @@ import {
     X,
     Bot,
     Maximize2,
-    Minimize2
+    Minimize2,
+    Minus
 } from 'lucide-react';
 import API from '../api/axios';
 import { AuthContext } from '../context/AuthContext';
@@ -27,6 +28,16 @@ import AriaVisualizer from '../components/ui/AriaVisualizer';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './AriaCommandCenter.css';
+const LoadingSequence = () => {
+    const [step, setStep] = useState(0);
+    useEffect(() => {
+        const timer = setTimeout(() => setStep(1), 800);
+        return () => clearTimeout(timer);
+    }, []);
+    return (
+        <span>{step === 0 ? "Querying database..." : "Analyzing results..."}</span>
+    );
+};
 
 const StreamingText = ({ content, isStreaming, onComplete, className }) => {
     const [displayedContent, setDisplayedContent] = useState(isStreaming ? '' : content);
@@ -62,7 +73,7 @@ const StreamingText = ({ content, isStreaming, onComplete, className }) => {
 
 const AriaCommandCenter = () => {
     const { user } = useContext(AuthContext);
-    const { isOpen, isMaximized, toggleMaximize, minimizeAria, closeAria } = useContext(AriaContext);
+    const { ariaState, isFab, isOpen, closeAria, collapseAria, expandAria } = useContext(AriaContext);
     const navigate = useNavigate();
     
     // State
@@ -209,6 +220,13 @@ const AriaCommandCenter = () => {
                 history: [],
                 context: null
             });
+            
+            console.log("[ARIA] API response:", res.data);
+            if (res.data.visualData) {
+                console.log("[ARIA] Response type:", res.data.visualData.type);
+                console.log("[ARIA] Value:", res.data.visualData.value);
+                console.log("[ARIA] Data:", res.data.visualData.data);
+            }
 
             const category = determineCategory(queryText);
             
@@ -350,44 +368,63 @@ const AriaCommandCenter = () => {
         return contexts[category] || contexts['General'];
     };
 
-    if (!isOpen) return null;
+    // ── State 1: fully closed ──
+    if (ariaState === 'closed') return null;
+
+    // ── State 2: compact floating FAB ──
+    if (ariaState === 'fab') {
+        return (
+            <button
+                className="aria-fab"
+                onClick={expandAria}
+                title="Open Aria Assistant"
+                aria-label="Open Aria Assistant"
+            >
+                <Bot size={20} />
+                <span className="aria-fab-label">Aria</span>
+            </button>
+        );
+    }
 
     return (
-        <div className={`aria-console-layout aria-open ${isMaximized ? 'aria-maximized' : 'aria-floating'}`}>
+        <div className="aria-console-layout aria-open aria-maximized">
             <div className="aria-app-header">
                 <div className="aria-app-header-left">
-                    <Bot size={18} className="nav-icon-blue" />
-                    <h2>Aria Intelligence</h2>
-                    <span>AI-powered ERP Assistant</span>
+                    <Bot size={17} className="nav-icon-blue" />
+                    <div className="aria-app-header-titles">
+                        <h2>Aria Intelligence</h2>
+                        <span>AI-powered ERP Assistant</span>
+                    </div>
                 </div>
                 <div className="aria-app-header-controls">
-                    {!isMaximized && <button className="aria-header-btn" onClick={toggleMaximize}><Maximize2 size={16} /></button>}
-                    {isMaximized && <button className="aria-header-btn" onClick={minimizeAria}><Minimize2 size={16} /></button>}
-                    <button className="aria-header-btn close-btn" onClick={closeAria}><X size={16} /></button>
+                    <button className="aria-header-btn" onClick={collapseAria} title="Minimize to Aria Button">
+                        <Minus size={13} />
+                    </button>
+                    <button className="aria-header-btn close-btn" onClick={closeAria} title="Close">
+                        <X size={13} />
+                    </button>
                 </div>
             </div>
 
             <div className="aria-console-inner">
-                {isMaximized && (
-                    <div className="aria-console-sidebar">
-                        <button className="aria-console-new-btn" onClick={handleNewAnalysis}><Plus size={14} /> New Analysis</button>
-                        <div className="aria-console-nav-section">
-                            <h3>CATEGORIES</h3>
-                            {['Orders', 'Inventory', 'Sales', 'Customers', 'Employees', 'Documents'].map(cat => (
-                                <button key={cat} className="nav-item" onClick={() => handleCategoryClick(cat)}>{cat}</button>
-                            ))}
-                        </div>
-                        <div className="aria-console-nav-section">
-                            <h3>RECENT</h3>
-                            {analyses.map(a => (
-                                <div key={a.id} className="nav-item">
-                                    <button onClick={() => setActiveAnalysisId(a.id)}>{a.title}</button>
-                                    <button onClick={(e) => deleteAnalysis(a.id, e)}><X size={12}/></button>
-                                </div>
-                            ))}
-                        </div>
+                <div className="aria-console-sidebar">
+                    <button className="aria-console-new-btn" onClick={handleNewAnalysis}><Plus size={14} /> New Analysis</button>
+                    <div className="aria-console-nav-section">
+                        <h3>CATEGORIES</h3>
+                        {['Orders', 'Inventory', 'Sales', 'Customers', 'Employees', 'Documents'].map(cat => (
+                            <button key={cat} className="nav-item" onClick={() => handleCategoryClick(cat)}>{cat}</button>
+                        ))}
                     </div>
-                )}
+                    <div className="aria-console-nav-section">
+                        <h3>RECENT</h3>
+                        {analyses.map(a => (
+                            <div key={a.id} className="nav-item">
+                                <button onClick={() => setActiveAnalysisId(a.id)}>{a.title}</button>
+                                <button onClick={(e) => deleteAnalysis(a.id, e)}><X size={12}/></button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
                 <div className="aria-console-main">
                     <div className="aria-console-scroll-area">
@@ -405,7 +442,7 @@ const AriaCommandCenter = () => {
                                         {thread.status === 'loading' && (
                                             <div className="chat-message bot thread-loading">
                                                 <div className="loading-spinner"></div>
-                                                Thinking...
+                                                <LoadingSequence />
                                             </div>
                                         )}
                                         {thread.status === 'error' && (
@@ -417,6 +454,9 @@ const AriaCommandCenter = () => {
                                             <div className="chat-message bot intelligence-report">
                                                 <AriaVisualizer visualData={thread.intelligence.visualData} />
                                                 <StreamingText content={thread.intelligence.insight} isStreaming={thread.intelligence.isStreaming} />
+                                                {thread.intelligence.metrics && thread.intelligence.metrics.map((m, i) => (
+                                                    <div key={i} className="source-indicator" style={{fontSize: '0.7rem', color: '#0ea5e9', marginTop: '10px'}}>{m}</div>
+                                                ))}
                                             </div>
                                         )}
                                     </div>
@@ -432,14 +472,15 @@ const AriaCommandCenter = () => {
                                 className="composer-attach-btn" 
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={isAnalyzing}
+                                title="Attach document"
                             >
-                                <Paperclip size={18} />
+                                <Paperclip size={16} />
                             </button>
                             
                             <textarea
                                 ref={inputRef}
                                 className="composer-input"
-                                placeholder="Ask Aria about your business..."
+                                placeholder="Ask Aria about your business…"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={handleKeyDown}
@@ -451,8 +492,9 @@ const AriaCommandCenter = () => {
                                 className={`composer-send-btn ${input.trim() && !isAnalyzing ? 'active' : ''}`}
                                 onClick={handleSend}
                                 disabled={!input.trim() || isAnalyzing}
+                                title="Send"
                             >
-                                <ArrowRight size={16} />
+                                <ArrowRight size={15} />
                             </button>
                         </div>
                         
@@ -464,6 +506,14 @@ const AriaCommandCenter = () => {
                             <button onClick={() => { setInput("/employees "); inputRef.current?.focus(); }}>/employees</button>
                             <button onClick={() => fileInputRef.current?.click()}>/ocr</button>
                         </div>
+
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: 'none' }}
+                            onChange={handleFileUpload}
+                            accept="image/*,.pdf"
+                        />
                     </div>
                 </div>
             </div>
@@ -472,3 +522,4 @@ const AriaCommandCenter = () => {
 };
 
 export default AriaCommandCenter;
+

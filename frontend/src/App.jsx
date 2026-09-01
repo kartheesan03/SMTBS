@@ -181,7 +181,7 @@ const FeedRouteHandler = () => {
 
 const AppContent = () => {
     const { user, loading, logout } = useContext(AuthContext);
-    const { isOpen: isAriaOpen, openAria, closeAria } = useContext(AriaContext);
+    const { ariaState, isOpen: isAriaOpen, openAria, closeAria } = useContext(AriaContext);
     const location = useLocation();
     const isSocialRoute = location.pathname.startsWith('/social');
     
@@ -219,7 +219,7 @@ const AppContent = () => {
         const handleKeyDown = (e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
-                if (isAriaOpen) {
+                if (ariaState !== 'closed') {
                     closeAria();
                 } else {
                     openAria();

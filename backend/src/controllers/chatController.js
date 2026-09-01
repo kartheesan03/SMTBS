@@ -44,53 +44,7 @@ const deterministicCommands = {
     '/vendors': 'Vendor'
 };
 
-const generateOfflineFallback = async (message) => {
-    let toolResult;
-    let replyText = "I'm currently running in fallback/offline mode, so my natural language understanding is limited. I will try my best to match your keyword to a table!";
-    let fileMetadata = null;
-    let visualData = null;
-    const msgLower = message.toLowerCase();
-    let modelNameMatch = null;
-    
-    if (msgLower.includes('inventory') || msgLower.includes('stock') || msgLower.includes('material')) modelNameMatch = 'Material';
-    else if (msgLower.includes('vendor')) modelNameMatch = 'Vendor';
-    else if (msgLower.includes('order')) modelNameMatch = 'Order';
-    else if (msgLower.includes('employee') || msgLower.includes('staff')) modelNameMatch = 'Employee';
-    else if (msgLower.includes('attendance') || msgLower.includes('today')) modelNameMatch = 'Attendance';
-    else if (msgLower.includes('leave')) modelNameMatch = 'Leave';
-    else if (msgLower.includes('customer')) modelNameMatch = 'Customer';
-    else if (msgLower.includes('task')) modelNameMatch = 'Task';
-    else if (msgLower.includes('user')) modelNameMatch = 'User';
-    else if (msgLower.includes('sales')) modelNameMatch = 'Order';
-
-    if (msgLower.includes('report') && modelNameMatch) {
-        toolResult = await executeAITool({ name: 'generate_report', args: { modelName: modelNameMatch } });
-        if (toolResult && toolResult.file) {
-            fileMetadata = toolResult.file;
-            replyText = `I've generated the ${modelNameMatch} report for you in fallback mode. You can download it below.`;
-        }
-    } else if (modelNameMatch) {
-        toolResult = await executeAITool({ name: 'query_database', args: { modelName: modelNameMatch } });
-        if (toolResult && toolResult.results && toolResult.results.length > 0) {
-            visualData = {
-                type: 'table',
-                modelName: modelNameMatch,
-                data: toolResult.results
-            };
-            replyText = `I found ${toolResult.results.length} records for **${modelNameMatch}** (Fallback Mode). Here is the data:`;
-        } else {
-            replyText = `I queried the **${modelNameMatch}** table, but no records were found.`;
-        }
-    }
-    
-    return {
-        reply: replyText,
-        file: fileMetadata,
-        visualData: visualData,
-        metrics: modelNameMatch ? [`Matched Table: ${modelNameMatch}`] : [],
-        whyItMatters: "Running locally means faster responses, but limited natural language processing."
-    };
-};
+const { parseAndExecuteNLPQuery } = require('../services/nlpQueryEngine');
 const chatWithGemini = async (req, res) => {
     try {
         const { message, history = [], context = null } = req.body;
@@ -123,8 +77,18 @@ const chatWithGemini = async (req, res) => {
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-            const fallbackResult = await generateOfflineFallback(message);
-            return res.json(fallbackResult);
+            console.log("No Gemini API key found. Using local NLP Query Engine.");
+            const nlpResult = await parseAndExecuteNLPQuery(message);
+            if (!nlpResult.success) {
+                return res.json({ reply: nlpResult.message });
+            }
+            
+            return res.json({
+                reply: nlpResult.answer || nlpResult.message,
+                visualData: nlpResult,
+                metrics: ["Source: Live Database"],
+                whyItMatters: "Processed securely via local natural language to SQL engine."
+            });
         }
         let dynamicPrompt = SMTBMS_SYSTEM_PROMPT;
         if (context && context.type && context.name) {
@@ -213,9 +177,18 @@ const chatWithGemini = async (req, res) => {
         console.error('Chat API error:', error.message);
         
         try {
-            console.log("Falling back to offline mode due to AI generation failure...");
-            const fallbackResult = await generateOfflineFallback(req.body.message || "");
-            return res.json(fallbackResult);
+            console.log("Falling back to local NLP Query Engine due to AI generation failure...");
+            const nlpResult = await parseAndExecuteNLPQuery(req.body.message || "");
+            if (!nlpResult.success) {
+                return res.json({ reply: nlpResult.message });
+            }
+            
+            return res.json({
+                reply: nlpResult.answer || nlpResult.message,
+                visualData: nlpResult,
+                metrics: ["Source: Live Database"],
+                whyItMatters: "Processed securely via local natural language to SQL engine."
+            });
         } catch (fallbackError) {
             console.error('Fallback error:', fallbackError.message);
             return res.status(500).json({
