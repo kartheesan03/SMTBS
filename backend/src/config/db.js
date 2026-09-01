@@ -325,8 +325,8 @@ const connectDB = async () => {
                 console.log(`${dbName} Database tables synchronized with alter.`);
             } else {
                 console.log(`Syncing ${dbName} remote database schema...`);
-                await sequelize.sync({ alter: true });
-                console.log(`${dbName} Database tables synchronized with alter.`);
+                await sequelize.sync(); // Removed alter: true to avoid hanging on startup with Railway MySQL
+                console.log(`${dbName} Database tables synchronized.`);
             }
         } catch (syncError) {
             console.warn(`[Sync] Alter sync failed, falling back to standard sync: ${syncError.message}`);
