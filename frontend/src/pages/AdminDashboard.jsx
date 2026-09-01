@@ -62,7 +62,7 @@ const fmtTime = (iso) => new Date(iso).toLocaleTimeString([],{hour:"2-digit",min
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { data: dashboardData, loading, error } = useDashboardData();
+  const { data: dashboardData, loading, error, refetch } = useDashboardData();
   const { aiInsights, loading: aiLoading } = useAiInsights();
 
   const [now, setNow] = useState(new Date());
@@ -103,7 +103,7 @@ const AdminDashboard = () => {
   }, []);
 
   if (loading) return <LoadingState message="Loading dashboard…" height="100vh" />;
-  if (error)   return <ErrorState message="Failed to load dashboard." height="100vh" />;
+  if (error)   return <ErrorState message="Failed to load dashboard." height="100vh" onRetry={refetch} />;
 
   const s = dashboardData?.stats || {};
   const tables = dashboardData?.tables || {};

@@ -1,5 +1,9 @@
 {
+  "delay": 1000,
+  "signal": "SIGINT",
   "ignore": [
+    "scripts/*",
+    "dummy.*",
     "*.sqlite",
     "*.sqlite-shm",
     "*.sqlite-wal",

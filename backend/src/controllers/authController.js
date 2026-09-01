@@ -47,8 +47,8 @@ const getRolePermissions = async (roleName) => {
     }
 };
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+const generateToken = (id, role) => {
+    return jwt.sign({ id, role: role || '' }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 const registerUser = async (req, res) => {
     try {
@@ -170,7 +170,7 @@ const loginUser = async (req, res) => {
         isProfileComplete: user.isProfileComplete,
         employeeId: emp?.employeeId,
         department: emp?.department,
-        token: generateToken(user._id),
+        token: generateToken(user._id, role),
         user: {
             id: user._id,
             name: actualName,
@@ -198,7 +198,7 @@ const loginUser = async (req, res) => {
                 permissions: ['all'],
                 picture: '',
                 isProfileComplete: true,
-                token: generateToken('offline-admin-123'),
+                token: generateToken('offline-admin-123', 'Admin'),
                 user: { id: 'offline-admin-123', name: 'Admin (Offline)', email: 'admin@smtbms.com', role: 'Admin', permissions: ['all'] }
             });
         }
@@ -288,7 +288,7 @@ const googleAuth = async (req, res) => {
                 permissions: permissions,
                 picture: user.picture,
                 isProfileComplete: user.isProfileComplete,
-                token: generateToken(user.id || user._id),
+                token: generateToken(user.id || user._id, role),
                 user: {
                     id: user.id || user._id,
                     name: actualName,
@@ -354,7 +354,7 @@ const googleAuth = async (req, res) => {
                 role: user.role,
                 picture: user.picture,
                 isProfileComplete: user.isProfileComplete,
-                token: generateToken(user.id || user._id),
+                token: generateToken(user.id || user._id, role),
                 user: {
                     id: user.id || user._id,
                     name: user.name,
@@ -462,7 +462,7 @@ const microsoftAuth = async (req, res) => {
                 permissions,
                 picture: user.picture,
                 isProfileComplete: user.isProfileComplete,
-                token: generateToken(user.id || user._id),
+                token: generateToken(user.id || user._id, role),
                 user: {
                     id: user.id || user._id,
                     name: user.name,
@@ -539,7 +539,7 @@ const microsoftAuth = async (req, res) => {
                 permissions,
                 picture: user.picture,
                 isProfileComplete: user.isProfileComplete,
-                token: generateToken(user.id || user._id),
+                token: generateToken(user.id || user._id, role),
                 user: {
                     id: user.id || user._id,
                     name: user.name,

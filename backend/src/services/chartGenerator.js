@@ -4,7 +4,7 @@ const generateChartConfig = async (sqlData) => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return null;
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const prompt = `
         Given this JSON data from a database query:
         ${JSON.stringify(sqlData).substring(0, 1000)}

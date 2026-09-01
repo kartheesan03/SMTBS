@@ -18,6 +18,7 @@ import { LoadingState } from "../components/DataStates";
 const MySalaryPage = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedPayslip, setSelectedPayslip] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -29,10 +30,12 @@ const MySalaryPage = () => {
   const fetchHistory = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const { data } = await API.get("/salaries/my");
       setHistory(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching salary history:", error);
+      setError(error?.response?.data?.message || 'Failed to load salary data.');
       setHistory([]);
     } finally {
       setLoading(false);
@@ -41,6 +44,14 @@ const MySalaryPage = () => {
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]);
+
+  if (loading) return <LoadingState message="Loading salary data…" height="100vh" />;
+  if (error) return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '16px' }}>
+      <p style={{ color: '#ef4444', fontSize: '15px' }}>{error}</p>
+      <button onClick={fetchHistory} style={{ background: '#6366f1', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>Retry</button>
+    </div>
+  );
   const handleViewPayslip = (record) => {
     setSelectedPayslip(record);
     setShowModal(true);
@@ -57,8 +68,7 @@ const MySalaryPage = () => {
       setDownloading(false);
     }
   };
-  if (loading) return <LoadingState message="Loading..." height="100vh" />;
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}

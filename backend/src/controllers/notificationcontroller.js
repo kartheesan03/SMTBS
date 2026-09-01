@@ -3,7 +3,7 @@ const Material = require('../models/Material');
 const Order = require('../models/Order');
 const getNotifications = async (req, res) => {
     try {
-        let query = {
+        const query = {
             $or: [
                 { userId: null, role: null },
                 { userId: req.user._id },
@@ -11,19 +11,10 @@ const getNotifications = async (req, res) => {
                 { role: req.user.role, userId: null }
             ]
         };
-        let notifications = await Notification.find(query).sort({ createdAt: -1 });
-        const orderNotifications = notifications.filter(n => n.module === 'Orders' && n.referenceId);
-        if (orderNotifications.length > 0) {
-            const orderIds = orderNotifications.map(n => n.referenceId);
-            const validOrders = await Order.find({ id: { $in: orderIds } }).select('id');
-            const validOrderIds = new Set(validOrders.map(o => (o.id || o._id).toString()));
-            const invalidNotifs = orderNotifications.filter(n => !validOrderIds.has(n.referenceId.toString()));
-            if (invalidNotifs.length > 0) {
-                const invalidIds = invalidNotifs.map(n => n._id || n.id);
-                await Notification.deleteMany({ _id: { $in: invalidIds } });
-                notifications = notifications.filter(n => !invalidIds.includes(n._id || n.id));
-            }
-        }
+        const notifications = await Notification.find(query)
+            .select('title message status type module referenceId createdAt userId role')
+            .sort({ createdAt: -1 })
+            .limit(50);
         const unreadCount = notifications.filter(n => n.status === 'unread').length;
         res.json({ notifications, unreadCount });
     } catch (error) {

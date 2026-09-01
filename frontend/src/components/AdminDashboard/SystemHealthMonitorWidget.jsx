@@ -5,7 +5,7 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'rec
 import './SystemHealthMonitorWidget.css';
 
 const SystemHealthMonitorWidget = () => {
-  const { data, loading, error } = useSystemHealth(2000); // Poll every 2 seconds
+  const { data, loading, error } = useSystemHealth(60000); // Poll every 60 seconds
 
   if (loading && !data) {
     return (

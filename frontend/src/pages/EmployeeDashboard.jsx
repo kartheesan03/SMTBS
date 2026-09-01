@@ -64,7 +64,7 @@ const EmployeeDashboard = () => {
       Promise.all([
         API.get("/tasks/my").catch(() => ({ data: [] })),
         API.get("/attendance/my-history").catch(() => ({ data: [] })),
-        API.get("/payroll/my-salary").catch(() => ({ data: null })),
+        API.get("/salaries/my").catch(() => ({ data: null })),
         API.get("/leaves/balance").catch(() => ({ data: null })),
         API.get("/notifications").catch(() => ({ data: [] })),
       ]).then(([taskR, attR, salR, lvR, notifR]) => {

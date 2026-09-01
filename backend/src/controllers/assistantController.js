@@ -132,7 +132,7 @@ const handleQuery = async (req, res) => {
         } else {
             // Real Gemini function calling
             const model = genAI.getGenerativeModel({ 
-                model: 'gemini-1.5-flash', 
+                model: 'gemini-2.5-flash', 
                 systemInstruction: systemPrompt,
                 tools: [{ functionDeclarations: getToolDeclarations() }]
             });

@@ -6,7 +6,12 @@ const Vendor = require("../models/Vendor");
 const Salary = require("../models/Salary");
 const Attendance = require("../models/Attendance");
 const Leave = require("../models/Leave");
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI } = require('@google/generative-ai'); const os = require('os');
+
+
+// Per-role dashboard cache — 2-minute TTL
+const _dashCache = {};
+const DASH_CACHE_TTL = 120000; // 2 minutes
 
 const computeDashboardStats = async (req, res) => {
   try {
@@ -143,8 +148,10 @@ let stats = {};
       topInventory = [...allMaterials].sort((a,b) => (b.quantity || 0) - (a.quantity || 0)).slice(0, 5).map(m => ({name: m.name, value: m.quantity || 0, category: m.category}));
       const purchaseOrders = (_filter(_allOrds, { orderType: 'purchase', status: { $in: ['Pending', 'Awaiting Approval', 'Approved'] } }));
       purchaseOrders.forEach((po) => {
-        if (po.items && po.items.length > 0) {
-          po.items.forEach((item) => {
+        let items = po.items;
+        if (typeof items === 'string') { try { items = JSON.parse(items); } catch(e){} }
+        if (items && Array.isArray(items) && items.length > 0) {
+          items.forEach((item) => {
             inTransitCount += item.quantity || 0;
           });
         }
@@ -238,8 +245,11 @@ let stats = {};
       const matNameMap = {};
       const matCatMap = {};
       allMaterialsRaw.forEach((m) => {
-        matNameMap[m._id.toString()] = m.name;
-        matCatMap[m._id.toString()] = m.category || "General";
+        const idKey = (m._id || m.id || "").toString();
+        if (idKey) {
+          matNameMap[idKey] = m.name;
+          matCatMap[idKey] = m.category || "General";
+        }
       });
       let materialSalesMap = {};
       let salesCatMap = {};
@@ -1516,7 +1526,7 @@ const getAiInsights = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
     
     const summary = JSON.stringify({
       stats: statsData?.stats,
@@ -1579,7 +1589,7 @@ const getOperationalIntelligence = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
 
     const prompt = `You are an AI ERP Copilot Operational Bottleneck Detector. 
     Analyze the company's recent operational data:
@@ -1696,9 +1706,9 @@ const getCashFlowForecast = async (req, res) => {
       });
     }
 
-    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    const { GoogleGenerativeAI } = require('@google/generative-ai'); const os = require('os');
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
 
     const prompt = `You are an AI ERP Copilot Financial Forecaster. 
     Analyze the company's 30-day cash flow based on this exact data:
@@ -1757,7 +1767,7 @@ const applyCashFlowForecast = async (req, res) => {
   }
 };
 
-const os = require('os');
+
 
 let requestCount = 0;
 // Track requests per second globally

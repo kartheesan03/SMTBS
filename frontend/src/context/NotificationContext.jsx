@@ -2,11 +2,9 @@ import React, { createContext, useState, useEffect, useCallback, useContext } fr
 import API from '../api/axios';
 import { AuthContext } from './AuthContext';
 
-console.log("AuthContext in NotificationContext:", AuthContext);
 export const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {
     const authContextValue = useContext(AuthContext);
-    console.log("authContextValue in NotificationProvider:", authContextValue);
     const { user } = authContextValue || {};
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -23,7 +21,7 @@ export const NotificationProvider = ({ children }) => {
     useEffect(() => {
         if (user) {
             fetchNotifications();
-            const intervalId = setInterval(fetchNotifications, 60000);
+            const intervalId = setInterval(fetchNotifications, 120000); // Poll every 2 minutes
             return () => clearInterval(intervalId);
         } else {
             setNotifications([]);

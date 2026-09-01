@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 
-export const useSystemHealth = (pollingIntervalMs = 3000) => {
+export const useSystemHealth = (pollingIntervalMs = 60000) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

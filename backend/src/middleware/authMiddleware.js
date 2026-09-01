@@ -1,6 +1,44 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const Role = require('../models/Role');
+
+// Build permissions inline from role — no DB roundtrip needed
+const buildPermissionsFromRole = (role) => {
+    const perms = [];
+    if (!role) return perms;
+    const r = role.toLowerCase();
+    if (r === 'admin' || r === 'super admin') {
+        return ['all'];
+    }
+    if (r === 'hr') {
+        perms.push(
+            'view_hrms', 'manage_hrms',
+            'hrms:employeeData:view', 'hrms:employeeData:manage',
+            'hrms:attendance:view', 'hrms:attendance:manage',
+            'hrms:payroll:view', 'hrms:payroll:generate', 'hrms:payroll:manage',
+            'hrms:performance:view', 'hrms:performance:manage',
+            'hrms:leave:view', 'hrms:leave:manage',
+            'hrms:mySalary:view'
+        );
+    }
+    if (r === 'sales') {
+        perms.push('view_dashboard', 'view_crm', 'manage_crm', 'view_erp', 'manage_erp');
+    }
+    if (r === 'employee') {
+        perms.push('view_materials_self', 'view_dashboard', 'view_tasks_self', 'view_leave_self', 'view_erp');
+    }
+    if (r === 'manager') {
+        perms.push(
+            'view_materials', 'manage_materials',
+            'view_hrms',
+            'view_erp', 'manage_erp',
+            'view_crm', 'manage_crm',
+            'view_tasks', 'manage_tasks',
+            'view_reports', 'view_dashboard'
+        );
+    }
+    return perms;
+};
+
 const protect = async (req, res, next) => {
     let token;
     try {
@@ -13,58 +51,17 @@ const protect = async (req, res, next) => {
                 return res.status(401).json({ message: 'Not authorized, user not found' });
             }
             req.user = user;
-            const RoleSeq = Role.sequelizeModel || Role;
-            const titleRole = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase() : '';
-            const roleRecord = titleRole
-                ? (await RoleSeq.findOne({ where: { name: titleRole } }) || await RoleSeq.findOne({ where: { name: user.role } }))
-                : null;
-            let userPerms = roleRecord
-                ? (typeof roleRecord.permissions === 'string' ? JSON.parse(roleRecord.permissions) : roleRecord.permissions) ||
-                  (roleRecord.dataValues?.permissions ? (typeof roleRecord.dataValues.permissions === 'string' ? JSON.parse(roleRecord.dataValues.permissions) : roleRecord.dataValues.permissions) : [])
-                : [];
-            req.user.permissions = Array.isArray(userPerms) ? [...userPerms] : [];
-            if (user.role && user.role.toLowerCase() === 'hr') {
-                const hrPerms = [
-                    'view_hrms', 'manage_hrms',
-                    'hrms:employeeData:view', 'hrms:employeeData:manage',
-                    'hrms:attendance:view', 'hrms:attendance:manage',
-                    'hrms:payroll:view', 'hrms:payroll:generate', 'hrms:payroll:manage',
-                    'hrms:performance:view', 'hrms:performance:manage',
-                    'hrms:leave:view', 'hrms:leave:manage',
-                    'hrms:mySalary:view'
-                ];
-                hrPerms.forEach(p => { if (!req.user.permissions.includes(p)) req.user.permissions.push(p); });
-            }
-            if (user.role && user.role.toLowerCase() === 'sales') {
-                const salesPerms = [
-                    'view_dashboard', 'view_crm', 'manage_crm', 'view_erp', 'manage_erp'
-                ];
-                salesPerms.forEach(p => { if (!req.user.permissions.includes(p)) req.user.permissions.push(p); });
-            }
-            if (user.role && user.role.toLowerCase() === 'employee') {
-                const empPerms = [
-                    'view_materials_self', 'view_dashboard', 'view_tasks_self', 'view_leave_self', 'view_erp'
-                ];
-                empPerms.forEach(p => { if (!req.user.permissions.includes(p)) req.user.permissions.push(p); });
-            }
-            if (user.role && user.role.toLowerCase() === 'manager') {
-                const managerPerms = [
-                    'view_materials', 'manage_materials',
-                    'view_hrms',
-                    'view_erp', 'manage_erp',
-                    'view_crm', 'manage_crm',
-                    'view_tasks', 'manage_tasks',
-                    'view_reports', 'view_dashboard'
-                ];
-                managerPerms.forEach(p => { if (!req.user.permissions.includes(p)) req.user.permissions.push(p); });
-            }
+
+            // Use role from JWT (fast, no DB) — fallback to user.role from DB
+            const effectiveRole = decoded.role || user.role || '';
+            req.user.permissions = buildPermissionsFromRole(effectiveRole);
+
             const reqMethod = req.method.toUpperCase();
             if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(reqMethod)) {
                 const uRole = user.role ? user.role.toLowerCase() : '';
                 const path = req.originalUrl || req.url;
                 if (uRole !== 'admin' && uRole !== 'super admin' && user.email !== 'admin@smtbms.com') {
                     if (uRole === 'employee') {
-                        // Employee: only self-service paths + scanner materials update
                         const isSelfService = path.includes('/api/attendance') ||
                                               path.includes('/api/leaves') ||
                                               path.includes('/api/tasks') ||
@@ -81,8 +78,6 @@ const protect = async (req, res, next) => {
                         }
                     }
                     if (uRole === 'sales') {
-                        // Sales: can write to CRM, Quotations, Leads, Customers, Orders, Sales Goals
-                        // and self-service paths
                         const isSalesAllowed = path.includes('/api/leads') ||
                                                path.includes('/api/customers') ||
                                                path.includes('/api/quotations') ||

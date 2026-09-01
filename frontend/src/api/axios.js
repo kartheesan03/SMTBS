@@ -1,10 +1,11 @@
 import axios from 'axios';
+import { clearDashboardCache } from '../hooks/useDashboardData';
 
-let apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://smtbs-backend.onrender.com/api';
+let apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:5000/api' : 'https://smtbs-backend.onrender.com/api';
 
 const API = axios.create({    
     baseURL: apiBaseUrl, 
-    timeout: 120000 
+    timeout: 30000  // 30 seconds — up from 120s which caused silent UI hangs
 });
 
 API.interceptors.request.use((req) => {    
@@ -21,6 +22,7 @@ API.interceptors.response.use(
         if (error.response && error.response.status === 401) {            
             localStorage.removeItem('userInfo');            
             sessionStorage.removeItem('userInfo');            
+            clearDashboardCache();
             // Only redirect if not already on login page
             if (window.location.pathname !== '/login') {
                 window.location.href = '/login';        

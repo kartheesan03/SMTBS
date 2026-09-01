@@ -8,8 +8,8 @@ if (process.env.MYSQL_URL) {
     sequelize = new Sequelize(process.env.MYSQL_URL, {
         dialect: 'mysql',
         logging: false,
-        pool: { acquire: 5000 },
-        dialectOptions: { connectTimeout: 5000 },
+        pool: { max: 10, min: 2, acquire: 30000, idle: 10000, evict: 30000 },
+        dialectOptions: { connectTimeout: 30000 },
         define: {
             timestamps: true,
             freezeTableName: true
@@ -21,8 +21,8 @@ if (process.env.MYSQL_URL) {
         port: process.env.MYSQL_PORT || 3306,
         dialect: 'mysql',
         logging: false,
-        pool: { acquire: 5000 },
-        dialectOptions: { connectTimeout: 5000 },
+        pool: { max: 10, min: 2, acquire: 30000, idle: 10000, evict: 30000 },
+        dialectOptions: { connectTimeout: 30000 },
         define: {
             timestamps: true,
             freezeTableName: true
@@ -32,11 +32,11 @@ if (process.env.MYSQL_URL) {
     sequelize = new Sequelize(process.env.DATABASE_URL, {
         dialect: 'postgres',
         logging: false,
-        pool: { acquire: 5000 },
+        pool: { max: 10, min: 2, acquire: 30000, idle: 10000, evict: 30000 },
         dialectOptions: {
-            statement_timeout: 5000,
-            query_timeout: 5000,
-            connectionTimeoutMillis: 5000,
+            statement_timeout: 30000,
+            query_timeout: 30000,
+            connectionTimeoutMillis: 30000,
             ssl: process.env.NODE_ENV === 'production' ? {
                 require: true,
                 rejectUnauthorized: false
@@ -53,7 +53,7 @@ if (process.env.MYSQL_URL) {
             dialect: 'sqlite',
             storage: path.join(__dirname, '../../database.sqlite'),
             logging: false,
-            pool: { acquire: 5000 },
+            pool: { max: 5, min: 1, acquire: 30000, idle: 10000 },
             define: {
                 timestamps: true,
                 freezeTableName: true

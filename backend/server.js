@@ -81,6 +81,7 @@ app.use('/api/vendors', vendorRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/leaves', leaveRoutes);
 app.use('/api/salaries', salaryRoutes);
+app.use('/api/payroll', salaryRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/erp', erpRoutes);
@@ -127,17 +128,70 @@ const { autoMarkAbsent } = require('./src/controllers/attendancecontroller');
 const { spawn } = require('child_process');
 const fs = require('fs');
 
+let activeServer = null;
+let isShuttingDown = false;
+
+const gracefulShutdown = async () => {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+    console.log('Shutting down server gracefully...');
+    
+    // Fallback timer: force exit if graceful shutdown takes too long (e.g., stuck promises)
+    setTimeout(() => {
+        console.error('Graceful shutdown timed out, forcing exit.');
+        process.exit(1);
+    }, 5000);
+
+    if (activeServer) {
+        // Node 18.20+ forcibly closes keep-alive/idle connections that would otherwise hang server.close()
+        if (typeof activeServer.closeAllConnections === 'function') {
+            activeServer.closeAllConnections();
+        }
+        await new Promise((resolve) => {
+            activeServer.close(() => {
+                console.log('HTTP Server closed.');
+                resolve();
+            });
+        });
+    }
+
+    try {
+        const gpsSimulator = require('./src/services/gpsSimulator');
+        if (gpsSimulator && gpsSimulator.stop) {
+            gpsSimulator.stop();
+        }
+    } catch (e) {
+        console.error('Error stopping GPS Simulator:', e.message);
+    }
+    
+    try {
+        const sequelize = require('./src/config/sequelize');
+        if (sequelize) {
+            await sequelize.close();
+            console.log('Sequelize connections closed.');
+        }
+    } catch (e) {
+        console.error('Error closing Sequelize:', e.message);
+    }
+
+    process.exit(0);
+};
+
+process.once('SIGUSR2', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown);
+
 const startServer = async () => {
     try {
         console.log('[Backend] Node.js + Express starting...');
         await connectDB();
         const gpsSimulator = require('./src/services/gpsSimulator');
         
-        const server = http.createServer(app);
+        activeServer = http.createServer(app);
         const socket = require('./src/socket');
-        socket.init(server);
+        socket.init(activeServer);
 
-        server.listen(PORT, '0.0.0.0', () => {
+        activeServer.listen(PORT, '0.0.0.0', () => {
             console.log(`[Backend] Server running on port ${PORT}`);
             
             try {
@@ -145,8 +199,6 @@ const startServer = async () => {
             } catch (gpsErr) {
                 console.error('GPS Simulator failed to start:', gpsErr);
             }
-
-
 
             const cron = require('node-cron');
             cron.schedule('0 18 * * *', () => {
@@ -157,11 +209,12 @@ const startServer = async () => {
                 timezone: "Asia/Kolkata"
             });
         });
+
     } catch (error) {
         console.error(`Failed to start server normally: ${error.message}`);
         // Fallback to ensure Railway port binds even if DB completely fails
         app.get('*', (req, res) => res.status(500).send(`Startup Error: ${error.message}`));
-        app.listen(PORT, '0.0.0.0', () => {
+        activeServer = app.listen(PORT, '0.0.0.0', () => {
             console.log(`Fallback server running on port ${PORT}`);
         });
     }
@@ -169,10 +222,12 @@ const startServer = async () => {
 
 process.on('uncaughtException', (err) => {
     console.error('CRITICAL: Uncaught Exception:', err);
+    gracefulShutdown();
 });
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('CRITICAL: Unhandled Rejection at:', promise, 'reason:', reason);
+    gracefulShutdown();
 });
 
 startServer();

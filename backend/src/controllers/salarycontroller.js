@@ -3,15 +3,16 @@ const Employee = require('../models/Employee');
 const { broadcast, notifyHR } = require('../services/notificationService');
 const getMySalaryHistory = async (req, res) => {
     try {
-        let employee = await Employee.findOne({ userId: req.user._id || req.user.id });
-        if (!employee) {
-            employee = await Employee.findOne({ id: req.user._id || req.user.id });
-        }
+        const userId = req.user._id || req.user.id;
+        const employee = await Employee.findOne({
+            $or: [{ userIdField: userId }, { userId: userId }, { contact: req.user.email }]
+        }).catch(() => null);
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
         const history = await Salary.find({ 
             employeeId: employee._id || employee.id
         }).populate({
             path: 'employee',
+            select: 'firstName lastName employeeId designation',
             populate: { path: 'userId', select: 'name email' }
         }).sort({ createdAt: -1 });
         res.json(history);
@@ -21,10 +22,10 @@ const getMySalaryHistory = async (req, res) => {
 };
 const getMySalarySummary = async (req, res) => {
     try {
-        let employee = await Employee.findOne({ userId: req.user._id || req.user.id });
-        if (!employee) {
-            employee = await Employee.findOne({ id: req.user._id || req.user.id });
-        }
+        const userId = req.user._id || req.user.id;
+        const employee = await Employee.findOne({
+            $or: [{ userIdField: userId }, { userId: userId }, { contact: req.user.email }]
+        }).catch(() => null);
         if (!employee) return res.status(404).json({ message: 'Employee profile not found' });
         const latest = await Salary.findOne({ 
             employeeId: employee._id || employee.id

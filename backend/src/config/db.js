@@ -344,16 +344,25 @@ const connectDB = async () => {
             const qi = sequelize.getQueryInterface();
             const { DataTypes } = require('sequelize');
             try {
-                await qi.addColumn('Employee', 'performanceOverrides', { type: DataTypes.JSON, allowNull: true });
-                console.log(`[Sync] Injected performanceOverrides to Employee`);
+                const employeeTable = await qi.describeTable('Employee');
+                if (!employeeTable.performanceOverrides) {
+                    await qi.addColumn('Employee', 'performanceOverrides', { type: DataTypes.JSON, allowNull: true });
+                    console.log(`[Sync] Injected performanceOverrides to Employee`);
+                } else {
+                    console.log(`[Sync] performanceOverrides already exists on Employee table.`);
+                }
             } catch (e) { console.log(`[Sync] performanceOverrides injection skipped (likely exists): ${e.message}`); }
             
         }
         
-        // Run heavy data sync asynchronously and delay by 15s so we don't block Railway's port binding and healthchecks with CPU-intensive bcrypt hashing
-        setTimeout(() => {
-            syncAndRepairDatabase().catch(err => console.error('[Sync] Background repair failed:', err));
-        }, 15000);
+        // Only run heavy sync if explicitly requested or tables were just created.
+        // This avoids bcrypt hashing all users on every nodemon restart.
+        const forceSync = process.env.FORCE_DB_SYNC === 'true';
+        if (forceSync) {
+            setTimeout(() => {
+                syncAndRepairDatabase().catch(err => console.error('[Sync] Background repair failed:', err));
+            }, 5000);
+        }
         
         return true;
     } catch (error) {

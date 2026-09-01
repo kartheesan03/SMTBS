@@ -59,13 +59,14 @@ const HRDashboard = () => {
   }, []);
 
   useEffect(() => {
-    const fetchData = () => {
-      Promise.all([
-        API.get("/employees").catch(() => ({ data: [] })),
-        API.get("/leaves").catch(() => ({ data: [] })),
-        API.get("/payroll").catch(() => ({ data: [] })),
-        API.get("/tasks").catch(() => ({ data: [] })),
-      ]).then(([empR, lvR, payR, taskR]) => {
+    const fetchData = async () => {
+      try {
+        const [empR, lvR, payR, taskR] = await Promise.all([
+          API.get("/employees").catch(() => ({ data: [] })),
+          API.get("/leaves").catch(() => ({ data: [] })),
+          API.get("/salaries").catch(() => ({ data: [] })),
+          API.get("/tasks").catch(() => ({ data: [] })),
+        ]);
         setEmployees(empR.data || []);
         setLeavesData(lvR.data || []);
         setSalariesData(payR.data || []);
@@ -79,7 +80,11 @@ const HRDashboard = () => {
               return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"HR", color: colors[i%4] };
             })
         );
-      }).finally(() => setLoading(false));
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
     const interval = setInterval(fetchData, 30000);

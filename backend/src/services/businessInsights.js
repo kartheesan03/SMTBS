@@ -3,7 +3,7 @@ const generateInsights = async (userMessage, sqlData, role) => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return "Insights cannot be generated (Gemini API key missing). Data: " + JSON.stringify(sqlData).substring(0, 500);
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const prompt = `
         You are an enterprise AI assistant for a user with role: ${role}.
         The user asked: "${userMessage}"
