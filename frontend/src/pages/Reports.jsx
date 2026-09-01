@@ -203,7 +203,11 @@ const Reports = () => {
     duration: 0.4
   }} className="rd-container">
       <div className="rd-content">
-        <PageHeader title="Reports & Analytics" />
+        <PageHeader 
+          title="Reports" 
+          badge="REPORTS"
+          subtitle="View and analyze material, inventory, movement, and logistics reports." 
+        />
         {loading ? <div className="loading-state">
             <RefreshCw className="spin-icon" size={32} />
           </div> : <>

@@ -1030,7 +1030,7 @@ const TrackingDashboard = () => {
     return (
       <div className="mcc-section">
         <h3 className="mcc-section-title">
-          <Activity size={18} color="#f43f5e" /> Recent Activities
+          <Activity size={18} color="#f43f5e" /> Recent Movements
         </h3>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {currentMaterialMovements.length === 0 ? (
@@ -1317,8 +1317,8 @@ const TrackingDashboard = () => {
       <header className="page-header" style={{ marginBottom: 24 }}>
         <PageHeader
           title="Movement Tracking"
-          badge="MATERIAL"
-          subtitle="Track and trace all material movements in real-time."
+          badge="MOVEMENT TRACKING"
+          subtitle="Track material movements, transfers, and current locations across the project."
         />
       </header>
 

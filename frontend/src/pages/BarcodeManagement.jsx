@@ -106,7 +106,11 @@ const BarcodeManagement = () => {
   return <div className="rd-container">
       <div className="rd-content">
         {/* Module Header */}
-        <PageHeader title="Barcode & QR Management" />
+        <PageHeader 
+          title="Barcode / QR" 
+          badge="BARCODE / QR"
+          subtitle="Scan and manage material identification using barcode and QR technology." 
+        />
         {/* KPI Cards */}
         <StatsGrid>
           <StatsCard title="Labelled Items" value={totalItems} colorTheme="blue" icon={Package} trendValue="Items with barcode/QR" trendPositive={true} />
@@ -122,9 +126,9 @@ const BarcodeManagement = () => {
           gap: 16
         }}>
             <div>
-              <div className="rd-table-title">Barcode & QR Registry</div>
+              <div className="rd-table-title">Barcode / QR Scanning</div>
               <div className="rd-table-subtitle">
-                Click any row to preview label • Live status from Inventory
+                Scan a barcode or QR code to access material information.
               </div>
             </div>
             <div className="rd-table-actions" style={{

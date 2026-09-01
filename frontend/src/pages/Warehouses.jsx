@@ -208,7 +208,11 @@ const Warehouses = () => {
   }];
   return <div className="rd-container">
       <div className="rd-content">
-        <PageHeader title="Warehouse Management" />
+        <PageHeader 
+          title="Warehouse Management" 
+          badge="WAREHOUSE MANAGEMENT"
+          subtitle="Manage warehouse locations, materials, storage, and inventory operations." 
+        />
         <StatsGrid>
           <StatsCard title="Active Facilities" value={summary.total} colorTheme="blue" icon={Building} trendValue="Managed locations" trendPositive={true} />
           <StatsCard title="Total Value" value={`$${summary.totalValue.toLocaleString(undefined, {
@@ -220,7 +224,7 @@ const Warehouses = () => {
         <div style={{
         marginTop: "24px"
       }}>
-          <DataTable title="Registered Warehouses" subtitle="Overview of all physical and virtual inventory locations" columns={columns} data={warehouseData} loading={loading} searchPlaceholder="Search warehouse..." searchKeys={["name", "location"]} primaryAction={{
+          <DataTable title="Warehouse Locations" subtitle="Manage materials and storage locations within the warehouse." columns={columns} data={warehouseData} loading={loading} searchPlaceholder="Search warehouse..." searchKeys={["name", "location"]} primaryAction={{
           label: "Add Warehouse",
           icon: Plus,
           onClick: () => setShowAddModal(true)

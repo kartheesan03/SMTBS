@@ -280,7 +280,11 @@ const ERP = () => {
       <div className="rd-content">
         {" "}
         {/* Module Header */}{" "}
-        <PageHeader title="Procurement Management" />{" "}
+        <PageHeader 
+          title="Procurement" 
+          badge="PROCUREMENT"
+          subtitle="Manage procurement activities, purchasing requirements, and material sourcing." 
+        />{" "}
         {/* KPI Cards */}{" "}
         <StatsGrid>
           {" "}

@@ -224,7 +224,7 @@ const FarmakuSidebar = () => {
 
 
 
-                                            {!dynamicPaths.has('/support') && (
+                                            {!Array.from(dynamicPaths).some(p => p && p.startsWith('/support')) && (
                                                 <li>
                                                     <NavLink to="/support" end className={() => `farmaku-nav-item${isLeafActive('/support') ? ' active' : ''}`}>
                                                         <div className="icon-wrapper"><Icons.HelpCircle /></div>

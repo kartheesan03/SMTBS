@@ -138,7 +138,11 @@ const OrderManagement = () => {
       <div className="rd-content">
         {" "}
         {/* Module Header */}{" "}
-        <PageHeader title="Order Management" />{" "}
+        <PageHeader 
+          title="Order Management" 
+          badge="ORDER MANAGEMENT"
+          subtitle="Create, monitor, and manage purchase orders and procurement activities." 
+        />{" "}
         {/* KPI Cards */}{" "}
         <StatsGrid>
           {" "}

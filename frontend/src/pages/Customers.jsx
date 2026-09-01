@@ -166,7 +166,11 @@ const Customers = ({
     duration: 0.4
   }} className="rd-container">
       <div className="rd-content">
-        <PageHeader title="Customer Data Hub" />
+        <PageHeader 
+          title="Customer Data Hub" 
+          badge="CUSTOMER DATA HUB"
+          subtitle="Centralize and manage customer information, profiles, and related business activities." 
+        />
         <StatsGrid>
           <StatsCard title="Total Accounts" value={customers.length} colorTheme="blue" icon={Users} trendValue="All customers" trendPositive={true} />
           <StatsCard title="Active" value={activeAccounts.length} colorTheme="mint" icon={UserCheck} trendValue="Ordering" trendPositive={true} />

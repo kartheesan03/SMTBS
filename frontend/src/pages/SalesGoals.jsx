@@ -351,7 +351,8 @@ const SalesGoals = () => {
     <PageContainer>
       <PageHeader
         title="Sales Goals & Targets"
-        subtitle="Track individual and team performance against revenue targets."
+        badge="SALES GOALS & TARGETS"
+        subtitle="Set, monitor, and evaluate sales goals and performance targets."
         actions={[
           {
             label: "New Goal",

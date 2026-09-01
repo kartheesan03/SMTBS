@@ -16,17 +16,16 @@ import AuditHistoryPanel from '../components/OCR/AuditHistoryPanel';
 
 // ─── Processing steps ─────────────────────────────────────────────────────────
 const PROCESSING_STEPS = [
-  { id: 1, label: 'Uploading document...',        icon: '📤' },
-  { id: 2, label: 'Analyzing document type...',   icon: '🔍' },
-  { id: 3, label: 'Enhancing image quality...',   icon: '✨' },
-  { id: 4, label: 'Detecting text regions...',    icon: '📐' },
-  { id: 5, label: 'Running OCR engine...',        icon: '🤖' },
-  { id: 6, label: 'Extracting invoice fields...',  icon: '📋' },
-  { id: 7, label: 'Detecting line item table...',  icon: '📊' },
-  { id: 8, label: 'Validating calculations...',   icon: '🧮' },
-  { id: 9, label: 'Checking for duplicates...',   icon: '🔎' },
-  { id: 10, label: 'Matching PurchaseRequest...',  icon: '🔗' },
-  { id: 11, label: 'Finalizing results...',        icon: '✅' },
+  { id: 1, label: 'Uploading document' },
+  { id: 2, label: 'Analyzing document type' },
+  { id: 3, label: 'Enhancing image quality' },
+  { id: 4, label: 'Detecting text regions' },
+  { id: 5, label: 'Running OCR engine' },
+  { id: 6, label: 'Extracting invoice fields' },
+  { id: 7, label: 'Detecting line item table' },
+  { id: 8, label: 'Validating calculations' },
+  { id: 9, label: 'Checking for duplicates' },
+  { id: 10, label: 'Matching Purchase Request' },
 ];
 
 // ─── Workflow steps ───────────────────────────────────────────────────────────
@@ -403,52 +402,126 @@ const OCRPage = () => {
 
   // ── Upload progress overlay ─────────────────────────────────────────────────
   if (isUploading) {
-    const step = PROCESSING_STEPS[currentStep] || PROCESSING_STEPS[0];
+    const totalSteps = PROCESSING_STEPS.length;
     return (
       <div style={{
         minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'linear-gradient(135deg, #f8faff 0%, #eff6ff 100%)',
+        backgroundColor: '#f1f5f9', fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
         <div style={{
-          background: '#fff', borderRadius: '16px', padding: '48px 40px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12)', width: '480px', textAlign: 'center',
+          background: '#ffffff', borderRadius: '20px', padding: '40px',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+          border: '1px solid #e2e8f0', width: '100%', maxWidth: '440px',
+          textAlign: 'center', boxSizing: 'border-box'
         }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>{step.icon}</div>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', marginBottom: '8px' }}>
-            Processing Invoice
-          </h2>
-          <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '32px' }}>
-            {step.label}
-          </p>
-
-          {/* Progress bar */}
-          <div style={{ background: '#f3f4f6', borderRadius: '8px', height: '8px', marginBottom: '24px', overflow: 'hidden' }}>
-            <div style={{
-              height: '100%', borderRadius: '8px',
-              background: 'linear-gradient(90deg, #1a73e8, #60a5fa)',
-              width: `${uploadProgress}%`,
-              transition: 'width 0.6s ease',
-            }} />
+          {/* Header Icon */}
+          <div style={{ 
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: '64px', height: '64px', borderRadius: '16px',
+            backgroundColor: '#eff6ff', color: '#2563eb', marginBottom: '24px'
+          }}>
+            <FileText size={32} strokeWidth={1.5} />
           </div>
 
-          {/* Step list */}
-          <div style={{ textAlign: 'left' }}>
-            {PROCESSING_STEPS.map((s, idx) => (
-              <div key={s.id} style={{
-                display: 'flex', alignItems: 'center', gap: '12px',
-                padding: '6px 0', fontSize: '12px',
-                color: idx < currentStep ? '#16a34a' : idx === currentStep ? '#1a73e8' : '#d1d5db',
-                transition: 'color 0.3s',
-              }}>
-                {idx < currentStep
-                  ? <CheckCircle2 size={14} />
-                  : idx === currentStep
-                    ? <Loader2 size={14} className="animate-spin" />
-                    : <div style={{ width: 14, height: 14, borderRadius: '50%', border: '1.5px solid #e5e7eb' }} />
-                }
-                {s.label}
-              </div>
-            ))}
+          <h2 style={{ 
+            fontSize: '24px', fontWeight: '700', color: '#0f172a', 
+            margin: '0 0 8px 0', letterSpacing: '-0.02em' 
+          }}>
+            Processing Invoice
+          </h2>
+          <p style={{ 
+            color: '#64748b', fontSize: '14px', margin: '0 0 32px 0', 
+            fontWeight: '400', lineHeight: '1.5'
+          }}>
+            Analyzing your invoice and extracting key information...
+          </p>
+
+          {/* Progress Section */}
+          <div style={{ marginBottom: '32px', textAlign: 'left' }}>
+            <div style={{ 
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+              marginBottom: '10px'
+            }}>
+              <span style={{ fontSize: '13px', fontWeight: '600', color: '#475569' }}>
+                Step {currentStep + 1} of {totalSteps}
+              </span>
+              <span style={{ fontSize: '13px', fontWeight: '600', color: '#2563eb' }}>
+                {Math.round(uploadProgress)}%
+              </span>
+            </div>
+            
+            <div style={{ 
+              background: '#f1f5f9', borderRadius: '999px', height: '6px', 
+              width: '100%', overflow: 'hidden' 
+            }}>
+              <div style={{
+                height: '100%', borderRadius: '999px',
+                backgroundColor: '#2563eb',
+                width: `${uploadProgress}%`,
+                transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              }} />
+            </div>
+          </div>
+
+          {/* Step list (Vertical Stepper) */}
+          <div style={{ 
+            textAlign: 'left', display: 'flex', flexDirection: 'column',
+            paddingRight: '8px'
+          }}>
+            {PROCESSING_STEPS.map((s, idx) => {
+              const isCompleted = idx < currentStep;
+              const isActive = idx === currentStep;
+              const isPending = idx > currentStep;
+              
+              let textColor = '#94a3b8';
+              if (isCompleted) textColor = '#334155';
+              if (isActive) textColor = '#2563eb';
+
+              return (
+                <div key={s.id} style={{
+                  display: 'flex', alignItems: 'flex-start', gap: '16px',
+                  fontSize: '14px', fontWeight: isActive ? '600' : '500',
+                  color: textColor, transition: 'all 0.3s ease',
+                  opacity: isPending ? 0.6 : 1,
+                  position: 'relative',
+                  minHeight: idx === PROCESSING_STEPS.length - 1 ? '24px' : '40px'
+                }}>
+                  {/* Vertical Line Connector */}
+                  {idx !== PROCESSING_STEPS.length - 1 && (
+                    <div style={{
+                      position: 'absolute', top: '24px', left: '11px', 
+                      width: '2px', height: 'calc(100% - 14px)', 
+                      backgroundColor: isCompleted ? '#22c55e' : '#e2e8f0',
+                      transition: 'background-color 0.3s ease'
+                    }} />
+                  )}
+
+                  {/* Icon Indicator */}
+                  <div style={{ 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    width: '24px', height: '24px', zIndex: 1, flexShrink: 0,
+                    borderRadius: '50%', backgroundColor: '#fff',
+                    marginTop: '-2px'
+                  }}>
+                    {isCompleted ? (
+                      <CheckCircle2 size={20} style={{ color: '#22c55e' }} />
+                    ) : isActive ? (
+                      <Loader2 size={18} className="animate-spin" style={{ color: '#2563eb' }} />
+                    ) : (
+                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#cbd5e1' }} />
+                    )}
+                  </div>
+                  
+                  <span style={{ 
+                    transform: isActive ? 'translateX(4px)' : 'translateX(0)',
+                    transition: 'transform 0.3s ease',
+                    marginTop: '0px'
+                  }}>
+                    {s.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -596,13 +669,13 @@ const OCRPage = () => {
          </div>
       </div>
 
-      {/* Document Preview and Info Columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+      {/* Document Preview and Info */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '24px' }}>
          
-         {/* Left Column: Preview */}
-         <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '12px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-               <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>Document Preview</h3>
+         {/* Top Section: Preview */}
+         <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+            <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
+               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#0f172a' }}>Document Preview</h3>
                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                  <List size={16} style={{ color: '#64748b' }} />
                  <MoreHorizontal size={16} style={{ color: '#64748b' }} />
@@ -610,7 +683,7 @@ const OCRPage = () => {
                    <>
                      <div style={{ width: '1px', height: '16px', background: '#e2e8f0', margin: '0 4px' }} />
                      <button onClick={() => setImgZoom(z => Math.max(0.4, z - 0.2))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Minus size={14} /></button>
-                     <span style={{ fontSize: '12px', color: '#1e293b', padding: '2px 8px', border: '1px solid #e2e8f0', borderRadius: '4px' }}>1 of {selectedDoc.pageCount || 1}</span>
+                     <span style={{ fontSize: '12px', color: '#0f172a', padding: '2px 8px', border: '1px solid #e2e8f0', borderRadius: '4px', background: '#fff' }}>1 of {selectedDoc.pageCount || 1}</span>
                      <button onClick={() => setImgZoom(z => Math.min(3, z + 0.2))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Plus size={14} /></button>
                    </>
                  )}
@@ -620,15 +693,16 @@ const OCRPage = () => {
             </div>
             
             <div style={{
-              width: '100%', height: '500px', overflow: 'auto',
+              width: '100%', height: '600px', overflow: 'auto',
               display: 'flex', justifyContent: 'center', alignItems: 'flex-start',
-              padding: isPdf ? '0' : '24px', background: '#f8fafc',
+              padding: isPdf ? '0' : '32px', background: '#f1f5f9',
+              borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px'
             }}>
               {isPdf ? (
                 <iframe
                   src={imgUrl}
                   title="Document Preview"
-                  style={{ width: '100%', height: '100%', border: 'none', borderRadius: '0 0 8px 8px' }}
+                  style={{ width: '100%', height: '100%', border: 'none', borderRadius: '0 0 16px 16px' }}
                 />
               ) : (
                 <img
@@ -637,48 +711,27 @@ const OCRPage = () => {
                   style={{
                     maxWidth: '100%', transform: `scale(${imgZoom})`,
                     transformOrigin: 'top center', transition: 'transform 0.2s',
-                    borderRadius: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                   }}
                 />
               )}
             </div>
          </div>
          
-         {/* Right Column: Info */}
-         <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', height: '600px' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
-               <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>Document Information</h3>
-            </div>
-            <div style={{ padding: '20px', flex: 1, overflowY: 'auto' }}>
-               <InvoiceDataPanel
-                 data={editedData}
-                 confidences={selectedDoc.fieldConfidence}
-                 onChange={handleFieldChange}
-                 editable={canEdit && !isApproved && !isViewOnly}
-               />
-            </div>
-         </div>
-      </div>
-
-      {/* Extracted Table Section */}
-      <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
-         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-               <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>Extracted Table</h3>
-               <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>Review and correct the items extracted from the document.</p>
-            </div>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>
-               <CheckCircle2 size={14} /> Table Match: 100%
-            </span>
-         </div>
-         <div style={{ padding: '20px' }}>
+         {/* Bottom Section: Document Information */}
+         <InvoiceDataPanel
+           data={editedData}
+           confidences={selectedDoc.fieldConfidence}
+           onChange={handleFieldChange}
+           editable={canEdit && !isApproved && !isViewOnly}
+         >
             <OCRDataTable
               lineItems={editedData?.lineItems}
               rawFields={editedData?.rawFields}
               onChange={handleFieldChange}
               editable={canEdit && !isApproved && !isViewOnly}
             />
-         </div>
+         </InvoiceDataPanel>
       </div>
 
       {/* Raw Text Section */}
@@ -762,20 +815,18 @@ const OCRPage = () => {
       </div>
 
       {/* Bottom Action Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '16px 20px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '40px' }}>
-         <div style={{ display: 'flex', gap: '12px' }}>
-            <button onClick={handleValidate} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '8px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', color: '#1e293b', cursor: 'pointer' }}>
-               <CheckCircle2 size={14} /> Validate
-            </button>
-            <button onClick={() => handleExport('word')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '8px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', color: '#1e293b', cursor: 'pointer' }}>
-               <Download size={14} /> Download Word
-            </button>
-            <button onClick={() => handleExport('pdf')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '8px 16px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', color: '#1e293b', cursor: 'pointer' }}>
-               <Download size={14} /> Download PDF
-            </button>
-         </div>
-         <button onClick={handleClear} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '8px 24px', borderRadius: '20px', fontSize: '13px', fontWeight: '600', color: '#1e293b', cursor: 'pointer' }}>
-            Clear
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', background: '#fff', padding: '16px 24px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '40px', gap: '12px' }}>
+         <button onClick={handleClear} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#64748b', cursor: 'pointer', transition: 'all 0.2s' }}>
+            Clear Changes
+         </button>
+         <button onClick={() => handleExport('word')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: 'pointer', transition: 'all 0.2s' }}>
+            <Download size={16} /> Download Word
+         </button>
+         <button onClick={() => handleExport('pdf')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: 'pointer', transition: 'all 0.2s' }}>
+            <Download size={16} /> Download PDF
+         </button>
+         <button onClick={handleValidate} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#16a34a', border: 'none', padding: '10px 28px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#fff', cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 2px 4px rgba(22,163,74,0.3)' }}>
+            <CheckCircle2 size={16} /> Save & Approve
          </button>
       </div>
       

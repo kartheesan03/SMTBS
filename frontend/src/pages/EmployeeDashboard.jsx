@@ -60,32 +60,37 @@ const EmployeeDashboard = () => {
   }, []);
 
   useEffect(() => {
-    Promise.all([
-      API.get("/tasks/my").catch(() => ({ data: [] })),
-      API.get("/attendance/my-history").catch(() => ({ data: [] })),
-      API.get("/payroll/my-salary").catch(() => ({ data: null })),
-      API.get("/leaves/balance").catch(() => ({ data: null })),
-      API.get("/notifications").catch(() => ({ data: [] })),
-    ]).then(([taskR, attR, salR, lvR, notifR]) => {
-      const tasks = (taskR.data || []);
-      setMyTasks(tasks.filter(t => t.status !== "Completed").slice(0, 5));
-      const attArr = attR.data || [];
-      const present = attArr.filter(a => a.status === "Present" || a.checkIn).length;
-      setAttendStats({ total: attArr.length, present, pct: attArr.length > 0 ? Math.round((present/attArr.length)*100) : 0, attArr });
-      setSalary(salR.data);
-      setLeaveBalance(lvR.data);
-      setNotifications((notifR.data || []).slice(0,5));
-      const n = new Date();
-      setUpcomingEvents(
-        tasks.filter(t => t.dueDate && new Date(t.dueDate) >= n)
-          .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
-          .map((t,i) => {
-            const d = new Date(t.dueDate);
-            const colors = ["#059669","#6366F1","#F97316","#EF4444"];
-            return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.priority||"Task", color: colors[i%4] };
-          })
-      );
-    }).finally(() => setLoading(false));
+    const fetchData = () => {
+      Promise.all([
+        API.get("/tasks/my").catch(() => ({ data: [] })),
+        API.get("/attendance/my-history").catch(() => ({ data: [] })),
+        API.get("/payroll/my-salary").catch(() => ({ data: null })),
+        API.get("/leaves/balance").catch(() => ({ data: null })),
+        API.get("/notifications").catch(() => ({ data: [] })),
+      ]).then(([taskR, attR, salR, lvR, notifR]) => {
+        const tasks = (taskR.data || []);
+        setMyTasks(tasks.filter(t => t.status !== "Completed").slice(0, 5));
+        const attArr = attR.data || [];
+        const present = attArr.filter(a => a.status === "Present" || a.checkIn).length;
+        setAttendStats({ total: attArr.length, present, pct: attArr.length > 0 ? Math.round((present/attArr.length)*100) : 0, attArr });
+        setSalary(salR.data);
+        setLeaveBalance(lvR.data);
+        setNotifications((notifR.data || []).slice(0,5));
+        const n = new Date();
+        setUpcomingEvents(
+          tasks.filter(t => t.dueDate && new Date(t.dueDate) >= n)
+            .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
+            .map((t,i) => {
+              const d = new Date(t.dueDate);
+              const colors = ["#059669","#6366F1","#F97316","#EF4444"];
+              return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.priority||"Task", color: colors[i%4] };
+            })
+        );
+      }).finally(() => setLoading(false));
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <LoadingState message="Loading your Dashboard…" height="100vh"/>;
@@ -154,15 +159,9 @@ const EmployeeDashboard = () => {
                     <div style={{display:'flex', gap:'8px', alignItems:'center', color:'#f8fafc', fontWeight:'500', fontSize:'0.88rem'}}>
                       <Cloud size={15} color="#93c5fd"/> {weather.temp} <span style={{color:'#cbd5e1', fontSize:'0.75rem', fontWeight:'normal'}}>{weather.condition}</span>
                     </div>
-                    {isCheckedInToday ? (
-                      <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.88rem', fontWeight:'500'}}>
-                        <span className="bx-status-dot" style={{backgroundColor:'#34d399'}}></span> Checked In
-                      </div>
-                    ) : (
-                      <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#f87171', fontSize:'0.88rem', fontWeight:'500'}}>
-                        <span className="bx-status-dot" style={{backgroundColor:'#f87171'}}></span> Not Checked In
-                      </div>
-                    )}
+                    <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.88rem', fontWeight:'500'}}>
+                      <span className="bx-status-dot" style={{backgroundColor:'#34d399', animation: 'live-pulse 2s infinite'}}></span> Live Data
+                    </div>
                   </div>
                 </div>
               </div>
@@ -423,7 +422,7 @@ const EmployeeDashboard = () => {
                 <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>View All →</a>
               </div>
               <div className="bx-notifs-list">
-                {notifications.length > 0 ? notifications.slice(0,4).map((n,i) => (
+                {notifications.length > 0 ? [...notifications].sort((a,b) => new Date(b.time || b.createdAt) - new Date(a.time || a.createdAt)).slice(0, 3).map((n,i) => (
                   <div className="bx-notif-item" key={i}>
                     <div className="bx-notif-icon" style={{background:['#059669','#6366F1','#F97316','#3B82F6'][i%4]}}><Bell size={10}/></div>
                     <div className="bx-task-content"><p className="bx-task-title">{n.text || n.message}</p></div>

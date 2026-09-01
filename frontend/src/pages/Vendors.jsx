@@ -173,7 +173,11 @@ const Vendors = () => {
       {" "}
       <div className="rd-content">
         {" "}
-        <PageHeader title="Vendor Management" />{" "}
+        <PageHeader 
+          title="Vendor Management" 
+          badge="VENDOR MANAGEMENT"
+          subtitle="Manage vendor information, supplier relationships, and procurement activities." 
+        />{" "}
         <StatsGrid>
           <StatsCard title="Total Vendors" value={vendors.length} colorTheme="blue" icon={Building2} trendValue="All partners" trendPositive={true} />{" "}
           <StatsCard title="Active" value={activeVendors.length} colorTheme="mint" icon={CheckCircle} trendValue="Good standing" trendPositive={true} />{" "}

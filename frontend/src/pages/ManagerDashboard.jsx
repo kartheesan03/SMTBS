@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import {
   ComposedChart, Bar, Line, Legend, AreaChart, Area, PieChart, Pie, Cell,
-  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid,
+  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
 import { LoadingState } from "../components/DataStates";
@@ -61,28 +61,34 @@ const ManagerDashboard = () => {
   }, []);
 
   useEffect(() => {
-    Promise.all([
-      API.get("/dashboard/stats").catch(() => ({ data: {} })),
-      API.get("/tasks").catch(() => ({ data: [] })),
-      API.get("/employees").catch(() => ({ data: [] })),
-      API.get("/orders").catch(() => ({ data: [] })),
-    ]).then(([stats, tasksR, empR, ordR]) => {
-      setDashboardData(stats.data || {});
-      const taskList = tasksR.data || [];
-      setTasks(taskList.filter(t => t.status !== "Completed").slice(0,5));
-      const n = new Date();
-      setUpcomingEvents(
-        taskList.filter(t => t.dueDate && new Date(t.dueDate) >= n)
-          .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
-          .map((t,i) => {
-            const d = new Date(t.dueDate);
-            const colors = ["#D97706","#6366F1","#22C55E","#EF4444"];
-            return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"General", color: colors[i%4] };
-          })
-      );
-      setEmployees(empR.data || []);
-      setOrders(ordR.data || []);
-    }).finally(() => setLoading(false));
+    const fetchData = () => {
+      Promise.all([
+        API.get("/dashboard/stats").catch(() => ({ data: {} })),
+        API.get("/tasks").catch(() => ({ data: [] })),
+        API.get("/employees").catch(() => ({ data: [] })),
+        API.get("/orders").catch(() => ({ data: [] })),
+      ]).then(([stats, tasksR, empR, ordR]) => {
+        setDashboardData(stats.data || {});
+        const taskList = tasksR.data || [];
+        setTasks(taskList.filter(t => t.status !== "Completed").slice(0,5));
+        const n = new Date();
+        setUpcomingEvents(
+          taskList.filter(t => t.dueDate && new Date(t.dueDate) >= n)
+            .sort((a,b) => new Date(a.dueDate)-new Date(b.dueDate)).slice(0,4)
+            .map((t,i) => {
+              const d = new Date(t.dueDate);
+              const colors = ["#D97706","#6366F1","#22C55E","#EF4444"];
+              return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"General", color: colors[i%4] };
+            })
+        );
+        setEmployees(empR.data || []);
+        setOrders(ordR.data || []);
+      }).finally(() => setLoading(false));
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <LoadingState message="Loading Manager Dashboard…" height="100vh"/>;
@@ -144,7 +150,7 @@ const ManagerDashboard = () => {
                       <Cloud size={15} color="#93c5fd"/> {weather.temp} <span style={{color:'#cbd5e1', fontSize:'0.75rem', fontWeight:'normal'}}>{weather.condition}</span>
                     </div>
                     <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.88rem', fontWeight:'500'}}>
-                      <span className="bx-status-dot" style={{backgroundColor:'#34d399'}}></span> All Systems Operational
+                      <span className="bx-status-dot" style={{backgroundColor:'#34d399', animation: 'live-pulse 2s infinite'}}></span> Live Data
                     </div>
                   </div>
                 </div>
@@ -218,28 +224,69 @@ const ManagerDashboard = () => {
 
             {/* CHARTS ROW */}
             <div className="bx-charts-row">
-              <div className="bx-card" style={{gridColumn:'span 2'}}>
-                <div className="bx-card-header">
-                  <h3 className="bx-card-title">Revenue Trend</h3>
+              <div className="bx-card" style={{gridColumn:'span 2', display: 'flex', flexDirection: 'column', gap: '20px'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <h3 className="bx-card-title" style={{ margin: 0, fontSize: '16px', color: '#0f172a' }}>Revenue Trend</h3>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>Monthly revenue performance</p>
+                  </div>
+                  <button style={{ 
+                    display: 'flex', alignItems: 'center', gap: '4px', 
+                    background: '#f8fafc', border: '1px solid #e2e8f0', 
+                    padding: '4px 10px', borderRadius: '6px', 
+                    fontSize: '12px', fontWeight: '600', color: '#475569',
+                    cursor: 'pointer'
+                  }}>
+                    2026 ▾
+                  </button>
                 </div>
-                <div style={{height:'220px', width:'100%'}}>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Revenue</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '28px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.02em' }}>₹3.2L</span>
+                    <span style={{ 
+                      display: 'flex', alignItems: 'center', gap: '4px',
+                      fontSize: '12px', fontWeight: '600', color: '#16a34a',
+                      background: '#f0fdf4', padding: '2px 8px', borderRadius: '12px'
+                    }}>
+                      +12.8% vs previous period
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ height: '220px', width: '100%', marginTop: 'auto' }}>
                   {chartData && chartData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <ComposedChart 
-                        data={chartData.map(d => ({ ...d, target: d.revenue ? d.revenue * 0.8 : 0 }))} 
-                        margin={{top:20, right:20, bottom:5, left:0}}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0"/>
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fontSize:12, fill:'#64748b'}} width={40} tickFormatter={(v) => v >= 1000 ? `${v/1000}k` : v}/>
-                        <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px rgba(0,0,0,0.1)'}} cursor={{fill: '#f1f5f9'}} />
-                        <Legend iconType="circle" wrapperStyle={{fontSize: '12px', paddingBottom: '20px'}}/>
-                        <Bar dataKey="revenue" name="Revenue" fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                        <Line type="monotone" dataKey="target" name="Target" stroke="#F97316" strokeWidth={3} dot={{r: 4, fill: '#fff', stroke: '#F97316', strokeWidth: 2}} activeDot={{r: 6}} />
-                      </ComposedChart>
+                      <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#f1f5f9" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontWeight: 500 }} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b', fontWeight: 500 }} tickFormatter={(v) => v >= 1000 ? `₹${v/1000}k` : `₹${v}`} />
+                        <Tooltip 
+                          contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)', fontWeight: 600, color: '#0f172a', fontSize: '13px', padding: '8px 12px' }}
+                          cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '4 4' }}
+                          formatter={(value) => [`₹${value.toLocaleString()}`, 'Revenue']}
+                        />
+                        <ReferenceLine y={chartData.reduce((acc, curr) => acc + (curr.revenue || 0), 0) / (chartData.length || 1)} stroke="#94a3b8" strokeDasharray="4 4" label={{ position: 'insideTopRight', value: 'Target', fill: '#94a3b8', fontSize: 11, fontWeight: 500, offset: 10 }} />
+                        <Area 
+                          type="monotone" 
+                          dataKey="revenue" 
+                          stroke="#2563eb" 
+                          strokeWidth={3} 
+                          fillOpacity={1} 
+                          fill="url(#colorRev)" 
+                          activeDot={{ r: 5, fill: '#2563eb', stroke: '#fff', strokeWidth: 2 }}
+                        />
+                      </AreaChart>
                     </ResponsiveContainer>
                   ) : (
-                    <div style={{height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8'}}>No revenue data available</div>
+                    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>No revenue data available</div>
                   )}
                 </div>
               </div>
@@ -394,7 +441,7 @@ const ManagerDashboard = () => {
                 <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>View All →</a>
               </div>
               <div className="bx-notifs-list">
-                {notifications.length > 0 ? notifications.slice(0,4).map((n,i) => (
+                {notifications.length > 0 ? [...notifications].sort((a,b) => new Date(b.time || b.createdAt) - new Date(a.time || a.createdAt)).slice(0, 3).map((n,i) => (
                   <div className="bx-notif-item" key={i}>
                     <div className="bx-notif-icon" style={{background:['#D97706','#22C55E','#6366F1','#EF4444'][i%4]}}><Bell size={10}/></div>
                     <div className="bx-task-content"><p className="bx-task-title">{n.text}</p></div>

@@ -416,7 +416,7 @@ const AdminDashboard = () => {
                 <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>View All →</a>
               </div>
               <div className="bx-notifs-list">
-                {notifications.length > 0 ? notifications.map((n,i) => (
+                {notifications.length > 0 ? [...notifications].sort((a,b) => new Date(b.time || b.createdAt) - new Date(a.time || a.createdAt)).slice(0, 3).map((n,i) => (
                   <div className="bx-notif-item" key={i}>
                     <div className="bx-notif-icon" style={{background: ['#10b981','#3b82f6','#ef4444','#f59e0b'][i%4]}}><Bell size={10}/></div>
                     <div className="bx-task-content"><p className="bx-task-title">{n.text}</p></div>

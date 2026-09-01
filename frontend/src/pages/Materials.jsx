@@ -20,6 +20,7 @@ import API from "../api/axios";
 import { toast } from "react-hot-toast";
 import { DataTable } from "../components/ui";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
+import PageHeader from "../components/PageHeader";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 /** Returns a human-readable relative time string from a Date/string. */
 const relativeTime = (dateStr) => {
@@ -412,14 +413,11 @@ const Materials = () => {
   return (
     <div className="rd-container">
       <div className="rd-content">
-        <div className="rd-module-header">
-          <div className="rd-module-info">
-            <div className="rd-module-title-row">
-              <span className="rd-module-title">Inventory Management</span>
-              <span className="rd-module-badge">INVENTORY</span>
-            </div>
-          </div>
-        </div>
+        <PageHeader 
+          title="Inventory" 
+          badge="INVENTORY" 
+          subtitle="Monitor available materials, quantities, locations, and stock levels." 
+        />
         <StatsGrid>
           <StatsCard
             title="Total Items"
@@ -533,8 +531,8 @@ const Materials = () => {
             </div>
           ) : (
             <DataTable
-              title="Inventory Register"
-              subtitle="Comprehensive list of all materials — location, GPS status, and quantity from a single source of truth"
+              title="Material List"
+              subtitle="View and manage materials currently available across project locations."
               columns={columns}
               data={materialsData}
               searchPlaceholder="Search by item code or name..."

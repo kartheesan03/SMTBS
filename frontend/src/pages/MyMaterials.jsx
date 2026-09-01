@@ -667,7 +667,11 @@ const MyMaterials = () => {
       gap: "24px"
     }}>
         {/* Header */}
-        <PageHeader title="MyMaterials" />
+        <PageHeader 
+          title="Material Requests" 
+          badge="MATERIAL REQUESTS"
+          subtitle="Create, review, approve, and track material requests." 
+        />
         {/* KPI Cards */}
         <StatsGrid columns={4}>
           {pageMode === "requests" ? <>

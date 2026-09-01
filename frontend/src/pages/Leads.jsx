@@ -108,7 +108,11 @@ const Leads = () => {
       {" "}
       <div className="rd-content">
         {" "}
-        <PageHeader title="Lead Management Center" />{" "}
+        <PageHeader 
+          title="Lead Management Center" 
+          badge="LEAD MANAGEMENT CENTER"
+          subtitle="Track, manage, and monitor leads throughout the sales process." 
+        />{" "}
         <StatsGrid>
           {" "}
           <StatsCard title="Total Leads" value={leads.length} colorTheme="blue" icon={Target} trendValue="All leads" trendPositive={true} />{" "}

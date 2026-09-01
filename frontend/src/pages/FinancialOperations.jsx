@@ -143,7 +143,11 @@ const FinancialOperations = () => {
       <div className="rd-content">
         {" "}
         {/* Module Header */}{" "}
-        <PageHeader title="Financial Operations" />{" "}
+        <PageHeader 
+          title="Financial Operations" 
+          badge="FINANCIAL OPERATIONS"
+          subtitle="Monitor and manage financial activities, transactions, and operational records." 
+        />{" "}
         {/* KPI Cards */}{" "}
         <StatsGrid>
           {" "}

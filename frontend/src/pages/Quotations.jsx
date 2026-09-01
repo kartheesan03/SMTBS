@@ -130,7 +130,8 @@ const Quotations = () => {
     <PageContainer>
       <PageHeader
         title="Quotations"
-        subtitle="Manage and track customer quotations and proposals"
+        badge="QUOTATIONS"
+        subtitle="Create, manage, and track customer quotations and their current status."
         actions={
           writeAccess
             ? [

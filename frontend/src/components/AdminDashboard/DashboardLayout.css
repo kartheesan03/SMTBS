@@ -448,6 +448,12 @@ body {
   font-size: 0.65rem;
   display: flex;
   align-items: center;
+
+@keyframes live-pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
   gap: 2px;
 }
 .bx-kpi-trend.up { color: var(--bx-success); }

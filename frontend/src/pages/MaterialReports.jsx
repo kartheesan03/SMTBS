@@ -163,7 +163,11 @@ const MaterialReports = () => {
   };
   return <div className="rd-container">
       <div className="rd-content">
-        <PageHeader title="Material Reports" />
+        <PageHeader 
+          title="Reports" 
+          badge="REPORTS"
+          subtitle="View and analyze material, inventory, movement, and logistics reports." 
+        />
         <StatsGrid>
           <StatsCard title="Total Inventory Value" value={`$${summary.totalValue.toLocaleString(undefined, {
           maximumFractionDigits: 0
@@ -175,7 +179,7 @@ const MaterialReports = () => {
         <div style={{
         marginTop: "24px"
       }}>
-          <DataTable title="Inventory Valuation Report" subtitle="Comprehensive breakdown of stock value by material" columns={columns} data={materials} loading={loading} searchPlaceholder="Search materials..." searchKeys={["name", "sku", "category"]} primaryAction={{
+          <DataTable title="Available Reports" subtitle="Access project material, inventory, and movement reports." columns={columns} data={materials} loading={loading} searchPlaceholder="Search materials..." searchKeys={["name", "sku", "category"]} primaryAction={{
           label: "Export CSV",
           icon: Download,
           onClick: exportToCSV

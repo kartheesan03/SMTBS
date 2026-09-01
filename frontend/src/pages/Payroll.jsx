@@ -104,7 +104,11 @@ const Payroll = () => {
   }} className="rd-container">
       <div className="rd-content">
         {/* Module Header */}
-        <PageHeader title="Payroll Management" />
+        <PageHeader 
+          title="Payroll Management" 
+          badge="PAYROLL MANAGEMENT"
+          subtitle="Manage payroll information, employee payments, and payroll processing activities." 
+        />
         {/* KPI Cards */}
         <StatsGrid>
           <StatsCard title="Gross Payroll" value={formatCurrency(totalGross, "short")} colorTheme="blue" icon={Briefcase} trendValue="Total payout" trendPositive={true} />

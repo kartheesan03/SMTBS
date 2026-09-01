@@ -401,7 +401,11 @@ const StockRequests = () => {
   return <div className="rd-container">
       <div className="rd-content">
         {/* Module Header */}
-        <PageHeader title="Stock Monitoring" />
+        <PageHeader 
+          title="Stock Monitoring" 
+          badge="STOCK MONITORING"
+          subtitle="Monitor stock levels and identify materials that require attention." 
+        />
         {/* KPI Cards */}
         <StatsGrid>
           <StatsCard title="Total SKUs" value={totalItems} colorTheme="blue" icon={Package} trendValue="All tracked items" trendPositive={true} onClick={() => navigate("/stock-requests")} />
@@ -423,7 +427,7 @@ const StockRequests = () => {
               gap: 12
             }}>
                 <div className="rd-table-title">
-                  Stock Alerts{" "}
+                  Stock Status{" "}
                   <span style={{
                   fontSize: 14,
                   color: "#94a3b8",
@@ -434,7 +438,7 @@ const StockRequests = () => {
                 </div>
               </div>
               <div className="rd-table-subtitle">
-                Items requiring immediate attention
+                Identify low-stock and critical materials requiring attention.
               </div>
             </div>
             <div className="rd-table-actions">

@@ -145,7 +145,11 @@ const LeaveManagement = () => {
   }} className="rd-container">
       <div className="rd-content">
         {/* Module Header */}
-        <PageHeader title="All Leave Requests" />
+        <PageHeader 
+          title="All Leave Requests" 
+          badge="ALL LEAVE REQUESTS"
+          subtitle="View, manage, and track employee leave requests and their approval status." 
+        />
         <StatsGrid>
           <StatsCard title="Total Requests" value={totalRequests} colorTheme="blue" icon={FileText} trendValue="All time" trendPositive={true} />
           <StatsCard title="Pending" value={pendingCount} colorTheme="peach" icon={Clock} trendValue="Action required" trendPositive={false} />

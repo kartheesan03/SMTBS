@@ -59,26 +59,31 @@ const HRDashboard = () => {
   }, []);
 
   useEffect(() => {
-    Promise.all([
-      API.get("/employees").catch(() => ({ data: [] })),
-      API.get("/leaves").catch(() => ({ data: [] })),
-      API.get("/payroll").catch(() => ({ data: [] })),
-      API.get("/tasks").catch(() => ({ data: [] })),
-    ]).then(([empR, lvR, payR, taskR]) => {
-      setEmployees(empR.data || []);
-      setLeavesData(lvR.data || []);
-      setSalariesData(payR.data || []);
-      const n = new Date();
-      setUpcomingEvents(
-        (taskR.data || []).filter(t => t.dueDate && new Date(t.dueDate) >= n)
-          .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).slice(0, 4)
-          .map((t, i) => {
-            const d = new Date(t.dueDate);
-            const colors = ["#7C3AED","#22C55E","#F97316","#3B82F6"];
-            return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"HR", color: colors[i%4] };
-          })
-      );
-    });
+    const fetchData = () => {
+      Promise.all([
+        API.get("/employees").catch(() => ({ data: [] })),
+        API.get("/leaves").catch(() => ({ data: [] })),
+        API.get("/payroll").catch(() => ({ data: [] })),
+        API.get("/tasks").catch(() => ({ data: [] })),
+      ]).then(([empR, lvR, payR, taskR]) => {
+        setEmployees(empR.data || []);
+        setLeavesData(lvR.data || []);
+        setSalariesData(payR.data || []);
+        const n = new Date();
+        setUpcomingEvents(
+          (taskR.data || []).filter(t => t.dueDate && new Date(t.dueDate) >= n)
+            .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)).slice(0, 4)
+            .map((t, i) => {
+              const d = new Date(t.dueDate);
+              const colors = ["#7C3AED","#22C55E","#F97316","#3B82F6"];
+              return { day: String(d.getDate()).padStart(2,"0"), mon: d.toLocaleString("default",{month:"short"}).toUpperCase(), title: t.title, sub: t.category||"HR", color: colors[i%4] };
+            })
+        );
+      }).finally(() => setLoading(false));
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <LoadingState message="Loading HR Dashboard…" height="100vh"/>;
@@ -132,7 +137,7 @@ const HRDashboard = () => {
                       <Cloud size={15} color="#93c5fd"/> {weather.temp} <span style={{color:'#cbd5e1', fontSize:'0.75rem', fontWeight:'normal'}}>{weather.condition}</span>
                     </div>
                     <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.88rem', fontWeight:'500'}}>
-                      <span className="bx-status-dot" style={{backgroundColor:'#34d399'}}></span> HR Systems Active
+                      <span className="bx-status-dot" style={{backgroundColor:'#34d399', animation: 'live-pulse 2s infinite'}}></span> Live Data
                     </div>
                   </div>
                 </div>
@@ -391,7 +396,7 @@ const HRDashboard = () => {
                 <a href="#" className="bx-card-link" onClick={(e) => { e.preventDefault(); navigate('/notifications'); }}>View All →</a>
               </div>
               <div className="bx-notifs-list">
-                {notifications.length > 0 ? notifications.slice(0,4).map((n,i) => (
+                {notifications.length > 0 ? [...notifications].sort((a,b) => new Date(b.time || b.createdAt) - new Date(a.time || a.createdAt)).slice(0, 3).map((n,i) => (
                   <div className="bx-notif-item" key={i}>
                     <div className="bx-notif-icon" style={{background:['#10b981','#3b82f6','#ef4444','#f59e0b'][i%4]}}><Bell size={10}/></div>
                     <div className="bx-task-content"><p className="bx-task-title">{n.text}</p></div>
