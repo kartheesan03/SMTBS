@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const axios = require('axios');
 
 // Ensure GEMINI_API_KEY exists in env
 const apiKey = process.env.GEMINI_API_KEY;
@@ -37,11 +38,16 @@ async function processDocumentWithGemini(filePath) {
     try {
         const mimeType = getMimeType(filePath);
         
-        // Read file to base64
-        const fileContent = fs.readFileSync(filePath);
-        const base64Content = fileContent.toString('base64');
+        let base64Content;
+        if (filePath.startsWith('http')) {
+            const response = await axios.get(filePath, { responseType: 'arraybuffer' });
+            base64Content = Buffer.from(response.data, 'binary').toString('base64');
+        } else {
+            const fileContent = fs.readFileSync(filePath);
+            base64Content = fileContent.toString('base64');
+        }
         
-        const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         const prompt = `You are a professional enterprise Document OCR and Structured Data Extraction System. 
 Analyze the provided document and extract its contents into a strict JSON format.
@@ -125,10 +131,17 @@ async function askDocumentQuestion(filePath, question, ocrContext = null) {
 
     try {
         const mimeType = getMimeType(filePath);
-        const fileContent = fs.readFileSync(filePath);
-        const base64Content = fileContent.toString('base64');
         
-        const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+        let base64Content;
+        if (filePath.startsWith('http')) {
+            const response = await axios.get(filePath, { responseType: 'arraybuffer' });
+            base64Content = Buffer.from(response.data, 'binary').toString('base64');
+        } else {
+            const fileContent = fs.readFileSync(filePath);
+            base64Content = fileContent.toString('base64');
+        }
+        
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         let prompt = `You are an AI Document Assistant. Please answer the user's question based on the provided document image.\n`;
         if (ocrContext && ocrContext.raw_text) {

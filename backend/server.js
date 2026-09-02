@@ -45,9 +45,17 @@ const ocrRoutes = require('./src/routes/ocrRoutes');
 
 const app = express();
 
-const allowedOrigins = process.env.CLIENT_URL
-  ? [process.env.CLIENT_URL, 'http://localhost:3000']
-  : ['http://localhost:3000'];
+// Always allow Vercel production + local dev. CLIENT_URL can add extra origins.
+const allowedOrigins = [
+  'https://smtbs.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173',
+];
+if (process.env.CLIENT_URL && !allowedOrigins.includes(process.env.CLIENT_URL)) {
+  allowedOrigins.push(process.env.CLIENT_URL);
+}
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -62,9 +70,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
-}
+// Always log in dev; use combined format in production for Render logs
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 const assistantRoutes = require('./src/routes/assistantRoutes');
 

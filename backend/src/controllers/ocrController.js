@@ -42,18 +42,39 @@ function appendAudit(doc, action, user, detail = '') {
     doc.auditLog = log;
 }
 
+// ─── Cloudinary Setup ─────────────────────────────────────────────────────────
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+if (process.env.CLOUDINARY_CLOUD_NAME) {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+}
+
 // ─── Multer storage ───────────────────────────────────────────────────────────
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = path.join(__dirname, '../../uploads/ocr');
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        const suffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, 'ocr-' + suffix + path.extname(file.originalname).toLowerCase());
-    },
-});
+const storage = process.env.CLOUDINARY_CLOUD_NAME 
+    ? new CloudinaryStorage({
+        cloudinary: cloudinary,
+        params: {
+            folder: 'ocr_uploads',
+            allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'tiff', 'pdf'],
+            resource_type: 'auto'
+        }
+    })
+    : multer.diskStorage({
+        destination: (req, file, cb) => {
+            const dir = path.join(__dirname, '../../uploads/ocr');
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            cb(null, dir);
+        },
+        filename: (req, file, cb) => {
+            const suffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+            cb(null, 'ocr-' + suffix + path.extname(file.originalname).toLowerCase());
+        },
+    });
 
 const ALLOWED_MIMETYPES = [
     'image/jpeg', 'image/png', 'image/webp',
@@ -151,9 +172,9 @@ async function findMatchingPO(invoiceInfo, structuredData) {
     }
 }
 
-// ─── Helper: normalize OCR data from Python response ─────────────────────────
+// ─── Helper: normalize OCR data from Python/Gemini response ─────────────────────────
 function normalizeOCRData(data) {
-    const sd = data.structured_data || {};
+    const sd = data.structured_data || data.structured_doc || {};
     return {
         vendorInfo:   sd.vendor     || data.vendor     || {},
         invoiceInfo:  sd.invoice    || data.invoice    || {},
@@ -181,7 +202,9 @@ exports.uploadDocument = (req, res) => {
             return res.status(400).json({ error: 'No file uploaded.' });
         }
 
-        const originalImagePath = `/uploads/ocr/${req.file.filename}`;
+        const originalImagePath = req.file.path.startsWith('http') 
+            ? req.file.path 
+            : `/uploads/ocr/${req.file.filename}`;
 
         try {
             // 1. Create pending record
@@ -258,7 +281,7 @@ exports.uploadDocument = (req, res) => {
 
             ocrDoc.set({
                 originalOcrData:     originalOcrData,
-                originalImagePath:   `/uploads/ocr/${req.file.filename}`,
+                originalImagePath:   originalImagePath,
                 processedImagePath,
                 documentType:        data.document_type || 'General',
                 pageCount:           data.page_count   || 1,
@@ -490,8 +513,9 @@ exports.reprocessDocument = async (req, res) => {
         const doc = await OCRDocument.sequelizeModel.findByPk(req.params.id);
         if (!doc) return res.status(404).json({ error: 'Document not found' });
 
-        const filePath = path.join(__dirname, '../../', doc.originalImagePath);
-        if (!fs.existsSync(filePath)) {
+        const isUrl = doc.originalImagePath.startsWith('http');
+        const filePath = isUrl ? doc.originalImagePath : path.join(__dirname, '../../', doc.originalImagePath);
+        if (!isUrl && !fs.existsSync(filePath)) {
             return res.status(404).json({ error: 'Original file not found for reprocessing.' });
         }
 
@@ -870,8 +894,8 @@ exports.askQuestion = async (req, res) => {
             return res.status(400).json({ success: false, error: 'Document image not found' });
         }
 
-        const path = require('path');
-        const filePath = path.join(__dirname, '../../', doc.originalImagePath);
+        const isUrl = doc.originalImagePath.startsWith('http');
+        const filePath = isUrl ? doc.originalImagePath : path.join(__dirname, '../../', doc.originalImagePath);
         const answer = await askDocumentQuestion(filePath, question, doc.originalOcrData);
         
         res.json({ success: true, answer });

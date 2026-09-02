@@ -1255,7 +1255,7 @@ const Recruitment = () => {
                           </td>
                           <td data-label="Resume">
                             {c.resume
-                              ? <a href={`http://localhost:5000${c.resume}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: "#4f46e5", background: "#eef2ff", padding: "3px 10px", borderRadius: 5, textDecoration: "none", whiteSpace: "nowrap" }}>📄 View</a>
+                              ? <a href={`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}${c.resume}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: "#4f46e5", background: "#eef2ff", padding: "3px 10px", borderRadius: 5, textDecoration: "none", whiteSpace: "nowrap" }}>📄 View</a>
                               : <span style={{ color: "#cbd5e1" }}>—</span>}
                           </td>
                           <td data-label="Source">

@@ -74,7 +74,7 @@ const StoryViewer = ({ storyGroup, onClose, onNext, onPrev }) => {
                 {/* Image/Content */}
                 <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                     {currentStory.imageUrl && (
-                        <img src={`http://localhost:5000${currentStory.imageUrl}`} alt="Story" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        <img src={`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}${currentStory.imageUrl}`} alt="Story" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     )}
                     {currentStory.text && !currentStory.imageUrl && (
                         <div style={{ padding: '32px', color: 'white', fontSize: '24px', textAlign: 'center', fontWeight: 'bold' }}>
