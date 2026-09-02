@@ -744,7 +744,7 @@ const OCRPage = () => {
                whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '300px', overflowY: 'auto',
                fontFamily: 'monospace'
             }}>
-               {editedData?.raw_text || selectedDoc?.originalOcrData?.raw_text || selectedDoc?.originalOcrData?.structured_doc?.raw_text || 'No raw text available. Please reprocess the document.'}
+               {editedData?.raw_text || selectedDoc?.originalOcrData?.raw_text || 'No raw text available. Please reprocess the document.'}
             </pre>
          </div>
       </div>

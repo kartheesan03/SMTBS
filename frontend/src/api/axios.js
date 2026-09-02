@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { clearDashboardCache } from '../hooks/useDashboardData';
 
-const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api';
+let apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:5000/api' : 'https://smtbs-backend.onrender.com/api';
 
 const API = axios.create({    
     baseURL: apiBaseUrl, 

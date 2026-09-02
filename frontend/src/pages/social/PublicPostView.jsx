@@ -3,7 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
 // Get base URL just like the other API files
-const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api';
+let apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://smtbs-backend.onrender.com/api';
 
 const renderText = (text) => {
     if (!text) return null;

@@ -39,8 +39,7 @@ const RoleDocumentExtractor = ({ role = "hr" }) => {
             // Since backend is running on 8000, assuming a proxy or full url.
             // Adjust to http://localhost:8000/api/extract if no proxy. 
             // In typical Vite setups, /api proxies to backend.
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-            const res = await fetch(`${apiBase}/extract`, { 
+            const res = await fetch('http://localhost:8000/api/extract', { 
                 method: 'POST', 
                 body: formData 
             });

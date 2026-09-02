@@ -46,7 +46,7 @@ function normalizePost(raw, idx = 0, currentUserId = null) {
     const rawImage = raw.imageUrl || (Array.isArray(raw.media) && raw.media.find(m => m.type === 'image')?.url) || null;
     let finalImage = rawImage;
     if (finalImage && finalImage.startsWith('/uploads/')) {
-        const backendBase = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+        const backendBase = window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://smtbs-backend.onrender.com';
         finalImage = `${backendBase}${finalImage}`;
     }
 
@@ -69,7 +69,7 @@ function normalizePost(raw, idx = 0, currentUserId = null) {
       text:      raw.text || '',
       image:     finalImage,
       media:     Array.isArray(raw.media) ? raw.media.map(m => {
-        const backendBase = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+        const backendBase = window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://smtbs-backend.onrender.com';
         return { ...m, url: m.url?.startsWith('/uploads/') ? `${backendBase}${m.url}` : m.url };
       }) : null,
       likes:     raw.likes || [],
