@@ -1161,19 +1161,17 @@ const TrackingDashboard = () => {
   if (loading) return <LoadingState message="Loading..." height="100vh" />;
 
   const renderGlobalKPICards = () => {
-    const inMovs = movements.filter((m) => String(m.type).toLowerCase() === "in").length;
-    const outMovs = movements.filter((m) => String(m.type).toLowerCase() === "out").length;
-    const transferred = movements.filter(
-      (m) => String(m.type).toLowerCase() === "transfer" || String(m.type).toLowerCase() === "adjustment"
-    ).length;
-    const pending = movements.filter((m) => String(m.status).toLowerCase() === "pending").length;
+    const totalMaterials = materialsList.length;
+    const inStock = materialsList.filter((m) => m.quantity > 0).length;
+    const outOfStock = materialsList.filter((m) => m.quantity <= 0).length;
+    const lowStock = materialsList.filter((m) => m.quantity > 0 && m.quantity <= (m.minStockLevel || 10)).length;
 
     return (
       <div className="bx-kpi-row" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-        <KpiCard label="Total Movements" value={movements.length} trend="All time" trendUp={true} icon={Layers} iconClass="blue" />
-        <KpiCard label="IN Movements" value={inMovs} trend="Stock additions" trendUp={true} icon={ArrowDownRight} iconClass="green" />
-        <KpiCard label="OUT Movements" value={outMovs} trend="Stock reductions" trendUp={true} icon={ArrowUpRight} iconClass="orange" />
-        <KpiCard label="Pending" value={pending} trend="Awaiting action" trendUp={pending === 0} icon={Clock} iconClass="purple" />
+        <KpiCard label="Total Materials" value={totalMaterials} trend="All tracked items" trendUp={true} icon={Package} iconClass="blue" />
+        <KpiCard label="In Stock" value={inStock} trend="Currently available" trendUp={true} icon={CheckCircle2} iconClass="green" />
+        <KpiCard label="Low Stock" value={lowStock} trend="Approaching reorder" trendUp={lowStock === 0} icon={ArrowDownRight} iconClass="orange" />
+        <KpiCard label="Out of Stock" value={outOfStock} trend="Requires attention" trendUp={outOfStock === 0} icon={Activity} iconClass="purple" />
       </div>
     );
   };
