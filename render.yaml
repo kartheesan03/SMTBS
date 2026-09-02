@@ -2,17 +2,13 @@ services:
   - type: web
     name: smtbms-backend
     env: node
+    plan: free
+    rootDir: backend
     buildCommand: npm install
     startCommand: npm start
-    rootDir: backend
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
-      - key: MONGO_URI
-        sync: false
-      - key: JWT_SECRET
-        generateValue: true
-      - key: FRONTEND_URL
-        sync: false
+        value: 5000
+      # Add other environment variables here (e.g., DB URLs, JWT secrets)
