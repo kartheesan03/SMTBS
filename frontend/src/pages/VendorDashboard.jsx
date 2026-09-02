@@ -39,7 +39,7 @@ const QaBtn=({icon:Icon,label,colorClass,onClick})=>(
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const { vendorProfile: profile, vendorMaterials: materials, vendorOrders: orders } = useContext(AppInitContext);
+  const { vendorProfile: profile, vendorMaterials: materials, vendorOrders: orders } = useAppInit();
   const [now, setNow] = useState(new Date());
 
   const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();

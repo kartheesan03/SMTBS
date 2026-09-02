@@ -27,7 +27,7 @@ function MiniAvatar({ name, color, size = 36 }) {
   );
 }
 
-const CommentSection = ({ postId, comments = [], onCommentAdded, onCommentDeleted }) => {
+const CommentSection = ({ postId, postAuthorId, comments = [], onCommentAdded, onCommentDeleted }) => {
   const { user } = useContext(AuthContext);
   const [text, setText]         = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -226,7 +226,8 @@ const CommentSection = ({ postId, comments = [], onCommentAdded, onCommentDelete
           const role      = comment.author?.role || comment.author?.department || 'Employee';
           const color     = AVATAR_COLORS[idx % AVATAR_COLORS.length];
           const timeStr   = comment.createdAt ? getRelativeTime(comment.createdAt) : 'Just now';
-          const isOwner   = user?.id === comment.author?.id || ['Admin', 'Super Admin'].includes(user?.role);
+          const safeRole  = String(user?.role || '').toLowerCase().trim();
+          const isOwner   = String(user?.id) === String(comment.author?.id) || String(user?._id) === String(comment.author?.id) || String(user?.id) === String(postAuthorId) || String(user?._id) === String(postAuthorId) || ['admin', 'super admin'].includes(safeRole);
 
           return (
             <div key={comment.id || idx} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>

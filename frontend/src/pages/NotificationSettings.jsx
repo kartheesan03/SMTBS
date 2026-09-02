@@ -17,6 +17,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import PageHeader from "../components/PageHeader";
 import "./NotificationSettings.css";
 import { useNavigate } from "react-router-dom";
 const NotificationSettings = () => {
@@ -43,22 +44,11 @@ const NotificationSettings = () => {
       className="ns-container"
     >
       {/* Header Banner */}
-      <div className="ns-header-banner">
-        <div className="ns-header-text">
-          <h2>Notification Settings</h2>
-          <p>Manage how and where you receive alerts and updates.</p>
-        </div>
-        <div className="ns-header-icon-wrapper">
-          <div className="ns-header-circle"></div>
-          <div className="ns-header-circle small"></div>
-          <div className="ns-bell-container">
-            <Bell size={32} color="white" />
-            <div className="ns-gear-badge">
-              <Settings size={14} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Notification Settings"
+        badge="SETTINGS"
+        subtitle="Manage how and where you receive alerts and updates."
+      />
       {/* Grid */}
       <div className="ns-grid">
         {/* Left Column */}

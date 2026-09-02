@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
-import { AppInitProvider, AppInitContext } from './context/AppInitContext';
+import { AppInitProvider, useAppInit } from './context/AppInitContext';
 import AppLoader from './components/AppLoader';
 import FarmakuSidebar from './components/FarmakuSidebar';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -241,7 +241,7 @@ const AppContent = () => {
         };
     }, []);
 
-    const { appReady, initError, retryInit } = useContext(AppInitContext);
+    const { appReady, initError, retryInit } = useAppInit();
     if (!appReady) return <AppLoader error={initError} onRetry={retryInit} />;
 
     return (

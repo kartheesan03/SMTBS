@@ -13,6 +13,7 @@ import {
   Monitor,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import PageHeader from "../components/PageHeader";
 import "./SystemSettings.css";
 const SystemSettings = () => {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "Light");
@@ -95,12 +96,11 @@ const SystemSettings = () => {
   return (
     <div className="ss-container">
       {/* Header */}
-      <div className="ss-header-row">
-        <div className="ss-title">
-          <h2>System Settings</h2>
-          <p>Manage your system preferences and configurations</p>
-        </div>
-      </div>
+      <PageHeader
+        title="System Settings"
+        badge="SYSTEM"
+        subtitle="Manage your system preferences and configurations."
+      />
       {/* Main Grid */}
       <div className="ss-grid">
         {/* Left Column - Display & Locale */}

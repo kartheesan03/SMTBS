@@ -385,7 +385,11 @@ const TrainingDevelopment = () => {
       {showAddModal && <AddCourseModal onClose={() => setShowAddModal(false)} onSave={newCourse => setCourses(prev => [newCourse, ...prev])} />}
       <div className="rd-content">
         {/* ── Module Header ── */}
-        <PageHeader title="Training & Development" />
+        <PageHeader
+          title="Training & Development"
+          badge="HRMS"
+          subtitle="Manage employee training programs, track progress, and issue certifications."
+        />
         {/* ── KPI Cards ── */}
         <StatsGrid>
           <StatsCard title="Total Courses" value={stats.totalCourses ?? 0} colorTheme="blue" icon={BookOpen} trendValue="All categories" trendPositive={true} />

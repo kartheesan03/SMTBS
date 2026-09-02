@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { AppInitContext } from "../context/AppInitContext";
+import { useAppInit } from "../context/AppInitContext";
 import {
   IndianRupee, ShoppingCart, Users, Target, TrendingUp, TrendingDown,
   FileText, PhoneCall, Clock, CheckCircle, Activity,
@@ -28,7 +28,7 @@ const SalesDashboard = () => {
     orders,
     customers,
     tasks,
-  } = useContext(AppInitContext);
+  } = useAppInit();
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [now, setNow] = useState(new Date());

@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useAiInsights } from "../hooks/useAiInsights";
 import API from "../api/axios";
-import { AppInitContext } from "../context/AppInitContext";
+import { useAppInit } from "../context/AppInitContext";
 import {
   ShoppingCart, Package, Truck, CheckCircle, Plus, FileText,
   XCircle, Clock, MapPin, IndianRupee, TrendingUp, TrendingDown,
@@ -40,7 +40,7 @@ const QaBtn=({icon:Icon,label,colorClass,onClick})=>(
 const CustomerDashboard = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const { customerProfile: profile, customerOrders: orders } = useContext(AppInitContext);
+  const { customerProfile: profile, customerOrders: orders } = useAppInit();
   const [now, setNow] = useState(new Date());
 
   const { aiInsights: fetchedAiInsights, loading: aiLoading, error: aiError } = useAiInsights();

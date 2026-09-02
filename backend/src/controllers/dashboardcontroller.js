@@ -17,44 +17,9 @@ const computeDashboardStats = async (req, res) => {
   try {
     const role = req.user.role;
     
-        const [
-            _allMats, _allEmps, _allOrds, _allCusts, _allVends,
-            _allLeaves, _allSals, _allAtts, _allTasks, _allLeads, _allQuotes,
-            _allNotifs, _allAudits
-        ] = await Promise.all([
-            Material.find({}).lean().catch(()=>[]), Employee.find({}).lean().catch(()=>[]), Order.find({}).lean().catch(()=>[]), Customer.find({}).lean().catch(()=>[]), Vendor.find({}).lean().catch(()=>[]),
-            Leave.find({}).lean().catch(()=>[]), Salary.find({}).lean().catch(()=>[]), Attendance.find({}).lean().catch(()=>[]), require('../models/Task').find({}).lean().catch(()=>[]),
-            require('../models/Lead').find({}).lean().catch(()=>[]), require('../models/Quotation').find({}).lean().catch(()=>[]),
-            require('../models/Notification').find({}).lean().catch(()=>[]), require('../models/AuditLog').find({}).lean().catch(()=>[])
-        ]);
-
-        const _filter = (arr, condition) => {
-            if (!arr) return [];
-            return arr.filter(item => {
-                for (let key in condition) {
-                    if (condition[key] && condition[key].$in) {
-                        if (!condition[key].$in.includes(item[key])) return false;
-                    } else if (condition[key] && condition[key].$nin) {
-                        if (condition[key].$nin.includes(item[key])) return false;
-                    } else if (condition[key] && condition[key].$ne) {
-                        if (item[key] === condition[key].$ne) return false;
-                    } else if (condition[key] && condition[key].$gte !== undefined) {
-                        const val = new Date(item[key]);
-                        if (condition[key].$gte && val < condition[key].$gte) return false;
-                        if (condition[key].$lte && val > condition[key].$lte) return false;
-                    } else {
-                        if (item[key] !== condition[key]) return false;
-                    }
-                }
-                return true;
-            });
-        };
 let stats = {};
     try {
-      const materials = await Material.find({});
-      const activeMaterialsCount = materials.filter(
-        (m) => m.isActive !== false
-      ).length;
+      const activeMaterialsCount = await Material.countDocuments({ isActive: { $ne: false } });
       const [
         totalEmployees,
         totalOrders,
@@ -118,9 +83,9 @@ let stats = {};
         purchaseResult && purchaseResult.length > 0
           ? purchaseResult[0].total
           : 0;
-      const salesCount = (_filter(_allOrds, { orderType: 'sales' }).length);
-      const purchaseCount = (_filter(_allOrds, { orderType: 'purchase' }).length);
-      const activeOrdersCount = (_filter(_allOrds, { status: { $nin: ['Completed', 'Delivered', 'Workflow Completed', 'Invoice Generated', 'Cancelled'] } }).length);
+      const salesCount = await Order.countDocuments({ orderType: 'sales' });
+      const purchaseCount = await Order.countDocuments({ orderType: 'purchase' });
+      const activeOrdersCount = await Order.countDocuments({ status: { $nin: ['Completed', 'Delivered', 'Workflow Completed', 'Invoice Generated', 'Cancelled'] } });
       stats.totalSalesOrders = salesCount;
       stats.totalPurchaseOrders = purchaseCount;
       stats.activeOrdersCount = activeOrdersCount;
@@ -134,7 +99,7 @@ let stats = {};
     let topInventory = [];
     let allMaterialsRaw = [];
     try {
-      allMaterialsRaw = (_allMats);
+      allMaterialsRaw = await Material.find({}).lean();
       const allMaterials = allMaterialsRaw.filter((m) => m.isActive !== false);
       allMaterials.forEach((m) => {
         totalStockQuantity += m.quantity || 0;
@@ -146,7 +111,7 @@ let stats = {};
         }
       });
       topInventory = [...allMaterials].sort((a,b) => (b.quantity || 0) - (a.quantity || 0)).slice(0, 5).map(m => ({name: m.name, value: m.quantity || 0, category: m.category}));
-      const purchaseOrders = (_filter(_allOrds, { orderType: 'purchase', status: { $in: ['Pending', 'Awaiting Approval', 'Approved'] } }));
+      const purchaseOrders = await Order.find({ orderType: 'purchase', status: { $in: ['Pending', 'Awaiting Approval', 'Approved'] } }).lean();
       purchaseOrders.forEach((po) => {
         let items = po.items;
         if (typeof items === 'string') { try { items = JSON.parse(items); } catch(e){} }
@@ -161,7 +126,7 @@ let stats = {};
     }
     let categoryData = [];
     try {
-      const materialsList = (_allMats);
+      const materialsList = allMaterialsRaw || [];
       const activeMats = materialsList.filter((m) => m.isActive !== false);
       const catCounts = {};
       activeMats.forEach((m) => {
@@ -240,6 +205,31 @@ let stats = {};
     }
     let topSellingMaterials = [];
     let salesCategoryData = [];
+    // Fetch all orders and leaves once for reuse throughout the controller
+    let _allOrds = [];
+    let _allLeaves = [];
+    try {
+      _allOrds = await Order.find({}).lean();
+      _allLeaves = await Leave.find({}).lean();
+    } catch (e) {
+      console.error("All Orders/Leaves Fetch Error:", e.message);
+    }
+    // Simple in-memory filter supporting plain equality and $ne/$in operators
+    const _filter = (arr, query) => {
+      if (!Array.isArray(arr)) return [];
+      return arr.filter(item => {
+        return Object.entries(query).every(([key, val]) => {
+          if (val && typeof val === 'object') {
+            if ('$ne' in val) return item[key] !== val.$ne;
+            if ('$in' in val) return val.$in.includes(item[key]);
+            if ('$nin' in val) return !val.$nin.includes(item[key]);
+            // ObjectId comparison
+            return String(item[key]) === String(val);
+          }
+          return String(item[key]) === String(val);
+        });
+      });
+    };
     try {
       const salesOrders = (_filter(_allOrds, { orderType: 'sales', status: { $ne: 'Cancelled' } }));
       const matNameMap = {};
@@ -499,9 +489,10 @@ let stats = {};
           });
 
           // Sales Order events
-          const salesOrders = (_filter(_allOrds, { orderType: 'sales' }))
+          const salesOrders = await Order.find({ orderType: 'sales' })
             .sort({ updatedAt: -1 })
             .limit(5)
+            .lean()
             .catch(() => []);
           salesOrders.forEach((o) => {
             const isDispatched = [
@@ -668,7 +659,7 @@ let stats = {};
           },
           {
             name: "Pending",
-            value: (_filter(_allCusts, { status: 'Pending Review' }).length),
+            value: await Customer.countDocuments({ status: 'Pending Review' }),
             color: "#f59e0b",
           },
           {
@@ -690,7 +681,7 @@ let stats = {};
           },
           {
             name: "Pending",
-            value: (_filter(_allOrds, { status: 'Awaiting Approval' }).length),
+            value: await Order.countDocuments({ status: 'Awaiting Approval' }),
             color: "#f59e0b",
           },
         ],
@@ -706,7 +697,7 @@ let stats = {};
       },
     };
     try {
-      const allVendors = (_allVends);
+      const allVendors = await Vendor.find({}).lean();
       const vendorsByCategory = {};
       allVendors.forEach((v) => {
         const cat = v.category || "Other";
@@ -765,9 +756,7 @@ let stats = {};
           percentage: `${((d.value / activeEmployeesCount) * 100).toFixed(1)}%`,
           color: COLORS[index % COLORS.length],
         }));
-        const recentEmployees = [...(_allEmps || [])]
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .slice(0, 4);
+        const recentEmployees = await Employee.find({}).sort({ createdAt: -1 }).limit(4).lean();
         const recentEmployeesFormatted = recentEmployees.map((emp) => ({
           name: `${emp.firstName} ${emp.lastName || ""}`.trim(),
           role: emp.designation || "Staff",
@@ -782,7 +771,7 @@ let stats = {};
           d.setHours(0, 0, 0, 0);
           const dEnd = new Date(d);
           dEnd.setHours(23, 59, 59, 999);
-          const count = (_filter(_allAtts, { date: { $gte: d, $lte: dEnd }, status: { $in: ['Present', 'Late'] } }).length);
+          const count = await Attendance.countDocuments({ date: { $gte: d, $lte: dEnd }, status: { $in: ['Present', 'Late'] } });
           const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
           attendanceHistory.push({ name: dayName, employees: count });
         }
@@ -830,7 +819,7 @@ let stats = {};
           startDate: { $lte: todayEnd },
           endDate: { $gte: todayStart },
         });
-        const pendingLeaves = (_filter(_allLeaves, { status: 'Pending' }).length);
+        const pendingLeaves = await Leave.countDocuments({ status: 'Pending' });
         let salaryBrackets = {
           "< ₹30k": 0,
           "₹30k - 50k": 0,
@@ -1240,7 +1229,7 @@ let stats = {};
           lastMonthRevenue: lastMonthRev,
         },
         trendData: trendData.every(
-          (t) => t.revenue === 0 && t.lastYearRevenue === 0
+          (t) => t.currentYearProfit === 0 && t.lastYearProfit === 0 && t.revenue === 0 && t.lastYearRevenue === 0
         )
           ? []
           : trendData,

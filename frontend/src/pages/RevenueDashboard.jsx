@@ -19,7 +19,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import "../components/AdminDashboard/DashboardLayout.css";
-import { AppInitContext } from "../context/AppInitContext";
+import { useAppInit } from "../context/AppInitContext";
 import { AuthContext } from "../context/AuthContext";
 
 const greeting = () => {
@@ -58,7 +58,7 @@ const KpiCard = ({ icon: Icon, iconClass, label, value, trend, trendUp, sub }) =
 );
 
 const RevenueDashboard = () => {
-  const { orders: ordersData } = useContext(AppInitContext);
+  const { orders: ordersData } = useAppInit();
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {

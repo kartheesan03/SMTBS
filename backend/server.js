@@ -131,15 +131,15 @@ const fs = require('fs');
 let activeServer = null;
 let isShuttingDown = false;
 
-const gracefulShutdown = async () => {
+const gracefulShutdown = async (exitCode = 0) => {
     if (isShuttingDown) return;
     isShuttingDown = true;
-    console.log('Shutting down server gracefully...');
+    console.log(`Shutting down server gracefully (exit code: ${exitCode})...`);
     
     // Fallback timer: force exit if graceful shutdown takes too long (e.g., stuck promises)
     setTimeout(() => {
         console.error('Graceful shutdown timed out, forcing exit.');
-        process.exit(1);
+        process.exit(exitCode !== 0 ? exitCode : 1);
     }, 5000);
 
     if (activeServer) {
@@ -174,12 +174,12 @@ const gracefulShutdown = async () => {
         console.error('Error closing Sequelize:', e.message);
     }
 
-    process.exit(0);
+    process.exit(exitCode);
 };
 
-process.once('SIGUSR2', gracefulShutdown);
-process.on('SIGINT', gracefulShutdown);
-process.on('SIGTERM', gracefulShutdown);
+process.once('SIGUSR2', () => gracefulShutdown(0));
+process.on('SIGINT', () => gracefulShutdown(0));
+process.on('SIGTERM', () => gracefulShutdown(0));
 
 const startServer = async () => {
     try {
@@ -222,12 +222,12 @@ const startServer = async () => {
 
 process.on('uncaughtException', (err) => {
     console.error('CRITICAL: Uncaught Exception:', err);
-    gracefulShutdown();
+    gracefulShutdown(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('CRITICAL: Unhandled Rejection at:', promise, 'reason:', reason);
-    gracefulShutdown();
+    gracefulShutdown(1);
 });
 
 startServer();

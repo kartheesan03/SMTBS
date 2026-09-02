@@ -25,10 +25,7 @@ const SelectOrderType = () => {
       textAlign: "center",
       marginBottom: "40px"
     }}>
-        <PageHeader title="Create New Order" />
-        <p className="header-subtitle">
-          Select the type of order you wish to create.
-        </p>
+        <PageHeader title="Create New Order" badge="ORDER MANAGEMENT" subtitle="Select the type of order you wish to create." />
       </header>
       <motion.div initial={{
       opacity: 0,

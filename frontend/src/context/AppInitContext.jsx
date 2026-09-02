@@ -18,7 +18,7 @@ import { AuthContext } from './AuthContext';
  *  - Results are cached in window for 90s to avoid duplicate requests on re-renders.
  *  - On logout, cache is cleared.
  */
-export const AppInitContext = createContext({
+const AppInitContext = createContext({
     appReady: false,
     initError: null,
     retryInit: () => {},
@@ -86,9 +86,8 @@ export const AppInitProvider = ({ children }) => {
     // DERIVED — synchronous, no render flash
     const appReady = useMemo(() => {
         if (authLoading) return false;
-        if (!user) return true; // Not logged in — show login/landing page immediately
-        return readyForUserId === getUserId(user);
-    }, [authLoading, user, readyForUserId, getUserId]);
+        return true; 
+    }, [authLoading]);
 
     const runInit = useCallback(async (targetUser) => {
         if (!targetUser) return;
@@ -131,59 +130,35 @@ export const AppInitProvider = ({ children }) => {
             const isCustomer = role === 'customer';
             const isVendor = role === 'vendor';
 
-            // Always fetch dashboard stats for every authenticated user
+            // Fetch dashboard stats asynchronously so it doesn't block app shell rendering
+            API.get('/dashboard/stats')
+                .then(res => setDashboardData(res.data))
+                .catch(() => setDashboardData({}));
+
             const requests = [
-                API.get('/dashboard/stats').catch(() => ({ data: {} })),
+                Promise.resolve({ data: null }), // Placeholder for dashboard stats
             ];
 
             // ── Employees list ──────────────────────────────────────────────
-            if (isAdminLike || isHR || isManager || isSales) {
-                requests.push(API.get('/employees').catch(() => ({ data: [] })));
-            } else {
-                requests.push(Promise.resolve({ data: [] }));
-            }
+            requests.push(Promise.resolve({ data: [] }));
 
             // ── Leads ───────────────────────────────────────────────────────
-            if (isAdminLike || isSales || isManager) {
-                requests.push(API.get('/leads').catch(() => ({ data: [] })));
-            } else {
-                requests.push(Promise.resolve({ data: [] }));
-            }
+            requests.push(Promise.resolve({ data: [] }));
 
             // ── Orders ──────────────────────────────────────────────────────
-            if (isAdminLike || isSales || isManager) {
-                requests.push(API.get('/orders').catch(() => ({ data: [] })));
-            } else {
-                requests.push(Promise.resolve({ data: [] }));
-            }
+            requests.push(Promise.resolve({ data: [] }));
 
             // ── Customers ───────────────────────────────────────────────────
-            if (isAdminLike || isSales || isManager) {
-                requests.push(API.get('/customers').catch(() => ({ data: [] })));
-            } else {
-                requests.push(Promise.resolve({ data: [] }));
-            }
+            requests.push(Promise.resolve({ data: [] }));
 
             // ── Tasks ───────────────────────────────────────────────────────
-            if (isAdminLike || isSales || isHR || isManager) {
-                requests.push(API.get('/tasks').catch(() => ({ data: [] })));
-            } else {
-                requests.push(Promise.resolve({ data: [] }));
-            }
+            requests.push(Promise.resolve({ data: [] }));
 
             // ── Leaves ──────────────────────────────────────────────────────
-            if (isAdminLike || isHR || isManager) {
-                requests.push(API.get('/leaves').catch(() => ({ data: [] })));
-            } else {
-                requests.push(Promise.resolve({ data: [] }));
-            }
+            requests.push(Promise.resolve({ data: [] }));
 
             // ── Salaries ────────────────────────────────────────────────────
-            if (isAdminLike || isHR || isManager) {
-                requests.push(API.get('/salaries').catch(() => ({ data: [] })));
-            } else {
-                requests.push(Promise.resolve({ data: [] }));
-            }
+            requests.push(Promise.resolve({ data: [] }));
 
             // ── Employee-specific routes ────────────────────────────────────
             if (isEmployee) {
@@ -229,7 +204,7 @@ export const AppInitProvider = ({ children }) => {
             const result = {
                 userId,
                 ts: Date.now(),
-                dashboardData: dashR.data || {},
+                // dashboardData is updated asynchronously now
                 employees: Array.isArray(empR.data) ? empR.data : [],
                 leads: Array.isArray(leadsR.data) ? leadsR.data : [],
                 orders: Array.isArray(ordR.data) ? ordR.data : [],
@@ -253,7 +228,7 @@ export const AppInitProvider = ({ children }) => {
             // Cache in window
             window[INIT_CACHE_KEY] = result;
 
-            setDashboardData(result.dashboardData);
+            // setDashboardData is handled asynchronously
             setEmployees(result.employees);
             setLeads(result.leads);
             setOrders(result.orders);
@@ -351,3 +326,5 @@ export const AppInitProvider = ({ children }) => {
         </AppInitContext.Provider>
     );
 };
+
+export const useAppInit = () => useContext(AppInitContext);

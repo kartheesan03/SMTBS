@@ -14,6 +14,7 @@ import {
   Edit,
   Trash2,
 } from "lucide-react";
+import PageHeader from "../components/PageHeader";
 import "./SecuritySettings.css";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
@@ -25,26 +26,25 @@ const SecuritySettings = () => {
   return (
     <div className="sec-container">
       {/* Header */}
-      <div className="sec-header-row">
-        <div className="sec-header-left">
-          <div className="sec-header-icon">
-            <ClipboardList size={24} color="#8b5cf6" />
-          </div>
-          <div>
-            <span className="sec-pre-title">SECURITY & COMPLIANCE</span>
-            <h2>Audit Logs</h2>
-            <p>A complete, timestamped trail of activity across SMTBMS.</p>
-          </div>
-        </div>
-        <div className="sec-header-actions">
-          <button className="sec-btn-outline">
-            <RefreshCw size={14} /> Refresh
-          </button>
-          <button className="sec-btn-primary">
-            <Download size={14} /> Export Logs
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Security Settings"
+        badge="SECURITY & COMPLIANCE"
+        subtitle="A complete, timestamped trail of activity across SMTBMS."
+        actions={[
+          {
+            label: "Refresh",
+            icon: RefreshCw,
+            onClick: () => {},
+            style: { background: "white", color: "#64748b", border: "1px solid #e2e8f0" }
+          },
+          {
+            label: "Export Logs",
+            icon: Download,
+            primary: true,
+            onClick: () => {}
+          }
+        ]}
+      />
 
       {/* KPI Cards */}
       <StatsGrid>

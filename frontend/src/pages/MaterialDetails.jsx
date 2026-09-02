@@ -2,10 +2,12 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../api/axios";
 import toast from "react-hot-toast";
+import PageHeader from "../components/PageHeader";
 import {
   Package,
   AlertTriangle,
   ArrowLeft,
+  Settings,
   Clock,
   MapPin,
   Tag,
@@ -142,79 +144,40 @@ const MaterialDetails = ({ embeddedId }) => {
   const certs = material.certifications || [];
   const mockPhotos = [1, 2, 3, 4, 5];
   return (
-    <div
-      style={{
-        padding: embeddedId ? "0" : "32px",
-        maxWidth: 1400,
-        margin: "0 auto",
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
+    <div className="rd-container" style={{ padding: embeddedId ? "0" : "0 32px 32px 32px" }}>
+      <div className="rd-content" style={{ padding: 0 }}>
       {/* Header & Back (Hidden if embedded) */}
       {!embeddedId && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 24,
-          }}
-        >
-          <button
-            onClick={() => navigate("/materials")}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "8px 16px",
-              background: "#f8fafc",
-              color: "#475569",
-              border: "1px solid #e2e8f0",
-              borderRadius: 0,
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            <ArrowLeft size={16} /> Back to Inventory
-          </button>
-          {writeAccess && (
-            <div style={{ display: "flex", gap: 12 }}>
-              <button
-                onClick={() => alert("Adjust Stock")}
-                style={{
-                  padding: "8px 16px",
-                  background: "#fff",
-                  border: "1px solid #cbd5e1",
-                  borderRadius: 0,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: "#0f172a",
-                  cursor: "pointer",
-                }}
-              >
-                Adjust Stock
-              </button>
-              <button
-                onClick={() =>
-                  navigate(`/materials/${material._id || material.id}/edit`)
-                }
-                style={{
-                  padding: "8px 16px",
-                  background: "#3b82f6",
-                  border: "none",
-                  borderRadius: 0,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: "#fff",
-                  cursor: "pointer",
-                }}
-              >
-                Edit Material
-              </button>
-            </div>
-          )}
-        </div>
+        <PageHeader 
+          title="Material Details" 
+          badge="INVENTORY" 
+          subtitle="View and manage detailed information for this material." 
+          showBack={true} 
+          backPath="/materials"
+          actions={writeAccess ? [
+            {
+              label: "Adjust Stock",
+              onClick: () => alert("Adjust Stock"),
+              style: {
+                background: "#fff",
+                border: "1px solid #cbd5e1",
+                color: "#0f172a",
+                fontWeight: 600,
+                fontSize: 13
+              }
+            },
+            {
+              label: "Edit Material",
+              onClick: () => navigate(`/materials/${material._id || material.id}/edit`),
+              primary: true,
+              style: {
+                background: "#3b82f6",
+                fontWeight: 600,
+                fontSize: 13
+              }
+            }
+          ] : []}
+        />
       )}
       <style>{`
                 .tab-btn {
@@ -1603,7 +1566,9 @@ const MaterialDetails = ({ embeddedId }) => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
+
 export default MaterialDetails;

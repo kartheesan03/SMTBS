@@ -786,7 +786,7 @@ const Recruitment = () => {
       {publishedJob && <PublishSuccessModal job={publishedJob} onClose={() => setPublishedJob(null)} />}
       <div className="rd-content">
         {/* ── Header ── */}
-        <PageHeader title="Recruitment" actions={[
+        <PageHeader title="Recruitment" badge="HRMS" subtitle="Manage job postings, track candidates, and oversee the hiring process." actions={[
           { label: "Post Job", icon: Plus, primary: true, onClick: () => setJobModal(true), style: { height: 40, borderRadius: 7, fontWeight: 500, fontSize: 14 } }
         ]} />
         {/* ── KPI Cards ── */}

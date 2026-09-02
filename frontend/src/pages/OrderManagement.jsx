@@ -18,8 +18,10 @@ const OrderManagement = () => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusPeriod, setStatusPeriod] = useState("This Month");
+  const [statusPeriod, setStatusPeriod] = useState("All Time");
   const [revenuePeriod, setRevenuePeriod] = useState("This Year");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const fetchOrders = async () => {
     try {
       const {
@@ -61,6 +63,13 @@ const OrderManagement = () => {
     const matchesSearch = !searchTerm || custName.toLowerCase().includes(searchTerm.toLowerCase()) || orderNum.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter, searchTerm]);
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const paginatedOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const salesRevMap = {};
   const purchaseCostMap = {};
@@ -71,6 +80,7 @@ const OrderManagement = () => {
     targetYearForStatus = currentMonth === 0 ? currentYear - 1 : currentYear;
   }
   const filteredOrdersForStatus = orders.filter(o => {
+    if (statusPeriod === "All Time") return true;
     if (!o.createdAt) return false;
     const d = new Date(o.createdAt);
     return d.getMonth() === targetMonth && d.getFullYear() === targetYearForStatus;
@@ -124,6 +134,9 @@ const OrderManagement = () => {
     salesRevenue: Math.round(salesRevMap[month] || 0),
     purchaseCost: Math.round(purchaseCostMap[month] || 0)
   }));
+  // Trim trailing all-zero months so chart doesn't look empty
+  const lastNonZeroIdx = revenueChartData.reduceRight((found, row, idx) => found === -1 && (row.salesRevenue > 0 || row.purchaseCost > 0) ? idx : found, -1);
+  const trimmedRevenueData = lastNonZeroIdx >= 0 ? revenueChartData.slice(0, lastNonZeroIdx + 1) : revenueChartData;
   if (loading) return <LoadingState message="Loading..." height="100vh" />;
   return <motion.div initial={{
     opacity: 0,
@@ -213,7 +226,7 @@ const OrderManagement = () => {
               height: "fit-content"
             }}>
                 {" "}
-                <option>This Month</option> <option>Last Month</option>{" "}
+                <option>All Time</option> <option>This Month</option> <option>Last Month</option>{" "}
               </select>{" "}
             </div>{" "}
             <div style={{
@@ -225,10 +238,10 @@ const OrderManagement = () => {
                 <BarChart data={statusDistData} barSize={24}>
                   {" "}
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />{" "}
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} interval={0} angle={-45} textAnchor="end" height={60} tick={{
                   fill: "#64748b",
-                  fontSize: 11
-                }} dy={10} />{" "}
+                  fontSize: 10
+                }} dy={10} dx={-5} />{" "}
                   <YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{
                   fill: "#94a3b8",
                   fontSize: 11
@@ -298,12 +311,12 @@ const OrderManagement = () => {
               </select>{" "}
             </div>{" "}
             <div style={{
-            height: 200
+            height: 260
           }}>
               {" "}
               <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 {" "}
-                <BarChart data={revenueChartData} barGap={4} barSize={16}>
+                <BarChart data={trimmedRevenueData} barGap={4} barSize={20}>
                   {" "}
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />{" "}
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{
@@ -434,7 +447,7 @@ const OrderManagement = () => {
                 }}>
                       No orders found
                     </td>
-                  </tr> : filteredOrders.map((o, i) => {
+                  </tr> : paginatedOrders.map((o, i) => {
                 const orderId = o.orderNumber || "—";
                 const status = o.status || "—";
                 const statusColors = {
@@ -580,6 +593,45 @@ const OrderManagement = () => {
               </tbody>{" "}
             </table>{" "}
           </div>{" "}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderTop: '1px solid var(--rd-border)' }}>
+            <span style={{ fontSize: '13px', color: '#64748b' }}>
+              Showing {filteredOrders.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredOrders.length)} of {filteredOrders.length} orders
+            </span>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{ padding: '6px 12px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: currentPage === 1 ? '#94a3b8' : '#0f172a', fontSize: '13px', fontWeight: 500 }}
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  style={{
+                    padding: '6px 12px',
+                    background: currentPage === page ? '#3b82f6' : '#fff',
+                    color: currentPage === page ? '#fff' : '#0f172a',
+                    border: currentPage === page ? '1px solid #3b82f6' : '1px solid #cbd5e1',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 500
+                  }}
+                >
+                  {page}
+                </button>
+              ))}
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages || totalPages === 0}
+                style={{ padding: '6px 12px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: currentPage === totalPages || totalPages === 0 ? 'not-allowed' : 'pointer', color: currentPage === totalPages || totalPages === 0 ? '#94a3b8' : '#0f172a', fontSize: '13px', fontWeight: 500 }}
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </motion.div>{" "}
       </div>{" "}
     </motion.div>;

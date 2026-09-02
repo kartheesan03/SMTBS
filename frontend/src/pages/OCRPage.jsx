@@ -537,7 +537,7 @@ const OCRPage = () => {
     ];
 
     return (
-      <div style={{ padding: '28px', maxWidth: '1280px', margin: '0 auto' }}>
+      <div style={{ padding: '24px 32px', background: 'var(--bg-app, #f8fafc)', minHeight: '100vh', animation: 'fadeIn 0.4s ease-out' }}>
         {/* Header */}
         <PageHeader
           title="Document Intelligence"
@@ -637,7 +637,7 @@ const OCRPage = () => {
   };
 
   return (
-    <div style={{ padding: '28px', maxWidth: '1280px', margin: '0 auto', background: '#f8fafc', minHeight: 'calc(100vh - 60px)' }}>
+      <div style={{ padding: '24px 32px', background: 'var(--bg-app, #f8fafc)', minHeight: '100vh', animation: 'fadeIn 0.4s ease-out' }}>
       {/* File Info Row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 20px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

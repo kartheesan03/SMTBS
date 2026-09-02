@@ -13,6 +13,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import PageHeader from "../components/PageHeader";
 import "./IntegrationsSettings.css";
 const IntegrationsSettings = () => {
   const defaultIntegrations = [
@@ -118,6 +119,11 @@ const IntegrationsSettings = () => {
   };
   return (
     <div className="int-container">
+      <PageHeader
+        title="Integrations & API"
+        badge="SYSTEM"
+        subtitle="Connect external services, set up webhooks, and manage API keys."
+      />
       {/* Integrations Grid */}
       <div className="int-grid">
         {intList.map((int) => (

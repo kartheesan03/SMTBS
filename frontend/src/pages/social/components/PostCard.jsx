@@ -885,6 +885,7 @@ const PostCard = ({ post, onDelete, onPin, onRepost, onHashtagClick }) => {
       {showComments && (
         <CommentSection
           postId={post.id}
+          postAuthorId={post.authorId || post.author?.id}
           comments={localComments}
           onCommentAdded={(newComment) => {
              setLocalComments(prev => [...prev, newComment]);

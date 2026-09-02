@@ -47,6 +47,7 @@ const PayrollSettings = () => {
       {toast && <div className="toast-notification success">{toast}</div>}
       <PageHeader
         title="Payroll Settings"
+        badge="PAYROLL"
         subtitle="Configure compensation cycles, statutory deductions, and standard allowances."
       />
       <div className="settings-grid">

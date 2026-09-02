@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { AppInitContext } from "../context/AppInitContext";
+import { useAppInit } from "../context/AppInitContext";
 import {
   CheckCircle, Calendar, IndianRupee, Clock, UserCheck, Activity,
   FileText, Bell, AlertTriangle, Award, Star, TrendingUp, TrendingDown,
@@ -26,7 +26,7 @@ const EmployeeDashboard = () => {
     attendStats,
     salary,
     leaveBalance,
-  } = useContext(AppInitContext);
+  } = useAppInit();
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -88,12 +88,13 @@ const EmployeeDashboard = () => {
     return 12;
   })();
   const mySalary   = salary?.netSalary || salary?.basicSalary || 0;
-  const attendPct  = attendStats.pct || 0;
+  const safeAttendStats = attendStats || { pct: 0, attArr: [], present: 0 };
+  const attendPct  = safeAttendStats.pct || 0;
   const completedTask = myTasks.filter(t => t.status === "Completed").length;
   const pendingTask = myTasks.filter(t => t.status !== "Completed").length;
 
   const donutData = [{ name:"Done", value: taskDone||1 }, { name:"Pending", value: Math.max(0, taskTotal-taskDone)||0 }];
-  const attTrend = (attendStats.attArr || []).slice(0,12).map((a) => ({
+  const attTrend = (safeAttendStats.attArr || []).slice(0,12).map((a) => ({
     name: new Date(a.date || a.createdAt).toLocaleDateString('en-GB', {day:'numeric', month:'short'}),
     pct: (a.status === "Present" || a.checkIn) ? 100 : 0
   })).reverse();
@@ -113,7 +114,7 @@ const EmployeeDashboard = () => {
   }
 
   const todayStr = new Date().toLocaleDateString('en-CA');
-  const isCheckedInToday = (attendStats.attArr || []).some(a => {
+  const isCheckedInToday = (safeAttendStats.attArr || []).some(a => {
     const d = new Date(a.date || a.createdAt).toLocaleDateString('en-CA');
     return d === todayStr && (a.status === "Present" || !!a.checkIn);
   });
@@ -193,7 +194,7 @@ const EmployeeDashboard = () => {
               </div>
               <div className="bx-kpi-card">
                 <div className="bx-kpi-header"><div className="bx-kpi-icon teal"><UserCheck size={14}/></div> Attendance</div>
-                <div className="bx-kpi-val">{attendPct}%</div>
+                <div className="bx-kpi-val">{safeAttendStats.present || 0}</div>
                 <div className="bx-kpi-trend up"><ArrowUpRight size={12}/> This Month</div>
               </div>
               <div className="bx-kpi-card">

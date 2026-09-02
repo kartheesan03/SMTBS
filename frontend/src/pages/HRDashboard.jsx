@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { AppInitContext } from "../context/AppInitContext";
+import { useAppInit } from "../context/AppInitContext";
 import API from "../api/axios";
 import {
   Users, IndianRupee, Calendar, UserCheck, AlertTriangle, Activity,
@@ -28,7 +28,7 @@ const HRDashboard = () => {
     tasks,
     leavesData,
     salariesData,
-  } = useContext(AppInitContext);
+  } = useAppInit();
 
   const [now, setNow] = useState(new Date());
   const [weather, setWeather] = useState({ temp: '28°C', condition: 'Partly Cloudy' });

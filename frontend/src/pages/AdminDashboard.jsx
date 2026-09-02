@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { AppInitContext } from "../context/AppInitContext";
+import { useAppInit } from "../context/AppInitContext";
 import { 
   Users, ArrowUpRight, ArrowDownRight, Package, Truck, Clock, RefreshCw, Bell,
   FileText, Briefcase, UserPlus, Database, Search, Filter, MessageSquare, Plus, CheckCircle, 
@@ -61,7 +61,7 @@ const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   // Consume pre-fetched data from global AppInitContext
-  const { dashboardData: initDashboardData } = useContext(AppInitContext);
+  const { dashboardData: initDashboardData } = useAppInit();
   const dashboardData = initDashboardData || {};
 
   const [now, setNow] = useState(new Date());

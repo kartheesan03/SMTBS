@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { AppInitContext } from "../context/AppInitContext";
+import { useAppInit } from "../context/AppInitContext";
 import {
   Users, ShoppingCart, IndianRupee, Box, FileText, Truck,
   Bell, Calendar, ListTodo, UserCheck, Activity,
@@ -28,7 +28,7 @@ const ManagerDashboard = () => {
     tasks,
     orders,
     employees,
-  } = useContext(AppInitContext);
+  } = useAppInit();
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [now, setNow] = useState(new Date());

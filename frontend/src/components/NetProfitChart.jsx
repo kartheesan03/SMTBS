@@ -162,7 +162,7 @@ export default function NetProfitChart({
     setActiveSeries((prev) => ({ ...prev, [key]: !prev[key] }));
   };
   const chartData = useMemo(() => {
-    return currentYearData.map((curr, idx) => {
+    const all = currentYearData.map((curr, idx) => {
       const last = lastYearData[idx] || { netProfit: 0 };
       return {
         month: curr.month,
@@ -170,6 +170,12 @@ export default function NetProfitChart({
         last: last.netProfit,
       };
     });
+    // Trim leading and trailing months where both series are zero
+    let start = 0;
+    let end = all.length - 1;
+    while (start < end && all[start].current === 0 && all[start].last === 0) start++;
+    while (end > start && all[end].current === 0 && all[end].last === 0) end--;
+    return all.length > 0 ? all.slice(start, end + 1) : all;
   }, [currentYearData, lastYearData]);
   const currentTotal = currentYearData.reduce((acc, curr) => acc + (curr.netProfit || 0), 0);
   const lastTotal = lastYearData.reduce((acc, curr) => acc + (curr.netProfit || 0), 0);

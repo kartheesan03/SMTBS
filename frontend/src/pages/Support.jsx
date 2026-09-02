@@ -118,7 +118,11 @@ const Support = () => {
   }} animate={{
     opacity: 1
   }} className="service-desk-wrapper">
-            <PageHeader title="Support Center" />
+            <PageHeader
+              title="Support Center"
+              badge="SUPPORT"
+              subtitle="Submit, track, and manage support requests and service desk tickets."
+            />
 
             <div className="sd-stats-row">
                 <div className="sd-stat-card">
