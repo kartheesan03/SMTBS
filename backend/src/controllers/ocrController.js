@@ -1,4 +1,4 @@
-const OCRDocument = require('../models/OcrDocument');
+const OCRDocument = require('../models/OCRDocument');
 const PurchaseRequest = require('../models/PurchaseRequest');
 const User = require('../models/User');
 const multer = require('multer');
