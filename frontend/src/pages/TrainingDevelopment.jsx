@@ -389,6 +389,12 @@ const TrainingDevelopment = () => {
           title="Training & Development"
           badge="HRMS"
           subtitle="Manage employee training programs, track progress, and issue certifications."
+          actions={[{
+            label: 'Add Course',
+            icon: Plus,
+            primary: true,
+            onClick: () => setShowAddModal(true)
+          }]}
         />
         {/* ── KPI Cards ── */}
         <StatsGrid>
