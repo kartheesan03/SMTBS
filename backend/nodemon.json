@@ -1,1 +1,1 @@
-{ "watch": ["src/", "server.js", "config/"], "ext": "js,json", "ignore": ["*.sqlite", "*.db", "*.log", "uploads/", "scripts/", "tests/"] }
+{ "watch": ["src/", "server.js", "config/"], "ext": "js,json", "ignore": ["*.log", "uploads/", "scripts/", "tests/", "node_modules/"] }

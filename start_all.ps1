@@ -1,5 +1,5 @@
 # Start the Python FastAPI OCR Microservice
-Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", "cd backend; if (Test-Path .venv\Scripts\activate.ps1) { .\.venv\Scripts\activate.ps1 } elseif (Test-Path ocr_service\venv\Scripts\activate.ps1) { .\ocr_service\venv\Scripts\activate.ps1 }; python main.py" -WindowStyle Normal
+Start-Process -FilePath "powershell.exe" -ArgumentList "-ExecutionPolicy", "Bypass", "-NoExit", "-Command", "cd backend; if (Test-Path .venv\Scripts\activate.ps1) { .\.venv\Scripts\activate.ps1 } elseif (Test-Path ocr_service\venv\Scripts\activate.ps1) { .\ocr_service\venv\Scripts\activate.ps1 }; python main.py" -WindowStyle Normal
 
 # Start the Node.js Backend
 Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", "cd backend; npm run dev" -WindowStyle Normal

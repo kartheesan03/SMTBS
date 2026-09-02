@@ -115,6 +115,7 @@ const OrderDetails = lazyRetry(() => import('./pages/OrderDetails'));
 const VendorDetails = lazyRetry(() => import('./pages/VendorDetails'));
 const FinancialOperations = lazyRetry(() => import('./pages/FinancialOperations'));
 const OrderManagement = lazyRetry(() => import('./pages/OrderManagement'));
+const OrderFinanceDetails = lazyRetry(() => import('./pages/OrderFinanceDetails'));
 const Leads = lazyRetry(() => import('./pages/Leads'));
 const SalesPipeline = lazyRetry(() => import('./pages/SalesPipeline'));
 const InvoicePage = lazyRetry(() => import('./pages/InvoicePage'));
@@ -340,6 +341,7 @@ const AppContent = () => {
                     <Route path="/hr-reports" element={<ProtectedRoute requiredPermission="view_hrms"><HRReports /></ProtectedRoute>} />
                     <Route path="/team-performance" element={<ProtectedRoute requiredPermission="hrms:performance:view"><TeamPerformance /></ProtectedRoute>} />
                     <Route path="/erp" element={<ProtectedRoute requiredPermission="view_erp"><ERP /></ProtectedRoute>} />
+                    <Route path="/order-finances" element={<ProtectedRoute requiredPermission="view_erp"><OrderFinanceDetails /></ProtectedRoute>} />
                     <Route path="/orders" element={<ProtectedRoute requiredPermission="view_erp"><OrderManagement /></ProtectedRoute>} />
                     <Route path="/orders/purchase" element={<ProtectedRoute requiredPermission="view_erp"><OrderManagement /></ProtectedRoute>} />
                     <Route path="/orders/select-type" element={<ProtectedRoute allowedRoles={['admin', 'manager', 'hr', 'sales']}><OrderCreationRoute><SelectOrderType /></OrderCreationRoute></ProtectedRoute>} />

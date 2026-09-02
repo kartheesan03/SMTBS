@@ -41,7 +41,7 @@ async function processDocumentWithGemini(filePath) {
         const fileContent = fs.readFileSync(filePath);
         const base64Content = fileContent.toString('base64');
         
-        const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
 
         const prompt = `You are a professional enterprise Document OCR and Structured Data Extraction System. 
 Analyze the provided document and extract its contents into a strict JSON format.
@@ -86,6 +86,10 @@ If a field is not found, leave it as an empty string. If the document has no tab
         ]);
 
         const responseText = result.response.text();
+
+        if (!responseText || responseText.trim() === '') {
+            throw new Error('Gemini returned an empty response (image may be blocked by safety filters).');
+        }
         
         // Clean markdown block if the model included it despite instructions
         let cleanJson = responseText.trim();
@@ -128,7 +132,7 @@ async function askDocumentQuestion(filePath, question, ocrContext = null) {
         const fileContent = fs.readFileSync(filePath);
         const base64Content = fileContent.toString('base64');
         
-        const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
 
         let prompt = `You are an AI Document Assistant. Please answer the user's question based on the provided document image.\n`;
         if (ocrContext && ocrContext.raw_text) {

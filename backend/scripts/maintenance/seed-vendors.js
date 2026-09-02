@@ -268,8 +268,7 @@ async function upsertMaterial(matData, vendorId) {
             shelf: matData.shelf || null,
             vendorId: vendorId,
             isActive: true,
-            status: matData.quantity <= (matData.lowStockThreshold || 10) ? 'Low Stock' : 'In Stock',
-            stockStatus: matData.quantity <= (matData.lowStockThreshold || 10) ? 'Low Stock' : 'In Stock'
+            status: matData.quantity <= (matData.lowStockThreshold || 10) ? 'Low Stock' : 'In Stock'
         });
     }
 
@@ -307,8 +306,10 @@ async function main() {
 
         setupAssociations();
 
-        // Sync new models without dropping existing tables
-        await VendorMaterial.sequelizeModel.sync({ alter: false, force: false });
+        // Sync new models allowing column alterations
+        await Vendor.sequelizeModel.sync({ alter: true });
+        await Material.sequelizeModel.sync({ alter: true });
+        await VendorMaterial.sequelizeModel.sync({ alter: true });
 
         let created = 0;
         let updated = 0;

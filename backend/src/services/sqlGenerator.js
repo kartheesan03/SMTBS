@@ -26,7 +26,7 @@ const generateAndExecuteSQL = async (user, naturalLanguageQuery) => {
         Ensure you append appropriate WHERE clauses to enforce this Row-Level Security.
     `;
     const prompt = `
-        You are an expert SQL generator for SQLite/MySQL. 
+        You are an expert SQL generator for MySQL. 
         Given the following schema and RBAC rules, generate a safe, read-only SELECT SQL query to answer the user's question.
         Schema:
         ${schemaContext}

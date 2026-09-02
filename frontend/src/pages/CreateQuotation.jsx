@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
+import { SearchableSelect } from "../components/ui/FormElements";
 import toast from "react-hot-toast";
 import { Save, Plus, Trash2, ArrowLeft } from "lucide-react";
 import { PageContainer, PageHeader } from "../components/ui";
@@ -140,20 +141,16 @@ const CreateQuotation = () => {
               <label>
                 Customer <span style={{ color: "red" }}>*</span>
               </label>
-              <select
+              <SearchableSelect
                 value={formData.customer}
-                onChange={(e) =>
-                  setFormData({ ...formData, customer: e.target.value })
-                }
-                required
-              >
-                <option value="">Select a Customer</option>
-                {customers.map((c) => (
-                  <option key={c._id || c.id} value={c._id || c.id}>
-                    {c.name} ({c.email})
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setFormData({ ...formData, customer: val })}
+                options={customers.map(c => ({
+                  value: c._id || c.id,
+                  label: `${c.name} (${c.email})`
+                }))}
+                placeholder="Select a Customer"
+                error={false}
+              />
             </div>
             <div className="ui-form-group">
               <label>
@@ -211,7 +208,7 @@ const CreateQuotation = () => {
                 </p>
               </div>
             ) : (
-              <div style={{ overflowX: "auto" }}>
+              <div style={{ overflowX: "visible" }}>
                 <table className="ui-table">
                   <thead>
                     <tr>
@@ -232,33 +229,16 @@ const CreateQuotation = () => {
                       return (
                         <tr key={index}>
                           <td>
-                            <select
+                            <SearchableSelect
                               value={item.material}
-                              onChange={(e) =>
-                                handleItemChange(
-                                  index,
-                                  "material",
-                                  e.target.value
-                                )
-                              }
-                              required
-                              style={{
-                                width: "100%",
-                                padding: "8px",
-                                borderRadius: "0px",
-                                border: "1px solid #D1D5DB",
-                              }}
-                            >
-                              <option value="">Select Material</option>
-                              {materials.map((m) => (
-                                <option
-                                  key={m._id || m.id}
-                                  value={m._id || m.id}
-                                >
-                                  {m.name} ({m.sku})
-                                </option>
-                              ))}
-                            </select>
+                              onChange={(val) => handleItemChange(index, "material", val)}
+                              options={materials.map(m => ({
+                                value: m._id || m.id,
+                                label: `${m.name} (${m.sku})`
+                              }))}
+                              placeholder="Select Material"
+                              error={false}
+                            />
                           </td>
                           <td>
                             <input

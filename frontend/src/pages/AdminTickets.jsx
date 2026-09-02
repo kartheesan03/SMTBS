@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, useMemo, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { motion } from 'framer-motion';
 import {
@@ -87,6 +88,7 @@ const Skeleton = () => (
 /* ─── Main Component ─── */
 const AdminTickets = () => {
     const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -260,7 +262,7 @@ const AdminTickets = () => {
                         label: 'Create Ticket',
                         icon: Plus,
                         primary: true,
-                        onClick: () => toast('Navigate to the user Support page to create a ticket.'),
+                        onClick: () => navigate('/support'),
                     }]}
                 />
 

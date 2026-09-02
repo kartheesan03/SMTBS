@@ -19,6 +19,54 @@ import API from "../api/axios";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 
+const MetricSlider = ({ label, value, color, onChg }) => {
+  const [localVal, setLocalVal] = useState(String(value));
+  const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    if (!isFocused) setLocalVal(String(value));
+  }, [value, isFocused]);
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    let v = parseInt(localVal, 10);
+    if (isNaN(v)) v = 0;
+    v = Math.min(100, Math.max(0, v));
+    setLocalVal(String(v));
+    onChg(v);
+  };
+
+  return (
+    <div style={{ marginBottom: 28 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <span style={{ fontSize: 14, fontWeight: 500, color: "#1e293b" }}>{label}</span>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input 
+            type="text" 
+            value={isFocused ? localVal : value} 
+            onFocus={() => setIsFocused(true)}
+            onBlur={handleBlur}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.target.blur();
+              }
+            }}
+            onChange={e => {
+              setLocalVal(e.target.value);
+            }}
+            style={{ 
+              width: 48, textAlign: "center", fontSize: 15, fontWeight: 600, color: "#0f172a", 
+              border: "1px solid #cbd5e1", outline: "none", background: "#ffffff", padding: "4px 8px", margin: 0,
+              borderRadius: "6px", boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+            }}
+          />
+          <span style={{ fontSize: 14, color: "#64748b", fontWeight: 400, marginLeft: 8 }}>/ 100</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const TeamPerformance = () => {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
@@ -184,43 +232,6 @@ const TeamPerformance = () => {
 
     const rtgClr = { Excellent: "#10b981", Good: "#3b82f6", Average: "#f59e0b", "Below Average": "#ef4444", "N/A": "#94a3b8" }[rtg] || "#94a3b8";
 
-    const Slider = ({ label, value, color, onChg }) => (
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-          <span style={{ fontSize: 14, fontWeight: 500, color: "#1e293b" }}>{label}</span>
-          <div style={{ display: "flex", alignItems: "baseline" }}>
-            <input 
-              type="text" 
-              value={value} 
-              onChange={e => {
-                const v = parseInt(e.target.value, 10);
-                if (!isNaN(v)) onChg(Math.min(100, Math.max(0, v)));
-                else if (e.target.value === '') onChg(0);
-              }}
-              style={{ 
-                width: 32, textAlign: "right", fontSize: 15, fontWeight: 600, color: "#0f172a", 
-                border: "none", outline: "none", background: "transparent", padding: 0, margin: 0 
-              }}
-            />
-            <span style={{ fontSize: 14, color: "#64748b", fontWeight: 400, marginLeft: 4 }}>/ 100</span>
-          </div>
-        </div>
-        <div style={{ position: "relative", height: 4, background: "#e2e8f0", borderRadius: 4, margin: "0 6px" }}>
-          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${value}%`, background: color, borderRadius: 4 }} />
-          <input type="range" min={0} max={100} value={value}
-            onChange={e => onChg(Number(e.target.value))}
-            style={{ 
-              position: "absolute", inset: -10, width: "calc(100% + 20px)", opacity: 0, cursor: "pointer", margin: 0
-            }} 
-          />
-          <div style={{ 
-            position: "absolute", left: `calc(${value}% - 6px)`, top: "50%", marginTop: -6,
-            width: 12, height: 12, background: "#fff", border: `2px solid ${color}`,
-            borderRadius: "50%", pointerEvents: "none", boxShadow: "0 1px 3px rgba(0,0,0,0.12)"
-          }} />
-        </div>
-      </div>
-    );
 
     return (
       <div onClick={() => setEditModal(null)} style={{
@@ -230,7 +241,9 @@ const TeamPerformance = () => {
         padding: "32px 20px"
       }}>
         <div onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === 'Escape') setEditModal(null); }}
-          tabIndex={-1} ref={el => el && el.focus()}
+          tabIndex={-1} ref={el => {
+            if (el && !el.contains(document.activeElement)) el.focus();
+          }}
           style={{
           background: "#ffffff", borderRadius: 14, width: "100%", maxWidth: 680,
           boxShadow: "0 10px 30px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)",
@@ -264,9 +277,9 @@ const TeamPerformance = () => {
               Performance Metrics
             </h3>
             
-            <Slider label="Task Score"       value={ts}  color="#6366f1" onChg={v => setEditModal(p => ({ ...p, taskScore: v }))} />
-            <Slider label="Attendance (Est.)" value={att} color="#10b981" onChg={v => setEditModal(p => ({ ...p, attendance: v }))} />
-            <Slider label="Target Score"     value={tgt} color="#f59e0b" onChg={v => setEditModal(p => ({ ...p, targetScore: v }))} />
+            <MetricSlider label="Task Score"       value={ts}  color="#6366f1" onChg={v => setEditModal(p => ({ ...p, taskScore: v, overall: undefined, rating: undefined, appraisal: undefined }))} />
+            <MetricSlider label="Attendance (Est.)" value={att} color="#10b981" onChg={v => setEditModal(p => ({ ...p, attendance: v, overall: undefined, rating: undefined, appraisal: undefined }))} />
+            <MetricSlider label="Target Score"     value={tgt} color="#f59e0b" onChg={v => setEditModal(p => ({ ...p, targetScore: v, overall: undefined, rating: undefined, appraisal: undefined }))} />
 
             <div style={{ height: 1, background: "#e2e8f0", margin: "32px 0 28px" }} />
 
@@ -282,9 +295,8 @@ const TeamPerformance = () => {
                 <input 
                   type="text" value={ovr}
                   onChange={e => {
-                    const val = parseInt(e.target.value, 10);
-                    if (!isNaN(val)) setEditModal(p => ({ ...p, overall: val }));
-                    else if (e.target.value === '') setEditModal(p => ({ ...p, overall: 0 }));
+                    const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                    if (!isNaN(val)) setEditModal(p => ({ ...p, overall: val, rating: undefined, appraisal: undefined }));
                   }}
                   style={{ width: "100%", padding: 0, border: "none", background: "transparent", fontSize: 16, fontWeight: 600, color: "#0f172a", outline: "none" }}
                 />
@@ -302,7 +314,7 @@ const TeamPerformance = () => {
                 <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 4 }}>Est. Appraisal</label>
                 <input type="text" value={apr}
                   onChange={e => setEditModal(p => ({ ...p, appraisal: e.target.value }))}
-                  style={{ width: "100%", padding: 0, border: "none", background: "transparent", fontSize: 16, fontWeight: 600, color: "#0f172a", outline: "none" }}
+                  style={{ width: "100%", padding: 0, border: "none", background: "transparent", fontSize: 16, fontWeight: 600, color: "#10b981", outline: "none" }}
                 />
               </div>
             </div>

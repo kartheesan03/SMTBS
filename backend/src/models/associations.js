@@ -59,7 +59,7 @@ function setupAssociations() {
     MaterialMovement.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'performedById', as: 'performedBy' });
     MaterialMovement.sequelizeModel.belongsTo(Order.sequelizeModel, { foreignKey: 'referenceOrderId', as: 'referenceOrder' });
     Material.sequelizeModel.hasMany(MaterialMovement.sequelizeModel, { foreignKey: 'materialId', as: 'movements' });
-    CommunicationLog.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customerId', as: 'customer' });
+    CommunicationLog.sequelizeModel.belongsTo(Customer.sequelizeModel, { foreignKey: 'customerId', as: 'Customer' });
     CommunicationLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'createdById', as: 'createdBy' });
     Customer.sequelizeModel.hasMany(CommunicationLog.sequelizeModel, { foreignKey: 'customerId', as: 'communications' });
     AuditLog.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userId', as: 'user' });

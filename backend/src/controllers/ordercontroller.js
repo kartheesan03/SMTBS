@@ -1122,7 +1122,110 @@ const employeeFinalApproval = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+const getOrderFinances = async (req, res) => {
+    try {
+        const year = req.query.year ? parseInt(req.query.year) : new Date().getFullYear();
+        const month = req.query.month ? parseInt(req.query.month) : null;
+        const sequelize = require('../config/sequelize');
+        const { QueryTypes } = require('sequelize');
+        const role = req.user?.role?.toLowerCase();
+
+        // Build RBAC where clauses
+        let extraWhere = '';
+        const replacements = { year };
+
+        if (role === 'sales') {
+            extraWhere += ' AND o.orderType = "sales"';
+        } else if (role === 'vendor') {
+            const Vendor = require('../models/Vendor');
+            const vendorProfile = await Vendor.sequelizeModel.findOne({ where: { userId: req.user.id } });
+            if (!vendorProfile) return res.status(403).json({ message: 'Vendor profile not found' });
+            extraWhere += ' AND o.vendorId = :vendorId AND o.orderType = "purchase"';
+            replacements.vendorId = vendorProfile.id;
+        } else if (role === 'customer') {
+            const Customer = require('../models/Customer');
+            const customerProfile = await Customer.sequelizeModel.findOne({ where: { userId: req.user.id } });
+            if (!customerProfile) return res.status(403).json({ message: 'Customer profile not found' });
+            extraWhere += ' AND o.customerId = :customerId AND o.orderType = "sales"';
+            replacements.customerId = customerProfile.id;
+        }
+
+        const detailsMode = req.query.details === 'true';
+
+        if (month !== null || detailsMode) {
+            if (month !== null) replacements.month = month;
+            // Detail mode: return actual order records for this month
+            const ordersSQL = `
+                SELECT 
+                    o.id, o.orderNumber, o.orderType, o.status, o.totalAmount, o.grandTotal,
+                    o.orderDate, o.expectedDeliveryDate, o.paymentStatus, o.items,
+                    c.id AS customerId, c.name AS customerName, c.company AS customerCompany,
+                    v.id AS vendorId, v.name AS vendorName, v.name AS vendorCompanyName
+                FROM \`Order\` o
+                LEFT JOIN \`Customer\` c ON o.customerId = c.id
+                LEFT JOIN \`Vendor\` v ON o.vendorId = v.id
+                WHERE YEAR(COALESCE(o.orderDate, o.createdAt)) = :year
+                  ${month !== null ? 'AND MONTH(COALESCE(o.orderDate, o.createdAt)) = :month' : ''}
+                  ${extraWhere}
+                ORDER BY COALESCE(o.orderDate, o.createdAt) ASC
+            `;
+            const rows = await sequelize.query(ordersSQL, { replacements, type: QueryTypes.SELECT });
+            const normalize = row => ({
+                id: row.id,
+                orderNumber: row.orderNumber,
+                orderType: row.orderType,
+                status: row.status,
+                totalAmount: Number(row.totalAmount) || Number(row.grandTotal) || 0,
+                orderDate: row.orderDate,
+                expectedDeliveryDate: row.expectedDeliveryDate,
+                paymentStatus: row.paymentStatus,
+                items: (() => { try { return typeof row.items === 'string' ? JSON.parse(row.items) : (row.items || []); } catch(e) { return []; }})(),
+                customer: row.customerId ? { id: row.customerId, name: row.customerName, company: row.customerCompany } : null,
+                vendor: row.vendorId ? { id: row.vendorId, name: row.vendorName, companyName: row.vendorCompanyName } : null,
+            });
+            const salesOrders = rows.filter(r => r.orderType === 'sales').map(normalize);
+            const purchaseOrders = rows.filter(r => r.orderType === 'purchase').map(normalize);
+            return res.json({ salesOrders, purchaseOrders });
+        }
+
+        // Aggregation mode
+        const aggSQL = `
+            SELECT 
+                MONTH(COALESCE(o.orderDate, o.createdAt)) AS monthNum,
+                o.orderType,
+                SUM(COALESCE(o.totalAmount, o.grandTotal, 0)) AS total
+            FROM \`Order\` o
+            WHERE YEAR(COALESCE(o.orderDate, o.createdAt)) = :year
+              ${extraWhere}
+            GROUP BY MONTH(COALESCE(o.orderDate, o.createdAt)), o.orderType
+        `;
+        const aggRows = await sequelize.query(aggSQL, { replacements, type: QueryTypes.SELECT });
+
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const aggregated = months.map((m, i) => ({ name: m, sales: 0, purchases: 0 }));
+        aggRows.forEach(row => {
+            const mIndex = (row.monthNum || 1) - 1;
+            if (row.orderType === 'sales') aggregated[mIndex].sales += Number(row.total) || 0;
+            else if (row.orderType === 'purchase') aggregated[mIndex].purchases += Number(row.total) || 0;
+        });
+
+        // Available years from actual data
+        const yearsSQL = `SELECT DISTINCT YEAR(COALESCE(orderDate, createdAt)) AS yr FROM \`Order\` WHERE orderDate IS NOT NULL OR createdAt IS NOT NULL ORDER BY yr DESC`;
+        const yearRows = await sequelize.query(yearsSQL, { type: QueryTypes.SELECT });
+        const availableYears = yearRows.map(r => r.yr).filter(Boolean);
+        const currentYear = new Date().getFullYear();
+        if (!availableYears.includes(currentYear)) availableYears.unshift(currentYear);
+
+        return res.json({ data: aggregated, availableYears });
+
+    } catch (error) {
+        console.error('Error fetching order finances:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
 module.exports = {
+    getOrderFinances,
     getOrders,
     createOrder,
     updateOrderStatus,

@@ -44,7 +44,7 @@ const VendorSequelize = sequelize.define('Vendor', {
         allowNull: true
     },
     status: {
-        type: DataTypes.ENUM('Vendor Created', 'Approved Vendor', 'Receives Purchase Orders', 'Supplies Materials', 'In Transit', 'Delivered', 'Completed'),
+        type: DataTypes.ENUM('Active', 'Inactive', 'Vendor Created', 'Approved Vendor', 'Receives Purchase Orders', 'Supplies Materials', 'In Transit', 'Delivered', 'Completed'),
         defaultValue: 'Vendor Created'
     },
     materialsSupplied: {
@@ -67,6 +67,22 @@ const VendorSequelize = sequelize.define('Vendor', {
         type: DataTypes.FLOAT,
         allowNull: true,
         defaultValue: 0
+    },
+    vendorCode: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    city: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    state: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    pinCode: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 });
 const Vendor = makeBridgedModel('Vendor', VendorSequelize);

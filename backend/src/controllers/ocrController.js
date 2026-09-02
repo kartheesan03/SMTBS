@@ -203,20 +203,41 @@ exports.uploadDocument = (req, res) => {
                 }],
             });
 
-            // 2. Call Gemini OCR service
+            // 2. Call Gemini OCR service, fall back to Python EasyOCR if Gemini fails/blocked
             let data;
+            let ocrEngine = 'gemini';
             try {
                 data = await processDocumentWithGemini(req.file.path);
-            } catch (ocrErr) {
-                console.error('Gemini OCR unavailable:', ocrErr.message);
-                ocrDoc.processingStatus = 'Failed';
-                appendAudit(ocrDoc, 'OCR Failed', req.user,
-                    'Gemini OCR service failed: ' + ocrErr.message);
-                await ocrDoc.save();
-                return res.status(200).json({
-                    message: 'OCR extraction failed. Document saved — click Reprocess when the service is running.',
-                    data: ocrDoc,
-                });
+            } catch (geminiErr) {
+                console.warn('Gemini OCR failed, trying Python EasyOCR fallback:', geminiErr.message);
+                appendAudit(ocrDoc, 'Gemini Fallback', req.user,
+                    'Gemini failed: ' + geminiErr.message + ' — trying EasyOCR');
+
+                // Fallback: call Python FastAPI OCR service
+                try {
+                    const formData = new FormData();
+                    formData.append('file', fs.createReadStream(req.file.path), {
+                        filename: req.file.originalname,
+                        contentType: req.file.mimetype,
+                    });
+                    const pyRes = await axios.post(OCR_SERVICE_URL, formData, {
+                        headers: formData.getHeaders(),
+                        timeout: 120000,
+                    });
+                    data = pyRes.data;
+                    ocrEngine = 'easyocr';
+                } catch (pyErr) {
+                    console.error('Python EasyOCR also failed:', pyErr.message);
+                    ocrDoc.processingStatus = 'Failed';
+                    appendAudit(ocrDoc, 'OCR Failed', req.user,
+                        'Both Gemini and EasyOCR failed. Gemini: ' + geminiErr.message +
+                        ' | EasyOCR: ' + pyErr.message);
+                    await ocrDoc.save();
+                    return res.status(200).json({
+                        message: 'OCR extraction failed. Document saved — click Reprocess when the service is running.',
+                        data: ocrDoc,
+                    });
+                }
             }
 
             // 3. Keep original image for preview
@@ -500,7 +521,29 @@ exports.reprocessDocument = async (req, res) => {
         await doc.save();
 
         try {
-            const data = await processDocumentWithGemini(filePath);
+            let data;
+            let ocrEngine = 'gemini';
+            try {
+                data = await processDocumentWithGemini(filePath);
+            } catch (geminiErr) {
+                console.warn('Gemini OCR failed on reprocess, trying Python EasyOCR:', geminiErr.message);
+                appendAudit(doc, 'Gemini Fallback', req.user, 'Gemini: ' + geminiErr.message);
+                try {
+                    const formData = new FormData();
+                    formData.append('file', fs.createReadStream(filePath), {
+                        filename: path.basename(filePath),
+                        contentType: doc.mimeType || 'image/jpeg',
+                    });
+                    const pyRes = await axios.post(OCR_SERVICE_URL, formData, {
+                        headers: formData.getHeaders(),
+                        timeout: 120000,
+                    });
+                    data = pyRes.data;
+                    ocrEngine = 'easyocr';
+                } catch (pyErr) {
+                    throw new Error('Both Gemini and EasyOCR failed. ' + pyErr.message);
+                }
+            }
 
             let processedImagePath = doc.originalImagePath;
 

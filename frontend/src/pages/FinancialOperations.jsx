@@ -13,6 +13,8 @@ const FinancialOperations = () => {
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("All Types");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const fetchData = async () => {
     try {
       const res = await API.get("/orders").catch(() => ({
@@ -117,6 +119,13 @@ const FinancialOperations = () => {
     const matchStatus = statusFilter === "All" || inv.status === statusFilter;
     return matchType && matchStatus;
   });
+
+  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage) || 1;
+  const paginatedInvoices = filteredInvoices.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [typeFilter, statusFilter]);
   if (loading) return <LoadingState message="Loading..." height="100vh" />;
   const handleMarkPaid = async orderId => {
     try {
@@ -531,7 +540,7 @@ const FinancialOperations = () => {
               </thead>{" "}
               <tbody>
                 {" "}
-                {filteredInvoices.length === 0 ? <tr>
+                {paginatedInvoices.length === 0 ? <tr>
                     <td colSpan={8} style={{
                   textAlign: "center",
                   padding: 40,
@@ -539,7 +548,7 @@ const FinancialOperations = () => {
                 }}>
                       No invoices found
                     </td>
-                  </tr> : filteredInvoices.map((inv, i) => {
+                  </tr> : paginatedInvoices.map((inv, i) => {
                 const statusColors = {
                   Paid: "rd-status-green",
                   Overdue: "rd-status-red",
@@ -626,10 +635,58 @@ const FinancialOperations = () => {
                         </td>{" "}
                       </tr>;
               })}{" "}
-              </tbody>{" "}
-            </table>{" "}
-          </div>{" "}
-        </motion.div>{" "}
+              </tbody>
+            </table>
+          </div>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: 20,
+            padding: "0 10px"
+          }}>
+            <div style={{ fontSize: 13, color: "#64748b" }}>
+              Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredInvoices.length)} to {Math.min(currentPage * itemsPerPage, filteredInvoices.length)} of {filteredInvoices.length} entries
+            </div>
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  border: "1px solid #cbd5e1",
+                  background: currentPage === 1 ? "#f8fafc" : "#fff",
+                  color: currentPage === 1 ? "#94a3b8" : "#334155",
+                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                  fontWeight: 600,
+                  fontSize: 13
+                }}
+              >
+                Previous
+              </button>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  border: "1px solid #cbd5e1",
+                  background: currentPage === totalPages ? "#f8fafc" : "#fff",
+                  color: currentPage === totalPages ? "#94a3b8" : "#334155",
+                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                  fontWeight: 600,
+                  fontSize: 13
+                }}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </motion.div>
       </div>{" "}
     </motion.div>;
 };

@@ -1,77 +1,69 @@
 const { Sequelize } = require('sequelize');
-const path = require('path');
+
+// ─── Validate required MySQL environment variables ────────────────────────────
+const requiredVars = ['DB_HOST', 'DB_USER', 'DB_NAME'];
+const missing = requiredVars.filter((v) => !process.env[v]);
+if (missing.length > 0 && !process.env.MYSQL_URL) {
+    console.error('\n================================================================================');
+    console.error('  FATAL: Missing required MySQL environment variable(s):');
+    missing.forEach((v) => console.error(`    - ${v}`));
+    console.error('  Please set these in your .env file:');
+    console.error('    DB_HOST=localhost');
+    console.error('    DB_PORT=3306');
+    console.error('    DB_USER=root');
+    console.error('    DB_PASSWORD=your_password');
+    console.error('    DB_NAME=smtbms');
+    console.error('================================================================================\n');
+    process.exit(1);
+}
+
+const poolConfig = {
+    max: 10,
+    min: 2,
+    acquire: 30000,
+    idle: 10000,
+    evict: 30000,
+};
+
+const mysql2DialectOptions = {
+    connectTimeout: 10000,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+};
+
+const sharedDefine = {
+    timestamps: true,
+    freezeTableName: true,
+};
 
 let sequelize;
 
-// Use PostgreSQL if DATABASE_URL is set (e.g., Railway PostgreSQL)
 if (process.env.MYSQL_URL) {
+    // Railway / cloud MySQL URL format: mysql://user:pass@host:port/dbname
     sequelize = new Sequelize(process.env.MYSQL_URL, {
         dialect: 'mysql',
         logging: false,
-        pool: { max: 10, min: 2, acquire: 30000, idle: 10000, evict: 30000 },
-        dialectOptions: { connectTimeout: 30000 },
-        define: {
-            timestamps: true,
-            freezeTableName: true
-        }
-    });
-} else if (process.env.MYSQL_HOST && process.env.MYSQL_HOST !== 'localhost' && process.env.MYSQL_HOST !== 'your_remote_mysql_host_ip_or_url') {
-    sequelize = new Sequelize(process.env.MYSQL_DATABASE, process.env.MYSQL_USER, process.env.MYSQL_PASSWORD, {
-        host: process.env.MYSQL_HOST,
-        port: process.env.MYSQL_PORT || 3306,
-        dialect: 'mysql',
-        logging: false,
-        pool: { max: 10, min: 2, acquire: 30000, idle: 10000, evict: 30000 },
-        dialectOptions: { connectTimeout: 30000 },
-        define: {
-            timestamps: true,
-            freezeTableName: true
-        }
-    });
-} else if (process.env.DATABASE_URL) {
-    sequelize = new Sequelize(process.env.DATABASE_URL, {
-        dialect: 'postgres',
-        logging: false,
-        pool: { max: 10, min: 2, acquire: 30000, idle: 10000, evict: 30000 },
-        dialectOptions: {
-            statement_timeout: 30000,
-            query_timeout: 30000,
-            connectionTimeoutMillis: 30000,
-            ssl: process.env.NODE_ENV === 'production' ? {
-                require: true,
-                rejectUnauthorized: false
-            } : false
-        },
-        define: {
-            timestamps: true,
-            freezeTableName: true
-        }
+        pool: poolConfig,
+        dialectOptions: mysql2DialectOptions,
+        define: sharedDefine,
     });
 } else {
-    try {
-        sequelize = new Sequelize({
-            dialect: 'sqlite',
-            storage: path.join(__dirname, '../../database.sqlite'),
+    // Local / explicit host+credentials config
+    sequelize = new Sequelize(
+        process.env.DB_NAME,
+        process.env.DB_USER,
+        process.env.DB_PASSWORD || '',
+        {
+            host: process.env.DB_HOST || 'localhost',
+            port: Number(process.env.DB_PORT) || 3306,
+            dialect: 'mysql',
             logging: false,
-            pool: { max: 5, min: 1, acquire: 30000, idle: 10000 },
-            define: {
-                timestamps: true,
-                freezeTableName: true
-            }
-        });
-    } catch (sqliteErr) {
-        console.error('FATAL ERROR: Failed to initialize SQLite.', sqliteErr.message);
-        console.error('If you are deploying to Railway, please provision a PostgreSQL or MySQL database and set DATABASE_URL or MYSQL_URL.');
-        // Create a dummy sequelize instance so the app doesn't crash on require
-        sequelize = {
-            define: () => ({}),
-            models: {},
-            getDialect: () => 'sqlite',
-            authenticate: async () => { throw new Error('SQLite binary failed to load.'); },
-            sync: async () => {},
-            query: async () => []
-        };
-    }
+            pool: poolConfig,
+            dialectOptions: mysql2DialectOptions,
+            define: sharedDefine,
+        }
+    );
 }
 
 module.exports = sequelize;

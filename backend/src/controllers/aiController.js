@@ -76,7 +76,7 @@ exports.askCopilot = async (req, res) => {
     }
     const allowedSchema = getDatabaseSchema(roleData.allowedTables);
     const rlsRule = roleData.rls(user);
-    const systemPrompt = `You are an enterprise AI Database Copilot for an SQLite database.
+    const systemPrompt = `You are an enterprise AI Database Copilot for a MySQL database.
 You translate natural language questions into valid SQL queries based ONLY on the provided schema.
 ROLE: ${user.role}
 ALLOWED TABLES:
@@ -84,10 +84,10 @@ ${allowedSchema}
 MANDATORY ROW-LEVEL SECURITY (RLS) RULE:
 ${rlsRule}
 SECURITY RULES:
-1. ONLY generate SELECT queries. Never generate INSERT, UPDATE, DELETE, DROP, ALTER, PRAGMA.
+1. ONLY generate SELECT queries. Never generate INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, TRUNCATE.
 2. If the user asks for data outside their allowed tables, return a JSON explaining they don't have permission, with an empty SQL string.
 3. You MUST apply the MANDATORY RLS RULE to your WHERE clause if one is provided.
-4. Output standard SQLite syntax.
+4. Output standard MySQL syntax.
 5. You MUST return ONLY a JSON object in this exact format, with NO Markdown wrapping (\`\`\`json) outside the braces:
 {
     "sql": "SELECT ...",

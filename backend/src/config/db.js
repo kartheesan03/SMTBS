@@ -1,6 +1,7 @@
 const sequelize = require('./sequelize');
 const setupAssociations = require('../models/associations');
 const bcrypt = require('bcryptjs');
+
 const defaultSystemAccounts = [
     { email: 'admin@smtbms.com',    password: 'admin123',    role: 'Admin',    name: 'System Admin' },
     { email: 'hr@smtbms.com',       password: 'hr123',       role: 'HR',       name: 'HR Manager' },
@@ -8,19 +9,15 @@ const defaultSystemAccounts = [
     { email: 'employee@smtbms.com', password: 'employee123', role: 'Employee', name: 'System Employee' },
     { email: 'sales@smtbms.com',    password: 'sales123',    role: 'Sales',    name: 'Sales Team' },
 ];
+
 const syncAndRepairDatabase = async () => {
     try {
         const UserModel = sequelize.models.User;
         const EmployeeModel = sequelize.models.Employee;
         if (!UserModel || !EmployeeModel) return;
-        const defaultSystemAccounts = [
-            { email: 'admin@smtbms.com',    password: 'admin123',    role: 'Admin',    name: 'System Admin' },
-            { email: 'hr@smtbms.com',       password: 'hr123',       role: 'HR',       name: 'HR Manager' },
-            { email: 'manager@smtbms.com',  password: 'manager123',  role: 'Manager',  name: 'Manager' },
-            { email: 'employee@smtbms.com', password: 'employee123', role: 'Employee', name: 'System Employee' },
-            { email: 'sales@smtbms.com',    password: 'sales123',    role: 'Sales',    name: 'Sales Team' },
-        ];
+
         const protectedEmails = new Set(defaultSystemAccounts.map(a => a.email));
+
         for (const acct of defaultSystemAccounts) {
             let user = await UserModel.findOne({ where: { email: acct.email } });
             if (!user) {
@@ -60,6 +57,7 @@ const syncAndRepairDatabase = async () => {
                 }
             }
         }
+
         const allowedRoles = ['Admin', 'HR', 'Manager', 'Employee', 'Sales'];
         const allUsers = await UserModel.findAll();
         for (const user of allUsers) {
@@ -69,6 +67,7 @@ const syncAndRepairDatabase = async () => {
                 console.log(`[Sync] Fixed legacy role for user: ${user.email}`);
             }
         }
+
         const allEmployees = await EmployeeModel.findAll();
         for (const emp of allEmployees) {
             let user = null;
@@ -113,8 +112,8 @@ const syncAndRepairDatabase = async () => {
             } else {
                 const salt = await bcrypt.genSalt(10);
                 const hashed = await bcrypt.hash('password123', salt);
-                const finalEmail = emp.contact && emp.contact.includes('@') 
-                    ? emp.contact 
+                const finalEmail = emp.contact && emp.contact.includes('@')
+                    ? emp.contact
                     : `${emp.firstName.toLowerCase()}.${(emp.lastName || 'user').toLowerCase()}@smtbms.com`;
                 const userRole = allowedRoles.includes(emp.department) ? emp.department : 'Employee';
                 const newUser = await UserModel.create({
@@ -132,6 +131,7 @@ const syncAndRepairDatabase = async () => {
                 console.log(`[Sync] Recreated missing User for Employee: ${finalEmail}`);
             }
         }
+
         const updatedUsers = await UserModel.findAll();
         for (const user of updatedUsers) {
             if (user.role === 'Customer' || user.role === 'Vendor') continue;
@@ -143,7 +143,7 @@ const syncAndRepairDatabase = async () => {
                 }
             }
             if (!emp) {
-                const [emps] = await sequelize.query("SELECT employeeId FROM Employee;");
+                const [emps] = await sequelize.query('SELECT employeeId FROM Employee;');
                 const ids = emps.map(e => {
                     const match = e.employeeId.match(/\d+/);
                     return match ? parseInt(match[0], 10) : 0;
@@ -168,6 +168,7 @@ const syncAndRepairDatabase = async () => {
                 console.log(`[Sync] Created missing Employee for User: ${user.email}`);
             }
         }
+
         const checkUsers = await UserModel.findAll();
         for (const u of checkUsers) {
             if (u.password && !u.password.startsWith('$2')) {
@@ -181,236 +182,114 @@ const syncAndRepairDatabase = async () => {
         console.error('[Sync] Error during database sync:', error.message);
     }
 };
-const safelyRecreateTable = async (modelName) => {
-    const Model = sequelize.models[modelName];
-    if (!Model) return;
-    const tableName = Model.tableName;
-    const tempTableName = `${tableName}_temp_migration`;
-    try {
-        console.log(`Safely recreating table ${tableName}...`);
-        const dialect = sequelize.getDialect();
-        
-        if (dialect === 'sqlite') {
-            await sequelize.query('PRAGMA foreign_keys = OFF;');
-        } else if (dialect === 'postgres') {
-            await sequelize.query('SET session_replication_role = replica;');
-        } else {
-            await sequelize.query('SET FOREIGN_KEY_CHECKS = 0;');
-        }
 
-        let tableExists = false;
-        if (dialect === 'sqlite') {
-            const [rows] = await sequelize.query(`SELECT name FROM sqlite_master WHERE type='table' AND name='${tableName}';`);
-            tableExists = rows.length > 0;
-        } else if (dialect === 'postgres') {
-            const [rows] = await sequelize.query(`SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename='${tableName}';`);
-            tableExists = rows.length > 0;
-        } else {
-            const [rows] = await sequelize.query(`SHOW TABLES LIKE '${tableName}';`);
-            tableExists = rows.length > 0;
-        }
-
-        if (tableExists) {
-            const qi = sequelize.getQueryInterface();
-            const quote = qi.quoteIdentifier.bind(qi);
-            
-            let currentCols = [];
-            if (dialect === 'sqlite') {
-                const [columns] = await sequelize.query(`PRAGMA table_info(${quote(tableName)});`);
-                currentCols = columns.map(c => c.name);
-            } else if (dialect === 'postgres') {
-                const [columns] = await sequelize.query(`SELECT column_name FROM information_schema.columns WHERE table_name='${tableName}';`);
-                currentCols = columns.map(c => c.column_name);
-            } else {
-                const [columns] = await sequelize.query(`SHOW COLUMNS FROM ${quote(tableName)};`);
-                currentCols = columns.map(c => c.Field);
-            }
-            const modelCols = Object.keys(Model.getAttributes());
-            const commonCols = currentCols.filter(c => modelCols.includes(c));
-            
-            await sequelize.query(`DROP TABLE IF EXISTS ${quote(tempTableName)};`);
-            await sequelize.query(`ALTER TABLE ${quote(tableName)} RENAME TO ${quote(tempTableName)};`);
-            await Model.sync();
-            try {
-                if (commonCols.length > 0) {
-                    const colsStr = commonCols.map(c => quote(c)).join(', ');
-                    await sequelize.query(`INSERT INTO ${quote(tableName)} (${colsStr}) SELECT ${colsStr} FROM ${quote(tempTableName)};`);
-                }
-                await sequelize.query(`DROP TABLE ${quote(tempTableName)};`);
-            } catch (copyError) {
-                console.error(`Failed to copy data for ${tableName}, restoring original table. Error:`, copyError.message);
-                await sequelize.query(`DROP TABLE ${quote(tableName)};`);
-                await sequelize.query(`ALTER TABLE ${quote(tempTableName)} RENAME TO ${quote(tableName)};`);
-            }
-        } else {
-            await Model.sync();
-        }
-        
-        if (dialect === 'sqlite') {
-            await sequelize.query('PRAGMA foreign_keys = ON;');
-        } else if (dialect === 'postgres') {
-            await sequelize.query('SET session_replication_role = DEFAULT;');
-        } else {
-            await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;');
-        }
-        console.log(`Successfully recreated table ${tableName} with latest schema.`);
-    } catch (error) {
-        console.error(`Failed to recreate table ${tableName}:`, error.message);
-        const dialect = sequelize.getDialect();
-        if (dialect === 'sqlite') {
-            await sequelize.query('PRAGMA foreign_keys = ON;');
-        } else if (dialect === 'postgres') {
-            await sequelize.query('SET session_replication_role = DEFAULT;');
-        } else {
-            await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;');
-        }
-    }
-};
 const connectDB = async () => {
     try {
-        const dialect = sequelize.getDialect();
-        const dbName = dialect === 'sqlite' ? 'SQLite' : dialect === 'postgres' ? 'PostgreSQL' : 'MySQL';
-        
-        console.log(`Target ${dbName} database verified/created.`);
+        console.log('[Backend] Connecting to MySQL...');
         await sequelize.authenticate();
-        console.log(`${dbName} Connection established successfully via Sequelize.`);
-        setupAssociations();
-            // Removed stale table cleanup code to prevent foreign key errors on startup
+        console.log('[Backend] MySQL connected successfully.');
+        console.log(`[Backend] Database: ${sequelize.config.database}`);
 
-        // Quick fix for temp_migration foreign key corruption
+        setupAssociations();
+
+        // Clean up any leftover _temp_migration tables or stale FKs from previous failed migrations
         try {
-            if (dialect === 'mysql') {
-                const [results] = await sequelize.query(`
-                    SELECT TABLE_NAME, CONSTRAINT_NAME, REFERENCED_TABLE_NAME
-                    FROM information_schema.KEY_COLUMN_USAGE
-                    WHERE REFERENCED_TABLE_NAME LIKE '%_temp_migration'
-                      AND TABLE_SCHEMA = DATABASE();
-                `);
-                for (let row of results) {
-                    await sequelize.query(`ALTER TABLE \`${row.TABLE_NAME}\` DROP FOREIGN KEY \`${row.CONSTRAINT_NAME}\`;`);
-                    console.log(`[Sync Fix] Dropped corrupted FK ${row.CONSTRAINT_NAME} from ${row.TABLE_NAME}`);
-                }
-                const [tempTables] = await sequelize.query(`
-                    SELECT TABLE_NAME 
-                    FROM information_schema.TABLES 
-                    WHERE TABLE_NAME LIKE '%_temp_migration'
-                      AND TABLE_SCHEMA = DATABASE();
-                `);
-                for (let row of tempTables) {
-                    await sequelize.query(`DROP TABLE IF EXISTS \`${row.TABLE_NAME}\`;`);
-                    console.log(`[Sync Fix] Dropped ${row.TABLE_NAME} table.`);
-                }
+            const [results] = await sequelize.query(`
+                SELECT TABLE_NAME, CONSTRAINT_NAME, REFERENCED_TABLE_NAME
+                FROM information_schema.KEY_COLUMN_USAGE
+                WHERE REFERENCED_TABLE_NAME LIKE '%_temp_migration'
+                  AND TABLE_SCHEMA = DATABASE();
+            `);
+            for (const row of results) {
+                await sequelize.query(`ALTER TABLE \`${row.TABLE_NAME}\` DROP FOREIGN KEY \`${row.CONSTRAINT_NAME}\`;`);
+                console.log(`[Sync Fix] Dropped corrupted FK ${row.CONSTRAINT_NAME} from ${row.TABLE_NAME}`);
+            }
+            const [tempTables] = await sequelize.query(`
+                SELECT TABLE_NAME
+                FROM information_schema.TABLES
+                WHERE TABLE_NAME LIKE '%_temp_migration'
+                  AND TABLE_SCHEMA = DATABASE();
+            `);
+            for (const row of tempTables) {
+                await sequelize.query(`DROP TABLE IF EXISTS \`${row.TABLE_NAME}\`;`);
+                console.log(`[Sync Fix] Dropped stale temp table: ${row.TABLE_NAME}`);
             }
         } catch (fkError) {
-            console.warn(`[Sync Fix] Error repairing foreign keys: ${fkError.message}`);
+            console.warn(`[Sync Fix] Error repairing stale tables: ${fkError.message}`);
         }
 
-        // Safely recreate logic removed as it corrupted SQLite foreign keys
+        // Sync schema: alter adds new columns without dropping existing data
         try {
-            if (dialect === 'sqlite') {
-                // Drop stale backup tables created by failed Sequelize alters
-                try {
-                    const [tables] = await sequelize.query(`SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%_backup';`);
-                    for (let row of tables) {
-                        await sequelize.query(`DROP TABLE IF EXISTS \`${row.name}\`;`);
-                        console.log(`[Sync Fix] Dropped stale SQLite backup table: ${row.name}`);
-                    }
-                } catch (cleanupErr) {
-                    console.warn(`[Sync Fix] Failed to clean up stale backup tables: ${cleanupErr.message}`);
-                }
-
-                await sequelize.query('PRAGMA foreign_keys = OFF;');
-                await sequelize.sync({ alter: true });
-                await sequelize.query('PRAGMA foreign_keys = ON;');
-                console.log(`${dbName} Database tables synchronized with alter.`);
-            } else {
-                console.log(`Syncing ${dbName} remote database schema...`);
-                // await sequelize.sync(); // Temporarily disabled to prevent hang on Railway MySQL
-                console.log(`${dbName} Database tables synchronized.`);
-            }
+            await sequelize.query('SET FOREIGN_KEY_CHECKS = 0;');
+            await sequelize.sync({ alter: true });
+            await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;');
+            console.log('[Backend] MySQL database schema synchronized.');
         } catch (syncError) {
-            console.warn(`[Sync] Alter sync failed, falling back to standard sync: ${syncError.message}`);
+            await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;').catch(() => {});
+            console.warn(`[Sync] Alter sync failed, trying standard sync: ${syncError.message}`);
             if (syncError.errors) console.warn(JSON.stringify(syncError.errors, null, 2));
-            if (dialect === 'sqlite') {
-                await sequelize.sync();
-            } else {
-                await sequelize.sync();
-            }
+            await sequelize.sync();
         }
-        
-        // Force inject missing columns to ensure production schema is 100% correct
-        if (dialect !== 'sqlite') {
-            console.log(`[Sync] Running forced manual column injection for remote DB using QueryInterface...`);
+
+        // Force-inject any columns that Sequelize alter may have missed
+        try {
             const qi = sequelize.getQueryInterface();
             const { DataTypes } = require('sequelize');
+
             try {
                 const employeeTable = await qi.describeTable('Employee');
                 if (!employeeTable.performanceOverrides) {
                     await qi.addColumn('Employee', 'performanceOverrides', { type: DataTypes.JSON, allowNull: true });
-                    console.log(`[Sync] Injected performanceOverrides to Employee`);
-                } else {
-                    console.log(`[Sync] performanceOverrides already exists on Employee table.`);
+                    console.log('[Sync] Injected performanceOverrides to Employee');
                 }
-            } catch (e) { console.log(`[Sync] performanceOverrides injection skipped (likely exists): ${e.message}`); }
-            
+            } catch (e) { /* already exists */ }
+
             try {
                 const jobPostingTable = await qi.describeTable('JobPosting');
                 if (!jobPostingTable.slug) {
                     await qi.addColumn('JobPosting', 'slug', { type: DataTypes.STRING, allowNull: true, unique: true });
-                    console.log(`[Sync] Injected slug to JobPosting`);
+                    console.log('[Sync] Injected slug to JobPosting');
                 }
                 if (!jobPostingTable.skills) {
                     await qi.addColumn('JobPosting', 'skills', { type: DataTypes.TEXT, allowNull: true });
-                    console.log(`[Sync] Injected skills to JobPosting`);
+                    console.log('[Sync] Injected skills to JobPosting');
                 }
                 if (!jobPostingTable.minExperience) {
                     await qi.addColumn('JobPosting', 'minExperience', { type: DataTypes.STRING, allowNull: true });
-                    console.log(`[Sync] Injected minExperience to JobPosting`);
+                    console.log('[Sync] Injected minExperience to JobPosting');
                 }
-            } catch (e) { console.log(`[Sync] JobPosting column injection skipped: ${e.message}`); }
+            } catch (e) { /* already exists */ }
 
             try {
                 const candidateTable = await qi.describeTable('Candidate');
-                if (!candidateTable.resume) {
-                    await qi.addColumn('Candidate', 'resume', { type: DataTypes.STRING, allowNull: true });
-                    console.log(`[Sync] Injected resume to Candidate`);
+                const colsToAdd = { resume: DataTypes.STRING, coverLetter: DataTypes.TEXT, experience: DataTypes.STRING, skills: DataTypes.TEXT };
+                for (const [col, type] of Object.entries(colsToAdd)) {
+                    if (!candidateTable[col]) {
+                        await qi.addColumn('Candidate', col, { type, allowNull: true });
+                        console.log(`[Sync] Injected ${col} to Candidate`);
+                    }
                 }
-                if (!candidateTable.coverLetter) {
-                    await qi.addColumn('Candidate', 'coverLetter', { type: DataTypes.TEXT, allowNull: true });
-                    console.log(`[Sync] Injected coverLetter to Candidate`);
-                }
-                if (!candidateTable.experience) {
-                    await qi.addColumn('Candidate', 'experience', { type: DataTypes.STRING, allowNull: true });
-                    console.log(`[Sync] Injected experience to Candidate`);
-                }
-                if (!candidateTable.skills) {
-                    await qi.addColumn('Candidate', 'skills', { type: DataTypes.TEXT, allowNull: true });
-                    console.log(`[Sync] Injected skills to Candidate`);
-                }
-            } catch (e) { console.log(`[Sync] Candidate column injection skipped: ${e.message}`); }
-            
+            } catch (e) { /* already exists */ }
+        } catch (colError) {
+            console.warn(`[Sync] Column injection error (non-fatal): ${colError.message}`);
         }
-        
-        // Only run heavy sync if explicitly requested or tables were just created.
-        // This avoids bcrypt hashing all users on every nodemon restart.
+
+        // Only run heavy user/employee repair if explicitly requested (avoids bcrypt cost on every restart)
         const forceSync = process.env.FORCE_DB_SYNC === 'true';
         if (forceSync) {
+            console.log('[Sync] FORCE_DB_SYNC=true — running full database repair in background...');
             setTimeout(() => {
                 syncAndRepairDatabase().catch(err => console.error('[Sync] Background repair failed:', err));
             }, 5000);
         }
-        
+
+        console.log('[Backend] Migrations completed.');
         return true;
     } catch (error) {
-        console.error('\n******************************************************************************');
-        console.error('  DATABASE CONNECTION / MIGRATION ERROR:');
-        console.error(`  Message: ${error.message}`);
-        if (error.errors) {
-            console.error('  Validation Details:', JSON.stringify(error.errors, null, 2));
-        }
-        console.error(`  Stack: ${error.stack}`);
-        console.error('******************************************************************************\n');
+        console.error('[Backend] MySQL connection failed.');
+        console.error('[Backend] Check DB_USER and DB_PASSWORD in .env.');
         return false;
     }
 };
+
 module.exports = connectDB;

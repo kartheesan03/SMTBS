@@ -42,6 +42,7 @@ const searchRoutes = require('./src/routes/searchRoutes');
 const socialRoutes = require('./src/routes/socialRoutes');
 const feedRoutes = require('./src/routes/feedRoutes');
 const ocrRoutes = require('./src/routes/ocrRoutes');
+const assistantRoutes = require('./src/routes/assistantRoutes');
 
 const app = express();
 
@@ -51,7 +52,6 @@ const allowedOrigins = process.env.CLIENT_URL
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (Postman, mobile apps, curl)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS blocked: ${origin} is not allowed`));
@@ -65,8 +65,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
-
-const assistantRoutes = require('./src/routes/assistantRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/materials', materialRoutes);
@@ -95,37 +93,36 @@ app.use('/api/roles', roleRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/sales-goals', salesGoalRoutes);
 app.use('/api/training', trainingRoutes);
-app.use('/api/holidays',    holidayRoutes);
+app.use('/api/holidays', holidayRoutes);
 app.use('/api/recruitment', recruitmentRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/assistant', assistantRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/search', searchRoutes);
-    app.use('/api/social', socialRoutes);
-    app.use('/api/feed', feedRoutes);
-    app.use('/api/ocr', ocrRoutes);
+app.use('/api/social', socialRoutes);
+app.use('/api/feed', feedRoutes);
+app.use('/api/ocr', ocrRoutes);
 
-
+// ─── 404 handler ─────────────────────────────────────────────────────────────
 app.use((req, res, next) => {
     const error = new Error(`Not Found - ${req.originalUrl}`);
     res.status(404);
     next(error);
 });
 
+// ─── Centralised error handler ────────────────────────────────────────────────
 app.use((err, req, res, next) => {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-    res.status(statusCode);
-    res.json({
-        message: err.message,
-        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    res.status(statusCode).json({
+        success: false,
+        message: err.message || 'Unable to process the request',
+        stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
     });
 });
 
 const PORT = process.env.PORT || 5000;
 
 const { autoMarkAbsent } = require('./src/controllers/attendancecontroller');
-
-const { spawn } = require('child_process');
 const fs = require('fs');
 
 let activeServer = null;
@@ -134,22 +131,21 @@ let isShuttingDown = false;
 const gracefulShutdown = async (exitCode = 0) => {
     if (isShuttingDown) return;
     isShuttingDown = true;
-    console.log(`Shutting down server gracefully (exit code: ${exitCode})...`);
-    
-    // Fallback timer: force exit if graceful shutdown takes too long (e.g., stuck promises)
+    console.log(`[Backend] Shutting down gracefully (exit code: ${exitCode})...`);
+
+    // Fallback: force exit if graceful shutdown hangs
     setTimeout(() => {
-        console.error('Graceful shutdown timed out, forcing exit.');
+        console.error('[Backend] Graceful shutdown timed out, forcing exit.');
         process.exit(exitCode !== 0 ? exitCode : 1);
     }, 5000);
 
     if (activeServer) {
-        // Node 18.20+ forcibly closes keep-alive/idle connections that would otherwise hang server.close()
         if (typeof activeServer.closeAllConnections === 'function') {
             activeServer.closeAllConnections();
         }
         await new Promise((resolve) => {
             activeServer.close(() => {
-                console.log('HTTP Server closed.');
+                console.log('[Backend] HTTP server closed.');
                 resolve();
             });
         });
@@ -157,21 +153,19 @@ const gracefulShutdown = async (exitCode = 0) => {
 
     try {
         const gpsSimulator = require('./src/services/gpsSimulator');
-        if (gpsSimulator && gpsSimulator.stop) {
-            gpsSimulator.stop();
-        }
+        if (gpsSimulator && gpsSimulator.stop) gpsSimulator.stop();
     } catch (e) {
-        console.error('Error stopping GPS Simulator:', e.message);
+        // GPS simulator not critical
     }
-    
+
     try {
         const sequelize = require('./src/config/sequelize');
-        if (sequelize) {
+        if (sequelize && typeof sequelize.close === 'function') {
             await sequelize.close();
-            console.log('Sequelize connections closed.');
+            console.log('[Backend] MySQL connection pool closed.');
         }
     } catch (e) {
-        console.error('Error closing Sequelize:', e.message);
+        console.error('[Backend] Error closing MySQL pool:', e.message);
     }
 
     process.exit(exitCode);
@@ -184,49 +178,52 @@ process.on('SIGTERM', () => gracefulShutdown(0));
 const startServer = async () => {
     try {
         console.log('[Backend] Node.js + Express starting...');
-        await connectDB();
+        const connected = await connectDB();
+
+        if (!connected) {
+            console.error('[Backend] MySQL connection failed. Server will NOT start.');
+            console.error('[Backend] Fix your MySQL configuration and try again.');
+            process.exit(1);
+        }
+
         const gpsSimulator = require('./src/services/gpsSimulator');
-        
+
         activeServer = http.createServer(app);
         const socket = require('./src/socket');
         socket.init(activeServer);
 
         activeServer.listen(PORT, '0.0.0.0', () => {
             console.log(`[Backend] Server running on port ${PORT}`);
-            
+
             try {
                 gpsSimulator.start();
             } catch (gpsErr) {
-                console.error('GPS Simulator failed to start:', gpsErr);
+                console.error('[Backend] GPS Simulator failed to start:', gpsErr.message);
             }
 
             const cron = require('node-cron');
             cron.schedule('0 18 * * *', () => {
-                console.log('Running autoMarkAbsent cron job');
+                console.log('[Backend] Running autoMarkAbsent cron job');
                 if (typeof autoMarkAbsent === 'function') autoMarkAbsent();
             }, {
                 scheduled: true,
-                timezone: "Asia/Kolkata"
+                timezone: 'Asia/Kolkata'
             });
         });
 
     } catch (error) {
-        console.error(`Failed to start server normally: ${error.message}`);
-        // Fallback to ensure Railway port binds even if DB completely fails
-        app.get('*', (req, res) => res.status(500).send(`Startup Error: ${error.message}`));
-        activeServer = app.listen(PORT, '0.0.0.0', () => {
-            console.log(`Fallback server running on port ${PORT}`);
-        });
+        console.error(`[Backend] Fatal startup error: ${error.message}`);
+        process.exit(1);
     }
 };
 
 process.on('uncaughtException', (err) => {
-    console.error('CRITICAL: Uncaught Exception:', err);
+    console.error('[Backend] CRITICAL: Uncaught Exception:', err);
     gracefulShutdown(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('CRITICAL: Unhandled Rejection at:', promise, 'reason:', reason);
+    console.error('[Backend] CRITICAL: Unhandled Rejection:', reason);
     gracefulShutdown(1);
 });
 
