@@ -674,18 +674,13 @@ const OCRPage = () => {
             <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#0f172a' }}>Document Preview</h3>
                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                 <List size={16} style={{ color: '#64748b' }} />
-                 <MoreHorizontal size={16} style={{ color: '#64748b' }} />
                  {!isPdf && (
                    <>
-                     <div style={{ width: '1px', height: '16px', background: '#e2e8f0', margin: '0 4px' }} />
                      <button onClick={() => setImgZoom(z => Math.max(0.4, z - 0.2))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Minus size={14} /></button>
                      <span style={{ fontSize: '12px', color: '#0f172a', padding: '2px 8px', border: '1px solid #e2e8f0', borderRadius: '4px', background: '#fff' }}>1 of {selectedDoc.pageCount || 1}</span>
                      <button onClick={() => setImgZoom(z => Math.min(3, z + 0.2))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Plus size={14} /></button>
                    </>
                  )}
-                 <div style={{ width: '1px', height: '16px', background: '#e2e8f0', margin: '0 4px' }} />
-                 <Search size={16} style={{ color: '#64748b' }} />
                </div>
             </div>
             
