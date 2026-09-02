@@ -112,6 +112,7 @@ const TrackingDashboard = () => {
         );
         if (matchedMat) {
           initialSelectionId = matchedMat._id || matchedMat.id;
+          setViewMode("detail");
         }
       }
       if (initialSelectionId) {
@@ -127,6 +128,31 @@ const TrackingDashboard = () => {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  useEffect(() => {
+    const searchParam = new URLSearchParams(location.search).get("search");
+    if (searchParam && materialsList.length > 0) {
+      const searchLower = searchParam.toLowerCase().trim();
+      const matchedMat = materialsList.find(
+        (m) =>
+          (m.sku && m.sku.toLowerCase().trim() === searchLower) ||
+          (m.name && m.name.toLowerCase().trim() === searchLower) ||
+          (m.sku && m.sku.toLowerCase().includes(searchLower)) ||
+          (m.name && m.name.toLowerCase().includes(searchLower))
+      );
+      if (matchedMat) {
+        setSelectedMaterialId(matchedMat._id || matchedMat.id);
+        setViewMode("detail");
+        setSearchTerm(searchParam);
+      } else {
+        setSearchTerm(searchParam);
+        setViewMode("table");
+      }
+    } else if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, [location.search, materialsList]);
+
   useEffect(() => {
     if (selectedMaterialId) {
       Promise.all([
@@ -1153,22 +1179,21 @@ const TrackingDashboard = () => {
   };
 
   const renderTableView = () => {
-    const filteredMovements = movements.filter((m) => {
-      const matName = String(m.materialName || "").toLowerCase();
-      const matSku = String(m.materialSku || "").toLowerCase();
-      const matRef = String(m.reference || m.referenceOrderNumber || m.note || "").toLowerCase();
+    const filteredMaterials = materialsList.filter((m) => {
+      const matName = String(m.name || "").toLowerCase();
+      const matSku = String(m.sku || "").toLowerCase();
       const sTerm = searchTerm.toLowerCase();
-      const matchesSearch = !searchTerm || matName.includes(sTerm) || matSku.includes(sTerm) || matRef.includes(sTerm);
-      const matchesType = !filterType || String(m.type).toLowerCase() === filterType.toLowerCase();
-      const matchesLoc = !filterLocation || String(m.materialLocation || "").toLowerCase().includes(filterLocation.toLowerCase());
-      return matchesSearch && matchesType && matchesLoc;
+      const matchesSearch = !searchTerm || matName.includes(sTerm) || matSku.includes(sTerm);
+      const matchesCat = !filterType || String(m.category || "").toLowerCase() === filterType.toLowerCase();
+      const matchesLoc = !filterLocation || String(m.location || m.warehouse || "").toLowerCase().includes(filterLocation.toLowerCase());
+      return matchesSearch && matchesCat && matchesLoc;
     });
 
-    const totalPages = Math.max(1, Math.ceil(filteredMovements.length / PAGE_SIZE));
+    const totalPages = Math.max(1, Math.ceil(filteredMaterials.length / PAGE_SIZE));
     const safePage = Math.min(currentPage, totalPages);
-    const pageMovements = filteredMovements.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-    const startItem = filteredMovements.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1;
-    const endItem = Math.min(safePage * PAGE_SIZE, filteredMovements.length);
+    const pageMaterials = filteredMaterials.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+    const startItem = filteredMaterials.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1;
+    const endItem = Math.min(safePage * PAGE_SIZE, filteredMaterials.length);
 
     const handleFilterChange = (setter) => (e) => {
       setter(e.target.value);
@@ -1184,7 +1209,7 @@ const TrackingDashboard = () => {
               <Search size={16} color="#94a3b8" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)" }} />
               <input
                 type="text"
-                placeholder="Search movements..."
+                placeholder="Search materials..."
                 value={searchTerm}
                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                 style={{ width: "100%", padding: "10px 16px 10px 36px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", fontSize: "14px", borderRadius: "4px", boxSizing: "border-box" }}
@@ -1192,19 +1217,19 @@ const TrackingDashboard = () => {
             </div>
 
             {(() => {
-              const uniqueTypes = [...new Set(movements.map(m => m.type).filter(Boolean))].sort();
+              const uniqueCategories = [...new Set(materialsList.map(m => m.category).filter(Boolean))].sort();
               return (
                 <select value={filterType} onChange={handleFilterChange(setFilterType)} style={{ flex: "1 1 150px", minWidth: "150px", padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", textTransform: 'capitalize', borderRadius: "4px", fontSize: "14px" }}>
-                  <option value="">All Movement Types</option>
-                  {uniqueTypes.map(t => (
-                    <option key={t} value={t.toLowerCase()}>{t}</option>
+                  <option value="">All Categories</option>
+                  {uniqueCategories.map(cat => (
+                    <option key={cat} value={cat.toLowerCase()}>{cat}</option>
                   ))}
                 </select>
               );
             })()}
 
             {(() => {
-              const uniqueLocations = [...new Set(movements.map(m => m.materialLocation).filter(Boolean))].sort();
+              const uniqueLocations = [...new Set(materialsList.map(m => m.location || m.warehouse).filter(Boolean))].sort();
               return (
                 <select value={filterLocation} onChange={handleFilterChange(setFilterLocation)} style={{ flex: "1 1 150px", minWidth: "150px", padding: "10px 16px", border: "1px solid #e2e8f0", background: "#f8fafc", outline: "none", borderRadius: "4px", fontSize: "14px" }}>
                   <option value="">All Locations</option>
@@ -1220,53 +1245,41 @@ const TrackingDashboard = () => {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid #e2e8f0", textAlign: "left", color: "#64748b" }}>
-                  <th style={{ padding: 12 }}>Date/Time</th>
-                  <th style={{ padding: 12 }}>Material</th>
-                  <th style={{ padding: 12 }}>Type</th>
-                  <th style={{ padding: 12 }}>Qty Changed</th>
+                  <th style={{ padding: 12 }}>SKU</th>
+                  <th style={{ padding: 12 }}>Material Name</th>
+                  <th style={{ padding: 12 }}>Category</th>
+                  <th style={{ padding: 12 }}>Current Qty</th>
                   <th style={{ padding: 12 }}>Location</th>
-                  <th style={{ padding: 12 }}>Reference</th>
                   <th style={{ padding: 12 }}>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {pageMovements.map((m) => (
-                  <tr key={m.id || m._id} className="mcc-hover-row" style={{ borderBottom: "1px solid #f1f5f9", cursor: "pointer" }} onClick={() => { setSelectedMaterialId(m.materialId || m.material); setViewMode("detail"); }}>
-                    <td style={{ padding: 12 }}>{formatDate(m.createdAt)} <span style={{ color: "#94a3b8", fontSize: 12 }}>{formatTime(m.createdAt)}</span></td>
-                    <td style={{ padding: 12, fontWeight: 600 }}>{m.materialName}<br/><span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>{m.materialSku}</span></td>
+                {pageMaterials.map((m) => (
+                  <tr key={m.id || m._id} className="mcc-hover-row" style={{ borderBottom: "1px solid #f1f5f9", cursor: "pointer" }} onClick={() => { setSelectedMaterialId(m._id || m.id); setViewMode("detail"); }}>
+                    <td style={{ padding: 12, fontWeight: 600 }}>{m.sku || "N/A"}</td>
+                    <td style={{ padding: 12, fontWeight: 600 }}>{m.name}</td>
+                    <td style={{ padding: 12 }}>{m.category || "-"}</td>
+                    <td style={{ padding: 12, fontWeight: 600 }}>{m.quantity} {m.unit || 'pcs'}</td>
+                    <td style={{ padding: 12 }}>{m.location || m.warehouse || "Unassigned"}</td>
                     <td style={{ padding: 12 }}>
-                      <span className="mcc-badge" style={{ background: String(m.type).toLowerCase() === 'in' ? '#d1fae5' : String(m.type).toLowerCase() === 'out' ? '#fee2e2' : '#dbeafe', color: String(m.type).toLowerCase() === 'in' ? '#10b981' : String(m.type).toLowerCase() === 'out' ? '#ef4444' : '#3b82f6', display: "inline-block" }}>
-                        {String(m.type).toUpperCase()}
+                      <span className="mcc-badge" style={{ background: m.quantity > 0 ? '#d1fae5' : '#fee2e2', color: m.quantity > 0 ? '#10b981' : '#ef4444', display: "inline-block" }}>
+                        {m.quantity > 0 ? "In Stock" : "Out of Stock"}
                       </span>
                     </td>
-                    <td style={{ padding: 12, color: String(m.type).toLowerCase() === 'in' ? '#10b981' : String(m.type).toLowerCase() === 'out' ? '#ef4444' : '#64748b', fontWeight: 600 }}>
-                      {String(m.type).toLowerCase() === 'in' ? '+' : String(m.type).toLowerCase() === 'out' ? '-' : ''}{m.quantity} {m.unit || 'pcs'}
-                    </td>
-                    <td style={{ padding: 12 }}>{m.materialLocation || "Unassigned"}</td>
-                    <td style={{ padding: 12 }}>
-                      {m.referenceOrderNumber ? (
-                        <span style={{ color: "#3b82f6", cursor: "pointer", fontWeight: 500 }} onClick={(e) => { e.stopPropagation(); alert(`Order details for ${m.referenceOrderNumber} would open here`); }}>
-                          Order #{m.referenceOrderNumber}
-                        </span>
-                      ) : (
-                        <span style={{ color: "#94a3b8" }}>Manual / Initial</span>
-                      )}
-                    </td>
-                    <td style={{ padding: 12 }}>{m.status || "Completed"}</td>
                   </tr>
                 ))}
-                {filteredMovements.length === 0 && (
-                  <tr><td colSpan="7" style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>No movements found for these filters.</td></tr>
+                {filteredMaterials.length === 0 && (
+                  <tr><td colSpan="6" style={{ padding: 24, textAlign: "center", color: "#94a3b8" }}>No materials found for these filters.</td></tr>
                 )}
               </tbody>
             </table>
           </div>
 
           {/* Pagination Bar */}
-          {filteredMovements.length > 0 && (
+          {filteredMaterials.length > 0 && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 4px 2px", borderTop: "1px solid #f1f5f9", marginTop: 8 }}>
               <span style={{ fontSize: 13, color: "#64748b" }}>
-                Showing {startItem}–{endItem} of {filteredMovements.length} movements
+                Showing {startItem}–{endItem} of {filteredMaterials.length} materials
               </span>
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                 <button
@@ -1283,20 +1296,19 @@ const TrackingDashboard = () => {
                     acc.push(p);
                     return acc;
                   }, [])
-                  .map((p, idx) =>
+                  .map((p, idx) => (
                     p === '...' ? (
-                      <span key={`ellipsis-${idx}`} style={{ padding: "6px 4px", color: "#94a3b8", fontSize: 13 }}>…</span>
+                      <span key={`dots-${idx}`} style={{ color: "#94a3b8", padding: "0 4px" }}>...</span>
                     ) : (
                       <button
                         key={p}
                         onClick={() => setCurrentPage(p)}
-                        style={{ padding: "6px 12px", border: "1px solid", borderColor: safePage === p ? "#3b82f6" : "#e2e8f0", borderRadius: 4, background: safePage === p ? "#3b82f6" : "#fff", color: safePage === p ? "#fff" : "#0f172a", fontSize: 13, cursor: "pointer", fontWeight: safePage === p ? 700 : 400, minWidth: 34 }}
+                        style={{ padding: "6px 12px", border: "none", borderRadius: 4, background: safePage === p ? "#f1f5f9" : "transparent", color: safePage === p ? "#0f172a" : "#64748b", fontSize: 13, cursor: "pointer", fontWeight: safePage === p ? 700 : 500 }}
                       >
                         {p}
                       </button>
                     )
-                  )
-                }
+                  ))}
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={safePage === totalPages}
