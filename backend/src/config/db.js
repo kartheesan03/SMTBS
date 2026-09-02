@@ -218,17 +218,10 @@ const connectDB = async () => {
             console.warn(`[Sync Fix] Error repairing stale tables: ${fkError.message}`);
         }
 
-        // Sync schema: alter adds new columns without dropping existing data
+        // Sync schema: skipped because of deadlock
         try {
-            await sequelize.query('SET FOREIGN_KEY_CHECKS = 0;');
-            await sequelize.sync({ alter: true });
-            await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;');
-            console.log('[Backend] MySQL database schema synchronized.');
+            console.log('[Backend] MySQL database schema sync skipped.');
         } catch (syncError) {
-            await sequelize.query('SET FOREIGN_KEY_CHECKS = 1;').catch(() => {});
-            console.warn(`[Sync] Alter sync failed, trying standard sync: ${syncError.message}`);
-            if (syncError.errors) console.warn(JSON.stringify(syncError.errors, null, 2));
-            await sequelize.sync();
         }
 
         // Force-inject any columns that Sequelize alter may have missed

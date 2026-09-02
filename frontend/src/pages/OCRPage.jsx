@@ -145,12 +145,13 @@ const OCRPage = () => {
   const fetchDocuments = async () => {
     setLoadingList(true);
     try {
-      const params = new URLSearchParams({ limit: 100, search });
+      const params = new URLSearchParams({ limit: 15, search });
       if (statusFilter) params.set('status', statusFilter);
       const res = await API.get(`/ocr?${params}`);
       setDocuments(res.data.data || []);
-    } catch {
-      toast.error('Failed to load invoice documents');
+    } catch (err) {
+      console.error('Fetch docs error:', err);
+      toast.error('Failed to load invoice documents: ' + (err.response?.data?.message || err.response?.data?.error || err.message));
     } finally {
       setLoadingList(false);
     }
@@ -192,7 +193,7 @@ const OCRPage = () => {
     progressIntervalRef.current = setInterval(() => {
       step++;
       if (step >= PROCESSING_STEPS.length - 1) {
-        clearInterval(progressIntervalRef.current);
+        setUploadProgress(prev => Math.min(prev + 0.2, 95));
         return;
       }
       setCurrentStep(step);
@@ -406,8 +407,9 @@ const OCRPage = () => {
     const totalSteps = PROCESSING_STEPS.length;
     return (
       <div style={{
-        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        backgroundColor: '#f1f5f9', fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        backgroundColor: 'rgba(241, 245, 249, 0.85)', backdropFilter: 'blur(5px)',
+        fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
         <div style={{
           background: '#ffffff', borderRadius: '20px', padding: '40px',

@@ -41,10 +41,21 @@ async function processDocumentWithGemini(filePath) {
         const fileContent = fs.readFileSync(filePath);
         const base64Content = fileContent.toString('base64');
         
-        const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
         const prompt = `You are a professional enterprise Document OCR and Structured Data Extraction System. 
 Analyze the provided document and extract its contents into a strict JSON format.
+
+CRITICAL CHARACTER-LEVEL RECOVERY REQUIREMENT:
+The most important requirement is accurate CHARACTER-LEVEL recovery.
+When text is blurry, faded, very small, faint, distorted, noisy, or partially unclear, you must NOT simply guess the complete word based on context.
+You must inspect the ACTUAL visible character shapes in the image.
+Determine the most likely character based on the actual visual evidence.
+Preserve the original spelling, capitalization, numbers, punctuation, and spacing exactly.
+DO NOT GUESS A WORD ONLY BECAUSE IT IS COMMON OR EXPECTED. If a character cannot be reliably distinguished between C / G then mark that character as uncertain in the structured result (e.g. INVOI[C/G]E).
+Preserve the exact position of every character (e.g., preserve leading zeros).
+Pay special attention to confusions like 0/O, 1/I/l, 2/Z, 5/S, 6/G, 8/B, 9/g, 3/8, 4/A, 7/T.
+Use document context to VALIDATE OCR results, but never use context to invent unreadable characters. The actual image must remain the primary source of truth.
 
 INSTRUCTIONS:
 1. Identify the Document Type (e.g. Invoice, Receipt, Purchase Order, Bill).
@@ -132,7 +143,7 @@ async function askDocumentQuestion(filePath, question, ocrContext = null) {
         const fileContent = fs.readFileSync(filePath);
         const base64Content = fileContent.toString('base64');
         
-        const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
         let prompt = `You are an AI Document Assistant. Please answer the user's question based on the provided document image.\n`;
         if (ocrContext && ocrContext.raw_text) {

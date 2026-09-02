@@ -60,8 +60,33 @@ const getOrders = async (req, res) => {
         const users = await User.find({ _id: { $in: Array.from(userIds) } }).select('name email role');
         const userMap = {};
         users.forEach(u => userMap[String(u._id)] = { name: u.name, email: u.email, role: u.role });
+
+        // --- FETCH MATERIALS ---
+        const materialIds = new Set();
+        orders.forEach(ord => {
+            if (Array.isArray(ord.items)) {
+                ord.items.forEach(item => {
+                    if (item.materialId) materialIds.add(String(item.materialId));
+                    if (item.material) materialIds.add(String(item.material));
+                });
+            }
+        });
+        const materials = await Material.find({ _id: { $in: Array.from(materialIds) } }).select('id name price quantity sku');
+        const materialMap = {};
+        materials.forEach(m => { materialMap[String(m._id || m.id)] = m; });
+        // -----------------------
+
         const enrichedOrders = orders.map(ord => {
             const orderObj = ord.toJSON ? ord.toJSON() : (ord.toObject ? ord.toObject() : ord);
+            
+            if (Array.isArray(orderObj.items)) {
+                orderObj.items = orderObj.items.map(item => ({
+                    ...item,
+                    price: item.price || item.unitPrice,
+                    material: materialMap[String(item.materialId || item.material)] || item.material
+                }));
+            }
+
             return {
                 ...orderObj,
                 _approvers: {
@@ -970,9 +995,34 @@ const getCustomerOrdersById = async (req, res) => {
     try {
         const orders = await Order.find({ customerId: req.params.id, orderType: 'sales' })
             .populate('customer', 'name email phone company address')
-            .populate('items.material', 'name price quantity')
             .sort({ createdAt: -1 });
-        res.json(orders);
+
+        const materialIds = new Set();
+        orders.forEach(ord => {
+            if (Array.isArray(ord.items)) {
+                ord.items.forEach(item => {
+                    if (item.materialId) materialIds.add(String(item.materialId));
+                    if (item.material) materialIds.add(String(item.material));
+                });
+            }
+        });
+        const materials = await Material.find({ _id: { $in: Array.from(materialIds) } }).select('id name price quantity sku');
+        const materialMap = {};
+        materials.forEach(m => { materialMap[String(m._id || m.id)] = m; });
+
+        const enrichedOrders = orders.map(ord => {
+            const orderObj = ord.toJSON ? ord.toJSON() : (ord.toObject ? ord.toObject() : ord);
+            if (Array.isArray(orderObj.items)) {
+                orderObj.items = orderObj.items.map(item => ({
+                    ...item,
+                    price: item.price || item.unitPrice,
+                    material: materialMap[String(item.materialId || item.material)] || item.material
+                }));
+            }
+            return orderObj;
+        });
+
+        res.json(enrichedOrders);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

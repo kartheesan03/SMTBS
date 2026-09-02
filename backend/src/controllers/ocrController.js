@@ -25,7 +25,7 @@ function userRole(req) {
 }
 function canEdit(req)    { return EDIT_ROLES.includes(userRole(req)); }
 function canApprove(req) { return EDIT_ROLES.includes(userRole(req)); }
-function isAdmin(req)    { return ADMIN_ROLES.includes(userRole(req)); }
+function isAdmin(req)    { return EDIT_ROLES.includes(userRole(req)); }
 function isViewOnly(req) { return VIEW_ONLY.includes(userRole(req)); }
 
 // ─── Audit helper ─────────────────────────────────────────────────────────────
@@ -347,35 +347,48 @@ exports.getAllDocuments = async (req, res) => {
             if (to)   where.createdAt[Op.lte] = new Date(to + 'T23:59:59');
         }
 
-        let docs = await OCRDocument.sequelizeModel.findAll({
+        // Server-side database search to avoid loading everything into memory
+        if (search) {
+            const q = `%${search}%`;
+            where[Op.or] = [
+                { 'invoiceInfo.number': { [Op.like]: q } },
+                { 'vendorInfo.name': { [Op.like]: q } },
+                { originalFileName: { [Op.like]: q } }
+            ];
+        }
+
+        if (vendor) {
+            where['vendorInfo.name'] = { [Op.like]: `%${vendor}%` };
+        }
+
+        // Step 1: Deferred Join Pattern to avoid Out of sort memory
+        const { count, rows: idRows } = await OCRDocument.sequelizeModel.findAndCountAll({
             where,
             order:  [['createdAt', 'DESC']],
             limit:  parseInt(limit),
             offset: parseInt(offset),
+            attributes: ['id']
         });
 
-        // Client-side search
-        if (search) {
-            const q = search.toLowerCase();
-            docs = docs.filter(d => {
-                const inv  = (d.invoiceInfo?.number || '').toLowerCase();
-                const vend = (d.vendorInfo?.name   || '').toLowerCase();
-                const file = (d.originalFileName   || '').toLowerCase();
-                return inv.includes(q) || vend.includes(q) || file.includes(q);
+        let docs = [];
+        if (idRows.length > 0) {
+            const ids = idRows.map(r => r.id);
+            docs = await OCRDocument.sequelizeModel.findAll({
+                where: { id: ids },
+                order: [['createdAt', 'DESC']],
+                attributes: [
+                    'id', 'originalFileName', 'fileSize', 'mimeType', 'pageCount', 
+                    'originalImagePath', 'documentType', 'vendorInfo', 'invoiceInfo', 
+                    'customerInfo', 'confidenceScore', 'validationResult', 
+                    'processingStatus', 'approvalStatus', 'createdAt'
+                ]
             });
         }
 
-        if (vendor) {
-            const q = vendor.toLowerCase();
-            docs = docs.filter(d =>
-                (d.vendorInfo?.name || '').toLowerCase().includes(q)
-            );
-        }
-
-        res.status(200).json({ data: docs, total: docs.length });
+        res.status(200).json({ data: docs, total: count });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Error fetching documents' });
+        res.status(500).json({ error: 'Error fetching documents: ' + err.message });
     }
 };
 

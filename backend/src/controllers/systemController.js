@@ -184,6 +184,13 @@ const hrNavigationConfig = [
         group: 'WORKSPACE'
     },
     {
+        title: 'OCR Documents',
+        icon: 'FileText',
+        path: '/ocr',
+        permission: '',
+        group: 'OPERATIONS'
+    },
+    {
         title: 'Employee Management',
         icon: 'Users',
         path: '/hrms',

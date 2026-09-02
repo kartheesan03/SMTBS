@@ -93,6 +93,11 @@ const OCRDocumentSequelize = sequelize.define('OCRDocument', {
 }, {
   timestamps: true,
   tableName: 'OCRDocuments',
+  indexes: [
+    { fields: ['createdAt'] },
+    { fields: ['processingStatus', 'createdAt'] },
+    { fields: ['approvalStatus', 'createdAt'] }
+  ]
 });
 
 const OCRDocument = makeBridgedModel('OCRDocument', OCRDocumentSequelize);

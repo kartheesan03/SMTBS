@@ -6,8 +6,7 @@ const getNotifications = async (req, res) => {
         const query = {
             $or: [
                 { userId: null, role: null },
-                { userId: req.user._id },
-                { userId: req.user.id },
+                { userId: req.user.id || req.user._id },
                 { role: req.user.role, userId: null }
             ]
         };
@@ -28,8 +27,7 @@ const getUnreadCount = async (req, res) => {
             status: 'unread',
             $or: [
                 { userId: null, role: null },
-                { userId: req.user._id },
-                { userId: req.user.id },
+                { userId: req.user.id || req.user._id },
                 { role: req.user.role, userId: null }
             ]
         };
