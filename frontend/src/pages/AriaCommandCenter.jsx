@@ -541,15 +541,6 @@ const AriaCommandCenter = () => {
                                 <ArrowRight size={15} />
                             </button>
                         </div>
-                        
-                        <div className="composer-commands">
-                            <button onClick={() => { setInput("/orders "); inputRef.current?.focus(); }}>/orders</button>
-                            <button onClick={() => { setInput("/inventory "); inputRef.current?.focus(); }}>/inventory</button>
-                            <button onClick={() => { setInput("/sales "); inputRef.current?.focus(); }}>/sales</button>
-                            <button onClick={() => { setInput("/customers "); inputRef.current?.focus(); }}>/customers</button>
-                            <button onClick={() => { setInput("/employees "); inputRef.current?.focus(); }}>/employees</button>
-                            <button onClick={() => fileInputRef.current?.click()}>/ocr</button>
-                        </div>
 
                         <input
                             type="file"

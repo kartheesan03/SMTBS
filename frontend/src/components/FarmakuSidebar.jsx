@@ -234,12 +234,6 @@ const FarmakuSidebar = () => {
                                             )}
 
 
-                                            <li>
-                                                <div className="farmaku-nav-item" onClick={() => openAria()} role="button">
-                                                    <div className="icon-wrapper"><Icons.Bot /></div>
-                                                    <span>AI Assistant</span>
-                                                </div>
-                                            </li>
 
                                             {!loading && navigation.find((item) => item.title === 'Settings') &&
                                                 renderNavItem(navigation.find((item) => item.title === 'Settings'), 'settings')}

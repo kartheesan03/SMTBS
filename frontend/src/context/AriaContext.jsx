@@ -19,7 +19,7 @@ export const AriaContext = createContext({
 });
 
 export const AriaProvider = ({ children }) => {
-    const [ariaState, setAriaState] = useState('closed'); // 'closed' | 'fab' | 'open'
+    const [ariaState, setAriaState] = useState('fab'); // 'fab' | 'open'
     const [contextData, setContextData] = useState(null);
 
     // Sidebar click (no data) → State 2 (FAB).
@@ -43,9 +43,9 @@ export const AriaProvider = ({ children }) => {
         setAriaState('fab');
     }, []);
 
-    // × button → completely dismiss (State 1)
+    // × button → minimize to FAB
     const closeAria = useCallback(() => {
-        setAriaState('closed');
+        setAriaState('fab');
         setTimeout(() => setContextData(null), 300);
     }, []);
 
