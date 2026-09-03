@@ -1,15 +1,29 @@
 import React, { useState } from 'react';
 import './AriaVisualizer.css';
-import { Search, Download, Filter, Edit2 } from 'lucide-react';
+import { Search, Download, Filter, Edit2, Copy, Check } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const AriaVisualizer = ({ visualData }) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [copiedId, setCopiedId] = useState(null);
 
     if (!visualData) {
         return null;
     }
 
     const { type, modelName, data, value, title, operation } = visualData;
+
+    const handleCopy = (text) => {
+        navigator.clipboard.writeText(text);
+        setCopiedId(text);
+        toast.success("Copied to clipboard");
+        setTimeout(() => setCopiedId(null), 2000);
+    };
+
+    const isUUID = (str) => {
+        const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+        return uuidRegex.test(str) || (str && str.length > 25 && !str.includes(' '));
+    };
 
     // Standardize types based on the user request
     const isKPI = type === 'aggregate' || type === 'count' || type === 'kpi' || type === 'metric';
@@ -80,11 +94,11 @@ const AriaVisualizer = ({ visualData }) => {
         }
 
         return (
-            <div className="aria-vis-container" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, #f0f7ff, #e0efff)', borderRadius: '12px', border: '1px solid #cce3ff' }}>
-                <h3 style={{ margin: '0 0 0.5rem 0', color: '#1e3a8a', fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div className="aria-vis-container" style={{ padding: '1.5rem', background: '#ffffff', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'inline-flex', flexDirection: 'column', minWidth: '240px' }}>
+                <h3 style={{ margin: '0 0 0.25rem 0', color: '#6b7280', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
                     {title || modelName || "Result"}
                 </h3>
-                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#1d4ed8' }}>
+                <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#111827', lineHeight: 1.2 }}>
                     {displayValue}
                 </div>
             </div>
@@ -100,20 +114,20 @@ const AriaVisualizer = ({ visualData }) => {
             );
         }
         return (
-            <div className="aria-vis-container" style={{ padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
-                <h3 style={{ margin: '0 0 1rem 0' }}>{title || modelName || 'Chart'}</h3>
-                {/* Fallback simple bar visualization since we don't have a charting library handy */}
-                <div style={{ display: 'flex', alignItems: 'flex-end', height: '200px', gap: '8px', borderBottom: '1px solid #ccc' }}>
+            <div className="aria-vis-container" style={{ padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '12px', background: '#fff' }}>
+                <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1rem', color: '#111827', fontWeight: 600 }}>{title || modelName || 'Chart'}</h3>
+                <div style={{ display: 'flex', alignItems: 'flex-end', height: '220px', gap: '16px', borderBottom: '2px solid #f3f4f6', paddingBottom: '8px' }}>
                     {data.map((d, i) => {
                         const val = Object.values(d).find(v => typeof v === 'number') || 0;
                         const label = Object.values(d).find(v => typeof v === 'string') || `Item ${i}`;
                         const maxVal = Math.max(...data.map(item => Object.values(item).find(v => typeof v === 'number') || 0)) || 1;
-                        const heightPct = (val / maxVal) * 100;
+                        const heightPct = Math.max((val / maxVal) * 100, 2); 
                         
                         return (
-                            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <div style={{ height: `${heightPct}%`, width: '100%', backgroundColor: '#3b82f6', borderRadius: '4px 4px 0 0' }}></div>
-                                <span style={{ fontSize: '10px', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }} title={label}>{label}</span>
+                            <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', group: 'hover' }}>
+                                <div style={{ fontSize: '0.75rem', color: '#4b5563', marginBottom: '4px', fontWeight: 500 }}>₹{val.toLocaleString()}</div>
+                                <div style={{ height: `${heightPct}%`, width: '100%', maxWidth: '60px', backgroundColor: '#3b82f6', borderRadius: '6px 6px 0 0', transition: 'background-color 0.2s', cursor: 'pointer' }} onMouseOver={(e) => e.target.style.backgroundColor = '#2563eb'} onMouseOut={(e) => e.target.style.backgroundColor = '#3b82f6'}></div>
+                                <span style={{ fontSize: '0.75rem', marginTop: '8px', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center', fontWeight: 500 }} title={label}>{label}</span>
                             </div>
                         );
                     })}
@@ -184,7 +198,27 @@ const AriaVisualizer = ({ visualData }) => {
                                         let val = row[h];
                                         if (val === null || val === undefined) val = '-';
                                         else if (typeof val === 'object') val = JSON.stringify(val);
-                                        return <td key={h}>{String(val)}</td>;
+                                        const strVal = String(val);
+                                        
+                                        if (isUUID(strVal)) {
+                                            return (
+                                                <td key={h}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <span title={strVal} style={{ maxWidth: '90px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                            {strVal.substring(0, 8)}...
+                                                        </span>
+                                                        <button 
+                                                            onClick={() => handleCopy(strVal)}
+                                                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#6b7280', padding: '2px', display: 'flex', alignItems: 'center' }}
+                                                            title="Copy"
+                                                        >
+                                                            {copiedId === strVal ? <Check size={12} color="#10b981" /> : <Copy size={12} />}
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            );
+                                        }
+                                        return <td key={h}>{strVal}</td>;
                                     })}
                                 </tr>
                             ))}

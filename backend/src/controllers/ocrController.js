@@ -14,29 +14,29 @@ const OCR_SERVICE_URL = process.env.FASTAPI_URL
     : 'http://127.0.0.1:8000/api/ocr';
 
 // ─── Role helpers ─────────────────────────────────────────────────────────────
-const ADMIN_ROLES    = ['admin', 'super admin'];
-const MANAGER_ROLES  = ['manager'];
+const ADMIN_ROLES = ['admin', 'super admin'];
+const MANAGER_ROLES = ['manager'];
 // Adding hr, employee, sales to EDIT_ROLES as requested by user
-const EDIT_ROLES     = [...ADMIN_ROLES, ...MANAGER_ROLES, 'hr', 'employee', 'sales'];
-const VIEW_ONLY      = ['customer', 'vendor'];
+const EDIT_ROLES = [...ADMIN_ROLES, ...MANAGER_ROLES, 'hr', 'employee', 'sales'];
+const VIEW_ONLY = ['customer', 'vendor'];
 
 function userRole(req) {
     return (req.user?.role || '').toLowerCase();
 }
-function canEdit(req)    { return EDIT_ROLES.includes(userRole(req)); }
+function canEdit(req) { return EDIT_ROLES.includes(userRole(req)); }
 function canApprove(req) { return EDIT_ROLES.includes(userRole(req)); }
-function isAdmin(req)    { return EDIT_ROLES.includes(userRole(req)); }
+function isAdmin(req) { return EDIT_ROLES.includes(userRole(req)); }
 function isViewOnly(req) { return VIEW_ONLY.includes(userRole(req)); }
 
 // ─── Audit helper ─────────────────────────────────────────────────────────────
 function appendAudit(doc, action, user, detail = '') {
     const log = Array.isArray(doc.auditLog) ? [...doc.auditLog] : [];
     log.push({
-        timestamp:  new Date().toISOString(),
+        timestamp: new Date().toISOString(),
         action,
-        userId:     user?.id   || null,
-        userName:   user?.name || 'System',
-        userRole:   user?.role || '',
+        userId: user?.id || null,
+        userName: user?.name || 'System',
+        userRole: user?.role || '',
         detail,
     });
     doc.auditLog = log;
@@ -155,12 +155,12 @@ async function findMatchingPO(invoiceInfo, structuredData) {
 function normalizeOCRData(data) {
     const sd = data.structured_data || {};
     return {
-        vendorInfo:   sd.vendor     || data.vendor     || {},
-        invoiceInfo:  sd.invoice    || data.invoice    || {},
-        customerInfo: sd.customer   || data.customer   || {},
-        lineItems:    sd.line_items || data.line_items || { columns: [], rows: [] },
-        totalsBlock:  sd.totals     || data.totals     || {},
-        rawFields:    sd.raw_fields || data.raw_fields || [],
+        vendorInfo: sd.vendor || data.vendor || {},
+        invoiceInfo: sd.invoice || data.invoice || {},
+        customerInfo: sd.customer || data.customer || {},
+        lineItems: sd.line_items || data.line_items || { columns: [], rows: [] },
+        totalsBlock: sd.totals || data.totals || {},
+        rawFields: sd.raw_fields || data.raw_fields || [],
     };
 }
 
@@ -187,19 +187,19 @@ exports.uploadDocument = (req, res) => {
             // 1. Create pending record
             const ocrDoc = await OCRDocument.create({
                 originalFileName: req.file.originalname,
-                fileSize:         req.file.size,
-                mimeType:         req.file.mimetype,
+                fileSize: req.file.size,
+                mimeType: req.file.mimetype,
                 originalImagePath,
                 processingStatus: 'Processing',
                 createdBy: req.user?.id || null,
                 updatedBy: req.user?.id || null,
                 auditLog: [{
                     timestamp: new Date().toISOString(),
-                    action:   'Uploaded',
-                    userId:   req.user?.id   || null,
+                    action: 'Uploaded',
+                    userId: req.user?.id || null,
                     userName: req.user?.name || 'Unknown',
                     userRole: req.user?.role || '',
-                    detail:   `File: ${req.file.originalname} (${(req.file.size / 1024).toFixed(1)} KB)`,
+                    detail: `File: ${req.file.originalname} (${(req.file.size / 1024).toFixed(1)} KB)`,
                 }],
             });
 
@@ -245,11 +245,11 @@ exports.uploadDocument = (req, res) => {
 
             // 4. Duplicate check
             const fingerprint = data.fingerprint || '';
-            const duplicate   = fingerprint ? await checkDuplicate(fingerprint, ocrDoc.id) : null;
+            const duplicate = fingerprint ? await checkDuplicate(fingerprint, ocrDoc.id) : null;
 
             // 5. PO match
             const normalized = normalizeOCRData(data);
-            const poMatch    = await findMatchingPO(normalized.invoiceInfo, data.structured_data || data);
+            const poMatch = await findMatchingPO(normalized.invoiceInfo, data.structured_data || data);
 
             // 6. Build validation result
             const validation = data.validation || {};
@@ -278,30 +278,30 @@ exports.uploadDocument = (req, res) => {
             const originalOcrData = { ...data };
 
             ocrDoc.set({
-                originalOcrData:     originalOcrData,
-                originalImagePath:   `/uploads/ocr/${req.file.filename}`,
+                originalOcrData: originalOcrData,
+                originalImagePath: `/uploads/ocr/${req.file.filename}`,
                 processedImagePath,
-                documentType:        data.document_type || 'General',
-                pageCount:           data.page_count   || 1,
+                documentType: data.document_type || 'General',
+                pageCount: data.page_count || 1,
 
-                vendorInfo:          normalized.vendorInfo,
-                invoiceInfo:         normalized.invoiceInfo,
-                customerInfo:        normalized.customerInfo,
-                lineItems:           normalized.lineItems,
-                totalsBlock:         normalized.totalsBlock,
-                rawFields:           normalized.rawFields,
+                vendorInfo: normalized.vendorInfo,
+                invoiceInfo: normalized.invoiceInfo,
+                customerInfo: normalized.customerInfo,
+                lineItems: normalized.lineItems,
+                totalsBlock: normalized.totalsBlock,
+                rawFields: normalized.rawFields,
 
-                extractedData:       originalOcrData,
-                correctedData:       null,  // no corrections yet
+                extractedData: originalOcrData,
+                correctedData: null,  // no corrections yet
 
-                confidenceScore:     data.confidence || 0,
-                fieldConfidence:     data.field_confidence || {},
-                validationResult:    validation,
+                confidenceScore: data.confidence || 0,
+                fieldConfidence: data.field_confidence || {},
+                validationResult: validation,
                 documentFingerprint: fingerprint,
-                isDuplicate:         !!duplicate,
-                duplicateOf:         duplicate?.id || null,
-                processingStatus:    status,
-                updatedBy:           req.user?.id || null,
+                isDuplicate: !!duplicate,
+                duplicateOf: duplicate?.id || null,
+                processingStatus: status,
+                updatedBy: req.user?.id || null,
             });
 
             // Force Sequelize to detect JSON changes
@@ -338,13 +338,13 @@ exports.getAllDocuments = async (req, res) => {
         const { status, approval, search, vendor, from, to, limit = 100, offset = 0 } = req.query;
         const where = {};
 
-        if (status)   where.processingStatus = status;
-        if (approval) where.approvalStatus   = approval;
+        if (status) where.processingStatus = status;
+        if (approval) where.approvalStatus = approval;
 
         if (from || to) {
             where.createdAt = {};
             if (from) where.createdAt[Op.gte] = new Date(from);
-            if (to)   where.createdAt[Op.lte] = new Date(to + 'T23:59:59');
+            if (to) where.createdAt[Op.lte] = new Date(to + 'T23:59:59');
         }
 
         // Server-side database search to avoid loading everything into memory
@@ -364,8 +364,8 @@ exports.getAllDocuments = async (req, res) => {
         // Step 1: Deferred Join Pattern to avoid Out of sort memory
         const { count, rows: idRows } = await OCRDocument.sequelizeModel.findAndCountAll({
             where,
-            order:  [['createdAt', 'DESC']],
-            limit:  parseInt(limit),
+            order: [['createdAt', 'DESC']],
+            limit: parseInt(limit),
             offset: parseInt(offset),
             attributes: ['id']
         });
@@ -377,9 +377,9 @@ exports.getAllDocuments = async (req, res) => {
                 where: { id: ids },
                 order: [['createdAt', 'DESC']],
                 attributes: [
-                    'id', 'originalFileName', 'fileSize', 'mimeType', 'pageCount', 
-                    'originalImagePath', 'documentType', 'vendorInfo', 'invoiceInfo', 
-                    'customerInfo', 'confidenceScore', 'validationResult', 
+                    'id', 'originalFileName', 'fileSize', 'mimeType', 'pageCount',
+                    'originalImagePath', 'documentType', 'vendorInfo', 'invoiceInfo',
+                    'customerInfo', 'confidenceScore', 'validationResult',
                     'processingStatus', 'approvalStatus', 'createdAt'
                 ]
             });
@@ -416,34 +416,28 @@ exports.updateDocument = async (req, res) => {
         const doc = await OCRDocument.sequelizeModel.findByPk(req.params.id);
         if (!doc) return res.status(404).json({ error: 'Document not found' });
 
-        // Prevent editing an already-approved document (unless admin)
-        if (doc.approvalStatus === 'Approved' && !isAdmin(req)) {
-            return res.status(403).json({
-                error: 'Document is already approved. Only Admin can modify approved documents.'
-            });
-        }
-
         // NEVER overwrite originalOcrData
-        const { vendorInfo, invoiceInfo, customerInfo, lineItems, totalsBlock, rawFields, correctedData } = req.body;
+        const { vendorInfo, invoiceInfo, customerInfo, lineItems, totalsBlock, rawFields, raw_text, correctedData } = req.body;
 
-        if (vendorInfo)    { doc.vendorInfo   = vendorInfo;   doc.changed('vendorInfo', true); }
-        if (invoiceInfo)   { doc.invoiceInfo  = invoiceInfo;  doc.changed('invoiceInfo', true); }
-        if (customerInfo)  { doc.customerInfo = customerInfo; doc.changed('customerInfo', true); }
-        if (lineItems)     { doc.lineItems    = lineItems;    doc.changed('lineItems', true); }
-        if (totalsBlock)   { doc.totalsBlock  = totalsBlock;  doc.changed('totalsBlock', true); }
-        if (rawFields)     { doc.rawFields    = rawFields;    doc.changed('rawFields', true); }
+        if (vendorInfo) { doc.vendorInfo = vendorInfo; doc.changed('vendorInfo', true); }
+        if (invoiceInfo) { doc.invoiceInfo = invoiceInfo; doc.changed('invoiceInfo', true); }
+        if (customerInfo) { doc.customerInfo = customerInfo; doc.changed('customerInfo', true); }
+        if (lineItems) { doc.lineItems = lineItems; doc.changed('lineItems', true); }
+        if (totalsBlock) { doc.totalsBlock = totalsBlock; doc.changed('totalsBlock', true); }
+        if (rawFields) { doc.rawFields = rawFields; doc.changed('rawFields', true); }
 
         // Store corrected snapshot (original is preserved in originalOcrData)
         doc.correctedData = {
             ...(doc.correctedData || {}),
-            vendorInfo:   doc.vendorInfo,
-            invoiceInfo:  doc.invoiceInfo,
+            vendorInfo: doc.vendorInfo,
+            invoiceInfo: doc.invoiceInfo,
             customerInfo: doc.customerInfo,
-            lineItems:    doc.lineItems,
-            totalsBlock:  doc.totalsBlock,
-            rawFields:    doc.rawFields,
-            correctedAt:  new Date().toISOString(),
-            correctedBy:  req.user?.id || null,
+            lineItems: doc.lineItems,
+            totalsBlock: doc.totalsBlock,
+            rawFields: doc.rawFields,
+            raw_text: raw_text !== undefined ? raw_text : doc.correctedData?.raw_text,
+            correctedAt: new Date().toISOString(),
+            correctedBy: req.user?.id || null,
             ...(correctedData || {}),
         };
         doc.changed('correctedData', true);
@@ -473,10 +467,10 @@ exports.approveDocument = async (req, res) => {
         const doc = await OCRDocument.sequelizeModel.findByPk(req.params.id);
         if (!doc) return res.status(404).json({ error: 'Document not found' });
 
-        doc.approvalStatus   = 'Approved';
+        doc.approvalStatus = 'Approved';
         doc.processingStatus = 'Approved';
-        doc.approvedBy       = req.user?.id || null;
-        doc.updatedBy        = req.user?.id || null;
+        doc.approvedBy = req.user?.id || null;
+        doc.updatedBy = req.user?.id || null;
 
         appendAudit(doc, 'Approved', req.user, 'Invoice approved');
         await doc.save();
@@ -500,10 +494,10 @@ exports.rejectDocument = async (req, res) => {
         const doc = await OCRDocument.sequelizeModel.findByPk(req.params.id);
         if (!doc) return res.status(404).json({ error: 'Document not found' });
 
-        doc.approvalStatus   = 'Rejected';
+        doc.approvalStatus = 'Rejected';
         doc.processingStatus = 'Rejected';
-        doc.rejectionReason  = reason;
-        doc.updatedBy        = req.user?.id || null;
+        doc.rejectionReason = reason;
+        doc.updatedBy = req.user?.id || null;
 
         appendAudit(doc, 'Rejected', req.user, `Reason: ${reason}`);
         await doc.save();
@@ -561,9 +555,9 @@ exports.reprocessDocument = async (req, res) => {
             let processedImagePath = doc.originalImagePath;
 
             const fingerprint = data.fingerprint || '';
-            const duplicate   = fingerprint ? await checkDuplicate(fingerprint, doc.id) : null;
-            const normalized  = normalizeOCRData(data);
-            const validation  = data.validation || {};
+            const duplicate = fingerprint ? await checkDuplicate(fingerprint, doc.id) : null;
+            const normalized = normalizeOCRData(data);
+            const validation = data.validation || {};
             if (duplicate) validation.duplicate_check = { found: true, ref: duplicate.id };
 
             let status = 'OCR_Completed';
@@ -582,19 +576,19 @@ exports.reprocessDocument = async (req, res) => {
 
             Object.assign(doc, {
                 ...normalized,
-                documentType:        data.document_type || doc.documentType,
-                pageCount:           data.page_count    || 1,
-                extractedData:       originalOcrData,
-                correctedData:       null,
-                confidenceScore:     data.confidence || 0,
-                fieldConfidence:     data.field_confidence || {},
-                validationResult:    validation,
+                documentType: data.document_type || doc.documentType,
+                pageCount: data.page_count || 1,
+                extractedData: originalOcrData,
+                correctedData: null,
+                confidenceScore: data.confidence || 0,
+                fieldConfidence: data.field_confidence || {},
+                validationResult: validation,
                 documentFingerprint: fingerprint,
-                isDuplicate:         !!duplicate,
-                duplicateOf:         duplicate?.id || null,
+                isDuplicate: !!duplicate,
+                duplicateOf: duplicate?.id || null,
                 processedImagePath,
-                processingStatus:    status,
-                updatedBy:           req.user?.id || null,
+                processingStatus: status,
+                updatedBy: req.user?.id || null,
             });
 
             appendAudit(doc, 'Reprocessed', req.user,
@@ -638,18 +632,19 @@ exports.exportWord = async (req, res) => {
         const doc = await OCRDocument.sequelizeModel.findByPk(req.params.id);
         if (!doc) return res.status(404).json({ error: 'Document not found' });
 
-        const vendor   = doc.vendorInfo   || {};
-        const invoice  = doc.invoiceInfo  || {};
-        const customer = doc.customerInfo || {};
-        const items    = doc.lineItems    || { columns: [], rows: [] };
-        const totals   = doc.totalsBlock  || {};
+        const vendor = (req.body && req.body.vendorInfo) ? req.body.vendorInfo : (doc.vendorInfo || {});
+        const invoice = (req.body && req.body.invoiceInfo) ? req.body.invoiceInfo : (doc.invoiceInfo || {});
+        const customer = (req.body && req.body.customerInfo) ? req.body.customerInfo : (doc.customerInfo || {});
+        const items = (req.body && req.body.lineItems) ? req.body.lineItems : (doc.lineItems || { columns: [], rows: [] });
+        const totals = (req.body && req.body.totalsBlock) ? req.body.totalsBlock : (doc.totalsBlock || {});
         const colHeaders = items.columns || [];
-        const rows       = items.rows    || [];
+        const rows = items.rows || [];
+        const raw_text = (req.body && req.body.raw_text) ? req.body.raw_text : (doc.correctedData?.raw_text || doc.originalOcrData?.raw_text || '');
 
         const tableHead = colHeaders.length
             ? `<tr>${colHeaders.map(c =>
                 `<th style="background:#1a73e8;color:#fff;padding:8px 12px;border:1px solid #1a73e8;font-size:11pt;">${c}</th>`
-              ).join('')}</tr>`
+            ).join('')}</tr>`
             : '';
 
         const tableRows = rows.map(row =>
@@ -660,14 +655,13 @@ exports.exportWord = async (req, res) => {
 
         const totalsRows = Object.entries(totals)
             .map(([k, v]) =>
-                `<tr><td style="padding:4px 16px;font-weight:600;font-size:10pt;">${
-                    k.replace(/_/g,' ').replace(/\b\w/g, l => l.toUpperCase())
+                `<tr><td style="padding:4px 16px;font-weight:600;font-size:10pt;">${k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
                 }</td><td style="padding:4px 16px;text-align:right;font-size:10pt;">${v}</td></tr>`
             ).join('');
 
         const validation = doc.validationResult || {};
-        const poMatch    = validation.po_match || {};
-        const dupCheck   = validation.duplicate_check || {};
+        const poMatch = validation.po_match || {};
+        const dupCheck = validation.duplicate_check || {};
 
         const html = `
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -692,7 +686,7 @@ exports.exportWord = async (req, res) => {
 <h1>📄 Invoice Verification Report</h1>
 <p class="meta">Generated: ${new Date().toLocaleString()} &nbsp;|&nbsp;
   Confidence: ${Math.round((doc.confidenceScore || 0) * 100)}% &nbsp;|&nbsp;
-  Status: <span class="badge ${doc.processingStatus === 'Approved' ? 'badge-ok' : 'badge-warn'}">${doc.processingStatus.replace(/_/g,' ')}</span>
+  Status: <span class="badge ${doc.processingStatus === 'Approved' ? 'badge-ok' : 'badge-warn'}">${doc.processingStatus.replace(/_/g, ' ')}</span>
 </p>
 
 <h2>Vendor Information</h2>
@@ -736,6 +730,11 @@ ${(validation.issues || []).length > 0 ? `
 <h2>Issues Identified</h2>
 <ul>${(validation.issues || []).map(i => `<li>${i.message}</li>`).join('')}</ul>` : ''}
 
+<h2>Raw Extracted Text</h2>
+<pre style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; font-size: 10pt; white-space: pre-wrap; font-family: monospace;">
+${raw_text || 'No raw text available'}
+</pre>
+
 <p class="meta" style="margin-top:40px;border-top:1px solid #eee;padding-top:16px;">
   SMTBMS Invoice OCR &amp; Verification System &nbsp;|&nbsp;
   Document: ${doc.originalFileName || 'N/A'} &nbsp;|&nbsp;
@@ -759,23 +758,24 @@ exports.exportPdf = async (req, res) => {
         const doc = await OCRDocument.sequelizeModel.findByPk(req.params.id);
         if (!doc) return res.status(404).json({ error: 'Document not found' });
 
-        const vendor   = doc.vendorInfo   || {};
-        const invoice  = doc.invoiceInfo  || {};
-        const customer = doc.customerInfo || {};
-        const items    = doc.lineItems    || { columns: [], rows: [] };
-        const totals   = doc.totalsBlock  || {};
+        const vendor = (req.body && req.body.vendorInfo) ? req.body.vendorInfo : (doc.vendorInfo || {});
+        const invoice = (req.body && req.body.invoiceInfo) ? req.body.invoiceInfo : (doc.invoiceInfo || {});
+        const customer = (req.body && req.body.customerInfo) ? req.body.customerInfo : (doc.customerInfo || {});
+        const items = (req.body && req.body.lineItems) ? req.body.lineItems : (doc.lineItems || { columns: [], rows: [] });
+        const totals = (req.body && req.body.totalsBlock) ? req.body.totalsBlock : (doc.totalsBlock || {});
         const colHeaders = items.columns || [];
-        const rows       = items.rows    || [];
+        const rows = items.rows || [];
+        const raw_text = (req.body && req.body.raw_text) ? req.body.raw_text : (doc.correctedData?.raw_text || doc.originalOcrData?.raw_text || '');
         const validation = doc.validationResult || {};
-        const poMatch    = validation.po_match || {};
-        const dupCheck   = validation.duplicate_check || {};
+        const poMatch = validation.po_match || {};
+        const dupCheck = validation.duplicate_check || {};
 
         const tableRows = rows.map(row =>
             `<tr>${colHeaders.map(c => `<td>${row[c] || ''}</td>`).join('')}</tr>`
         ).join('');
 
         const totalsRows = Object.entries(totals).map(([k, v]) =>
-            `<tr><td>${k.replace(/_/g,' ').replace(/\b\w/g, l => l.toUpperCase())}</td><td class="amount">${v}</td></tr>`
+            `<tr><td>${k.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td><td class="amount">${v}</td></tr>`
         ).join('');
 
         const issuesHtml = (validation.issues || []).length > 0
@@ -836,7 +836,7 @@ tbody td{padding:7px 12px;border-bottom:1px solid #eee;font-size:11px;}
     <div style="color:#666;font-size:11px;text-align:right;margin-top:4px;">Date: ${invoice.date || '-'}</div>
     ${invoice.due_date ? `<div style="color:#666;font-size:11px;text-align:right;">Due: ${invoice.due_date}</div>` : ''}
     <div style="margin-top:8px;text-align:right;">
-      <span class="badge ${doc.processingStatus === 'Approved' ? 'badge-ok' : 'badge-warn'}">${doc.processingStatus.replace(/_/g,' ')}</span>
+      <span class="badge ${doc.processingStatus === 'Approved' ? 'badge-ok' : 'badge-warn'}">${doc.processingStatus.replace(/_/g, ' ')}</span>
     </div>
   </div>
 </div>
@@ -886,6 +886,11 @@ tbody td{padding:7px 12px;border-bottom:1px solid #eee;font-size:11px;}
 
 ${issuesHtml}
 
+<div class="section-title" style="margin-top:20px;">Raw Extracted Text</div>
+<pre style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; font-size: 10pt; white-space: pre-wrap; font-family: monospace;">
+${raw_text || 'No raw text available'}
+</pre>
+
 <div class="footer">
   SMTBMS Invoice OCR &amp; Verification System &nbsp;·&nbsp;
   ${new Date().toLocaleString()} &nbsp;·&nbsp;
@@ -917,7 +922,7 @@ exports.askQuestion = async (req, res) => {
 
 
         const doc = await OCRDocument.sequelizeModel.findByPk(docId);
-        
+
         if (!doc) {
             return res.status(404).json({ success: false, error: 'Document not found' });
         }
@@ -929,7 +934,7 @@ exports.askQuestion = async (req, res) => {
         const path = require('path');
         const filePath = path.join(__dirname, '../../', doc.originalImagePath);
         const answer = await askDocumentQuestion(filePath, question, doc.originalOcrData);
-        
+
         res.json({ success: true, answer });
     } catch (error) {
         console.error('Q&A Error:', error);

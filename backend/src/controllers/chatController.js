@@ -78,16 +78,17 @@ const chatWithGemini = async (req, res) => {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey || apiKey === 'your_gemini_api_key_here') {
             console.log("No Gemini API key found. Using local NLP Query Engine.");
-            const nlpResult = await parseAndExecuteNLPQuery(message);
+            const nlpResult = await parseAndExecuteNLPQuery(message, context);
             if (!nlpResult.success) {
-                return res.json({ reply: nlpResult.message });
+                return res.json({ reply: nlpResult.message, context });
             }
             
             return res.json({
                 reply: nlpResult.answer || nlpResult.message,
                 visualData: nlpResult,
                 metrics: ["Source: Live Database"],
-                whyItMatters: "Processed securely via local natural language to SQL engine."
+                whyItMatters: "Processed securely via local natural language to SQL engine.",
+                context: nlpResult.context || context
             });
         }
         let dynamicPrompt = SMTBMS_SYSTEM_PROMPT;
@@ -178,21 +179,23 @@ const chatWithGemini = async (req, res) => {
         
         try {
             console.log("Falling back to local NLP Query Engine due to AI generation failure...");
-            const nlpResult = await parseAndExecuteNLPQuery(req.body.message || "");
+            const nlpResult = await parseAndExecuteNLPQuery(req.body.message || "", req.body.context || null);
             if (!nlpResult.success) {
-                return res.json({ reply: nlpResult.message });
+                return res.json({ reply: nlpResult.message, context: req.body.context });
             }
             
             return res.json({
                 reply: nlpResult.answer || nlpResult.message,
                 visualData: nlpResult,
                 metrics: ["Source: Live Database"],
-                whyItMatters: "Processed securely via local natural language to SQL engine."
+                whyItMatters: "Processed securely via local natural language to SQL engine.",
+                context: nlpResult.context || req.body.context
             });
         } catch (fallbackError) {
             console.error('Fallback error:', fallbackError.message);
             return res.status(500).json({
-                reply: "I encountered an error and couldn't process your request. Please try again shortly."
+                reply: "I couldn't retrieve that information from the database right now. Please try again.",
+                context: req.body.context
             });
         }
     }

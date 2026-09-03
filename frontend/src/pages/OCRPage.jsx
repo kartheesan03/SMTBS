@@ -126,6 +126,8 @@ const OCRPage = () => {
     }
   }, [chatHistory]);
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
+  const [isReEditing, setIsReEditing] = useState(false);
 
   // Processing progress state
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -164,28 +166,31 @@ const OCRPage = () => {
   const loadDocument = async (id) => {
     try {
       const res = await API.get(`/ocr/${id}`);
-      const doc = res.data.data;
-      setSelectedDoc(doc);
-      setEditedData({
-        vendorInfo:   doc.correctedData?.vendorInfo   || doc.vendorInfo   || {},
-        invoiceInfo:  doc.correctedData?.invoiceInfo  || doc.invoiceInfo  || {},
-        customerInfo: doc.correctedData?.customerInfo || doc.customerInfo || {},
-        totalsBlock:  doc.correctedData?.totalsBlock  || doc.totalsBlock  || {},
-        lineItems:    (doc.correctedData?.lineItems?.columns ? doc.correctedData.lineItems : null) || 
-                      (doc.lineItems?.columns ? doc.lineItems : null) || 
-                      { columns: [], rows: [] },
-        rawFields:    doc.correctedData?.rawFields    || doc.rawFields    || [],
-      });
-      setHasChanges(false);
-      setImgZoom(1.0);
-      setView('detail');
+      if (res.data.data) {
+        setSelectedDoc(res.data.data);
+        const doc = res.data.data;
+        
+        setEditedData({
+          vendorInfo: doc.correctedData?.vendorInfo || doc.vendorInfo || {},
+          invoiceInfo: doc.correctedData?.invoiceInfo || doc.invoiceInfo || {},
+          customerInfo: doc.correctedData?.customerInfo || doc.customerInfo || {},
+          totalsBlock: doc.correctedData?.totalsBlock || doc.totalsBlock || {},
+          lineItems: (doc.correctedData?.lineItems?.columns ? doc.correctedData.lineItems : null) || 
+                     doc.lineItems || 
+                     { headers: [], columns: [] },
+          rawFields: doc.correctedData?.rawFields || doc.rawFields || [],
+          raw_text: doc.correctedData?.raw_text || doc.originalOcrData?.raw_text || '',
+        });
+        setHasChanges(false);
+        setIsReEditing(false);
+        setView('detail');
+      }
     } catch (err) {
       console.error('loadDocument error:', err);
       toast.error(`Failed to load document details: ${err.response?.data?.error || err.message}`);
     }
   };
 
-  // ── Upload with animated progress ──────────────────────────────────────────
   const simulateProgress = () => {
     let step = 0;
     setCurrentStep(0);
@@ -253,7 +258,6 @@ const OCRPage = () => {
         setIsProcessing(false);
         toast.success(res.data.message || 'Document processed successfully');
         
-        // Directly use the returned document data to avoid a redundant GET request
         const doc = res.data.data;
         if (!doc.lineItems) {
           doc.lineItems = { headers: [], columns: [] };
@@ -285,28 +289,94 @@ const OCRPage = () => {
     }
   };
 
-  const handleFieldChange = (section, field, value) => {
-    if (section === '_lineItemsFull') {
-      // OCRDataTable sends full { columns, rows } object when adding/removing columns
-      setEditedData(prev => ({ ...prev, lineItems: value }));
-    } else if (section === 'lineItems') {
-      setEditedData(prev => ({ ...prev, lineItems: { ...prev.lineItems, rows: value } }));
-    } else {
-      setEditedData(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
+  // ── Synchronize Raw Text ───────────────────────────────────────────────────
+  const generateSynchronizedRawText = (currentEditedData) => {
+    const baseData = selectedDoc?.correctedData || selectedDoc?.originalOcrData || selectedDoc || {};
+    let rawText = baseData.raw_text || selectedDoc?.originalOcrData?.raw_text || '';
+    
+    if (!rawText) return rawText;
+
+    const replaceIfChanged = (baseVal, editedVal) => {
+      const bStr = String(baseVal || '').trim();
+      const eStr = String(editedVal || '').trim();
+      if (bStr && eStr && bStr !== eStr) {
+        if (bStr.length < 3 && /^[a-zA-Z0-9]+$/.test(bStr)) {
+           try {
+             const regex = new RegExp(`\\b${bStr}\\b`, 'g');
+             rawText = rawText.replace(regex, eStr);
+           } catch {
+             rawText = rawText.split(bStr).join(eStr);
+           }
+        } else {
+           rawText = rawText.split(bStr).join(eStr);
+        }
+      }
+    };
+
+    const compareObjects = (baseObj, editedObj) => {
+      if (!baseObj || !editedObj) return;
+      Object.keys(editedObj).forEach(k => {
+        replaceIfChanged(baseObj[k], editedObj[k]);
+      });
+    };
+
+    compareObjects(baseData.vendorInfo, currentEditedData.vendorInfo);
+    compareObjects(baseData.invoiceInfo, currentEditedData.invoiceInfo);
+    compareObjects(baseData.customerInfo, currentEditedData.customerInfo);
+    compareObjects(baseData.totalsBlock, currentEditedData.totalsBlock);
+
+    if (baseData.rawFields && currentEditedData.rawFields) {
+      currentEditedData.rawFields.forEach((rf, idx) => {
+         const origRf = baseData.rawFields[idx];
+         if (origRf) replaceIfChanged(origRf.value, rf.value);
+      });
     }
+
+    if (baseData.lineItems?.rows && currentEditedData.lineItems?.rows) {
+      currentEditedData.lineItems.rows.forEach((row, rIdx) => {
+        const origRow = baseData.lineItems.rows[rIdx];
+        if (origRow) {
+          Object.keys(row).forEach(cIdx => {
+            replaceIfChanged(origRow[cIdx], row[cIdx]);
+          });
+        }
+      });
+    }
+
+    return rawText;
+  };
+
+  const handleFieldChange = (section, field, value) => {
+    setEditedData(prev => {
+      const newState = { ...prev };
+      if (section === '_lineItemsFull') {
+        newState.lineItems = value;
+      } else if (section === 'lineItems') {
+        newState.lineItems = { ...prev.lineItems, rows: value };
+      } else {
+        newState[section] = { ...prev[section], [field]: value };
+      }
+      
+      // Synchronize raw_text
+      newState.raw_text = generateSynchronizedRawText(newState);
+      
+      return newState;
+    });
     setHasChanges(true);
   };
 
   const saveChanges = async () => {
     if (!canEdit) return;
     setIsProcessing(true);
+    const t = toast.loading('Saving and approving...');
     try {
       await API.put(`/ocr/${selectedDoc.id}`, editedData);
-      toast.success('Changes saved successfully');
-      setHasChanges(false);
-      loadDocument(selectedDoc.id);
+      await API.post(`/ocr/${selectedDoc.id}/approve`);
+      await loadDocument(selectedDoc.id);
+      toast.success('✓ Document saved and approved successfully.', { id: t });
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to save changes');
+      console.error(err);
+      toast.error('Unable to save the document. Please try again.', { id: t });
     } finally {
       setIsProcessing(false);
     }
@@ -357,11 +427,16 @@ const OCRPage = () => {
     }
   };
 
+  const handleExportClick = (type) => {
+    handleExport(type);
+  };
+
   const handleExport = (type) => {
     const baseURL = API.defaults.baseURL || '';
     const url  = `${baseURL}/ocr/${selectedDoc.id}/export/${type}`;
     const stored = localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}';
     const token  = JSON.parse(stored)?.token;
+    const docName = type === 'word' ? 'Word document' : 'PDF document';
 
     toast.promise(
       fetch(url, { headers: { Authorization: `Bearer ${token}` } })
@@ -370,16 +445,15 @@ const OCRPage = () => {
           const bUrl = URL.createObjectURL(blob);
           const a    = Object.assign(document.createElement('a'), {
             href: bUrl,
-            download: `Invoice_${selectedDoc.invoiceInfo?.number || selectedDoc.id}.${type === 'word' ? 'doc' : 'html'}`,
+            download: `Invoice_${selectedDoc.invoiceInfo?.number || selectedDoc.id}.${type === 'word' ? 'doc' : 'pdf'}`,
           });
           a.click();
           URL.revokeObjectURL(bUrl);
         }),
-      { loading: 'Generating export...', success: 'Export downloaded!', error: 'Export failed' }
+      { loading: `Generating ${docName}...`, success: `✓ ${docName} downloaded!`, error: 'Export failed' }
     );
   };
 
-  // ─── Q&A Handlers ──────────────────────────────────────────────────────────
   const handleAskQuestion = async () => {
     if (!questionInput.trim() || !selectedDoc) return;
     
@@ -402,7 +476,6 @@ const OCRPage = () => {
     }
   };
 
-  // ── Upload progress overlay ─────────────────────────────────────────────────
   if (isUploading) {
     const totalSteps = PROCESSING_STEPS.length;
     return (
@@ -417,7 +490,6 @@ const OCRPage = () => {
           border: '1px solid #e2e8f0', width: '100%', maxWidth: '440px',
           textAlign: 'center', boxSizing: 'border-box'
         }}>
-          {/* Header Icon */}
           <div style={{ 
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: '64px', height: '64px', borderRadius: '16px',
@@ -439,7 +511,6 @@ const OCRPage = () => {
             Analyzing your invoice and extracting key information...
           </p>
 
-          {/* Progress Section */}
           <div style={{ marginBottom: '32px', textAlign: 'left' }}>
             <div style={{ 
               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
@@ -466,7 +537,6 @@ const OCRPage = () => {
             </div>
           </div>
 
-          {/* Step list (Vertical Stepper) */}
           <div style={{ 
             textAlign: 'left', display: 'flex', flexDirection: 'column',
             paddingRight: '8px'
@@ -489,7 +559,6 @@ const OCRPage = () => {
                   position: 'relative',
                   minHeight: idx === PROCESSING_STEPS.length - 1 ? '24px' : '40px'
                 }}>
-                  {/* Vertical Line Connector */}
                   {idx !== PROCESSING_STEPS.length - 1 && (
                     <div style={{
                       position: 'absolute', top: '24px', left: '11px', 
@@ -499,7 +568,6 @@ const OCRPage = () => {
                     }} />
                   )}
 
-                  {/* Icon Indicator */}
                   <div style={{ 
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     width: '24px', height: '24px', zIndex: 1, flexShrink: 0,
@@ -531,16 +599,9 @@ const OCRPage = () => {
     );
   }
 
-  // ─── List View ───────────────────────────────────────────────────────────────
   if (view === 'list') {
-    const statusOpts = [
-      '', 'OCR_Completed', 'Needs_Verification', 'Ready_For_Approval',
-      'Approved', 'Rejected', 'Duplicate', 'Failed', 'Processing',
-    ];
-
     return (
       <div style={{ padding: '24px 32px', background: 'var(--bg-app, #f8fafc)', minHeight: '100vh', animation: 'fadeIn 0.4s ease-out' }}>
-        {/* Header */}
         <PageHeader
           title="Document Intelligence"
           badge="AI TOOL"
@@ -556,7 +617,6 @@ const OCRPage = () => {
           </span>
         )}
 
-        {/* Clean Drag & Drop Upload Zone */}
         {canEdit && (
           <div
             onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
@@ -601,24 +661,18 @@ const OCRPage = () => {
             </p>
           </div>
         )}
-
-
       </div>
     );
   }
 
-  // ─── Detail View (Full-Screen Modal) ───────────────────────────────────────
   if (!selectedDoc) return null;
   const isApproved  = selectedDoc.approvalStatus === 'Approved';
-  const isRejected  = selectedDoc.approvalStatus === 'Rejected';
-  const workflowStep = statusToWorkflow(selectedDoc.processingStatus, selectedDoc.approvalStatus);
 
   const baseURL = API.defaults.baseURL?.replace('/api', '') || '';
   const imgUrl = selectedDoc.originalImagePath
     ? (selectedDoc.originalImagePath.startsWith('http') ? selectedDoc.originalImagePath : `${baseURL}${selectedDoc.originalImagePath}`)
     : selectedDoc.fileUrl;
   const isPdf = selectedDoc.mimeType === 'application/pdf';
-
   
   const handleValidate = async () => {
     toast.success("Document validated successfully.");
@@ -634,13 +688,16 @@ const OCRPage = () => {
       lineItems:    (selectedDoc.correctedData?.lineItems?.columns ? selectedDoc.correctedData.lineItems : null) || 
                     selectedDoc.lineItems || 
                     { headers: [], columns: [] },
+      raw_text:     selectedDoc.correctedData?.raw_text     || selectedDoc.originalOcrData?.raw_text || '',
     });
     setHasChanges(false);
+    setShowClearModal(false);
+    setIsReEditing(false);
+    toast.success("Changes cleared successfully.");
   };
 
   return (
       <div style={{ padding: '24px 32px', background: 'var(--bg-app, #f8fafc)', minHeight: '100vh', animation: 'fadeIn 0.4s ease-out' }}>
-      {/* File Info Row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 20px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <FileText size={18} style={{ color: '#ef4444' }} />
@@ -655,7 +712,6 @@ const OCRPage = () => {
          </button>
       </div>
 
-      {/* Success Banner */}
       <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '16px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
          <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#16a34a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
            <Check size={14} />
@@ -668,10 +724,7 @@ const OCRPage = () => {
          </div>
       </div>
 
-      {/* Document Preview and Info */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '24px' }}>
-         
-         {/* Top Section: Preview */}
          <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
             <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#0f172a' }}>Document Preview</h3>
@@ -712,23 +765,21 @@ const OCRPage = () => {
             </div>
          </div>
          
-         {/* Bottom Section: Document Information */}
          <InvoiceDataPanel
-           data={editedData}
-           confidences={selectedDoc.fieldConfidence}
-           onChange={handleFieldChange}
-           editable={canEdit && !isApproved && !isViewOnly}
-         >
-            <OCRDataTable
-              lineItems={editedData?.lineItems}
-              rawFields={editedData?.rawFields}
-              onChange={handleFieldChange}
-              editable={canEdit && !isApproved && !isViewOnly}
-            />
-         </InvoiceDataPanel>
+          data={editedData}
+          confidences={selectedDoc.fieldConfidence}
+          onChange={handleFieldChange}
+          editable={canEdit && (!isApproved || isReEditing) && !isViewOnly}
+        >
+          <OCRDataTable
+            lineItems={editedData?.lineItems}
+            rawFields={editedData?.rawFields}
+            onChange={handleFieldChange}
+            editable={canEdit && (!isApproved || isReEditing) && !isViewOnly}
+          />
+        </InvoiceDataPanel>
       </div>
 
-      {/* Raw Text Section */}
       <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
          <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
             <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>Raw Extracted Text</h3>
@@ -809,21 +860,97 @@ const OCRPage = () => {
       </div>
 
       {/* Bottom Action Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', background: '#fff', padding: '16px 24px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '40px', gap: '12px' }}>
-         <button onClick={handleClear} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#64748b', cursor: 'pointer', transition: 'all 0.2s' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '16px 24px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {hasChanges ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#f59e0b', fontSize: '14px', fontWeight: '600' }}>
+              <span style={{ fontSize: '18px' }}>●</span> Unsaved changes
+            </div>
+          ) : (selectedDoc?.approvalStatus === 'Approved' && !isReEditing ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#16a34a', fontSize: '14px', fontWeight: '600' }}>
+              <CheckCircle2 size={16} /> Approved
+            </div>
+          ) : (isReEditing ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#3b82f6', fontSize: '14px', fontWeight: '600' }}>
+              <span style={{ fontSize: '18px' }}>✎</span> Editing
+            </div>
+          ) : null))}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button 
+            onClick={() => setShowClearModal(true)} 
+            disabled={isProcessing || !hasChanges} 
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#64748b', cursor: (isProcessing || !hasChanges) ? 'not-allowed' : 'pointer', opacity: (isProcessing || !hasChanges) ? 0.5 : 1, transition: 'all 0.2s' }}
+          >
             Clear Changes
-         </button>
-         <button onClick={() => handleExport('word')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: 'pointer', transition: 'all 0.2s' }}>
+          </button>
+          
+          <button 
+            onClick={() => handleExportClick('word')} 
+            disabled={isProcessing || hasChanges} 
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: (isProcessing || hasChanges) ? 'not-allowed' : 'pointer', opacity: (isProcessing || hasChanges) ? 0.5 : 1, transition: 'all 0.2s' }}
+          >
             <Download size={16} /> Download Word
-         </button>
-         <button onClick={() => handleExport('pdf')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: 'pointer', transition: 'all 0.2s' }}>
+          </button>
+          
+          <button 
+            onClick={() => handleExportClick('pdf')} 
+            disabled={isProcessing || hasChanges} 
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: (isProcessing || hasChanges) ? 'not-allowed' : 'pointer', opacity: (isProcessing || hasChanges) ? 0.5 : 1, transition: 'all 0.2s' }}
+          >
             <Download size={16} /> Download PDF
-         </button>
-         <button onClick={handleValidate} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#16a34a', border: 'none', padding: '10px 28px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#fff', cursor: 'pointer', transition: 'background 0.2s', boxShadow: '0 2px 4px rgba(22,163,74,0.3)' }}>
-            <CheckCircle2 size={16} /> Save & Approve
-         </button>
+          </button>
+          
+          { (selectedDoc?.approvalStatus === 'Approved' && !isReEditing && !hasChanges) ? (
+            <button 
+              onClick={() => setIsReEditing(true)} 
+              disabled={isProcessing} 
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 28px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: isProcessing ? 'not-allowed' : 'pointer', opacity: isProcessing ? 0.6 : 1, transition: 'all 0.2s' }}
+            >
+              Re-Edit
+            </button>
+          ) : (
+            <button 
+              onClick={handleValidate} 
+              disabled={isProcessing} 
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: isProcessing ? '#9ca3af' : '#16a34a', border: 'none', padding: '10px 28px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#fff', cursor: isProcessing ? 'not-allowed' : 'pointer', transition: 'background 0.2s', boxShadow: '0 2px 4px rgba(22,163,74,0.3)' }}
+            >
+              {isProcessing ? (
+                <><Loader2 size={16} className="animate-spin" style={{ display: 'inline-block' }} /> Saving...</>
+              ) : (
+                <><CheckCircle2 size={16} /> Save & Approve</>
+              )}
+            </button>
+          )}
+        </div>
       </div>
       
+      {/* ── Clear Changes Warning Modal ────────────────────────────────────── */}
+      {showClearModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+        }}>
+          <div style={{ background: '#fff', padding: '28px', borderRadius: '12px', width: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <h3 style={{ margin: '0 0 6px', fontSize: '17px', color: '#0f172a', fontWeight: '700' }}>
+              Discard unsaved changes?
+            </h3>
+            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '20px' }}>
+              Your current edits will be removed and reverted to the last saved version.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button onClick={() => setShowClearModal(false)} style={{ background: 'transparent', border: '1px solid #cbd5e1', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', color: '#475569', cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={handleClear} style={{ background: '#ef4444', border: 'none', padding: '8px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', color: '#fff', cursor: 'pointer' }}>
+                Discard Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       
 {/* ── Reject modal ────────────────────────────────────────────────────── */}
       {showRejectModal && (

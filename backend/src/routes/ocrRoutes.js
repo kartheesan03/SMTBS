@@ -16,5 +16,7 @@ router.post('/:id/ask', protect, ocrController.askQuestion);
 router.get('/:id/audit', protect, ocrController.getAuditLog);
 router.get('/:id/export/word', protect, ocrController.exportWord);
 router.get('/:id/export/pdf', protect, ocrController.exportPdf);
+router.post('/:id/export/word', protect, ocrController.exportWord);
+router.post('/:id/export/pdf', protect, ocrController.exportPdf);
 
 module.exports = router;

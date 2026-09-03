@@ -214,19 +214,27 @@ const AriaCommandCenter = () => {
         
         const analysisId = createOrUpdateAnalysis(newThread, currentAnalysisId);
 
+        // Get context from previous thread if it exists
+        let currentContext = null;
+        setAnalyses(prev => {
+            const analysis = prev.find(a => a.id === analysisId);
+            if (analysis && analysis.threads && analysis.threads.length > 1) {
+                const prevThread = analysis.threads[analysis.threads.length - 2];
+                if (prevThread?.intelligence?.context) {
+                    currentContext = prevThread.intelligence.context;
+                }
+            }
+            return prev;
+        });
+
         try {
             const res = await API.post('/chat', {
                 message: queryText,
                 history: [],
-                context: null
+                context: currentContext
             });
             
             console.log("[ARIA] API response:", res.data);
-            if (res.data.visualData) {
-                console.log("[ARIA] Response type:", res.data.visualData.type);
-                console.log("[ARIA] Value:", res.data.visualData.value);
-                console.log("[ARIA] Data:", res.data.visualData.data);
-            }
 
             const category = determineCategory(queryText);
             
@@ -237,7 +245,8 @@ const AriaCommandCenter = () => {
                 insight: res.data.reply,
                 whyItMatters: res.data.whyItMatters || "This affects operational throughput.",
                 action: getRecommendedAction(queryText, res.data.visualData),
-                isStreaming: true
+                isStreaming: true,
+                context: res.data.context
             };
 
             updateLastThread(analysisId, { status: 'complete', intelligence });
@@ -429,8 +438,36 @@ const AriaCommandCenter = () => {
                 <div className="aria-console-main">
                     <div className="aria-console-scroll-area">
                         {!activeAnalysisId ? (
-                            <div className="aria-console-empty-state">
-                                <h1 className="hero-text">What are you working on?</h1>
+                            <div className="aria-console-empty-state" style={{ padding: '2rem' }}>
+                                <h1 className="hero-text" style={{ marginBottom: '0.5rem', color: '#1f2937' }}>Hi, I'm Aria</h1>
+                                <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '2rem' }}>What would you like to know about your business today?</p>
+                                
+                                <div style={{ width: '100%', maxWidth: '600px', textAlign: 'left' }}>
+                                    <h4 style={{ fontSize: '0.75rem', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>Try asking:</h4>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                                        {[
+                                            "How many active employees are there?",
+                                            "Show today's sales",
+                                            "What materials are low in stock?",
+                                            "Show the latest purchase orders",
+                                            "Top customers by revenue",
+                                            "Total inventory value"
+                                        ].map((suggestion, idx) => (
+                                            <button 
+                                                key={idx}
+                                                style={{ textAlign: 'left', padding: '0.75rem 1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#4b5563', fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.15s' }}
+                                                onMouseOver={(e) => { e.currentTarget.style.borderColor = '#c7d2fe'; e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.color = '#1d4ed8'; }}
+                                                onMouseOut={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.background = '#f9fafb'; e.currentTarget.style.color = '#4b5563'; }}
+                                                onClick={() => {
+                                                    setInput(suggestion);
+                                                    if (inputRef.current) inputRef.current.focus();
+                                                }}
+                                            >
+                                                {suggestion}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <div className="aria-console-threads">
@@ -453,10 +490,17 @@ const AriaCommandCenter = () => {
                                         {thread.status === 'complete' && (
                                             <div className="chat-message bot intelligence-report">
                                                 <AriaVisualizer visualData={thread.intelligence.visualData} />
-                                                <StreamingText content={thread.intelligence.insight} isStreaming={thread.intelligence.isStreaming} />
-                                                {thread.intelligence.metrics && thread.intelligence.metrics.map((m, i) => (
-                                                    <div key={i} className="source-indicator" style={{fontSize: '0.7rem', color: '#0ea5e9', marginTop: '10px'}}>{m}</div>
-                                                ))}
+                                                <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', borderLeft: '3px solid #3b82f6', marginTop: '0.5rem' }}>
+                                                    <StreamingText content={thread.intelligence.insight} isStreaming={thread.intelligence.isStreaming} />
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
+                                                    {thread.intelligence.metrics && thread.intelligence.metrics.map((m, i) => (
+                                                        <div key={i} className="live-data-badge">
+                                                            {m === "Source: Live Database" ? <span className="live-dot"></span> : null}
+                                                            {m}
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
                                         )}
                                     </div>
