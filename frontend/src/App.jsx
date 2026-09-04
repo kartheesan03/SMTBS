@@ -114,6 +114,7 @@ const Invoices = lazyRetry(() => import('./pages/Invoices'));
 const OrderDetails = lazyRetry(() => import('./pages/OrderDetails'));
 const VendorDetails = lazyRetry(() => import('./pages/VendorDetails'));
 const FinancialOperations = lazyRetry(() => import('./pages/FinancialOperations'));
+const ExpenseTracking = lazyRetry(() => import('./pages/ExpenseTracking'));
 const OrderManagement = lazyRetry(() => import('./pages/OrderManagement'));
 const OrderFinanceDetails = lazyRetry(() => import('./pages/OrderFinanceDetails'));
 const Leads = lazyRetry(() => import('./pages/Leads'));
@@ -385,6 +386,7 @@ const AppContent = () => {
                     <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                     <Route path="/finance" element={<ProtectedRoute requiredPermission="view_reports"><FinancialOperations /></ProtectedRoute>} />
+                    <Route path="/expense-tracking" element={<ProtectedRoute requiredPermission="view_reports"><ExpenseTracking /></ProtectedRoute>} />
 
 
                     <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />

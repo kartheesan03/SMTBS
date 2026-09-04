@@ -88,7 +88,8 @@ const navigationConfig = [
         permission: 'view_reports',
         group: 'BUSINESS',
         children: [
-            { title: 'Overview', path: '/finance' }
+            { title: 'Overview', path: '/finance' },
+            { title: 'Expense Tracking', path: '/expense-tracking' }
         ]
     },
     {

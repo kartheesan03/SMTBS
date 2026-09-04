@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Upload, Loader2, ArrowLeft, Save, CheckCircle2, XCircle,
   Download, RefreshCw, FileText, Search, Eye, AlertTriangle,
   ChevronRight, Shield, ZoomIn, ZoomOut, RotateCcw,
-  FileImage, FileType2, AlertCircle, CheckCheck, X, Check, List, MoreHorizontal, Minus, Plus
+  FileImage, FileType2, AlertCircle, CheckCheck, X, Check, List, MoreHorizontal, Minus, Plus, BarChart2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
@@ -90,6 +91,7 @@ const ConfChip = ({ score }) => {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const OCRPage = () => {
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const uRole = (user?.role || '').toLowerCase();
 
@@ -900,6 +902,13 @@ const OCRPage = () => {
             style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: (isProcessing || hasChanges) ? 'not-allowed' : 'pointer', opacity: (isProcessing || hasChanges) ? 0.5 : 1, transition: 'all 0.2s' }}
           >
             <Download size={16} /> Download PDF
+          </button>
+
+          <button 
+            onClick={() => navigate(`/expense-tracking?ocrId=${selectedDoc.id}&invoiceId=${selectedDoc.invoiceInfo?.number || ''}&poNumber=${selectedDoc.invoiceInfo?.po_number || ''}&vendor=${selectedDoc.vendorInfo?.name || ''}`)}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1d4ed8', cursor: 'pointer', transition: 'all 0.2s' }}
+          >
+            <BarChart2 size={16} /> View Expense Tracking
           </button>
           
           { (selectedDoc?.approvalStatus === 'Approved' && !isReEditing && !hasChanges) ? (
