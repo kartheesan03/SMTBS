@@ -11,6 +11,7 @@ router.post('/:id/approve', protect, ocrController.approveDocument);
 router.post('/:id/reject', protect, ocrController.rejectDocument);
 router.post('/:id/reprocess', protect, ocrController.reprocessDocument);
 router.post('/:id/ask', protect, ocrController.askQuestion);
+router.post('/:id/add-to-expense', protect, ocrController.addToExpense);
 
 // New enterprise routes
 router.get('/:id/audit', protect, ocrController.getAuditLog);

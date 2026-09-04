@@ -57,6 +57,9 @@ const OCRDocumentSequelize = sequelize.define('OCRDocument', {
   isDuplicate:         { type: DataTypes.BOOLEAN, defaultValue: false },
   duplicateOf:         { type: DataTypes.UUID, allowNull: true },
 
+  // ─── Expense Tracking ─────────────────────────────────────────────────────
+  addedToExpense:      { type: DataTypes.BOOLEAN, defaultValue: false },
+
   // ─── Workflow Status ──────────────────────────────────────────────────────
   processingStatus: {
     type: DataTypes.ENUM(

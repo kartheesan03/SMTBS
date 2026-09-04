@@ -51,15 +51,15 @@ const statusToWorkflow = (processingStatus, approvalStatus) => {
 // ─── Status badge ─────────────────────────────────────────────────────────────
 const StatusBadge = ({ status }) => {
   const map = {
-    Approved:           { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: '✓', border: 'rgba(22,163,74,0.2)' },
+    Approved: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: '✓', border: 'rgba(22,163,74,0.2)' },
     Ready_For_Approval: { bg: 'rgba(59,130,246,0.1)', color: '#3b82f6', icon: '●', border: 'rgba(59,130,246,0.2)' },
-    OCR_Completed:      { bg: 'rgba(16,185,129,0.1)', color: '#10b981', icon: '✓', border: 'rgba(16,185,129,0.2)' },
+    OCR_Completed: { bg: 'rgba(16,185,129,0.1)', color: '#10b981', icon: '✓', border: 'rgba(16,185,129,0.2)' },
     Needs_Verification: { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', icon: '⚠', border: 'rgba(245,158,11,0.2)' },
-    Duplicate:          { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '⛔', border: 'rgba(239,68,68,0.2)' },
-    Rejected:           { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '✗', border: 'rgba(239,68,68,0.2)' },
-    Failed:             { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '✗', border: 'rgba(239,68,68,0.2)' },
-    Processing:         { bg: 'rgba(99,102,241,0.1)', color: '#6366f1', icon: '⟳', border: 'rgba(99,102,241,0.2)' },
-    Validated:          { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: '✓', border: 'rgba(22,163,74,0.2)' },
+    Duplicate: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '⛔', border: 'rgba(239,68,68,0.2)' },
+    Rejected: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '✗', border: 'rgba(239,68,68,0.2)' },
+    Failed: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '✗', border: 'rgba(239,68,68,0.2)' },
+    Processing: { bg: 'rgba(99,102,241,0.1)', color: '#6366f1', icon: '⟳', border: 'rgba(99,102,241,0.2)' },
+    Validated: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: '✓', border: 'rgba(22,163,74,0.2)' },
   };
   const s = map[status] || { bg: '#f3f4f6', color: '#374151', icon: '●', border: '#e5e7eb' };
   return (
@@ -78,7 +78,7 @@ const StatusBadge = ({ status }) => {
 const ConfChip = ({ score }) => {
   const pct = Math.round((score || 0) * 100);
   const color = pct >= 95 ? '#16a34a' : pct >= 80 ? '#d97706' : '#dc2626';
-  const bg    = pct >= 95 ? '#f0fdf4' : pct >= 80 ? '#fffbeb' : '#fef2f2';
+  const bg = pct >= 95 ? '#f0fdf4' : pct >= 80 ? '#fffbeb' : '#fef2f2';
   return (
     <span style={{
       padding: '2px 10px', borderRadius: '20px', fontSize: '11px',
@@ -96,25 +96,25 @@ const OCRPage = () => {
   const uRole = (user?.role || '').toLowerCase();
 
   // Role flags (User requested all roles to have Admin-like access to OCR)
-  const isAdmin   = true; 
+  const isAdmin = true;
   const isManager = true;
-  const canEdit   = true;
+  const canEdit = true;
   const canApproveDoc = true;
   const isViewOnly = false;
 
   // View state
-  const [view, setView]       = useState('list');
+  const [view, setView] = useState('list');
   const [documents, setDocuments] = useState([]);
   const [loadingList, setLoadingList] = useState(false);
-  const [search, setSearch]   = useState('');
+  const [search, setSearch] = useState('');
 
   // Detail view state
-  const [selectedDoc, setSelectedDoc]   = useState(null);
-  const [editedData, setEditedData]     = useState(null);
-  const [hasChanges, setHasChanges]     = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState(null);
+  const [editedData, setEditedData] = useState(null);
+  const [hasChanges, setHasChanges] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
-  
+
   // Q&A Chat UI states
   const [chatHistory, setChatHistory] = useState([]);
   const [questionInput, setQuestionInput] = useState('');
@@ -133,8 +133,8 @@ const OCRPage = () => {
 
   // Processing progress state
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [currentStep, setCurrentStep]       = useState(0);
-  const [isUploading, setIsUploading]       = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   const progressIntervalRef = useRef(null);
 
   // Image zoom state
@@ -171,15 +171,15 @@ const OCRPage = () => {
       if (res.data.data) {
         setSelectedDoc(res.data.data);
         const doc = res.data.data;
-        
+
         setEditedData({
           vendorInfo: doc.correctedData?.vendorInfo || doc.vendorInfo || {},
           invoiceInfo: doc.correctedData?.invoiceInfo || doc.invoiceInfo || {},
           customerInfo: doc.correctedData?.customerInfo || doc.customerInfo || {},
           totalsBlock: doc.correctedData?.totalsBlock || doc.totalsBlock || {},
-          lineItems: (doc.correctedData?.lineItems?.columns ? doc.correctedData.lineItems : null) || 
-                     doc.lineItems || 
-                     { headers: [], columns: [] },
+          lineItems: (doc.correctedData?.lineItems?.columns ? doc.correctedData.lineItems : null) ||
+            doc.lineItems ||
+            { headers: [], columns: [] },
           rawFields: doc.correctedData?.rawFields || doc.rawFields || [],
           raw_text: doc.correctedData?.raw_text || doc.originalOcrData?.raw_text || '',
         });
@@ -259,20 +259,20 @@ const OCRPage = () => {
         setIsUploading(false);
         setIsProcessing(false);
         toast.success(res.data.message || 'Document processed successfully');
-        
+
         const doc = res.data.data;
         if (!doc.lineItems) {
           doc.lineItems = { headers: [], columns: [] };
         }
         setSelectedDoc(doc);
         setEditedData({
-          vendorInfo:   doc.correctedData?.vendorInfo   || doc.vendorInfo   || {},
-          invoiceInfo:  doc.correctedData?.invoiceInfo  || doc.invoiceInfo  || {},
+          vendorInfo: doc.correctedData?.vendorInfo || doc.vendorInfo || {},
+          invoiceInfo: doc.correctedData?.invoiceInfo || doc.invoiceInfo || {},
           customerInfo: doc.correctedData?.customerInfo || doc.customerInfo || {},
-          totalsBlock:  doc.correctedData?.totalsBlock  || doc.totalsBlock  || {},
-          lineItems:    (doc.correctedData?.lineItems?.columns ? doc.correctedData.lineItems : null) || 
-                        doc.lineItems || 
-                        { headers: [], columns: [] },
+          totalsBlock: doc.correctedData?.totalsBlock || doc.totalsBlock || {},
+          lineItems: (doc.correctedData?.lineItems?.columns ? doc.correctedData.lineItems : null) ||
+            doc.lineItems ||
+            { headers: [], columns: [] },
         });
         setHasChanges(false);
         setView('detail');
@@ -295,7 +295,7 @@ const OCRPage = () => {
   const generateSynchronizedRawText = (currentEditedData) => {
     const baseData = selectedDoc?.correctedData || selectedDoc?.originalOcrData || selectedDoc || {};
     let rawText = baseData.raw_text || selectedDoc?.originalOcrData?.raw_text || '';
-    
+
     if (!rawText) return rawText;
 
     const replaceIfChanged = (baseVal, editedVal) => {
@@ -303,14 +303,14 @@ const OCRPage = () => {
       const eStr = String(editedVal || '').trim();
       if (bStr && eStr && bStr !== eStr) {
         if (bStr.length < 3 && /^[a-zA-Z0-9]+$/.test(bStr)) {
-           try {
-             const regex = new RegExp(`\\b${bStr}\\b`, 'g');
-             rawText = rawText.replace(regex, eStr);
-           } catch {
-             rawText = rawText.split(bStr).join(eStr);
-           }
+          try {
+            const regex = new RegExp(`\\b${bStr}\\b`, 'g');
+            rawText = rawText.replace(regex, eStr);
+          } catch {
+            rawText = rawText.split(bStr).join(eStr);
+          }
         } else {
-           rawText = rawText.split(bStr).join(eStr);
+          rawText = rawText.split(bStr).join(eStr);
         }
       }
     };
@@ -329,8 +329,8 @@ const OCRPage = () => {
 
     if (baseData.rawFields && currentEditedData.rawFields) {
       currentEditedData.rawFields.forEach((rf, idx) => {
-         const origRf = baseData.rawFields[idx];
-         if (origRf) replaceIfChanged(origRf.value, rf.value);
+        const origRf = baseData.rawFields[idx];
+        if (origRf) replaceIfChanged(origRf.value, rf.value);
       });
     }
 
@@ -358,10 +358,10 @@ const OCRPage = () => {
       } else {
         newState[section] = { ...prev[section], [field]: value };
       }
-      
+
       // Synchronize raw_text
       newState.raw_text = generateSynchronizedRawText(newState);
-      
+
       return newState;
     });
     setHasChanges(true);
@@ -370,15 +370,30 @@ const OCRPage = () => {
   const saveChanges = async () => {
     if (!canEdit) return;
     setIsProcessing(true);
-    const t = toast.loading('Saving and approving...');
+    const t = toast.loading('Saving changes...');
     try {
       await API.put(`/ocr/${selectedDoc.id}`, editedData);
-      await API.post(`/ocr/${selectedDoc.id}/approve`);
       await loadDocument(selectedDoc.id);
-      toast.success('✓ Document saved and approved successfully.', { id: t });
+      toast.success('Changes saved successfully.', { id: t });
     } catch (err) {
       console.error(err);
-      toast.error('Unable to save the document. Please try again.', { id: t });
+      toast.error('Unable to save changes.', { id: t });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleAddExpense = async () => {
+    setIsProcessing(true);
+    const t = toast.loading('Adding to Expense Tracking...');
+    try {
+      // Send editedData; the backend will apply edits (if any) and then mark as addedToExpense
+      await API.post(`/ocr/${selectedDoc.id}/add-to-expense`, editedData);
+      await loadDocument(selectedDoc.id);
+      toast.success('Expense added successfully.', { id: t });
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.error || 'Unable to add expense.', { id: t });
     } finally {
       setIsProcessing(false);
     }
@@ -435,17 +450,24 @@ const OCRPage = () => {
 
   const handleExport = (type) => {
     const baseURL = API.defaults.baseURL || '';
-    const url  = `${baseURL}/ocr/${selectedDoc.id}/export/${type}`;
+    const url = `${baseURL}/ocr/${selectedDoc.id}/export/${type}`;
     const stored = localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo') || '{}';
-    const token  = JSON.parse(stored)?.token;
+    const token = JSON.parse(stored)?.token;
     const docName = type === 'word' ? 'Word document' : 'PDF document';
 
     toast.promise(
-      fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(editedData)
+      })
         .then(r => r.blob())
         .then(blob => {
           const bUrl = URL.createObjectURL(blob);
-          const a    = Object.assign(document.createElement('a'), {
+          const a = Object.assign(document.createElement('a'), {
             href: bUrl,
             download: `Invoice_${selectedDoc.invoiceInfo?.number || selectedDoc.id}.${type === 'word' ? 'doc' : 'pdf'}`,
           });
@@ -458,12 +480,12 @@ const OCRPage = () => {
 
   const handleAskQuestion = async () => {
     if (!questionInput.trim() || !selectedDoc) return;
-    
+
     const userMsg = { role: 'user', text: questionInput };
     setChatHistory(prev => [...prev, userMsg]);
     setQuestionInput('');
     setIsAsking(true);
-    
+
     try {
       const { data } = await API.post(`/ocr/${selectedDoc.id}/ask`, { question: userMsg.text });
       if (data.success) {
@@ -492,7 +514,7 @@ const OCRPage = () => {
           border: '1px solid #e2e8f0', width: '100%', maxWidth: '440px',
           textAlign: 'center', boxSizing: 'border-box'
         }}>
-          <div style={{ 
+          <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: '64px', height: '64px', borderRadius: '16px',
             backgroundColor: '#eff6ff', color: '#2563eb', marginBottom: '24px'
@@ -500,22 +522,22 @@ const OCRPage = () => {
             <FileText size={32} strokeWidth={1.5} />
           </div>
 
-          <h2 style={{ 
-            fontSize: '24px', fontWeight: '700', color: '#0f172a', 
-            margin: '0 0 8px 0', letterSpacing: '-0.02em' 
+          <h2 style={{
+            fontSize: '24px', fontWeight: '700', color: '#0f172a',
+            margin: '0 0 8px 0', letterSpacing: '-0.02em'
           }}>
             Processing Invoice
           </h2>
-          <p style={{ 
-            color: '#64748b', fontSize: '14px', margin: '0 0 32px 0', 
+          <p style={{
+            color: '#64748b', fontSize: '14px', margin: '0 0 32px 0',
             fontWeight: '400', lineHeight: '1.5'
           }}>
             Analyzing your invoice and extracting key information...
           </p>
 
           <div style={{ marginBottom: '32px', textAlign: 'left' }}>
-            <div style={{ 
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+            <div style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               marginBottom: '10px'
             }}>
               <span style={{ fontSize: '13px', fontWeight: '600', color: '#475569' }}>
@@ -525,10 +547,10 @@ const OCRPage = () => {
                 {Math.round(uploadProgress)}%
               </span>
             </div>
-            
-            <div style={{ 
-              background: '#f1f5f9', borderRadius: '999px', height: '6px', 
-              width: '100%', overflow: 'hidden' 
+
+            <div style={{
+              background: '#f1f5f9', borderRadius: '999px', height: '6px',
+              width: '100%', overflow: 'hidden'
             }}>
               <div style={{
                 height: '100%', borderRadius: '999px',
@@ -539,7 +561,7 @@ const OCRPage = () => {
             </div>
           </div>
 
-          <div style={{ 
+          <div style={{
             textAlign: 'left', display: 'flex', flexDirection: 'column',
             paddingRight: '8px'
           }}>
@@ -547,7 +569,7 @@ const OCRPage = () => {
               const isCompleted = idx < currentStep;
               const isActive = idx === currentStep;
               const isPending = idx > currentStep;
-              
+
               let textColor = '#94a3b8';
               if (isCompleted) textColor = '#334155';
               if (isActive) textColor = '#2563eb';
@@ -563,14 +585,14 @@ const OCRPage = () => {
                 }}>
                   {idx !== PROCESSING_STEPS.length - 1 && (
                     <div style={{
-                      position: 'absolute', top: '24px', left: '11px', 
-                      width: '2px', height: 'calc(100% - 14px)', 
+                      position: 'absolute', top: '24px', left: '11px',
+                      width: '2px', height: 'calc(100% - 14px)',
                       backgroundColor: isCompleted ? '#22c55e' : '#e2e8f0',
                       transition: 'background-color 0.3s ease'
                     }} />
                   )}
 
-                  <div style={{ 
+                  <div style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     width: '24px', height: '24px', zIndex: 1, flexShrink: 0,
                     borderRadius: '50%', backgroundColor: '#fff',
@@ -584,8 +606,8 @@ const OCRPage = () => {
                       <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#cbd5e1' }} />
                     )}
                   </div>
-                  
-                  <span style={{ 
+
+                  <span style={{
                     transform: isActive ? 'translateX(4px)' : 'translateX(0)',
                     transition: 'transform 0.3s ease',
                     marginTop: '0px'
@@ -645,8 +667,8 @@ const OCRPage = () => {
               cursor: isProcessing ? 'not-allowed' : 'pointer', fontSize: '14px', fontWeight: '500',
               transition: 'background 0.2s', opacity: isProcessing ? 0.7 : 1,
             }}
-            onMouseEnter={e => e.currentTarget.style.background = '#2563eb'}
-            onMouseLeave={e => e.currentTarget.style.background = '#3b82f6'}
+              onMouseEnter={e => e.currentTarget.style.background = '#2563eb'}
+              onMouseLeave={e => e.currentTarget.style.background = '#3b82f6'}
             >
               + Browse Files
               <input
@@ -668,14 +690,14 @@ const OCRPage = () => {
   }
 
   if (!selectedDoc) return null;
-  const isApproved  = selectedDoc.approvalStatus === 'Approved';
+  const isApproved = selectedDoc.approvalStatus === 'Approved';
 
   const baseURL = API.defaults.baseURL?.replace('/api', '') || '';
   const imgUrl = selectedDoc.originalImagePath
     ? (selectedDoc.originalImagePath.startsWith('http') ? selectedDoc.originalImagePath : `${baseURL}${selectedDoc.originalImagePath}`)
     : selectedDoc.fileUrl;
   const isPdf = selectedDoc.mimeType === 'application/pdf';
-  
+
   const handleValidate = async () => {
     toast.success("Document validated successfully.");
   };
@@ -683,14 +705,14 @@ const OCRPage = () => {
   const handleClear = () => {
     if (!selectedDoc) return;
     setEditedData({
-      vendorInfo:   selectedDoc.correctedData?.vendorInfo   || selectedDoc.vendorInfo   || {},
-      invoiceInfo:  selectedDoc.correctedData?.invoiceInfo  || selectedDoc.invoiceInfo  || {},
+      vendorInfo: selectedDoc.correctedData?.vendorInfo || selectedDoc.vendorInfo || {},
+      invoiceInfo: selectedDoc.correctedData?.invoiceInfo || selectedDoc.invoiceInfo || {},
       customerInfo: selectedDoc.correctedData?.customerInfo || selectedDoc.customerInfo || {},
-      totalsBlock:  selectedDoc.correctedData?.totalsBlock  || selectedDoc.totalsBlock  || {},
-      lineItems:    (selectedDoc.correctedData?.lineItems?.columns ? selectedDoc.correctedData.lineItems : null) || 
-                    selectedDoc.lineItems || 
-                    { headers: [], columns: [] },
-      raw_text:     selectedDoc.correctedData?.raw_text     || selectedDoc.originalOcrData?.raw_text || '',
+      totalsBlock: selectedDoc.correctedData?.totalsBlock || selectedDoc.totalsBlock || {},
+      lineItems: (selectedDoc.correctedData?.lineItems?.columns ? selectedDoc.correctedData.lineItems : null) ||
+        selectedDoc.lineItems ||
+        { headers: [], columns: [] },
+      raw_text: selectedDoc.correctedData?.raw_text || selectedDoc.originalOcrData?.raw_text || '',
     });
     setHasChanges(false);
     setShowClearModal(false);
@@ -699,75 +721,75 @@ const OCRPage = () => {
   };
 
   return (
-      <div style={{ padding: '24px 32px', background: 'var(--bg-app, #f8fafc)', minHeight: '100vh', animation: 'fadeIn 0.4s ease-out' }}>
+    <div style={{ padding: '24px 32px', background: 'var(--bg-app, #f8fafc)', minHeight: '100vh', animation: 'fadeIn 0.4s ease-out' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', padding: '12px 20px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
-         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <FileText size={18} style={{ color: '#ef4444' }} />
-            <span style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>{selectedDoc.originalFileName}</span>
-            <span style={{ fontSize: '13px', color: '#64748b' }}>{(selectedDoc.fileSize / 1024 / 1024).toFixed(2)} MB</span>
-            <span style={{ padding: '2px 8px', background: '#f1f5f9', color: '#475569', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}>
-               {isPdf ? 'PDF' : selectedDoc.originalFileName?.split('.').pop().toUpperCase()}
-            </span>
-         </div>
-         <button onClick={() => setView('list')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', color: '#ef4444', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-            <X size={14} /> Remove
-         </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <FileText size={18} style={{ color: '#ef4444' }} />
+          <span style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>{selectedDoc.originalFileName}</span>
+          <span style={{ fontSize: '13px', color: '#64748b' }}>{(selectedDoc.fileSize / 1024 / 1024).toFixed(2)} MB</span>
+          <span style={{ padding: '2px 8px', background: '#f1f5f9', color: '#475569', borderRadius: '4px', fontSize: '12px', fontWeight: '600' }}>
+            {isPdf ? 'PDF' : selectedDoc.originalFileName?.split('.').pop().toUpperCase()}
+          </span>
+        </div>
+        <button onClick={() => setView('list')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', color: '#ef4444', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+          <X size={14} /> Remove
+        </button>
       </div>
 
       <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '16px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-         <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#16a34a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-           <Check size={14} />
-         </div>
-         <div>
-            <h3 style={{ color: '#166534', margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700' }}>SMTBMS Related Document</h3>
-            <p style={{ color: '#166534', margin: 0, fontSize: '13px', fontWeight: '500' }}>
-              {selectedDoc.documentType || 'Inventory Stock Report'} | Module: Inventory / Material Tracking | Confidence: {Math.round((selectedDoc.confidenceScore||0)*100)}%
-            </p>
-         </div>
+        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#16a34a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Check size={14} />
+        </div>
+        <div>
+          <h3 style={{ color: '#166534', margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700' }}>SMTBMS Related Document</h3>
+          <p style={{ color: '#166534', margin: 0, fontSize: '13px', fontWeight: '500' }}>
+            {selectedDoc.documentType || 'Inventory Stock Report'} | Module: Inventory / Material Tracking | Confidence: {Math.round((selectedDoc.confidenceScore || 0) * 100)}%
+          </p>
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '24px' }}>
-         <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
-            <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
-               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#0f172a' }}>Document Preview</h3>
-               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                 {!isPdf && (
-                   <>
-                     <button onClick={() => setImgZoom(z => Math.max(0.4, z - 0.2))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Minus size={14} /></button>
-                     <span style={{ fontSize: '12px', color: '#0f172a', padding: '2px 8px', border: '1px solid #e2e8f0', borderRadius: '4px', background: '#fff' }}>1 of {selectedDoc.pageCount || 1}</span>
-                     <button onClick={() => setImgZoom(z => Math.min(3, z + 0.2))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Plus size={14} /></button>
-                   </>
-                 )}
-               </div>
-            </div>
-            
-            <div style={{
-              width: '100%', height: '600px', overflow: 'auto',
-              display: 'flex', justifyContent: 'center', alignItems: 'flex-start',
-              padding: isPdf ? '0' : '32px', background: '#f1f5f9',
-              borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px'
-            }}>
-              {isPdf ? (
-                <iframe
-                  src={imgUrl}
-                  title="Document Preview"
-                  style={{ width: '100%', height: '100%', border: 'none', borderRadius: '0 0 16px 16px' }}
-                />
-              ) : (
-                <img
-                  src={imgUrl}
-                  alt="Document"
-                  style={{
-                    maxWidth: '100%', transform: `scale(${imgZoom})`,
-                    transformOrigin: 'top center', transition: 'transform 0.2s',
-                    borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                  }}
-                />
+        <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+          <div style={{ padding: '16px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
+            <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '700', color: '#0f172a' }}>Document Preview</h3>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {!isPdf && (
+                <>
+                  <button onClick={() => setImgZoom(z => Math.max(0.4, z - 0.2))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Minus size={14} /></button>
+                  <span style={{ fontSize: '12px', color: '#0f172a', padding: '2px 8px', border: '1px solid #e2e8f0', borderRadius: '4px', background: '#fff' }}>1 of {selectedDoc.pageCount || 1}</span>
+                  <button onClick={() => setImgZoom(z => Math.min(3, z + 0.2))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><Plus size={14} /></button>
+                </>
               )}
             </div>
-         </div>
-         
-         <InvoiceDataPanel
+          </div>
+
+          <div style={{
+            width: '100%', height: '600px', overflow: 'auto',
+            display: 'flex', justifyContent: 'center', alignItems: 'flex-start',
+            padding: isPdf ? '0' : '32px', background: '#f1f5f9',
+            borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px'
+          }}>
+            {isPdf ? (
+              <iframe
+                src={imgUrl}
+                title="Document Preview"
+                style={{ width: '100%', height: '100%', border: 'none', borderRadius: '0 0 16px 16px' }}
+              />
+            ) : (
+              <img
+                src={imgUrl}
+                alt="Document"
+                style={{
+                  maxWidth: '100%', transform: `scale(${imgZoom})`,
+                  transformOrigin: 'top center', transition: 'transform 0.2s',
+                  borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                }}
+              />
+            )}
+          </div>
+        </div>
+
+        <InvoiceDataPanel
           data={editedData}
           confidences={selectedDoc.fieldConfidence}
           onChange={handleFieldChange}
@@ -783,82 +805,82 @@ const OCRPage = () => {
       </div>
 
       <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
-         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>Raw Extracted Text</h3>
-            <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>The complete, unedited text extracted from the document.</p>
-         </div>
-         <div style={{ padding: '20px' }}>
-            <pre style={{ 
-               margin: 0, padding: '16px', background: '#f8fafc', borderRadius: '6px', 
-               border: '1px solid #e2e8f0', fontSize: '13px', color: '#334155', 
-               whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '300px', overflowY: 'auto',
-               fontFamily: 'monospace'
-            }}>
-               {editedData?.raw_text || selectedDoc?.originalOcrData?.raw_text || 'No raw text available. Please reprocess the document.'}
-            </pre>
-         </div>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0' }}>
+          <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>Raw Extracted Text</h3>
+          <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>The complete, unedited text extracted from the document.</p>
+        </div>
+        <div style={{ padding: '20px' }}>
+          <pre style={{
+            margin: 0, padding: '16px', background: '#f8fafc', borderRadius: '6px',
+            border: '1px solid #e2e8f0', fontSize: '13px', color: '#334155',
+            whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '300px', overflowY: 'auto',
+            fontFamily: 'monospace'
+          }}>
+            {editedData?.raw_text || selectedDoc?.originalOcrData?.raw_text || 'No raw text available. Please reprocess the document.'}
+          </pre>
+        </div>
       </div>
 
       {/* AI Document Assistant */}
       <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
-         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <span style={{ fontSize: '18px' }}>🤖</span>
-            <div>
-               <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>AI Document Assistant</h3>
-               <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>Ask questions about the uploaded document (e.g. "What is the total amount?")</p>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <span style={{ fontSize: '18px' }}>🤖</span>
+          <div>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>AI Document Assistant</h3>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>Ask questions about the uploaded document (e.g. "What is the total amount?")</p>
+          </div>
+        </div>
+        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {chatHistory.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
+              {chatHistory.map((msg, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                  <div style={{
+                    maxWidth: '80%', padding: '10px 14px', borderRadius: '8px', fontSize: '13px',
+                    background: msg.role === 'user' ? '#1a73e8' : '#f1f5f9',
+                    color: msg.role === 'user' ? '#fff' : '#1e293b',
+                    borderBottomRightRadius: msg.role === 'user' ? '0' : '8px',
+                    borderBottomLeftRadius: msg.role === 'ai' ? '0' : '8px',
+                  }}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+              {isAsking && (
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                  <div style={{ maxWidth: '80%', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', background: '#f1f5f9', color: '#64748b', borderBottomLeftRadius: '0' }}>
+                    <Loader2 size={14} className="spin" style={{ display: 'inline-block', marginRight: '6px' }} />
+                    AI is thinking...
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
             </div>
-         </div>
-         <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {chatHistory.length > 0 && (
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto', paddingRight: '8px' }}>
-                  {chatHistory.map((msg, i) => (
-                     <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                        <div style={{ 
-                           maxWidth: '80%', padding: '10px 14px', borderRadius: '8px', fontSize: '13px',
-                           background: msg.role === 'user' ? '#1a73e8' : '#f1f5f9',
-                           color: msg.role === 'user' ? '#fff' : '#1e293b',
-                           borderBottomRightRadius: msg.role === 'user' ? '0' : '8px',
-                           borderBottomLeftRadius: msg.role === 'ai' ? '0' : '8px',
-                        }}>
-                           {msg.text}
-                        </div>
-                     </div>
-                  ))}
-                  {isAsking && (
-                     <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                        <div style={{ maxWidth: '80%', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', background: '#f1f5f9', color: '#64748b', borderBottomLeftRadius: '0' }}>
-                           <Loader2 size={14} className="spin" style={{ display: 'inline-block', marginRight: '6px' }} />
-                           AI is thinking...
-                        </div>
-                     </div>
-                  )}
-                  <div ref={chatEndRef} />
-               </div>
-            )}
-            
-            <div style={{ display: 'flex', gap: '12px' }}>
-               <input 
-                  type="text" 
-                  placeholder="Ask a question..."
-                  value={questionInput}
-                  onChange={e => setQuestionInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleAskQuestion()}
-                  disabled={isAsking}
-                  style={{ flex: 1, padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', outline: 'none' }}
-               />
-               <button 
-                  onClick={handleAskQuestion}
-                  disabled={isAsking || !questionInput.trim()}
-                  style={{ 
-                     background: '#1a73e8', color: '#fff', border: 'none', padding: '0 20px', 
-                     borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: (isAsking || !questionInput.trim()) ? 'not-allowed' : 'pointer',
-                     opacity: (isAsking || !questionInput.trim()) ? 0.6 : 1
-                  }}
-               >
-                  Ask
-               </button>
-            </div>
-         </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <input
+              type="text"
+              placeholder="Ask a question..."
+              value={questionInput}
+              onChange={e => setQuestionInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAskQuestion()}
+              disabled={isAsking}
+              style={{ flex: 1, padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', outline: 'none' }}
+            />
+            <button
+              onClick={handleAskQuestion}
+              disabled={isAsking || !questionInput.trim()}
+              style={{
+                background: '#1a73e8', color: '#fff', border: 'none', padding: '0 20px',
+                borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: (isAsking || !questionInput.trim()) ? 'not-allowed' : 'pointer',
+                opacity: (isAsking || !questionInput.trim()) ? 0.6 : 1
+              }}
+            >
+              Ask
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Bottom Action Buttons */}
@@ -880,61 +902,54 @@ const OCRPage = () => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button 
-            onClick={() => setShowClearModal(true)} 
-            disabled={isProcessing || !hasChanges} 
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#64748b', cursor: (isProcessing || !hasChanges) ? 'not-allowed' : 'pointer', opacity: (isProcessing || !hasChanges) ? 0.5 : 1, transition: 'all 0.2s' }}
+          <button
+            onClick={() => setShowClearModal(true)}
+            disabled={isProcessing || !hasChanges}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: (isProcessing || !hasChanges) ? '#f8fafc' : '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: (isProcessing || !hasChanges) ? '#64748b' : '#ef4444', cursor: (isProcessing || !hasChanges) ? 'not-allowed' : 'pointer', transition: 'all 0.2s' }}
           >
-            Clear Changes
+            Clear
           </button>
-          
-          <button 
-            onClick={() => handleExportClick('word')} 
-            disabled={isProcessing || hasChanges} 
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: (isProcessing || hasChanges) ? 'not-allowed' : 'pointer', opacity: (isProcessing || hasChanges) ? 0.5 : 1, transition: 'all 0.2s' }}
+
+          <button
+            onClick={() => handleExportClick('word')}
+            disabled={isProcessing}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: isProcessing ? 'not-allowed' : 'pointer', opacity: isProcessing ? 0.5 : 1, transition: 'all 0.2s' }}
           >
             <Download size={16} /> Download Word
           </button>
-          
-          <button 
-            onClick={() => handleExportClick('pdf')} 
-            disabled={isProcessing || hasChanges} 
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: (isProcessing || hasChanges) ? 'not-allowed' : 'pointer', opacity: (isProcessing || hasChanges) ? 0.5 : 1, transition: 'all 0.2s' }}
+
+          <button
+            onClick={() => handleExportClick('pdf')}
+            disabled={isProcessing}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: isProcessing ? 'not-allowed' : 'pointer', opacity: isProcessing ? 0.5 : 1, transition: 'all 0.2s' }}
           >
             <Download size={16} /> Download PDF
           </button>
 
-          <button 
-            onClick={() => navigate(`/expense-tracking?ocrId=${selectedDoc.id}&invoiceId=${selectedDoc.invoiceInfo?.number || ''}&poNumber=${selectedDoc.invoiceInfo?.po_number || ''}&vendor=${selectedDoc.vendorInfo?.name || ''}`)}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1d4ed8', cursor: 'pointer', transition: 'all 0.2s' }}
+          <button
+            onClick={saveChanges}
+            disabled={isProcessing || !hasChanges}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: (isProcessing || !hasChanges) ? 'not-allowed' : 'pointer', opacity: (isProcessing || !hasChanges) ? 0.5 : 1, transition: 'all 0.2s' }}
           >
-            <BarChart2 size={16} /> View Expense Tracking
+            <CheckCircle2 size={16} /> Save
           </button>
-          
-          { (selectedDoc?.approvalStatus === 'Approved' && !isReEditing && !hasChanges) ? (
-            <button 
-              onClick={() => setIsReEditing(true)} 
-              disabled={isProcessing} 
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', padding: '10px 28px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#1e293b', cursor: isProcessing ? 'not-allowed' : 'pointer', opacity: isProcessing ? 0.6 : 1, transition: 'all 0.2s' }}
-            >
-              Re-Edit
-            </button>
-          ) : (
-            <button 
-              onClick={handleValidate} 
-              disabled={isProcessing} 
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: isProcessing ? '#9ca3af' : '#16a34a', border: 'none', padding: '10px 28px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#fff', cursor: isProcessing ? 'not-allowed' : 'pointer', transition: 'background 0.2s', boxShadow: '0 2px 4px rgba(22,163,74,0.3)' }}
-            >
-              {isProcessing ? (
-                <><Loader2 size={16} className="animate-spin" style={{ display: 'inline-block' }} /> Saving...</>
-              ) : (
-                <><CheckCircle2 size={16} /> Save & Approve</>
-              )}
-            </button>
-          )}
+
+          <button
+            onClick={handleAddExpense}
+            disabled={isProcessing || selectedDoc?.addedToExpense}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: (isProcessing || selectedDoc?.addedToExpense) ? '#9ca3af' : '#16a34a', border: 'none', padding: '10px 28px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', color: '#fff', cursor: (isProcessing || selectedDoc?.addedToExpense) ? 'not-allowed' : 'pointer', transition: 'background 0.2s', boxShadow: '0 2px 4px rgba(22,163,74,0.3)' }}
+          >
+            {isProcessing ? (
+              <><Loader2 size={16} className="animate-spin" style={{ display: 'inline-block' }} /> Adding...</>
+            ) : selectedDoc?.addedToExpense ? (
+              <><CheckCircle2 size={16} /> Added to Expense</>
+            ) : (
+              <><Plus size={16} /> Add to Expense</>
+            )}
+          </button>
         </div>
       </div>
-      
+
       {/* ── Clear Changes Warning Modal ────────────────────────────────────── */}
       {showClearModal && (
         <div style={{
@@ -960,8 +975,8 @@ const OCRPage = () => {
         </div>
       )}
 
-      
-{/* ── Reject modal ────────────────────────────────────────────────────── */}
+
+      {/* ── Reject modal ────────────────────────────────────────────────────── */}
       {showRejectModal && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',

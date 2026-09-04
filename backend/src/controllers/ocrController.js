@@ -457,6 +457,69 @@ exports.updateDocument = async (req, res) => {
     }
 };
 
+// ─── POST /ocr/:id/add-to-expense ─────────────────────────────────────────────
+exports.addToExpense = async (req, res) => {
+    // Strict backend role check
+    if (!canEdit(req)) {
+        return res.status(403).json({
+            error: 'Access denied. Only Admin and Manager can add invoices to Expense Tracking.'
+        });
+    }
+
+    try {
+        const doc = await OCRDocument.sequelizeModel.findByPk(req.params.id);
+        if (!doc) return res.status(404).json({ error: 'Document not found' });
+
+        if (doc.addedToExpense) {
+            return res.status(400).json({ error: 'Expense already added.' });
+        }
+
+        // Apply any edits if present in the payload
+        const { vendorInfo, invoiceInfo, customerInfo, lineItems, totalsBlock, rawFields, raw_text, correctedData } = req.body;
+
+        if (vendorInfo) { doc.vendorInfo = vendorInfo; doc.changed('vendorInfo', true); }
+        if (invoiceInfo) { doc.invoiceInfo = invoiceInfo; doc.changed('invoiceInfo', true); }
+        if (customerInfo) { doc.customerInfo = customerInfo; doc.changed('customerInfo', true); }
+        if (lineItems) { doc.lineItems = lineItems; doc.changed('lineItems', true); }
+        if (totalsBlock) { doc.totalsBlock = totalsBlock; doc.changed('totalsBlock', true); }
+        if (rawFields) { doc.rawFields = rawFields; doc.changed('rawFields', true); }
+
+        if (Object.keys(req.body).length > 0) {
+            doc.correctedData = {
+                ...(doc.correctedData || {}),
+                vendorInfo: doc.vendorInfo,
+                invoiceInfo: doc.invoiceInfo,
+                customerInfo: doc.customerInfo,
+                lineItems: doc.lineItems,
+                totalsBlock: doc.totalsBlock,
+                rawFields: doc.rawFields,
+                raw_text: raw_text !== undefined ? raw_text : doc.correctedData?.raw_text,
+                correctedAt: new Date().toISOString(),
+                correctedBy: req.user?.id || null,
+                ...(correctedData || {}),
+            };
+            doc.changed('correctedData', true);
+            const changedFields = Object.keys(req.body).filter(k =>
+                ['vendorInfo', 'invoiceInfo', 'customerInfo', 'lineItems', 'totalsBlock'].includes(k)
+            ).join(', ');
+            appendAudit(doc, 'Data Corrected', req.user, `Fields: ${changedFields || 'correctedData'}`);
+        }
+
+        // Mark as added to expense
+        doc.addedToExpense = true;
+        doc.updatedBy = req.user?.id || null;
+
+        appendAudit(doc, 'Added to Expense', req.user, 'Added to Expense Tracking module.');
+
+        await doc.save();
+
+        res.status(200).json({ message: 'Expense added successfully.', data: doc });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Unable to add expense.' });
+    }
+};
+
 // ─── POST /ocr/:id/approve ────────────────────────────────────────────────────
 exports.approveDocument = async (req, res) => {
     if (!canApprove(req)) {

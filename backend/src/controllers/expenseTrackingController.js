@@ -5,12 +5,12 @@ const { Op } = require('sequelize');
 exports.getDashboardData = async (req, res) => {
   try {
     const { year, month } = req.query;
-    
+
     // Default to current year if not provided
     const targetYear = year ? parseInt(year) : new Date().getFullYear();
     const isSpecificMonth = month && month !== 'All Months';
-    const monthIndex = isSpecificMonth ? 
-      ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].indexOf(month) 
+    const monthIndex = isSpecificMonth ?
+      ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].indexOf(month)
       : -1;
 
     // 1. Fetch Orders (Sales for Income, Purchase for Expense)
@@ -20,7 +20,8 @@ exports.getDashboardData = async (req, res) => {
 
     // 2. Fetch OCR Invoices
     const ocrDocs = await OCRDocument.find({
-      documentType: 'Invoice'
+      documentType: 'Invoice',
+      addedToExpense: true
     });
 
     let transactions = [];
@@ -29,7 +30,7 @@ exports.getDashboardData = async (req, res) => {
     // Process Orders
     for (const order of orders) {
       const type = (order.orderType || '').toLowerCase().includes('sales') ? 'Income' : 'Expense';
-      
+
       const tDate = new Date(order.orderDate || order.createdAt);
       if (tDate.getFullYear() !== targetYear) continue;
       if (isSpecificMonth && tDate.getMonth() !== monthIndex) continue;
@@ -73,7 +74,7 @@ exports.getDashboardData = async (req, res) => {
       if (isSpecificMonth && tDate.getMonth() !== monthIndex) continue;
 
       const poNumber = invoiceInfo.po_number;
-      
+
       // Deduplication: If this OCR invoice matches a Purchase Order we already counted, skip it as a duplicate expense.
       if (poNumber && dedupeKeys.has(poNumber)) {
         continue;
@@ -103,7 +104,7 @@ exports.getDashboardData = async (req, res) => {
     let pendingExpense = 0;
     let thisMonthExpense = 0;
     let previousMonthExpense = 0;
-    
+
     const monthlyMap = {};
     const categoryMap = {};
     const paymentMap = {};
@@ -122,12 +123,12 @@ exports.getDashboardData = async (req, res) => {
 
     transactions.forEach(tx => {
       const txDate = new Date(tx.transactionDate);
-      
+
       if (tx.type === 'Income') {
         totalIncome += tx.amount;
       } else if (tx.type === 'Expense') {
         totalExpense += tx.amount;
-        
+
         if (tx.status === 'Pending') {
           pendingExpense += tx.amount;
         }

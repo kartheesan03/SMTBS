@@ -14,7 +14,7 @@ import ExpenseAnalytics from './ExpenseAnalytics';
 const ExpenseTracking = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Filters
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear.toString());
@@ -28,14 +28,14 @@ const ExpenseTracking = () => {
   const location = useLocation();
   const [ocrContext, setOcrContext] = useState(null);
   const [showOcrBanner, setShowOcrBanner] = useState(false);
-  
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const ocrId = params.get('ocrId');
     const invoiceId = params.get('invoiceId');
     const poNumber = params.get('poNumber');
     const vendor = params.get('vendor');
-    
+
     if (ocrId || invoiceId) {
       setOcrContext({ ocrId, invoiceId, poNumber, vendor });
       setShowOcrBanner(true);
@@ -82,9 +82,9 @@ const ExpenseTracking = () => {
   return (
     <div className="et-container">
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <PageHeader 
-          title="Expense Tracker" 
-          subtitle="Centralized reporting and tracking of income and expenses across OCR and Procurement." 
+        <PageHeader
+          title="Expense Tracker"
+          subtitle="Centralized reporting and tracking of income and expenses across OCR and Procurement."
         />
 
         {showOcrBanner && ocrContext && (
@@ -102,8 +102,8 @@ const ExpenseTracking = () => {
                 <div style={{ fontSize: '12px', color: '#3b82f6', marginTop: '3px' }}>
                   {[
                     ocrContext.invoiceId && `Invoice: ${ocrContext.invoiceId}`,
-                    ocrContext.poNumber  && `PO: ${ocrContext.poNumber}`,
-                    ocrContext.vendor    && `Vendor: ${ocrContext.vendor}`,
+                    ocrContext.poNumber && `PO: ${ocrContext.poNumber}`,
+                    ocrContext.vendor && `Vendor: ${ocrContext.vendor}`,
                   ].filter(Boolean).join('  ·  ')}
                 </div>
               </div>
@@ -147,7 +147,7 @@ const ExpenseTracking = () => {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(value) => `₹${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`} />
-                  <RechartsTooltip 
+                  <RechartsTooltip
                     cursor={{ fill: '#f8fafc' }}
                     contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}
                     formatter={(value) => formatCurrency(value)}
@@ -171,7 +171,7 @@ const ExpenseTracking = () => {
                 <span className="et-source-badge">{summary.transactionCount} Total</span>
               </div>
             </div>
-            
+
             <div className="rd-table-scroll">
               <table className="rd-table">
                 <thead>
@@ -195,25 +195,25 @@ const ExpenseTracking = () => {
                       const isOcrMatch = ocrContext && (
                         (ocrContext.invoiceId && t.invoiceId && t.invoiceId === ocrContext.invoiceId) ||
                         (ocrContext.invoiceId && t.transactionId && t.transactionId.includes(ocrContext.invoiceId)) ||
-                        (ocrContext.poNumber  && t.purchaseOrderId && t.purchaseOrderId === ocrContext.poNumber) ||
-                        (ocrContext.vendor    && t.vendor && t.vendor.toLowerCase().includes(ocrContext.vendor.toLowerCase()))
+                        (ocrContext.poNumber && t.purchaseOrderId && t.purchaseOrderId === ocrContext.poNumber) ||
+                        (ocrContext.vendor && t.vendor && t.vendor.toLowerCase().includes(ocrContext.vendor.toLowerCase()))
                       );
                       return (
-                      <tr key={idx} onClick={() => setSelectedTransaction(t)} style={{ cursor: 'pointer', ...(isOcrMatch ? { background: '#eff6ff', boxShadow: 'inset 3px 0 0 #3b82f6'} : {}) }} className="et-tr-hover">
-                        <td style={{ color: '#64748b' }}>{new Date(t.transactionDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                        <td>
-                          <span className={`ui-badge ${t.type === 'Income' ? 'success' : 'danger'}`}>{t.type}</span>
-                        </td>
-                        <td style={{ fontWeight: 600, color: '#3b82f6' }}>{t.transactionId.substring(0, 14)}...</td>
-                        <td style={{ fontWeight: 600 }}>{t.vendor}</td>
-                        <td>{t.category}</td>
-                        <td style={{ textAlign: 'right', fontWeight: 700 }}>{formatCurrency(t.amount)}</td>
-                        <td>
-                          <span className={`ui-badge ${['Paid', 'Approved'].includes(t.status) ? 'success' : 'warning'}`}>{t.status}</span>
-                        </td>
-                        <td><span className="et-source-badge">{t.source}</span></td>
-                        <td style={{ color: '#64748b', fontSize: 13 }}>{t.updatedByName}</td>
-                      </tr>
+                        <tr key={idx} onClick={() => setSelectedTransaction(t)} style={{ cursor: 'pointer', ...(isOcrMatch ? { background: '#eff6ff', boxShadow: 'inset 3px 0 0 #3b82f6' } : {}) }} className="et-tr-hover">
+                          <td style={{ color: '#64748b' }}>{new Date(t.transactionDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                          <td>
+                            <span className={`ui-badge ${t.type === 'Income' ? 'success' : 'danger'}`}>{t.type}</span>
+                          </td>
+                          <td style={{ fontWeight: 600, color: '#3b82f6' }}>{t.transactionId.substring(0, 14)}...</td>
+                          <td style={{ fontWeight: 600 }}>{t.vendor}</td>
+                          <td>{t.category}</td>
+                          <td style={{ textAlign: 'right', fontWeight: 700 }}>{formatCurrency(t.amount)}</td>
+                          <td>
+                            <span className={`ui-badge ${['Paid', 'Approved'].includes(t.status) ? 'success' : 'warning'}`}>{t.status}</span>
+                          </td>
+                          <td><span className="et-source-badge">{t.source}</span></td>
+                          <td style={{ color: '#64748b', fontSize: 13 }}>{t.updatedByName}</td>
+                        </tr>
                       );
                     })
                   )}

@@ -8,7 +8,7 @@ async function run() {
     }
     console.log("Doc ID:", doc.id);
     console.log("FileUrl:", doc.fileUrl);
-    
+
     // Test if we can read the file
     const fs = require('fs');
     if (!fs.existsSync(doc.fileUrl)) {
@@ -24,7 +24,7 @@ async function run() {
         const updated = await OCRDocument.findByPk(doc.id);
         console.log("Final status:", updated.status);
         console.log("Logs:", updated.processingLogs);
-    } catch(e) {
+    } catch (e) {
         console.error("Caught error:", e);
     }
 }
