@@ -264,13 +264,6 @@ const hrNavigationConfig = [
         permission: '',
         group: 'WORKSPACE'
     },
-    {
-        title: 'OCR Documents',
-        icon: 'FileText',
-        path: '/ocr',
-        permission: '',
-        group: 'OPERATIONS'
-    },
 
     {
         title: 'Notifications',
