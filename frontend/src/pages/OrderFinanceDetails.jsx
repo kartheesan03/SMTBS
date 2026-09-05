@@ -11,9 +11,9 @@ import '../components/AdminDashboard/AdminDashboardRedesign.css';
 import { StatsCard, StatsGrid } from '../components/ui/StatsCard';
 
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const MONTHS_FULL  = ['January','February','March','April','May','June',
-                      'July','August','September','October','November','December'];
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
 
 const fmtFull = (val) =>
   `₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}`;
@@ -22,13 +22,13 @@ const StatusBadge = ({ status }) => {
   const s = (status || '').toLowerCase().replace(/\s+/g, '-');
   const map = {
     delivered: { bg: '#dcfce7', color: '#15803d' },
-    approved:  { bg: '#d1fae5', color: '#065f46' },
+    approved: { bg: '#d1fae5', color: '#065f46' },
     confirmed: { bg: '#dbeafe', color: '#1d4ed8' },
-    processing:{ bg: '#e0f2fe', color: '#0369a1' },
-    shipped:   { bg: '#ede9fe', color: '#6d28d9' },
-    pending:   { bg: '#fef9c3', color: '#92400e' },
+    processing: { bg: '#e0f2fe', color: '#0369a1' },
+    shipped: { bg: '#ede9fe', color: '#6d28d9' },
+    pending: { bg: '#fef9c3', color: '#92400e' },
     cancelled: { bg: '#fee2e2', color: '#dc2626' },
-    rejected:  { bg: '#fee2e2', color: '#dc2626' },
+    rejected: { bg: '#fee2e2', color: '#dc2626' },
   };
   const style = map[s] || { bg: '#f1f5f9', color: '#475569' };
   return (
@@ -65,6 +65,7 @@ const OrderFinanceDetails = () => {
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterSearch, setFilterSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   // All orders for current year (fetched monthly)
   const [allOrders, setAllOrders] = useState([]);
@@ -113,11 +114,11 @@ const OrderFinanceDetails = () => {
   }, [selectedYear, fetchChartData, fetchAllOrders]);
 
   /* ── Aggregations ── */
-  const totalSales    = chartData.reduce((s, m) => s + (m.sales || 0), 0);
+  const totalSales = chartData.reduce((s, m) => s + (m.sales || 0), 0);
   const totalPurchase = chartData.reduce((s, m) => s + (m.purchases || 0), 0);
-  const salesCount    = allOrders.filter(o => o.orderType === 'sales').length;
+  const salesCount = allOrders.filter(o => o.orderType === 'sales').length;
   const purchaseCount = allOrders.filter(o => o.orderType === 'purchase').length;
-  const netBalance    = totalSales - totalPurchase;
+  const netBalance = totalSales - totalPurchase;
 
   /* ── All unique statuses for filter ── */
   const statusOptions = [...new Set(allOrders.map(o => o.status).filter(Boolean))];
@@ -125,7 +126,7 @@ const OrderFinanceDetails = () => {
   /* ── Filtered list ── */
   const filtered = allOrders.filter(o => {
     if (filterMonth !== 'all' && o._month !== parseInt(filterMonth)) return false;
-    if (filterType   !== 'all' && o.orderType !== filterType) return false;
+    if (filterType !== 'all' && o.orderType !== filterType) return false;
     if (filterStatus !== 'all' && o.status !== filterStatus) return false;
     if (filterSearch) {
       const q = filterSearch.toLowerCase();
@@ -174,33 +175,7 @@ const OrderFinanceDetails = () => {
           subtitle={`Detailed receivables and payables analysis for ${selectedYear}`}
         />
 
-        {/* Controls */}
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
-          <select
-            value={selectedYear}
-            onChange={e => setSelectedYear(parseInt(e.target.value))}
-            style={{
-              padding: '8px 32px 8px 14px', border: '1px solid #e2e8f0',
-              borderRadius: 8, fontSize: '0.82rem', fontWeight: 600,
-              background: '#f8fafc', cursor: 'pointer', outline: 'none'
-            }}
-          >
-            {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
-          <button
-            onClick={handleRefresh}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 14px', background: '#f8fafc', border: '1px solid #e2e8f0',
-              borderRadius: 8, cursor: 'pointer', fontSize: '0.82rem',
-              fontWeight: 600, color: '#475569', transition: 'background 0.15s'
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = '#e2e8f0'}
-            onMouseLeave={e => e.currentTarget.style.background = '#f8fafc'}
-          >
-            <RefreshCw size={14} /> Refresh
-          </button>
-        </div>
+
 
         {/* KPI Cards */}
         {loading ? (
@@ -254,10 +229,54 @@ const OrderFinanceDetails = () => {
               className="rd-table-card"
               style={{ marginBottom: 24 }}
             >
-              <div className="rd-table-header" style={{ borderBottom: '1px solid var(--rd-border)' }}>
+              <div className="rd-table-header" style={{ borderBottom: '1px solid var(--rd-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
                   <div className="rd-table-title">Monthly Summary — {selectedYear}</div>
                   <div className="rd-table-subtitle">Month-by-month receivables vs payables</div>
+                </div>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <select
+                    value={selectedYear}
+                    onChange={e => setSelectedYear(parseInt(e.target.value))}
+                    style={{
+                      width: '200px',
+                      height: '40px',
+                      padding: '0 12px',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      fontSize: '0.9rem',
+                      fontWeight: 500,
+                      color: '#1e293b',
+                      background: '#ffffff',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                      cursor: 'pointer',
+                      outline: 'none',
+                      appearance: 'none',
+                      backgroundImage: 'url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\\\'http://www.w3.org/2000/svg\\\' viewBox=\\\'0 0 24 24\\\' fill=\\\'none\\\' stroke=\\\'%2364748b\\\' stroke-width=\\\'2\\\' stroke-linecap=\\\'round\\\' stroke-linejoin=\\\'round\\\'%3E%3Cpolyline points=\\\'6 9 12 15 18 9\\\'/%3E%3C/svg%3E")',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 12px center',
+                      backgroundSize: '16px',
+                      transition: 'border-color 0.2s'
+                    }}
+                    onFocus={e => e.currentTarget.style.borderColor = '#94a3b8'}
+                    onBlur={e => e.currentTarget.style.borderColor = '#e2e8f0'}
+                  >
+                    {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                  <button
+                    onClick={handleRefresh}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '8px',
+                      height: '40px', padding: '0 16px', background: '#ffffff', border: '1px solid #e2e8f0',
+                      borderRadius: '8px', fontSize: '0.9rem', fontWeight: 500,
+                      color: '#1e293b', cursor: 'pointer', outline: 'none',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)', transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                  >
+                    <RefreshCw size={16} /> Refresh
+                  </button>
                 </div>
               </div>
               <div className="rd-table-scroll">
@@ -326,22 +345,22 @@ const OrderFinanceDetails = () => {
                       className="rd-search-input"
                       placeholder="Search order or name..."
                       value={filterSearch}
-                      onChange={e => setFilterSearch(e.target.value)}
+                      onChange={e => { setFilterSearch(e.target.value); setCurrentPage(1); }}
                     />
                   </div>
                   {/* Month */}
                   <select
                     value={filterMonth}
-                    onChange={e => setFilterMonth(e.target.value)}
+                    onChange={e => { setFilterMonth(e.target.value); setCurrentPage(1); }}
                     style={{ padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: '0.8rem', background: '#f8fafc', outline: 'none' }}
                   >
                     <option value="all">All Months</option>
-                    {MONTHS_FULL.map((m, i) => <option key={i+1} value={i+1}>{m}</option>)}
+                    {MONTHS_FULL.map((m, i) => <option key={i + 1} value={i + 1}>{m}</option>)}
                   </select>
                   {/* Type */}
                   <select
                     value={filterType}
-                    onChange={e => setFilterType(e.target.value)}
+                    onChange={e => { setFilterType(e.target.value); setCurrentPage(1); }}
                     style={{ padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: '0.8rem', background: '#f8fafc', outline: 'none' }}
                   >
                     <option value="all">All Types</option>
@@ -351,7 +370,7 @@ const OrderFinanceDetails = () => {
                   {/* Status */}
                   <select
                     value={filterStatus}
-                    onChange={e => setFilterStatus(e.target.value)}
+                    onChange={e => { setFilterStatus(e.target.value); setCurrentPage(1); }}
                     style={{ padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: '0.8rem', background: '#f8fafc', outline: 'none' }}
                   >
                     <option value="all">All Statuses</option>
@@ -365,7 +384,8 @@ const OrderFinanceDetails = () => {
                   Loading orders...
                 </div>
               ) : (
-                <div className="rd-table-scroll">
+                <>
+                  <div className="rd-table-scroll">
                   <table className="rd-table" style={{ width: '100%' }}>
                     <thead>
                       <tr>
@@ -385,7 +405,7 @@ const OrderFinanceDetails = () => {
                             No orders found matching the selected filters.
                           </td>
                         </tr>
-                      ) : filtered.map((o, i) => {
+                      ) : filtered.slice((currentPage - 1) * 15, currentPage * 15).map((o, i) => {
                         const isSales = o.orderType === 'sales';
                         const name = isSales
                           ? (o.customer?.company || o.customer?.name || '—')
@@ -438,6 +458,28 @@ const OrderFinanceDetails = () => {
                     )}
                   </table>
                 </div>
+                {filtered.length > 15 && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '16px', borderTop: '1px solid #e2e8f0', gap: '8px' }}>
+                    <button 
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', background: currentPage === 1 ? '#f1f5f9' : '#fff', color: currentPage === 1 ? '#94a3b8' : '#334155', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+                    >
+                      Previous
+                    </button>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.875rem', fontWeight: 500, color: '#475569' }}>
+                      Page {currentPage} of {Math.ceil(filtered.length / 15)}
+                    </span>
+                    <button 
+                      disabled={currentPage >= Math.ceil(filtered.length / 15)}
+                      onClick={() => setCurrentPage(p => Math.min(Math.ceil(filtered.length / 15), p + 1))}
+                      style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', background: currentPage >= Math.ceil(filtered.length / 15) ? '#f1f5f9' : '#fff', color: currentPage >= Math.ceil(filtered.length / 15) ? '#94a3b8' : '#334155', cursor: currentPage >= Math.ceil(filtered.length / 15) ? 'not-allowed' : 'pointer' }}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+                </>
               )}
             </motion.div>
           </>

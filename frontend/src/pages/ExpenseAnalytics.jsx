@@ -1,38 +1,13 @@
 import React from 'react';
 import './ExpenseTracking.css';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
-import { Loader2 } from 'lucide-react';
+import { Loader2, TrendingUp, AlertCircle, Calculator, Hash, CreditCard, Wallet, Activity } from 'lucide-react';
 
 const ExpenseAnalytics = ({ data, loading }) => {
-  const categories = data?.summary?.categories || [];
-  const paymentMethods = data?.summary?.paymentMethods || [];
-
-  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+  const categories = data?.categories || [];
+  const paymentMethods = data?.paymentMethods || [];
+  const transactions = data?.transactions || [];
 
   const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
-  const formatCompact = (val) => {
-    if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)}Cr`;
-    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `₹${(val / 1000).toFixed(1)}K`;
-    return `₹${val}`;
-  };
-
-  const calcTotal = (arr) => arr.reduce((acc, curr) => acc + (curr.value || 0), 0);
-  
-  const totalCategory = calcTotal(categories);
-  const totalPayment = calcTotal(paymentMethods);
-
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div style={{ background: 'white', padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-          <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{payload[0].name}</p>
-          <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: payload[0].payload.fill }}>{formatCurrency(payload[0].value)}</p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   const renderEmpty = () => (
     <div style={{ padding: '40px 20px', textAlign: 'center' }}>
@@ -47,76 +22,145 @@ const ExpenseAnalytics = ({ data, loading }) => {
     </div>
   );
 
-  const renderCardContent = (dataset, total, title, subtitle, totalLabel) => {
-    if (loading) return renderLoading();
-    if (!dataset || dataset.length === 0) return renderEmpty();
-
+  if (loading) {
     return (
-      <>
-        <div className="ea-header">
-          <h3 className="ea-title">{title}</h3>
-          <p className="ea-subtitle">{subtitle}</p>
-        </div>
-
-        <div className="ea-total-box">
-          <p className="ea-total-amt">{formatCurrency(total)}</p>
-          <p className="ea-total-label">{totalLabel}</p>
-        </div>
-
-        <div className="ea-body">
-          <div className="ea-chart-wrapper">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={dataset}
-                  innerRadius={55}
-                  outerRadius={75}
-                  paddingAngle={2}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {dataset.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="ea-chart-center">
-              <span className="ea-center-val">{formatCompact(total)}</span>
-              <span className="ea-center-lbl">Total</span>
-            </div>
-          </div>
-
-          <div className="ea-legend">
-            {dataset.map((item, idx) => {
-              const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : 0;
-              return (
-                <div key={idx} className="ea-legend-row">
-                  <div className="ea-legend-left">
-                    <div className="ea-dot" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
-                    <p className="ea-name">{item.name}</p>
-                  </div>
-                  <div className="ea-legend-right">
-                    <p className="ea-amt">{formatCurrency(item.value)}</p>
-                    <p className="ea-pct">{pct}%</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </>
+      <div className="ea-card-container">
+        <div className="ea-card">{renderLoading()}</div>
+        <div className="ea-card">{renderLoading()}</div>
+      </div>
     );
-  };
+  }
+
+  if (!data) {
+    return (
+      <div className="ea-card-container">
+        <div className="ea-card">{renderEmpty()}</div>
+        <div className="ea-card">{renderEmpty()}</div>
+      </div>
+    );
+  }
+
+  // --- Calculate Spending Insights ---
+  const expenseTx = transactions.filter(t => t.type === 'Expense');
+  
+  let highestCategory = { name: '—', value: 0 };
+  if (categories.length > 0) {
+    highestCategory = categories.reduce((prev, current) => (prev.value > current.value) ? prev : current);
+  }
+
+  let largestExpense = null;
+  if (expenseTx.length > 0) {
+    largestExpense = expenseTx.reduce((prev, current) => (prev.amount > current.amount) ? prev : current);
+  }
+
+  const totalExpenseAmount = expenseTx.reduce((sum, t) => sum + t.amount, 0);
+  const avgExpense = expenseTx.length > 0 ? totalExpenseAmount / expenseTx.length : 0;
+  const numTransactions = expenseTx.length;
+
+  // --- Calculate Payment Insights ---
+  let primaryMethod = { name: '—', value: 0 };
+  let secondaryMethod = null;
+  
+  const sortedMethods = [...paymentMethods].sort((a, b) => b.value - a.value);
+  if (sortedMethods.length > 0) {
+    primaryMethod = sortedMethods[0];
+    if (sortedMethods.length > 1) {
+      secondaryMethod = sortedMethods[1];
+    }
+  }
+
+  const InsightRow = ({ icon: Icon, title, value, subtitle, valueColor = '#0f172a' }) => (
+    <div style={{ display: 'flex', alignItems: 'flex-start', padding: '16px 0', borderBottom: '1px solid #f1f5f9' }}>
+      <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '16px', flexShrink: 0 }}>
+        <Icon size={18} color="#64748b" />
+      </div>
+      <div style={{ flex: 1 }}>
+        <p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#0f172a' }}>{subtitle}</p>
+          </div>
+          <p style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: valueColor }}>{value}</p>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="ea-card-container">
-      <div className="ea-card">
-        {renderCardContent(categories, totalCategory, 'Expense by Category', 'Where your money is being spent', 'Total Expenses')}
+      {/* Spending Insights Card */}
+      <div className="ea-card" style={{ padding: '24px' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>Spending Insights</h3>
+          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#64748b' }}>Actionable analysis of your expenses</p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <InsightRow 
+            icon={TrendingUp} 
+            title="Highest Spending" 
+            subtitle={highestCategory.name} 
+            value={formatCurrency(highestCategory.value)} 
+            valueColor="#ef4444"
+          />
+          <InsightRow 
+            icon={AlertCircle} 
+            title="Largest Transaction" 
+            subtitle={largestExpense ? largestExpense.vendor : '—'} 
+            value={largestExpense ? formatCurrency(largestExpense.amount) : '₹0'} 
+          />
+          <InsightRow 
+            icon={Calculator} 
+            title="Average Expense" 
+            subtitle="Per transaction" 
+            value={formatCurrency(avgExpense)} 
+          />
+          <InsightRow 
+            icon={Hash} 
+            title="Transactions" 
+            subtitle="Total expense records" 
+            value={numTransactions} 
+          />
+        </div>
       </div>
-      <div className="ea-card">
-        {renderCardContent(paymentMethods, totalPayment, 'Payment Methods', 'How expenses were paid', 'Total Paid')}
+
+      {/* Payment Insights Card */}
+      <div className="ea-card" style={{ padding: '24px' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>Payment Insights</h3>
+          <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#64748b' }}>How your business is clearing dues</p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <InsightRow 
+            icon={CreditCard} 
+            title="Primary Method" 
+            subtitle={primaryMethod.name} 
+            value={formatCurrency(primaryMethod.value)} 
+            valueColor="#3b82f6"
+          />
+          {secondaryMethod ? (
+            <InsightRow 
+              icon={Wallet} 
+              title="Secondary Method" 
+              subtitle={secondaryMethod.name} 
+              value={formatCurrency(secondaryMethod.value)} 
+            />
+          ) : (
+             <InsightRow 
+              icon={Wallet} 
+              title="Secondary Method" 
+              subtitle="—" 
+              value="₹0" 
+            />
+          )}
+          <InsightRow 
+            icon={Activity} 
+            title="Methods Used" 
+            subtitle="Active payment channels" 
+            value={sortedMethods.length} 
+          />
+        </div>
       </div>
     </div>
   );

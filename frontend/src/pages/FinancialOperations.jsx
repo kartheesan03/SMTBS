@@ -21,7 +21,7 @@ const FinancialOperations = () => {
         data: []
       }));
       let extractedOrders = [];
-      if (Array.isArray(res.data)) extractedOrders = res.data;else if (res.data && Array.isArray(res.data.orders)) extractedOrders = res.data.orders;else if (res.data && Array.isArray(res.data.data)) extractedOrders = res.data.data;
+      if (Array.isArray(res.data)) extractedOrders = res.data; else if (res.data && Array.isArray(res.data.orders)) extractedOrders = res.data.orders; else if (res.data && Array.isArray(res.data.data)) extractedOrders = res.data.data;
       console.log("Fetched Orders:", extractedOrders);
       setOrders(extractedOrders);
     } catch (error) {
@@ -148,25 +148,25 @@ const FinancialOperations = () => {
   }} transition={{
     duration: 0.4
   }} className="rd-container">
+    {" "}
+    <div className="rd-content">
       {" "}
-      <div className="rd-content">
+      {/* Module Header */}{" "}
+      <PageHeader
+        title="Financial Operations"
+        badge="FINANCIAL OPERATIONS"
+        subtitle="Monitor and manage financial activities, transactions, and operational records."
+      />{" "}
+      {/* KPI Cards */}{" "}
+      <StatsGrid>
         {" "}
-        {/* Module Header */}{" "}
-        <PageHeader 
-          title="Financial Operations" 
-          badge="FINANCIAL OPERATIONS"
-          subtitle="Monitor and manage financial activities, transactions, and operational records." 
-        />{" "}
-        {/* KPI Cards */}{" "}
-        <StatsGrid>
-          {" "}
-          <StatsCard title="Revenue (Paid)" value={formatCurrency(revenue)} colorTheme="mint" icon={TrendingUp} trendValue="+14% vs last month" trendPositive={true} />{" "}
-          <StatsCard title="Total Payables" value={formatCurrency(totalPayables)} colorTheme="blue" icon={CreditCard} trendValue="Expected outflow" trendPositive={false} />{" "}
-          <StatsCard title="Overdue" value={formatCurrency(overdueAmount)} colorTheme="pink" icon={AlertTriangle} trendValue="Immediate attention" trendPositive={false} />{" "}
-          <StatsCard title="Outstanding Recv." value={formatCurrency(outstandingRecv)} colorTheme="peach" icon={IndianRupee} trendValue="Pending inflow" trendPositive={true} />{" "}
-        </StatsGrid>{" "}
-        {/* Charts Section */}{" "}
-        <motion.div initial={{
+        <StatsCard title="Revenue (Paid)" value={formatCurrency(revenue)} colorTheme="mint" icon={TrendingUp} trendValue="+14% vs last month" trendPositive={true} />{" "}
+        <StatsCard title="Total Payables" value={formatCurrency(totalPayables)} colorTheme="blue" icon={CreditCard} trendValue="Expected outflow" trendPositive={false} />{" "}
+        <StatsCard title="Overdue" value={formatCurrency(overdueAmount)} colorTheme="pink" icon={AlertTriangle} trendValue="Immediate attention" trendPositive={false} />{" "}
+        <StatsCard title="Outstanding Recv." value={formatCurrency(outstandingRecv)} colorTheme="peach" icon={IndianRupee} trendValue="Pending inflow" trendPositive={true} />{" "}
+      </StatsGrid>{" "}
+      {/* Charts Section */}{" "}
+      <motion.div initial={{
         opacity: 0,
         y: 20
       }} animate={{
@@ -180,277 +180,277 @@ const FinancialOperations = () => {
         gap: 24,
         marginBottom: 24
       }}>
-          {" "}
-          {/* P&L Chart */}{" "}
-          <div className="rd-chart-card" style={{
+        {" "}
+        {/* P&L Chart */}{" "}
+        <div className="rd-chart-card" style={{
           flex: 2
         }}>
-            {" "}
-            <div style={{
+          {" "}
+          <div style={{
             display: "flex",
             alignItems: "center",
             gap: 8,
             marginBottom: 20
           }}>
-              {" "}
-              <div style={{
+            {" "}
+            <div style={{
               width: 4,
               height: 20,
               borderRadius: 0,
               background: "#3b82f6"
             }}></div>{" "}
-              <h3 className="rd-chart-title" style={{
+            <h3 className="rd-chart-title" style={{
               margin: 0
             }}>
-                P&L Overview — 6 Months
-              </h3>{" "}
-            </div>{" "}
-            <div style={{
+              P&L Overview — 6 Months
+            </h3>{" "}
+          </div>{" "}
+          <div style={{
             height: 220
           }}>
+            {" "}
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               {" "}
-              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                {" "}
-                <LineChart data={plData} margin={{
+              <LineChart data={plData} margin={{
                 top: 15,
                 right: 15,
                 left: -5,
                 bottom: 15
               }}>
-                  {" "}
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />{" "}
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{
+                {" "}
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />{" "}
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{
                   fill: "#94a3b8",
                   fontSize: 12
                 }} dy={10} />{" "}
-                  <YAxis axisLine={false} tickLine={false} tick={{
+                <YAxis axisLine={false} tickLine={false} tick={{
                   fill: "#94a3b8",
                   fontSize: 11
                 }} tickFormatter={v => `${v / 1000}K`} />{" "}
-                  <Tooltip formatter={(val, name) => [`₹${val.toLocaleString()}`, `${name}`]} contentStyle={{
+                <Tooltip formatter={(val, name) => [`₹${val.toLocaleString()}`, `${name}`]} contentStyle={{
                   borderRadius: 0,
                   border: "none",
                   boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)"
                 }} />{" "}
-                  <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} dot={{
+                <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} dot={{
                   r: 4,
                   strokeWidth: 2,
                   fill: "#fff"
                 }} activeDot={{
                   r: 6
                 }} />{" "}
-                  <Line type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={3} dot={{
+                <Line type="monotone" dataKey="profit" stroke="#10b981" strokeWidth={3} dot={{
                   r: 4,
                   strokeWidth: 2,
                   fill: "#fff"
                 }} />{" "}
-                </LineChart>{" "}
-              </ResponsiveContainer>{" "}
-            </div>{" "}
-            <div style={{
+              </LineChart>{" "}
+            </ResponsiveContainer>{" "}
+          </div>{" "}
+          <div style={{
             display: "flex",
             gap: 16,
             marginTop: 20
           }}>
-              {" "}
-              <div style={{
+            {" "}
+            <div style={{
               flex: 1,
               padding: "12px 16px",
               borderRadius: 0,
               border: "1px solid #e2e8f0",
               background: "#f8fafc"
             }}>
-                {" "}
-                <div style={{
+              {" "}
+              <div style={{
                 fontSize: 11,
                 fontWeight: 700,
                 color: "#94a3b8",
                 marginBottom: 4
               }}>
-                  REVENUE ({(latestPL.name || "").toUpperCase()})
-                </div>{" "}
-                <div style={{
+                REVENUE ({(latestPL.name || "").toUpperCase()})
+              </div>{" "}
+              <div style={{
                 fontSize: 20,
                 fontWeight: 800,
                 color: "#1d4ed8"
               }}>
-                  {formatCurrency(latestPL.revenue)}
-                </div>{" "}
+                {formatCurrency(latestPL.revenue)}
               </div>{" "}
-              <div style={{
+            </div>{" "}
+            <div style={{
               flex: 1,
               padding: "12px 16px",
               borderRadius: 0,
               border: "1px solid #e2e8f0",
               background: "#f8fafc"
             }}>
-                {" "}
-                <div style={{
+              {" "}
+              <div style={{
                 fontSize: 11,
                 fontWeight: 700,
                 color: "#94a3b8",
                 marginBottom: 4
               }}>
-                  EXPENSE ({(latestPL.name || "").toUpperCase()})
-                </div>{" "}
-                <div style={{
+                EXPENSE ({(latestPL.name || "").toUpperCase()})
+              </div>{" "}
+              <div style={{
                 fontSize: 20,
                 fontWeight: 800,
                 color: "#dc2626"
               }}>
-                  {formatCurrency(latestExpense)}
-                </div>{" "}
+                {formatCurrency(latestExpense)}
               </div>{" "}
-              <div style={{
+            </div>{" "}
+            <div style={{
               flex: 1,
               padding: "12px 16px",
               borderRadius: 0,
               border: "1px solid #e2e8f0",
               background: "#f8fafc"
             }}>
-                {" "}
-                <div style={{
+              {" "}
+              <div style={{
                 fontSize: 11,
                 fontWeight: 700,
                 color: "#94a3b8",
                 marginBottom: 4
               }}>
-                  PROFIT ({(latestPL.name || "").toUpperCase()})
-                </div>{" "}
-                <div style={{
+                PROFIT ({(latestPL.name || "").toUpperCase()})
+              </div>{" "}
+              <div style={{
                 fontSize: 20,
                 fontWeight: 800,
                 color: "#059669"
               }}>
-                  {formatCurrency(latestPL.profit)}
-                </div>{" "}
+                {formatCurrency(latestPL.profit)}
               </div>{" "}
             </div>{" "}
           </div>{" "}
-          {/* Spend by Category Donut */}{" "}
-          <div className="rd-chart-card" style={{
+        </div>{" "}
+        {/* Spend by Category Donut */}{" "}
+        <div className="rd-chart-card" style={{
           flex: 1
         }}>
-            {" "}
-            <div style={{
+          {" "}
+          <div style={{
             display: "flex",
             alignItems: "center",
             gap: 8,
             marginBottom: 20
           }}>
-              {" "}
-              <div style={{
+            {" "}
+            <div style={{
               width: 4,
               height: 20,
               borderRadius: 0,
               background: "#f59e0b"
             }}></div>{" "}
-              <h3 className="rd-chart-title" style={{
+            <h3 className="rd-chart-title" style={{
               margin: 0
             }}>
-                Spend by Category
-              </h3>{" "}
-            </div>{" "}
-            <div style={{
+              Spend by Category
+            </h3>{" "}
+          </div>{" "}
+          <div style={{
             height: 180,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             position: "relative"
           }}>
+            {" "}
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               {" "}
-              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+              <PieChart>
                 {" "}
-                <PieChart>
+                <Pie data={displaySpendData} innerRadius={55} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
                   {" "}
-                  <Pie data={displaySpendData} innerRadius={55} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
-                    {" "}
-                    {displaySpendData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}{" "}
-                  </Pie>{" "}
-                </PieChart>{" "}
-              </ResponsiveContainer>{" "}
-              <div style={{
+                  {displaySpendData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}{" "}
+                </Pie>{" "}
+              </PieChart>{" "}
+            </ResponsiveContainer>{" "}
+            <div style={{
               position: "absolute",
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
               textAlign: "center"
             }}>
-                {" "}
-                <div style={{
+              {" "}
+              <div style={{
                 fontSize: 18,
                 fontWeight: 800,
                 color: "var(--rd-text-main)"
               }}>
-                  {formatCurrency(actualTotalSpend)}
-                </div>{" "}
-                <div style={{
+                {formatCurrency(actualTotalSpend)}
+              </div>{" "}
+              <div style={{
                 fontSize: 10,
                 fontWeight: 700,
                 color: "#94a3b8"
               }}>
-                  TOTAL
-                </div>{" "}
+                TOTAL
               </div>{" "}
             </div>{" "}
-            <div style={{
+          </div>{" "}
+          <div style={{
             display: "flex",
             flexDirection: "column",
             gap: 10,
             marginTop: 16
           }}>
-              {" "}
-              {spendData.map((item, i) => <div key={i} style={{
+            {" "}
+            {spendData.map((item, i) => <div key={i} style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between"
             }}>
-                  {" "}
-                  <div style={{
+              {" "}
+              <div style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 8
               }}>
-                    {" "}
-                    <span style={{
+                {" "}
+                <span style={{
                   width: 8,
                   height: 8,
                   borderRadius: "0px",
                   background: item.color
                 }}></span>{" "}
-                    <span style={{
+                <span style={{
                   fontSize: 13,
                   color: "#475569"
                 }}>
-                      {item.name}
-                    </span>{" "}
-                  </div>{" "}
-                  <div style={{
+                  {item.name}
+                </span>{" "}
+              </div>{" "}
+              <div style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 8
               }}>
-                    {" "}
-                    <span style={{
+                {" "}
+                <span style={{
                   fontSize: 13,
                   fontWeight: 700,
                   color: "var(--rd-text-main)"
                 }}>
-                      {formatCurrency(item.value)}
-                    </span>{" "}
-                    <span style={{
+                  {formatCurrency(item.value)}
+                </span>{" "}
+                <span style={{
                   fontSize: 12,
                   color: "#94a3b8"
                 }}>
-                      {item.pct}
-                    </span>{" "}
-                  </div>{" "}
-                </div>)}{" "}
-            </div>{" "}
+                  {item.pct}
+                </span>{" "}
+              </div>{" "}
+            </div>)}{" "}
           </div>{" "}
-        </motion.div>{" "}
-        {/* Invoice Register Table */}{" "}
-        <motion.div initial={{
+        </div>{" "}
+      </motion.div>{" "}
+      {/* Invoice Register Table */}{" "}
+      <motion.div initial={{
         opacity: 0,
         y: 20
       }} animate={{
@@ -460,29 +460,29 @@ const FinancialOperations = () => {
         delay: 0.3,
         duration: 0.4
       }} className="rd-table-card">
-          {" "}
-          <div className="rd-table-header" style={{
+        {" "}
+        <div className="rd-table-header" style={{
           borderBottom: "1px solid var(--rd-border)"
         }}>
+          {" "}
+          <div>
             {" "}
-            <div>
-              {" "}
-              <div className="rd-table-title">Invoice Register</div>{" "}
-              <div className="rd-table-subtitle">
-                Payables & receivables — all invoices
-              </div>{" "}
+            <div className="rd-table-title">Invoice Register</div>{" "}
+            <div className="rd-table-subtitle">
+              Payables & receivables — all invoices
             </div>{" "}
-            <div className="rd-table-actions" style={{
+          </div>{" "}
+          <div className="rd-table-actions" style={{
             flexWrap: "wrap"
           }}>
-              {" "}
-              <div style={{
+            {" "}
+            <div style={{
               display: "flex",
               gap: 6,
               flexWrap: "wrap"
             }}>
-                {" "}
-                {typeFilters.map(f => <button key={f} onClick={() => setTypeFilter(f)} style={{
+              {" "}
+              {typeFilters.map(f => <button key={f} onClick={() => setTypeFilter(f)} style={{
                 padding: "6px 14px",
                 borderRadius: 0,
                 fontSize: 13,
@@ -493,16 +493,16 @@ const FinancialOperations = () => {
                 color: typeFilter === f ? "#fff" : "#64748b",
                 borderColor: typeFilter === f ? "#3b82f6" : "#e2e8f0"
               }}>
-                    {f}
-                  </button>)}{" "}
-              </div>{" "}
-              <div style={{
+                {f}
+              </button>)}{" "}
+            </div>{" "}
+            <div style={{
               display: "flex",
               gap: 6,
               flexWrap: "wrap"
             }}>
-                {" "}
-                {statusFilters.map(f => <button key={f} onClick={() => setStatusFilter(f)} style={{
+              {" "}
+              {statusFilters.map(f => <button key={f} onClick={() => setStatusFilter(f)} style={{
                 padding: "6px 14px",
                 borderRadius: 0,
                 fontSize: 13,
@@ -513,42 +513,42 @@ const FinancialOperations = () => {
                 color: statusFilter === f ? "#fff" : "#64748b",
                 borderColor: statusFilter === f ? "#475569" : "#e2e8f0"
               }}>
-                    {f}
-                  </button>)}{" "}
-              </div>{" "}
+                {f}
+              </button>)}{" "}
             </div>{" "}
           </div>{" "}
-          <div className="rd-table-scroll">
-            {" "}
-            <table className="rd-table rd-table-responsive" style={{
+        </div>{" "}
+        <div className="rd-table-scroll">
+          {" "}
+          <table className="rd-table rd-table-responsive" style={{
             width: "100%"
           }}>
+            {" "}
+            <thead>
               {" "}
-              <thead>
+              <tr>
                 {" "}
-                <tr>
-                  {" "}
-                  <th>INVOICE ID</th> <th>TYPE</th> <th>PARTY</th>{" "}
-                  <th>PO/SO</th> <th style={{
+                <th>INVOICE ID</th> <th>TYPE</th> <th>PARTY</th>{" "}
+                <th>PO/SO</th> <th style={{
                   textAlign: "right"
                 }}>AMOUNT</th>{" "}
-                  <th>DUE DATE</th> <th>STATUS</th>{" "}
-                  <th style={{
+                <th>DUE DATE</th> <th>STATUS</th>{" "}
+                <th style={{
                   textAlign: "center"
                 }}>ACTION</th>{" "}
-                </tr>{" "}
-              </thead>{" "}
-              <tbody>
-                {" "}
-                {paginatedInvoices.length === 0 ? <tr>
-                    <td colSpan={8} style={{
+              </tr>{" "}
+            </thead>{" "}
+            <tbody>
+              {" "}
+              {paginatedInvoices.length === 0 ? <tr>
+                <td colSpan={8} style={{
                   textAlign: "center",
                   padding: 40,
                   color: "#94a3b8"
                 }}>
-                      No invoices found
-                    </td>
-                  </tr> : paginatedInvoices.map((inv, i) => {
+                  No invoices found
+                </td>
+              </tr> : paginatedInvoices.map((inv, i) => {
                 const statusColors = {
                   Paid: "rd-status-green",
                   Overdue: "rd-status-red",
@@ -559,16 +559,16 @@ const FinancialOperations = () => {
                 const typeColor = inv.type === "Receivable" ? "#10b981" : "#f59e0b";
                 const typeBg = inv.type === "Receivable" ? "#ecfdf5" : "#fff7ed";
                 return <tr key={inv._id || i}>
-                        {" "}
-                        <td style={{
+                  {" "}
+                  <td style={{
                     fontWeight: 700,
                     color: "#3b82f6"
                   }} data-label="Invoice ID">
-                          {inv.id}
-                        </td>{" "}
-                        <td data-label="Type">
-                          {" "}
-                          <span style={{
+                    {inv.id}
+                  </td>{" "}
+                  <td data-label="Type">
+                    {" "}
+                    <span style={{
                       padding: "4px 10px",
                       borderRadius: 0,
                       fontSize: 12,
@@ -576,118 +576,118 @@ const FinancialOperations = () => {
                       background: typeBg,
                       color: typeColor
                     }}>
-                            {" "}
-                            {inv.type}{" "}
-                          </span>{" "}
-                        </td>{" "}
-                        <td style={{
+                      {" "}
+                      {inv.type}{" "}
+                    </span>{" "}
+                  </td>{" "}
+                  <td style={{
                     fontWeight: 700,
                     color: "var(--rd-text-main)"
                   }} data-label="Party">
-                          {inv.party}
-                        </td>{" "}
-                        <td style={{
+                    {inv.party}
+                  </td>{" "}
+                  <td style={{
                     color: "#64748b"
                   }} data-label="PO/SO">
-                          {inv.poSo || "-"}
-                        </td>{" "}
-                        <td style={{
+                    {inv.poSo || "-"}
+                  </td>{" "}
+                  <td style={{
                     fontWeight: 700,
                     color: "var(--rd-text-main)",
                     textAlign: "right"
                   }} data-label="Amount">
-                          ₹{inv.amount.toLocaleString()}
-                        </td>{" "}
-                        <td style={{
+                    ₹{inv.amount.toLocaleString()}
+                  </td>{" "}
+                  <td style={{
                     color: inv.status === "Overdue" ? "#ef4444" : "#64748b",
                     fontWeight: inv.status === "Overdue" ? 700 : 400
                   }} data-label="Due Date">
-                          {" "}
-                          {inv.dueDate ? new Date(inv.dueDate).toLocaleDateString("en-IN", {
+                    {" "}
+                    {inv.dueDate ? new Date(inv.dueDate).toLocaleDateString("en-IN", {
                       day: "numeric",
                       month: "short",
                       year: "numeric"
                     }) : "-"}{" "}
-                        </td>{" "}
-                        <td data-label="Status">
-                          <span className={`ui-badge ${statusColors[inv.status] === "rd-status-red" ? "danger" : statusColors[inv.status] === "rd-status-green" ? "success" : statusColors[inv.status] === "rd-status-orange" ? "warning" : statusColors[inv.status] === "rd-status-blue" ? "primary" : "gray"}`}>
-                            {inv.status}
-                          </span>
-                        </td>{" "}
-                        <td style={{
+                  </td>{" "}
+                  <td data-label="Status">
+                    <span className={`ui-badge ${statusColors[inv.status] === "rd-status-red" ? "danger" : statusColors[inv.status] === "rd-status-green" ? "success" : statusColors[inv.status] === "rd-status-orange" ? "warning" : statusColors[inv.status] === "rd-status-blue" ? "primary" : "gray"}`}>
+                      {inv.status}
+                    </span>
+                  </td>{" "}
+                  <td style={{
                     textAlign: "center"
                   }} data-label="Action">
-                          {" "}
-                          {inv.status === "Paid" ? <span style={{
+                    {" "}
+                    {inv.status === "Paid" ? <span style={{
                       color: "#10b981",
                       fontWeight: 600,
                       fontSize: 13
                     }}>
-                              ✓ Done
-                            </span> : <button onClick={() => handleMarkPaid(inv._id)} className="rd-btn-compact outline" style={{
+                      ✓ Done
+                    </span> : <button onClick={() => handleMarkPaid(inv._id)} className="rd-btn-compact outline" style={{
                       padding: "5px 12px",
                       fontSize: 12,
                       color: "#3b82f6",
                       borderColor: "#bfdbfe"
                     }}>
-                              Mark Paid
-                            </button>}{" "}
-                        </td>{" "}
-                      </tr>;
+                      Mark Paid
+                    </button>}{" "}
+                  </td>{" "}
+                </tr>;
               })}{" "}
-              </tbody>
-            </table>
+            </tbody>
+          </table>
+        </div>
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginTop: 20,
+          padding: "0 10px"
+        }}>
+          <div style={{ fontSize: 13, color: "#64748b" }}>
+            Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredInvoices.length)} to {Math.min(currentPage * itemsPerPage, filteredInvoices.length)} of {filteredInvoices.length} entries
           </div>
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginTop: 20,
-            padding: "0 10px"
-          }}>
-            <div style={{ fontSize: 13, color: "#64748b" }}>
-              Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredInvoices.length)} to {Math.min(currentPage * itemsPerPage, filteredInvoices.length)} of {filteredInvoices.length} entries
-            </div>
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: 6,
-                  border: "1px solid #cbd5e1",
-                  background: currentPage === 1 ? "#f8fafc" : "#fff",
-                  color: currentPage === 1 ? "#94a3b8" : "#334155",
-                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                  fontWeight: 600,
-                  fontSize: 13
-                }}
-              >
-                Previous
-              </button>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: 6,
-                  border: "1px solid #cbd5e1",
-                  background: currentPage === totalPages ? "#f8fafc" : "#fff",
-                  color: currentPage === totalPages ? "#94a3b8" : "#334155",
-                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                  fontWeight: 600,
-                  fontSize: 13
-                }}
-              >
-                Next
-              </button>
-            </div>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 6,
+                border: "1px solid #cbd5e1",
+                background: currentPage === 1 ? "#f8fafc" : "#fff",
+                color: currentPage === 1 ? "#94a3b8" : "#334155",
+                cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                fontWeight: 600,
+                fontSize: 13
+              }}
+            >
+              Previous
+            </button>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#475569" }}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 6,
+                border: "1px solid #cbd5e1",
+                background: currentPage === totalPages ? "#f8fafc" : "#fff",
+                color: currentPage === totalPages ? "#94a3b8" : "#334155",
+                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                fontWeight: 600,
+                fontSize: 13
+              }}
+            >
+              Next
+            </button>
           </div>
-        </motion.div>
-      </div>{" "}
-    </motion.div>;
+        </div>
+      </motion.div>
+    </div>{" "}
+  </motion.div>;
 };
 export default FinancialOperations;

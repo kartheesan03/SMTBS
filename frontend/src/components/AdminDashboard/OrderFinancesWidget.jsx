@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
-import { 
+import {
   ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceArea
 } from 'recharts';
 import { AuthContext } from "../../context/AuthContext";
@@ -64,13 +64,13 @@ const CustomTooltip = ({ active, payload, label }) => {
         {payload.map((entry, index) => (
           <div key={`item-${index}`} className="bx-of-tooltip-item">
             <div className="bx-of-tooltip-name">
-              <span 
-                style={{ 
-                  display: 'inline-block', 
-                  width: '8px', 
-                  height: '8px', 
+              <span
+                style={{
+                  display: 'inline-block',
+                  width: '8px',
+                  height: '8px',
                   borderRadius: entry.dataKey === 'purchases' ? '50%' : '2px',
-                  backgroundColor: entry.color 
+                  backgroundColor: entry.color
                 }}
               ></span>
               {entry.name}
@@ -96,7 +96,7 @@ const OrderFinancesWidget = () => {
   const [selectedYear, setSelectedYear] = useState(2026);
   const [availableYears, setAvailableYears] = useState([2026, 2025, 2024]);
   const [chartData, setChartData] = useState(emptyData);
-  
+
   const [monthDetails, setMonthDetails] = useState({ salesOrders: [], purchaseOrders: [] });
   const [loadingDetails, setLoadingDetails] = useState(false);
 
@@ -119,12 +119,12 @@ const OrderFinancesWidget = () => {
         const { data: res } = await API.get(`/orders/finances?year=${selectedYear}`);
         if (res.data) setChartData(res.data);
         if (res.availableYears?.length) setAvailableYears(res.availableYears);
-        
+
         // Refresh details if already open
         if (viewAllYear) {
-           handleViewAllDetails();
+          handleViewAllDetails();
         } else if (selectedMonth) {
-           handleMonthClick(selectedMonth);
+          handleMonthClick(selectedMonth);
         }
       } catch (err) {
         console.error('Error fetching order finances:', err);
@@ -136,7 +136,7 @@ const OrderFinancesWidget = () => {
   const handleMonthClick = async (monthName) => {
     const monthIndex = emptyData.findIndex(m => m.name === monthName) + 1;
     if (monthIndex === 0) return;
-    
+
     setSelectedMonth(monthName);
     setViewAllYear(false);
     setLoadingDetails(true);
@@ -175,7 +175,7 @@ const OrderFinancesWidget = () => {
           Showing {start} to {end} of {total} records
         </div>
         <div style={{ display: 'flex', gap: '4px' }}>
-          <button 
+          <button
             disabled={currentPage === 1}
             onClick={() => setPage(currentPage - 1)}
             style={{ padding: '6px 12px', border: '1px solid #e2e8f0', background: '#fff', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', borderRadius: '4px', opacity: currentPage === 1 ? 0.5 : 1 }}
@@ -191,7 +191,7 @@ const OrderFinancesWidget = () => {
               {i + 1}
             </button>
           ))}
-          <button 
+          <button
             disabled={currentPage === totalPages}
             onClick={() => setPage(currentPage + 1)}
             style={{ padding: '6px 12px', border: '1px solid #e2e8f0', background: '#fff', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', borderRadius: '4px', opacity: currentPage === totalPages ? 0.5 : 1 }}
@@ -226,14 +226,14 @@ const OrderFinancesWidget = () => {
       } else if (order.description || order.notes) {
         itemDesc = order.description || order.notes;
       }
-      
+
       const amount = order.totalAmount || order.grandAmount || 0;
       const raised = order.orderDate || order.createdAt;
       const delivery = order.expectedDeliveryDate || order.deliveryDate;
       const priority = order.priority || "Normal";
       const status = order.status || "Pending";
       const isHighPriority = priority === "High" || priority === "Urgent";
-      
+
       return (
         <tr key={order.id || i} style={{ height: "52px" }}>
           <td style={{ verticalAlign: "middle", fontWeight: 700, color: "#3b82f6", whiteSpace: "nowrap" }} data-label="ID">
@@ -273,106 +273,106 @@ const OrderFinancesWidget = () => {
   };
 
   const renderTableSection = (monthStr, sOrders, pOrders) => {
-      const filters = ["All", "Pending", "Approved", "In Transit", "Delivered"];
-      const filterFunction = o => {
-        const matchesFilter = activeFilter === "All" || o.status === activeFilter;
-        const matchesSearch = !searchTerm || String(o.orderNumber || o.poNumber || "").toLowerCase().includes(searchTerm.toLowerCase()) || String(o.vendor?.name || o.vendor?.companyName || o.customer?.name || o.customer?.company || "").toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesFilter && matchesSearch;
-      };
+    const filters = ["All", "Pending", "Approved", "In Transit", "Delivered"];
+    const filterFunction = o => {
+      const matchesFilter = activeFilter === "All" || o.status === activeFilter;
+      const matchesSearch = !searchTerm || String(o.orderNumber || o.poNumber || "").toLowerCase().includes(searchTerm.toLowerCase()) || String(o.vendor?.name || o.vendor?.companyName || o.customer?.name || o.customer?.company || "").toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesFilter && matchesSearch;
+    };
 
-      const filteredPurchaseOrders = pOrders.filter(filterFunction);
-      const filteredSalesOrders = sOrders.filter(filterFunction);
-      const paginatedPurchaseOrders = filteredPurchaseOrders.slice((poPage - 1) * itemsPerPage, poPage * itemsPerPage);
-      const paginatedSalesOrders = filteredSalesOrders.slice((soPage - 1) * itemsPerPage, soPage * itemsPerPage);
+    const filteredPurchaseOrders = pOrders.filter(filterFunction);
+    const filteredSalesOrders = sOrders.filter(filterFunction);
+    const paginatedPurchaseOrders = filteredPurchaseOrders.slice((poPage - 1) * itemsPerPage, poPage * itemsPerPage);
+    const paginatedSalesOrders = filteredSalesOrders.slice((soPage - 1) * itemsPerPage, soPage * itemsPerPage);
 
-      return (
-        <div style={{ marginTop: '24px' }}>
-          <div style={{ display: 'flex', gap: '24px', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '1.2rem', color: '#0f172a', margin: 0 }}>
-              {monthStr} {selectedYear}
-            </h3>
-            <div style={{ fontSize: '0.9rem', color: '#64748b' }}>
-              Sales Orders: {sOrders.length} Orders, {formatFullCurrency(sOrders.reduce((s,o)=>s+(o.totalAmount||0),0))} / Purchase Orders: {pOrders.length} Orders, {formatFullCurrency(pOrders.reduce((s,o)=>s+(o.totalAmount||0),0))}
+    return (
+      <div style={{ marginTop: '24px' }}>
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'center', marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '1.2rem', color: '#0f172a', margin: 0 }}>
+            {monthStr} {selectedYear}
+          </h3>
+          <div style={{ fontSize: '0.9rem', color: '#64748b' }}>
+            Sales Orders: {sOrders.length} Orders, {formatFullCurrency(sOrders.reduce((s, o) => s + (o.totalAmount || 0), 0))} / Purchase Orders: {pOrders.length} Orders, {formatFullCurrency(pOrders.reduce((s, o) => s + (o.totalAmount || 0), 0))}
+          </div>
+        </div>
+
+        {/* Filters Bar */}
+        <div className="rd-table-actions" style={{ flexWrap: "wrap", marginBottom: '16px', display: 'flex', gap: '16px' }}>
+          <div className="rd-search-bar" style={{ minWidth: 220, flexShrink: 0, background: "#f8fafc", display: 'flex', alignItems: 'center', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '4px' }}>
+            <Search size={16} color="#94a3b8" />
+            <input type="text" className="rd-search-input" placeholder="Search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: '8px', width: '100%' }} />
+          </div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {filters.map(f => (
+              <button key={f} onClick={() => setActiveFilter(f)} style={{ padding: "6px 14px", borderRadius: 4, fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid", background: activeFilter === f ? "#3b82f6" : "#fff", color: activeFilter === f ? "#fff" : "#64748b", borderColor: activeFilter === f ? "#3b82f6" : "#e2e8f0" }}>
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Purchase Orders Table */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }} className="rd-table-card" style={{ marginBottom: "24px", background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+          <div className="rd-table-header" style={{ padding: '16px', borderBottom: "1px solid var(--rd-border)", display: 'flex', justifyContent: 'space-between' }}>
+            <div>
+              <div className="rd-table-title" style={{ fontSize: '1.1rem', fontWeight: 600 }}>Purchase Orders</div>
+              <div className="rd-table-subtitle" style={{ color: '#64748b', fontSize: '0.9rem' }}>All procurement requests and approvals</div>
+            </div>
+            {user?.role !== "Employee" && user?.role !== "Sales" && (
+              <button className="rd-btn-solid" style={{ background: '#0f172a', color: '#fff', padding: '8px 16px', borderRadius: '4px', fontWeight: 600, border: 'none', cursor: 'pointer' }} onClick={() => navigate("/orders/select-type")}>
+                + Raise PO
+              </button>
+            )}
+          </div>
+          <div className="rd-table-scroll" style={{ overflowX: 'auto' }}>
+            <table className="rd-table rd-table-responsive" style={{ width: "100%", borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', color: '#64748b', fontSize: '12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>
+                  <th style={{ width: "15%", padding: '12px 16px' }}>PO ID</th>
+                  <th style={{ width: "20%", padding: '12px 16px' }}>VENDOR</th>
+                  <th style={{ width: "20%", padding: '12px 16px' }}>ITEM DESCRIPTION</th>
+                  <th style={{ width: "12%", textAlign: "right", padding: '12px 16px' }}>AMOUNT</th>
+                  <th style={{ width: "10%", padding: '12px 16px' }}>RAISED</th>
+                  <th style={{ width: "10%", textAlign: "center", padding: '12px 16px' }}>DELIVERY</th>
+                  <th style={{ width: "8%", padding: '12px 16px' }}>STATUS</th>
+                  <th style={{ width: "5%", textAlign: "center", padding: '12px 16px' }}>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>{renderTableRows(paginatedPurchaseOrders)}</tbody>
+            </table>
+          </div>
+          {renderPagination(filteredPurchaseOrders.length, poPage, setPoPage)}
+        </motion.div>
+
+        {/* Sales Orders Table */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.4 }} className="rd-table-card" style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+          <div className="rd-table-header" style={{ padding: '16px', borderBottom: "1px solid var(--rd-border)" }}>
+            <div>
+              <div className="rd-table-title" style={{ fontSize: '1.1rem', fontWeight: 600 }}>Sales Orders</div>
+              <div className="rd-table-subtitle" style={{ color: '#64748b', fontSize: '0.9rem' }}>All customer sales and fulfillments</div>
             </div>
           </div>
-
-          {/* Filters Bar */}
-          <div className="rd-table-actions" style={{ flexWrap: "wrap", marginBottom: '16px', display: 'flex', gap: '16px' }}>
-             <div className="rd-search-bar" style={{ minWidth: 220, flexShrink: 0, background: "#f8fafc", display: 'flex', alignItems: 'center', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '4px' }}>
-                <Search size={16} color="#94a3b8" />
-                <input type="text" className="rd-search-input" placeholder="Search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} style={{ border: 'none', background: 'transparent', outline: 'none', marginLeft: '8px', width: '100%' }} />
-             </div>
-             <div style={{ display: "flex", gap: 6 }}>
-                {filters.map(f => (
-                   <button key={f} onClick={() => setActiveFilter(f)} style={{ padding: "6px 14px", borderRadius: 4, fontSize: 13, fontWeight: 600, cursor: "pointer", border: "1px solid", background: activeFilter === f ? "#3b82f6" : "#fff", color: activeFilter === f ? "#fff" : "#64748b", borderColor: activeFilter === f ? "#3b82f6" : "#e2e8f0" }}>
-                     {f}
-                   </button>
-                ))}
-             </div>
+          <div className="rd-table-scroll" style={{ overflowX: 'auto' }}>
+            <table className="rd-table rd-table-responsive" style={{ width: "100%", borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: '#f8fafc', color: '#64748b', fontSize: '12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>
+                  <th style={{ width: "15%", padding: '12px 16px' }}>SO ID</th>
+                  <th style={{ width: "20%", padding: '12px 16px' }}>CUSTOMER</th>
+                  <th style={{ width: "20%", padding: '12px 16px' }}>ITEM DESCRIPTION</th>
+                  <th style={{ width: "12%", textAlign: "right", padding: '12px 16px' }}>AMOUNT</th>
+                  <th style={{ width: "10%", padding: '12px 16px' }}>RAISED</th>
+                  <th style={{ width: "10%", textAlign: "center", padding: '12px 16px' }}>DELIVERY</th>
+                  <th style={{ width: "8%", padding: '12px 16px' }}>STATUS</th>
+                  <th style={{ width: "5%", textAlign: "center", padding: '12px 16px' }}>ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody>{renderTableRows(paginatedSalesOrders)}</tbody>
+            </table>
           </div>
-
-          {/* Purchase Orders Table */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }} className="rd-table-card" style={{ marginBottom: "24px", background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-             <div className="rd-table-header" style={{ padding: '16px', borderBottom: "1px solid var(--rd-border)", display: 'flex', justifyContent: 'space-between' }}>
-                <div>
-                  <div className="rd-table-title" style={{ fontSize: '1.1rem', fontWeight: 600 }}>Purchase Orders</div>
-                  <div className="rd-table-subtitle" style={{ color: '#64748b', fontSize: '0.9rem' }}>All procurement requests and approvals</div>
-                </div>
-                {user?.role !== "Employee" && user?.role !== "Sales" && (
-                   <button className="rd-btn-solid" style={{ background: '#0f172a', color: '#fff', padding: '8px 16px', borderRadius: '4px', fontWeight: 600, border: 'none', cursor: 'pointer' }} onClick={() => navigate("/orders/select-type")}>
-                     + Raise PO
-                   </button>
-                )}
-             </div>
-             <div className="rd-table-scroll" style={{ overflowX: 'auto' }}>
-                <table className="rd-table rd-table-responsive" style={{ width: "100%", borderCollapse: 'collapse' }}>
-                   <thead>
-                      <tr style={{ background: '#f8fafc', color: '#64748b', fontSize: '12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>
-                         <th style={{ width: "15%", padding: '12px 16px' }}>PO ID</th>
-                         <th style={{ width: "20%", padding: '12px 16px' }}>VENDOR</th>
-                         <th style={{ width: "20%", padding: '12px 16px' }}>ITEM DESCRIPTION</th>
-                         <th style={{ width: "12%", textAlign: "right", padding: '12px 16px' }}>AMOUNT</th>
-                         <th style={{ width: "10%", padding: '12px 16px' }}>RAISED</th>
-                         <th style={{ width: "10%", textAlign: "center", padding: '12px 16px' }}>DELIVERY</th>
-                         <th style={{ width: "8%", padding: '12px 16px' }}>STATUS</th>
-                         <th style={{ width: "5%", textAlign: "center", padding: '12px 16px' }}>ACTIONS</th>
-                      </tr>
-                   </thead>
-                   <tbody>{renderTableRows(paginatedPurchaseOrders)}</tbody>
-                </table>
-             </div>
-             {renderPagination(filteredPurchaseOrders.length, poPage, setPoPage)}
-          </motion.div>
-
-          {/* Sales Orders Table */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.4 }} className="rd-table-card" style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-             <div className="rd-table-header" style={{ padding: '16px', borderBottom: "1px solid var(--rd-border)" }}>
-                <div>
-                  <div className="rd-table-title" style={{ fontSize: '1.1rem', fontWeight: 600 }}>Sales Orders</div>
-                  <div className="rd-table-subtitle" style={{ color: '#64748b', fontSize: '0.9rem' }}>All customer sales and fulfillments</div>
-                </div>
-             </div>
-             <div className="rd-table-scroll" style={{ overflowX: 'auto' }}>
-                <table className="rd-table rd-table-responsive" style={{ width: "100%", borderCollapse: 'collapse' }}>
-                   <thead>
-                      <tr style={{ background: '#f8fafc', color: '#64748b', fontSize: '12px', textAlign: 'left', borderBottom: '1px solid #e2e8f0' }}>
-                         <th style={{ width: "15%", padding: '12px 16px' }}>SO ID</th>
-                         <th style={{ width: "20%", padding: '12px 16px' }}>CUSTOMER</th>
-                         <th style={{ width: "20%", padding: '12px 16px' }}>ITEM DESCRIPTION</th>
-                         <th style={{ width: "12%", textAlign: "right", padding: '12px 16px' }}>AMOUNT</th>
-                         <th style={{ width: "10%", padding: '12px 16px' }}>RAISED</th>
-                         <th style={{ width: "10%", textAlign: "center", padding: '12px 16px' }}>DELIVERY</th>
-                         <th style={{ width: "8%", padding: '12px 16px' }}>STATUS</th>
-                         <th style={{ width: "5%", textAlign: "center", padding: '12px 16px' }}>ACTIONS</th>
-                      </tr>
-                   </thead>
-                   <tbody>{renderTableRows(paginatedSalesOrders)}</tbody>
-                </table>
-             </div>
-             {renderPagination(filteredSalesOrders.length, soPage, setSoPage)}
-          </motion.div>
-        </div>
-      );
+          {renderPagination(filteredSalesOrders.length, soPage, setSoPage)}
+        </motion.div>
+      </div>
+    );
   };
 
   return (
@@ -384,7 +384,7 @@ const OrderFinancesWidget = () => {
           <div className="bx-of-subtitle">Receivable vs Payable Analytics</div>
         </div>
         <div className="bx-of-controls">
-          <select 
+          <select
             className="bx-of-year-selector"
             value={selectedYear}
             onChange={(e) => setSelectedYear(Number(e.target.value))}
@@ -439,77 +439,77 @@ const OrderFinancesWidget = () => {
           >
             <defs>
               <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={1}/>
-                <stop offset="95%" stopColor="#2563eb" stopOpacity={1}/>
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={1} />
+                <stop offset="95%" stopColor="#2563eb" stopOpacity={1} />
               </linearGradient>
               <linearGradient id="colorSalesHover" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#60a5fa" stopOpacity={1}/>
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={1}/>
+                <stop offset="5%" stopColor="#60a5fa" stopOpacity={1} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={1} />
               </linearGradient>
             </defs>
-            
+
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-            
-            <XAxis 
-              dataKey="name" 
-              axisLine={false} 
-              tickLine={false} 
+
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
               tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
               dy={10}
             />
-            
-            <YAxis 
+
+            <YAxis
               yAxisId="left"
-              axisLine={false} 
-              tickLine={false} 
+              axisLine={false}
+              tickLine={false}
               tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
               tickFormatter={(val) => val === 0 ? '0' : formatCurrency(val)}
             />
-            
-            <YAxis 
+
+            <YAxis
               yAxisId="right"
               orientation="right"
-              axisLine={false} 
-              tickLine={false} 
+              axisLine={false}
+              tickLine={false}
               tick={{ fill: '#64748b', fontSize: 12, fontWeight: 500 }}
               tickFormatter={(val) => val === 0 ? '0' : formatCurrency(val)}
             />
-            
-            <Tooltip 
+
+            <Tooltip
               content={<CustomTooltip />}
-              cursor={{ fill: 'transparent' }} 
+              cursor={{ fill: 'transparent' }}
             />
 
             {hoveredMonth && (
-               <ReferenceArea yAxisId="left" x1={hoveredMonth} x2={hoveredMonth} fill="#f1f5f9" fillOpacity={0.5} />
-            )}
-            
-            {(selectedMonth && !hoveredMonth) && (
-               <ReferenceArea yAxisId="left" x1={selectedMonth} x2={selectedMonth} fill="#f8fafc" fillOpacity={1} />
+              <ReferenceArea yAxisId="left" x1={hoveredMonth} x2={hoveredMonth} fill="#f1f5f9" fillOpacity={0.5} />
             )}
 
-            <Bar 
-              yAxisId="left" 
-              dataKey="sales" 
-              name="Sales" 
+            {(selectedMonth && !hoveredMonth) && (
+              <ReferenceArea yAxisId="left" x1={selectedMonth} x2={selectedMonth} fill="#f8fafc" fillOpacity={1} />
+            )}
+
+            <Bar
+              yAxisId="left"
+              dataKey="sales"
+              name="Sales"
               barSize={32}
               radius={[4, 4, 0, 0]}
               animationDuration={1500}
             >
               {chartData.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={(hoveredMonth === entry.name || selectedMonth === entry.name) ? "url(#colorSalesHover)" : "url(#colorSales)"} 
+                <Cell
+                  key={`cell-${index}`}
+                  fill={(hoveredMonth === entry.name || selectedMonth === entry.name) ? "url(#colorSalesHover)" : "url(#colorSales)"}
                 />
               ))}
             </Bar>
-            
-            <Line 
+
+            <Line
               yAxisId="right"
-              type="monotone" 
-              dataKey="purchases" 
-              name="Purchases" 
-              stroke="#f97316" 
+              type="monotone"
+              dataKey="purchases"
+              name="Purchases"
+              stroke="#f97316"
               strokeWidth={3}
               dot={{ r: 4, strokeWidth: 2, fill: '#ffffff', stroke: '#f97316' }}
               activeDot={{ r: 6, strokeWidth: 2, fill: '#ffffff', stroke: '#f97316' }}
@@ -522,31 +522,31 @@ const OrderFinancesWidget = () => {
       {/* Drill-down Details Section */}
       <div style={{ marginTop: '24px', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
         {loadingDetails && (
-           <div style={{ color: '#64748b', fontSize: '0.9rem', padding: '20px' }}>Loading orders...</div>
+          <div style={{ color: '#64748b', fontSize: '0.9rem', padding: '20px' }}>Loading orders...</div>
         )}
-        
+
         {!loadingDetails && selectedMonth && (
-           renderTableSection(selectedMonth, monthDetails.salesOrders || [], monthDetails.purchaseOrders || [])
+          renderTableSection(selectedMonth, monthDetails.salesOrders || [], monthDetails.purchaseOrders || [])
         )}
 
         {!loadingDetails && viewAllYear && (
-           <div>
-              <h3 style={{ fontSize: '1.2rem', color: '#0f172a', marginBottom: '16px' }}>Order Finance Details — {selectedYear}</h3>
-              {emptyData.map((month, idx) => {
-                 const mSales = (monthDetails.salesOrders || []).filter(o => new Date(o.orderDate || o.createdAt).getMonth() === idx);
-                 const mPurchases = (monthDetails.purchaseOrders || []).filter(o => new Date(o.orderDate || o.createdAt).getMonth() === idx);
-                 
-                 if (mSales.length === 0 && mPurchases.length === 0) return null;
-                 return (
-                    <div key={month.name} style={{ marginBottom: '40px' }}>
-                       {renderTableSection(month.name, mSales, mPurchases)}
-                    </div>
-                 );
-              })}
-              {((monthDetails.salesOrders || []).length === 0 && (monthDetails.purchaseOrders || []).length === 0) && (
-                 <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No orders found for {selectedYear}</div>
-              )}
-           </div>
+          <div>
+            <h3 style={{ fontSize: '1.2rem', color: '#0f172a', marginBottom: '16px' }}>Order Finance Details — {selectedYear}</h3>
+            {emptyData.map((month, idx) => {
+              const mSales = (monthDetails.salesOrders || []).filter(o => new Date(o.orderDate || o.createdAt).getMonth() === idx);
+              const mPurchases = (monthDetails.purchaseOrders || []).filter(o => new Date(o.orderDate || o.createdAt).getMonth() === idx);
+
+              if (mSales.length === 0 && mPurchases.length === 0) return null;
+              return (
+                <div key={month.name} style={{ marginBottom: '40px' }}>
+                  {renderTableSection(month.name, mSales, mPurchases)}
+                </div>
+              );
+            })}
+            {((monthDetails.salesOrders || []).length === 0 && (monthDetails.purchaseOrders || []).length === 0) && (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No orders found for {selectedYear}</div>
+            )}
+          </div>
         )}
       </div>
     </div>

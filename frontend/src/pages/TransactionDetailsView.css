@@ -1,0 +1,288 @@
+.td-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #f8fafc;
+  min-height: calc(100vh - 100px);
+}
+
+.td-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.td-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.td-back-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.td-amount-section {
+  text-align: center;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  margin-bottom: 24px;
+}
+
+.td-amount {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 16px 0;
+}
+
+.td-amount.income {
+  color: #10b981;
+}
+
+.td-amount.expense {
+  color: #ef4444;
+}
+
+.td-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.td-type-badge.income {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.td-type-badge.expense {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.td-vendor {
+  font-size: 20px;
+  font-weight: 600;
+  color: #334155;
+  margin-top: 16px;
+}
+
+.td-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  margin-bottom: 24px;
+}
+
+.td-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.td-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.td-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.td-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.td-value {
+  font-size: 15px;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.td-value.reference {
+  color: #3b82f6;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+/* Timeline */
+.td-timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.td-timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 0;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.td-timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.td-timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.td-timeline-icon {
+  position: absolute;
+  left: -24px;
+  top: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  border: 4px solid #eff6ff;
+  box-shadow: 0 0 0 2px #bfdbfe;
+}
+
+.td-timeline-item.success .td-timeline-icon {
+  background: #10b981;
+  border-color: #d1fae5;
+  box-shadow: 0 0 0 2px #a7f3d0;
+}
+
+.td-timeline-item.pending .td-timeline-icon {
+  background: #f59e0b;
+  border-color: #fef3c7;
+  box-shadow: 0 0 0 2px #fde68a;
+}
+
+.td-timeline-content {
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.td-timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.td-timeline-event {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.td-timeline-time {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.td-timeline-meta {
+  font-size: 13px;
+  color: #475569;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+/* Actions */
+.td-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.td-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.td-btn-outline {
+  background: white;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.td-btn-outline:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.td-btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.td-btn-primary:hover {
+  background: #2563eb;
+}
+
+/* Status Badge */
+.td-status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.td-status-badge.success {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.td-status-badge.warning {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.td-status-badge.danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.td-status-badge.default {
+  background: #f1f5f9;
+  color: #475569;
+}

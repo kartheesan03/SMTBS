@@ -10,6 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
 import toast from 'react-hot-toast';
 import './ExpenseTracking.css';
 import ExpenseAnalytics from './ExpenseAnalytics';
+import TransactionJourney from '../components/AdminDashboard/TransactionJourney';
 
 const ExpenseTracking = () => {
   const [data, setData] = useState(null);
@@ -19,7 +20,7 @@ const ExpenseTracking = () => {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear.toString());
   const [month, setMonth] = useState('All Months');
-  const [viewMode, setViewMode] = useState('Monthly'); // 'Monthly' | 'Yearly'
+
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const PAGE_SIZE = 15;
   const [page, setPage] = useState(1);
@@ -71,6 +72,18 @@ const ExpenseTracking = () => {
 
   if (loading && !data) return <div style={{ padding: 40 }}><LoadingState /></div>;
   if (!data) return <div style={{ padding: 40, textAlign: 'center' }}>No data available</div>;
+
+  if (selectedTransaction) {
+    return (
+      <div className="et-container">
+        <TransactionJourney
+          transaction={selectedTransaction}
+          allTransactions={data?.transactions || []}
+          onBack={() => setSelectedTransaction(null)}
+        />
+      </div>
+    );
+  }
 
   const { summary, monthly, transactions } = data;
 
@@ -125,10 +138,7 @@ const ExpenseTracking = () => {
               {months.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
-          <div className="et-toggle-group">
-            <button className={`et-toggle-btn ${viewMode === 'Monthly' ? 'active' : ''}`} onClick={() => setViewMode('Monthly')}>Monthly</button>
-            <button className={`et-toggle-btn ${viewMode === 'Yearly' ? 'active' : ''}`} onClick={() => setViewMode('Yearly')}>Yearly</button>
-          </div>
+
         </div>
 
         <StatsGrid>
@@ -143,18 +153,30 @@ const ExpenseTracking = () => {
             <h3 className="et-chart-title">Income vs Expense</h3>
             <div style={{ height: 300, width: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthly} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <BarChart data={monthly} margin={{ top: 20, right: 10, left: 10, bottom: 20 }} barGap={8}>
+                  <defs>
+                    <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#059669" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="#34d399" stopOpacity={0.7}/>
+                    </linearGradient>
+                    <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#dc2626" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="#f87171" stopOpacity={0.7}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} tickFormatter={(value) => `₹${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#64748b', fontWeight: 500 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#64748b', fontWeight: 500 }} tickFormatter={(value) => `₹${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`} dx={-10} />
                   <RechartsTooltip
                     cursor={{ fill: '#f8fafc' }}
-                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}
-                    formatter={(value) => formatCurrency(value)}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)', padding: '12px' }}
+                    itemStyle={{ fontWeight: 600, padding: '4px 0' }}
+                    formatter={(value, name) => [formatCurrency(value), name]}
+                    labelStyle={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}
                   />
-                  <Legend wrapperStyle={{ paddingTop: 20 }} iconType="circle" />
-                  <Bar dataKey="Income" fill="#10b981" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                  <Bar dataKey="Expense" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                  <Legend wrapperStyle={{ paddingTop: 24 }} iconType="circle" />
+                  <Bar dataKey="Income" fill="url(#colorIncome)" radius={[6, 6, 0, 0]} barSize={24} animationDuration={1500} />
+                  <Bar dataKey="Expense" fill="url(#colorExpense)" radius={[6, 6, 0, 0]} barSize={24} animationDuration={1500} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -181,10 +203,10 @@ const ExpenseTracking = () => {
                     <th>REFERENCE</th>
                     <th>VENDOR/PARTY</th>
                     <th>CATEGORY</th>
-                    <th style={{ textAlign: 'right' }}>AMOUNT</th>
-                    <th>STATUS</th>
                     <th>SOURCE</th>
-                    <th>UPDATED BY</th>
+                    <th style={{ textAlign: 'right' }}>AMOUNT</th>
+                    <th style={{ textAlign: 'right' }}>BALANCE</th>
+                    <th>STATUS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -207,12 +229,14 @@ const ExpenseTracking = () => {
                           <td style={{ fontWeight: 600, color: '#3b82f6' }}>{t.transactionId.substring(0, 14)}...</td>
                           <td style={{ fontWeight: 600 }}>{t.vendor}</td>
                           <td>{t.category}</td>
-                          <td style={{ textAlign: 'right', fontWeight: 700 }}>{formatCurrency(t.amount)}</td>
+                          <td><span className="et-source-badge">{t.source}</span></td>
+                          <td style={{ textAlign: 'right', fontWeight: 700, color: t.type === 'Income' ? '#10b981' : '#ef4444' }}>
+                            {t.type === 'Income' ? '+' : '-'} {formatCurrency(t.amount)}
+                          </td>
+                          <td style={{ textAlign: 'right', fontWeight: 600 }}>{formatCurrency(t.balanceAfter)}</td>
                           <td>
                             <span className={`ui-badge ${['Paid', 'Approved'].includes(t.status) ? 'success' : 'warning'}`}>{t.status}</span>
                           </td>
-                          <td><span className="et-source-badge">{t.source}</span></td>
-                          <td style={{ color: '#64748b', fontSize: 13 }}>{t.updatedByName}</td>
                         </tr>
                       );
                     })
