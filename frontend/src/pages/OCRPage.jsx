@@ -391,6 +391,7 @@ const OCRPage = () => {
       await API.post(`/ocr/${selectedDoc.id}/add-to-expense`, editedData);
       await loadDocument(selectedDoc.id);
       toast.success('Expense added successfully.', { id: t });
+      navigate('/expense-tracking');
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.error || 'Unable to add expense.', { id: t });

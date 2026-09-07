@@ -18,12 +18,6 @@ exports.getDashboardData = async (req, res) => {
       status: { $nin: ['Cancelled', 'Rejected'] }
     }).populate('customer').populate('vendor');
 
-    // 2. Fetch OCR Invoices
-    const ocrDocs = await OCRDocument.find({
-      documentType: 'Invoice',
-      addedToExpense: true
-    });
-
     // Fetch Users to resolve createdBy/updatedBy
     const User = require('../models/User');
     const users = await User.find({});
@@ -67,8 +61,25 @@ exports.getDashboardData = async (req, res) => {
       const lastUpdatedById = order.updatedById || order.updatedBy || order.createdById || order.createdBy;
       const updatedByUser = lastUpdatedById ? userMap[String(lastUpdatedById)] : null;
 
+      let sourceName = type === 'Income' ? 'Sales Order' : 'Purchase Order';
+      let poNumber = order.orderNumber;
+      let transactionId = `ORD-${order.id}`;
+      
+      // Strict isolation for OCR Expenses (do not inherit Purchase Order display logic)
+      if (order.workflow && order.workflow.source === 'OCR') {
+         vendorName = order.workflow.vendorName || vendorName;
+         category = order.workflow.category || category;
+         sourceName = 'OCR Invoice';
+         transactionId = order.orderNumber || `EXP-OCR-${order.workflow.ocrDocumentId || order.id}`;
+         
+         // Only show PO number if it was actually extracted as a real PO number (not our fallback EXP-OCR prefix)
+         if (poNumber && poNumber.startsWith('EXP-OCR-')) {
+            poNumber = null;
+         }
+      }
+
       const tx = {
-        transactionId: `ORD-${order.id}`,
+        transactionId: transactionId,
         type,
         transactionDate: tDate.toISOString(),
         amount,
@@ -76,9 +87,10 @@ exports.getDashboardData = async (req, res) => {
         category: category,
         paymentMethod: paymentMethod,
         status: order.paymentStatus || 'Pending',
-        source: type === 'Income' ? 'Sales Order' : 'Purchase Order',
-        purchaseOrderId: order.orderNumber,
-        invoiceId: null,
+        source: sourceName,
+        purchaseOrderId: poNumber,
+        invoiceId: order.invoiceNumber || null,
+        description: order.notes || null, // Map description directly to display
         updatedByName: updatedByUser ? updatedByUser.name : (order.updatedByName || 'System'),
         updatedByRole: updatedByUser ? updatedByUser.role : 'Administrator',
         updatedByPicture: updatedByUser ? updatedByUser.picture : null,
@@ -88,50 +100,6 @@ exports.getDashboardData = async (req, res) => {
       if (type === 'Expense' && order.orderNumber) {
         dedupeKeys.add(order.orderNumber); // Store PO number for deduplication
       }
-
-      transactions.push(tx);
-    }
-
-    // Process OCR Documents
-    for (const doc of ocrDocs) {
-      const invoiceInfo = doc.invoiceInfo || {};
-      const totalsBlock = doc.totalsBlock || {};
-      const vendorInfo = doc.vendorInfo || {};
-
-      const amount = Number(totalsBlock.grand_total) || 0;
-      if (amount <= 0) continue;
-
-      const tDate = new Date(invoiceInfo.date || doc.createdAt);
-      if (tDate.getFullYear() !== targetYear) continue;
-      if (isSpecificMonth && tDate.getMonth() !== monthIndex) continue;
-
-      const poNumber = invoiceInfo.po_number;
-
-      // Deduplication: If this OCR invoice matches a Purchase Order we already counted, skip it as a duplicate expense.
-      if (poNumber && dedupeKeys.has(poNumber)) {
-        continue;
-      }
-
-      const lastUpdatedById = doc.updatedBy || doc.updatedById || doc.createdBy || doc.createdById;
-      const updatedByUser = lastUpdatedById ? userMap[String(lastUpdatedById)] : null;
-
-      const tx = {
-        transactionId: `OCR-${doc.id}`,
-        type: 'Expense',
-        transactionDate: tDate.toISOString(),
-        amount,
-        vendor: vendorInfo.name || 'Unknown Vendor',
-        category: 'Extracted Invoice',
-        paymentMethod: 'Standard',
-        status: 'Pending', // Pending until paid
-        source: 'OCR Invoice',
-        purchaseOrderId: poNumber || null,
-        invoiceId: invoiceInfo.number || null,
-        updatedByName: updatedByUser ? updatedByUser.name : (doc.updatedByName || 'OCR System'),
-        updatedByRole: updatedByUser ? updatedByUser.role : 'System Component',
-        updatedByPicture: updatedByUser ? updatedByUser.picture : null,
-        updatedAt: doc.updatedAt || doc.createdAt || new Date()
-      };
 
       transactions.push(tx);
     }

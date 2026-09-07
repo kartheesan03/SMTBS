@@ -1,5 +1,6 @@
 const OCRDocument = require('../models/OCRDocument');
 const PurchaseRequest = require('../models/PurchaseRequest');
+const Order = require('../models/Order');
 const User = require('../models/User');
 const multer = require('multer');
 const path = require('path');
@@ -505,18 +506,66 @@ exports.addToExpense = async (req, res) => {
             appendAudit(doc, 'Data Corrected', req.user, `Fields: ${changedFields || 'correctedData'}`);
         }
 
-        // Mark as added to expense
+        // STEP 2 & 3: CALCULATE AND CREATE THE ACTUAL EXPENSE
+        // Calculate the expense from OCR data
+        const amount = Number(doc.totalsBlock?.grand_total) || 0;
+        let invoiceDate = new Date();
+        if (doc.invoiceInfo?.date) {
+            let parsed = new Date(doc.invoiceInfo.date);
+            if (isNaN(parsed.getTime())) {
+                const parts = String(doc.invoiceInfo.date).split(/[-/]/);
+                if (parts.length === 3) {
+                    parsed = new Date(parts[2], parts[1] - 1, parts[0]);
+                }
+            }
+            if (!isNaN(parsed.getTime())) {
+                invoiceDate = parsed;
+            }
+        }
+        const vendorName = doc.vendorInfo?.name || 'Unknown Vendor';
+        
+        let expenseDescription = doc.invoiceInfo?.description || doc.invoiceInfo?.type || '';
+        if (doc.lineItems?.rows?.length > 0) {
+           const firstItem = doc.lineItems.rows[0];
+           if (firstItem.description) {
+               expenseDescription = expenseDescription ? (expenseDescription + ' - ' + firstItem.description) : firstItem.description;
+           }
+        }
+        if (!expenseDescription) expenseDescription = 'Extracted Expense';
+
+        // Create the actual transaction (Order of type purchase)
+        const expenseOrder = await Order.create({
+            orderType: 'purchase',
+            orderDate: invoiceDate,
+            status: 'Pending',
+            grandTotal: amount,
+            totalAmount: amount,
+            invoiceNumber: doc.invoiceInfo?.number || null,
+            orderNumber: doc.invoiceInfo?.po_number || `EXP-OCR-${doc.id}`,
+            notes: expenseDescription,
+            workflow: {
+                source: 'OCR',
+                ocrDocumentId: doc.id,
+                vendorName: vendorName,
+                category: 'Extracted Invoice',
+                originalDescription: expenseDescription
+            },
+            createdById: req.user?.id || null,
+            updatedById: req.user?.id || null
+        });
+
+        // Mark as added to expense to prevent duplicates
         doc.addedToExpense = true;
         doc.updatedBy = req.user?.id || null;
 
-        appendAudit(doc, 'Added to Expense', req.user, 'Added to Expense Tracking module.');
+        appendAudit(doc, 'Added to Expense', req.user, `Created expense Order ID: ${expenseOrder.id}`);
 
         await doc.save();
 
         res.status(200).json({ message: 'Expense added successfully.', data: doc });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Unable to add expense.' });
+        console.error('ADD TO EXPENSE ERROR:', err);
+        res.status(500).json({ error: err.message || 'Unable to add expense.' });
     }
 };
 
