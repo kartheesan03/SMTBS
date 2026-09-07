@@ -24,6 +24,18 @@ exports.getDashboardData = async (req, res) => {
       addedToExpense: true
     });
 
+    // Fetch Users to resolve createdBy/updatedBy
+    const User = require('../models/User');
+    const users = await User.find({});
+    const userMap = {};
+    users.forEach(u => {
+      userMap[String(u._id || u.id)] = {
+        name: u.name,
+        role: u.role,
+        picture: u.picture
+      };
+    });
+
     let transactions = [];
     let dedupeKeys = new Set(); // To avoid double-counting OCR and PO
 
@@ -52,6 +64,9 @@ exports.getDashboardData = async (req, res) => {
 
       let paymentMethod = order.paymentTerms || 'Bank Transfer'; // Fallback if no payment method field
 
+      const lastUpdatedById = order.updatedById || order.updatedBy || order.createdById || order.createdBy;
+      const updatedByUser = lastUpdatedById ? userMap[String(lastUpdatedById)] : null;
+
       const tx = {
         transactionId: `ORD-${order.id}`,
         type,
@@ -64,7 +79,10 @@ exports.getDashboardData = async (req, res) => {
         source: type === 'Income' ? 'Sales Order' : 'Purchase Order',
         purchaseOrderId: order.orderNumber,
         invoiceId: null,
-        updatedByName: 'System'
+        updatedByName: updatedByUser ? updatedByUser.name : (order.updatedByName || 'System'),
+        updatedByRole: updatedByUser ? updatedByUser.role : 'Administrator',
+        updatedByPicture: updatedByUser ? updatedByUser.picture : null,
+        updatedAt: order.updatedAt || order.createdAt || new Date()
       };
 
       if (type === 'Expense' && order.orderNumber) {
@@ -94,6 +112,9 @@ exports.getDashboardData = async (req, res) => {
         continue;
       }
 
+      const lastUpdatedById = doc.updatedBy || doc.updatedById || doc.createdBy || doc.createdById;
+      const updatedByUser = lastUpdatedById ? userMap[String(lastUpdatedById)] : null;
+
       const tx = {
         transactionId: `OCR-${doc.id}`,
         type: 'Expense',
@@ -106,7 +127,10 @@ exports.getDashboardData = async (req, res) => {
         source: 'OCR Invoice',
         purchaseOrderId: poNumber || null,
         invoiceId: invoiceInfo.number || null,
-        updatedByName: 'OCR System'
+        updatedByName: updatedByUser ? updatedByUser.name : (doc.updatedByName || 'OCR System'),
+        updatedByRole: updatedByUser ? updatedByUser.role : 'System Component',
+        updatedByPicture: updatedByUser ? updatedByUser.picture : null,
+        updatedAt: doc.updatedAt || doc.createdAt || new Date()
       };
 
       transactions.push(tx);

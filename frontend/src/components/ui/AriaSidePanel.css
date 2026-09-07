@@ -128,7 +128,7 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    background: var(--primary);
     color: white;
     display: flex;
     align-items: center;

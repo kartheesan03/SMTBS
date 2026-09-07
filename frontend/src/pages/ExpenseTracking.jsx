@@ -207,11 +207,12 @@ const ExpenseTracking = () => {
                     <th style={{ textAlign: 'right' }}>AMOUNT</th>
                     <th style={{ textAlign: 'right' }}>BALANCE</th>
                     <th>STATUS</th>
+                    <th style={{ textAlign: 'left', minWidth: '160px' }}>UPDATED BY</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pageRows.length === 0 ? (
-                    <tr><td colSpan={9} style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>No financial transactions found for the selected period.</td></tr>
+                    <tr><td colSpan={10} style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>No financial transactions found for the selected period.</td></tr>
                   ) : (
                     pageRows.map((t, idx) => {
                       const isOcrMatch = ocrContext && (
@@ -236,6 +237,26 @@ const ExpenseTracking = () => {
                           <td style={{ textAlign: 'right', fontWeight: 600 }}>{formatCurrency(t.balanceAfter)}</td>
                           <td>
                             <span className={`ui-badge ${['Paid', 'Approved'].includes(t.status) ? 'success' : 'warning'}`}>{t.status}</span>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              {t.updatedByPicture ? (
+                                <img src={t.updatedByPicture} alt={t.updatedByName} style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
+                              ) : (
+                                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '12px', fontWeight: '700', border: '1px solid #e2e8f0', flexShrink: 0 }}>
+                                  {t.updatedByName ? t.updatedByName.charAt(0).toUpperCase() : '?'}
+                                </div>
+                              )}
+                              <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                                <span style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.updatedByName}</span>
+                                <span style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.updatedByRole}</span>
+                                {t.updatedAt && (
+                                  <span style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px', whiteSpace: 'nowrap' }}>
+                                    {new Date(t.updatedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </td>
                         </tr>
                       );

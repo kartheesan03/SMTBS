@@ -35,7 +35,7 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    border-radius: 0px;
+    border-radius: 8px;
     transition: all 0.2s;
     color: #6B7280;
 }
@@ -94,7 +94,7 @@
     color: #9CA3AF;
     background: #FFFFFF;
     border: 1px solid #E5E7EB;
-    border-radius: 0px;
+    border-radius: 8px;
     padding: 2px 7px;
     white-space: nowrap;
     flex-shrink: 0;
@@ -115,7 +115,7 @@
     padding: 6px 12px;
     background: #F9FAFB;
     border: 1px solid #E5E7EB;
-    border-radius: 0px;
+    border-radius: 8px;
     color: #6B7280;
     font-family: 'Inter', sans-serif;
     white-space: nowrap;
@@ -143,7 +143,7 @@
     padding: 5px 11px;
     background: #ECFDF5;
     border: 1px solid #A7F3D0;
-    border-radius: 0px;
+    border-radius: 8px;
     font-size: 11.5px;
     font-weight: 600;
     color: #065F46;
@@ -189,7 +189,7 @@
     color: #fff;
     font-size: 9.5px;
     font-weight: 700;
-    border-radius: 0px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -260,7 +260,7 @@
     min-width: 220px;
     background: #FFFFFF;
     border: 1px solid #E5E7EB;
-    border-radius: 0px;
+    border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.12);
     overflow: hidden;
     animation: dropIn 0.2s cubic-bezier(0.16,1,0.3,1);
@@ -326,7 +326,7 @@
 
 .logout-modal {
     background: #FFFFFF;
-    border-radius: 0px;
+    border-radius: 8px;
     padding: 32px;
     max-width: 400px;
     width: 100%;
@@ -344,7 +344,7 @@
     width: 56px;
     height: 56px;
     background: #FEF2F2;
-    border-radius: 0px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -378,7 +378,7 @@
     border: 1.5px solid #E5E7EB;
     background: #FFFFFF;
     color: #374151;
-    border-radius: 0px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -392,7 +392,7 @@
     background: #EF4444;
     color: #fff;
     border: none;
-    border-radius: 0px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
