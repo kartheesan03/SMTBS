@@ -1,4 +1,4 @@
-﻿.bx-of-panel {
+.bx-of-panel {
   background: #ffffff;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
@@ -68,8 +68,10 @@
   transition: color 0.2s ease;
   white-space: nowrap;
 }
-.bx-of-link:hover {
+.bx-of-link:hover, .bx-of-link:focus {
   color: #1d4ed8;
+  text-decoration: underline;
+  outline: none;
 }
 
 .bx-of-legend-container {

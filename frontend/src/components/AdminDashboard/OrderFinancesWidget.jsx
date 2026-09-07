@@ -393,9 +393,9 @@ const OrderFinancesWidget = () => {
               <option key={yr} value={yr}>{yr}</option>
             ))}
           </select>
-          <a href="#" className="bx-of-link" onClick={(e) => {
+          <a href="/order-finances" className="bx-of-link" onClick={(e) => {
             e.preventDefault();
-            handleViewAllDetails();
+            navigate('/order-finances');
           }}>
             View details →
           </a>
