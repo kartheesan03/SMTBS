@@ -29,6 +29,7 @@
   color: #334155;
   outline: none;
   cursor: pointer;
+  min-width: 130px;
 }
 
 .et-toggle-group {
