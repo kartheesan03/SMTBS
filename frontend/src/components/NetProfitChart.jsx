@@ -9,8 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-const CURRENT_YEAR_MOCK = [];
-const LAST_YEAR_MOCK = [];
+
 const COLORS = {
   bg: '#FFFFFF',
   border: '#E2E8F0',
@@ -150,8 +149,8 @@ const StatBlock = ({ title, value, color, isCurrent, active, onClick, currencySy
   );
 };
 export default function NetProfitChart({
-  currentYearData = CURRENT_YEAR_MOCK,
-  lastYearData = LAST_YEAR_MOCK,
+  currentYearData = [],
+  lastYearData = [],
   currencySymbol = '₹',
 }) {
   const [activeSeries, setActiveSeries] = useState({

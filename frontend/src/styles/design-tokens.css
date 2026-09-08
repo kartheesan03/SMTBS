@@ -62,10 +62,9 @@
     background: var(--ent-bg-card);
     border: 1px solid var(--ent-border-color);
     border-top: 3px solid transparent; /* Colored by theme */
-    border-radius: 18px;
-    padding: 24px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
     font-family: var(--ent-font-family);
     overflow: hidden;
     position: relative;
@@ -74,8 +73,8 @@
 }
 
 .ent-module-card:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    transform: translateY(-4px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.10);
+    border-color: #d1d5db;
 }
 
 .ent-card-title {
@@ -99,17 +98,12 @@
     position: absolute;
     top: 16px;
     right: 16px;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.25s ease;
-}
-
-.ent-module-card:hover .ent-card-icon-wrapper {
-    transform: scale(1.1);
 }
 
 .ent-card-value-area {

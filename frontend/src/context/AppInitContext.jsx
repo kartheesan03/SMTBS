@@ -86,8 +86,11 @@ export const AppInitProvider = ({ children }) => {
     // DERIVED — synchronous, no render flash
     const appReady = useMemo(() => {
         if (authLoading) return false;
+        if (user) {
+            return readyForUserId === getUserId(user);
+        }
         return true; 
-    }, [authLoading]);
+    }, [authLoading, user, readyForUserId, getUserId]);
 
     const runInit = useCallback(async (targetUser) => {
         if (!targetUser) return;
@@ -130,13 +133,8 @@ export const AppInitProvider = ({ children }) => {
             const isCustomer = role === 'customer';
             const isVendor = role === 'vendor';
 
-            // Fetch dashboard stats asynchronously so it doesn't block app shell rendering
-            API.get('/dashboard/stats')
-                .then(res => setDashboardData(res.data))
-                .catch(() => setDashboardData({}));
-
             const requests = [
-                Promise.resolve({ data: null }), // Placeholder for dashboard stats
+                API.get('/dashboard/stats').catch(() => ({ data: {} })), // Dashboard stats
             ];
 
             // ── Employees list ──────────────────────────────────────────────
@@ -204,7 +202,7 @@ export const AppInitProvider = ({ children }) => {
             const result = {
                 userId,
                 ts: Date.now(),
-                // dashboardData is updated asynchronously now
+                dashboardData: dashR.data || {},
                 employees: Array.isArray(empR.data) ? empR.data : [],
                 leads: Array.isArray(leadsR.data) ? leadsR.data : [],
                 orders: Array.isArray(ordR.data) ? ordR.data : [],
@@ -228,7 +226,7 @@ export const AppInitProvider = ({ children }) => {
             // Cache in window
             window[INIT_CACHE_KEY] = result;
 
-            // setDashboardData is handled asynchronously
+            setDashboardData(result.dashboardData);
             setEmployees(result.employees);
             setLeads(result.leads);
             setOrders(result.orders);

@@ -260,9 +260,17 @@ const FarmakuSidebar = () => {
 
             {/* ── Footer ── */}
             <div className="farmaku-sidebar-footer">
-                <div className="farmaku-logout-item" onClick={logout}>
-                    <Icons.LogOut />
-                    <span>Logout</span>
+                <div className="farmaku-footer-user" onClick={() => navigate('/profile')}>
+                    <div className="farmaku-footer-avatar">
+                        {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}
+                    </div>
+                    <div className="farmaku-footer-user-info">
+                        <span className="farmaku-footer-name">{user?.name || 'User'}</span>
+                        <span className="farmaku-footer-role">{user?.role || 'Role'}</span>
+                    </div>
+                </div>
+                <div className="farmaku-logout-item" onClick={logout} title="Sign out">
+                    <Icons.LogOut size={16} />
                 </div>
             </div>
         </aside>

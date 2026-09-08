@@ -64,13 +64,13 @@ const Vendors = () => {
       display: "flex",
       gap: 2
     }}>
-        {" "}
-        {[...Array(full)].map((_, i) => <Star key={`f${i}`} size={14} fill="#f59e0b" color="#f59e0b" />)}{" "}
-        {half ? <Star key="h" size={14} fill="#f59e0b" color="#f59e0b" style={{
+      {" "}
+      {[...Array(full)].map((_, i) => <Star key={`f${i}`} size={14} fill="#f59e0b" color="#f59e0b" />)}{" "}
+      {half ? <Star key="h" size={14} fill="#f59e0b" color="#f59e0b" style={{
         clipPath: "inset(0 50% 0 0)"
       }} /> : null}{" "}
-        {[...Array(empty)].map((_, i) => <Star key={`e${i}`} size={14} fill="none" color="#cbd5e1" />)}{" "}
-      </div>;
+      {[...Array(empty)].map((_, i) => <Star key={`e${i}`} size={14} fill="none" color="#cbd5e1" />)}{" "}
+    </div>;
   };
   const columns = [{
     key: "name",
@@ -86,8 +86,8 @@ const Vendors = () => {
         alignItems: "center",
         gap: "12px"
       }}>
-            {" "}
-            <div style={{
+        {" "}
+        <div style={{
           width: "40px",
           height: "40px",
           background: "#f1f5f9",
@@ -97,23 +97,23 @@ const Vendors = () => {
           justifyContent: "center",
           color: "#64748b"
         }}>
-              {" "}
-              <Building2 size={20} />{" "}
-            </div>{" "}
-            <div>
-              {" "}
-              <div style={{
+          {" "}
+          <Building2 size={20} />{" "}
+        </div>{" "}
+        <div>
+          {" "}
+          <div style={{
             fontWeight: 600,
             color: "#0f172a"
           }}>
-                {val}
-              </div>{" "}
-              <div style={{
+            {val}
+          </div>{" "}
+          <div style={{
             fontSize: 12,
             color: "#64748b"
           }}>{contact}</div>{" "}
-            </div>{" "}
-          </div>;
+        </div>{" "}
+      </div>;
     }
   }, {
     key: "category",
@@ -130,7 +130,7 @@ const Vendors = () => {
     render: val => {
       const status = val || "Active";
       let badgeClass = "primary";
-      if (status.toLowerCase().includes("active")) badgeClass = "success";else if (status.toLowerCase().includes("hold")) badgeClass = "warning";else if (status.toLowerCase().includes("created")) badgeClass = "info";
+      if (status.toLowerCase().includes("active")) badgeClass = "success"; else if (status.toLowerCase().includes("hold")) badgeClass = "warning"; else if (status.toLowerCase().includes("created")) badgeClass = "info";
       return <span className={`ui-badge ${badgeClass}`}>{status}</span>;
     }
   }, {
@@ -141,8 +141,8 @@ const Vendors = () => {
       fontWeight: 600,
       color: "#ef4444"
     }}>
-          ₹{(val || 0).toLocaleString()}
-        </span>
+      ₹{(val || 0).toLocaleString()}
+    </span>
   }];
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo") || "{}");
   const isAdmin = userInfo.role === "Admin";
@@ -170,21 +170,21 @@ const Vendors = () => {
   }} transition={{
     duration: 0.4
   }} className="rd-container">
+    {" "}
+    <div className="rd-content">
       {" "}
-      <div className="rd-content">
-        {" "}
-        <PageHeader 
-          title="Vendor Management" 
-          badge="VENDOR MANAGEMENT"
-          subtitle="Manage vendor information, supplier relationships, and procurement activities." 
-        />{" "}
-        <StatsGrid>
-          <StatsCard title="Total Vendors" value={vendors.length} colorTheme="blue" icon={Building2} trendValue="All partners" trendPositive={true} />{" "}
-          <StatsCard title="Active" value={activeVendors.length} colorTheme="mint" icon={CheckCircle} trendValue="Good standing" trendPositive={true} />{" "}
-          <StatsCard title="On Hold" value={onHoldVendors.length} colorTheme="peach" icon={AlertTriangle} trendValue="Needs attention" trendPositive={false} />{" "}
-          <StatsCard title="Total Outstanding" value={formatCurrency(totalOutstanding)} colorTheme="pink" icon={IndianRupee} trendValue="Unpaid balance" trendPositive={false} />{" "}
-        </StatsGrid>{" "}
-        <motion.div initial={{
+      <PageHeader
+        title="Vendor Management"
+        badge="VENDOR MANAGEMENT"
+        subtitle="Manage vendor information, supplier relationships, and procurement activities."
+      />{" "}
+      <StatsGrid>
+        <StatsCard title="Total Vendors" value={vendors.length} colorTheme="blue" icon={Building2} trendValue="All partners" trendPositive={true} />{" "}
+        <StatsCard title="Active" value={activeVendors.length} colorTheme="mint" icon={CheckCircle} trendValue="Good standing" trendPositive={true} />{" "}
+        <StatsCard title="On Hold" value={onHoldVendors.length} colorTheme="peach" icon={AlertTriangle} trendValue="Needs attention" trendPositive={false} />{" "}
+        <StatsCard title="Total Outstanding" value={formatCurrency(totalOutstanding)} colorTheme="pink" icon={IndianRupee} trendValue="Unpaid balance" trendPositive={false} />{" "}
+      </StatsGrid>{" "}
+      <motion.div initial={{
         opacity: 0,
         y: 20
       }} animate={{
@@ -196,23 +196,23 @@ const Vendors = () => {
       }} style={{
         marginTop: "24px"
       }}>
-          {" "}
-          {loading ? <div style={{
+        {" "}
+        {loading ? <div style={{
           textAlign: "center",
           padding: "40px",
           background: "#fff",
           borderRadius: "0px",
           border: "1px solid #e2e8f0"
         }}>
-              {" "}
-              Loading vendor data...{" "}
-            </div> : <DataTable title="Vendor Directory" subtitle="Manage and track all registered suppliers and partners" columns={columns} data={vendors} actions={actions} searchPlaceholder="Search by name, company, or category..." primaryAction={canAddVendor ? {
+          {" "}
+          Loading vendor data...{" "}
+        </div> : <DataTable title="Vendor Directory" subtitle="Manage and track all registered suppliers and partners" columns={columns} data={vendors} actions={actions} searchPlaceholder="Search by name, company, or category..." primaryAction={canAddVendor ? {
           label: "Add Vendor",
           icon: Plus,
           onClick: () => navigate("/vendors/add-vendor")
         } : undefined} />}
-        </motion.div>
-      </div>
-    </motion.div>;
+      </motion.div>
+    </div>
+  </motion.div>;
 };
 export default Vendors;

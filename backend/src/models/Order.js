@@ -137,7 +137,7 @@ const OrderSequelize = sequelize.define('Order', {
         defaultValue: false
     },
     orderType: {
-        type: DataTypes.ENUM('purchase', 'sales'),
+        type: DataTypes.ENUM('purchase', 'sales', 'expense'),
         allowNull: false
     },
     createdById: {

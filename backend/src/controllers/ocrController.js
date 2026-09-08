@@ -533,9 +533,9 @@ exports.addToExpense = async (req, res) => {
         }
         if (!expenseDescription) expenseDescription = 'Extracted Expense';
 
-        // Create the actual transaction (Order of type purchase)
+        // Create the actual transaction (Order of type expense)
         const expenseOrder = await Order.create({
-            orderType: 'purchase',
+            orderType: 'expense',
             orderDate: invoiceDate,
             status: 'Pending',
             grandTotal: amount,

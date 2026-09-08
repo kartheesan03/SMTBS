@@ -142,7 +142,7 @@ const MaterialDetails = ({ embeddedId }) => {
   const specs = material.specs || {};
   const usedIn = material.used_in || [];
   const certs = material.certifications || [];
-  const mockPhotos = [1, 2, 3, 4, 5];
+
   return (
     <div className="rd-container" style={{ padding: embeddedId ? "0" : "0 32px 32px 32px" }}>
       <div className="rd-content" style={{ padding: 0 }}>

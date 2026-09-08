@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Search, Link as LinkIcon } from 'lucide-react';
 import { getSuggestedConnections } from '../../../api/posts';
 import toast from 'react-hot-toast';
+import API from '../../../api/axios';
 
 const AVATAR_COLORS = ['#0a3d62', '#155e75', '#166534', '#7c2d12', '#4338ca', '#b45309'];
 
@@ -55,12 +56,20 @@ const ShareModal = ({ isOpen, onClose, authorName, postUrl, postText }) => {
         onClose();
     };
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (selectedUsers.size === 0) return;
-        // Mock send
-        toast.success(`Post sent to ${selectedUsers.size} person${selectedUsers.size > 1 ? 's' : ''}!`);
-        setSelectedUsers(new Set());
-        onClose();
+        try {
+            await Promise.all(Array.from(selectedUsers).map(userId => 
+                API.post('/social/messages', { to: userId, postUrl, text: postText })
+            ));
+            toast.success(`Post sent to ${selectedUsers.size} person${selectedUsers.size > 1 ? 's' : ''}!`);
+        } catch (err) {
+            console.error("Error sending post", err);
+            toast.error("Failed to send post");
+        } finally {
+            setSelectedUsers(new Set());
+            onClose();
+        }
     };
 
     return (

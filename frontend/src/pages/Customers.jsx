@@ -80,7 +80,7 @@ const Customers = ({
         alignItems: "center",
         gap: "12px"
       }}>
-            <div style={{
+        <div style={{
           width: "40px",
           height: "40px",
           background: "#f1f5f9",
@@ -90,35 +90,35 @@ const Customers = ({
           justifyContent: "center",
           color: "#64748b"
         }}>
-              <Users size={20} />
-            </div>
-            <div>
-              <div style={{
+          <Users size={20} />
+        </div>
+        <div>
+          <div style={{
             fontWeight: 600,
             color: "#0f172a"
           }}>
-                {row.company || val}
-              </div>
-              <div style={{
+            {row.company || val}
+          </div>
+          <div style={{
             fontSize: 12,
             color: "#64748b"
           }}>{contact}</div>
-            </div>
-          </div>;
+        </div>
+      </div>;
     }
   }, {
     key: "email",
     label: "Contact Info",
     sortable: true,
     render: (val, row) => <div>
-          <EmailCell email={val} />
-          <div style={{
+      <EmailCell email={val} />
+      <div style={{
         fontSize: 12,
         color: "#64748b"
       }}>
-            {row.phone || "No phone"}
-          </div>
-        </div>
+        {row.phone || "No phone"}
+      </div>
+    </div>
   }, {
     key: "industry",
     label: "Industry",
@@ -135,7 +135,7 @@ const Customers = ({
     render: val => {
       const status = val || "Active";
       let badgeClass = "default";
-      if (status === "Active") badgeClass = "success";else if (status === "Lead") badgeClass = "info";else if (status === "At Risk" || status === "Inactive") badgeClass = "danger";
+      if (status === "Active") badgeClass = "success"; else if (status === "Lead") badgeClass = "info"; else if (status === "At Risk" || status === "Inactive") badgeClass = "danger";
       return <span className={`ui-badge ${badgeClass}`}>{status}</span>;
     }
   }];
@@ -165,19 +165,19 @@ const Customers = ({
   }} transition={{
     duration: 0.4
   }} className="rd-container">
-      <div className="rd-content">
-        <PageHeader 
-          title="Customer Data Hub" 
-          badge="CUSTOMER DATA HUB"
-          subtitle="Centralize and manage customer information, profiles, and related business activities." 
-        />
-        <StatsGrid>
-          <StatsCard title="Total Accounts" value={customers.length} colorTheme="blue" icon={Users} trendValue="All customers" trendPositive={true} />
-          <StatsCard title="Active" value={activeAccounts.length} colorTheme="mint" icon={UserCheck} trendValue="Ordering" trendPositive={true} />
-          <StatsCard title="At Risk" value={atRisk.length} colorTheme="peach" icon={AlertCircle} trendValue="Churn warning" trendPositive={false} />
-          <StatsCard title="LTV / Revenue" value={formatCurrency(totalRevenue)} colorTheme="purple" icon={IndianRupee} trendValue="Lifetime" trendPositive={true} />
-        </StatsGrid>
-        <motion.div initial={{
+    <div className="rd-content">
+      <PageHeader
+        title="Customer Data Hub"
+        badge="CUSTOMER DATA HUB"
+        subtitle="Centralize and manage customer information, profiles, and related business activities."
+      />
+      <StatsGrid>
+        <StatsCard title="Total Accounts" value={customers.length} colorTheme="blue" icon={Users} trendValue="All customers" trendPositive={true} />
+        <StatsCard title="Active" value={activeAccounts.length} colorTheme="mint" icon={UserCheck} trendValue="Ordering" trendPositive={true} />
+        <StatsCard title="At Risk" value={atRisk.length} colorTheme="peach" icon={AlertCircle} trendValue="Churn warning" trendPositive={false} />
+        <StatsCard title="LTV / Revenue" value={formatCurrency(totalRevenue)} colorTheme="purple" icon={IndianRupee} trendValue="Lifetime" trendPositive={true} />
+      </StatsGrid>
+      <motion.div initial={{
         opacity: 0,
         y: 20
       }} animate={{
@@ -189,17 +189,17 @@ const Customers = ({
       }} style={{
         marginTop: "24px"
       }}>
-          {loading ? <div style={{
+        {loading ? <div style={{
           textAlign: "center",
           padding: "40px",
           background: "#fff",
           borderRadius: "0px",
           border: "1px solid #e2e8f0"
         }}>
-              Loading customer data...
-            </div> : <DataTable title="Customer Directory" subtitle="Manage and track all registered clients and leads" columns={columns} data={customers} actions={actions} primaryAction={canAddCustomer ? { label: "Add Customer", icon: Plus, onClick: () => navigate("/customers/new") } : null} searchPlaceholder="Search by name, company, or email..." />}
-        </motion.div>
-      </div>
-    </motion.div>;
+          Loading customer data...
+        </div> : <DataTable title="Customer Directory" subtitle="Manage and track all registered clients and leads" columns={columns} data={customers} actions={actions} primaryAction={canAddCustomer ? { label: "Add Customer", icon: Plus, onClick: () => navigate("/customers/new") } : null} searchPlaceholder="Search by name, company, or email..." />}
+      </motion.div>
+    </div>
+  </motion.div>;
 };
 export default Customers;

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext, useMemo, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { motion } from 'framer-motion';
 import {
     Search, MessageSquare, Send, Paperclip, AlertCircle,
     Clock, CheckCircle2, Activity, ChevronDown, X,
@@ -10,7 +9,6 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageHeader from '../components/PageHeader';
-import { StatsCard, StatsGrid } from '../components/ui/StatsCard';
 import './AdminTickets.css';
 
 /* ─── Pill Dropdown ─── */
@@ -245,12 +243,8 @@ const AdminTickets = () => {
 
     const selId = selectedTicket?._id || selectedTicket?.id;
 
-    /* ── Render ── */
     return (
-        <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}
-            className="at-page"
-        >
+        <div className="at-page">
             {/* ── Fixed Top Area: Header + Stats ── */}
             <div className="at-top-area">
                 {/* Page header */}
@@ -266,48 +260,12 @@ const AdminTickets = () => {
                     }]}
                 />
 
-                {/* Stats */}
-                <StatsGrid columns={5} style={{ marginBottom: '16px' }}>
-                    <StatsCard
-                        title="Total Tickets"
-                        value={loading ? '—' : stats.total}
-                        icon={Inbox}
-                        colorTheme="blue"
-                        subtext="All tickets"
-                    />
-                    <StatsCard
-                        title="Open"
-                        value={loading ? '—' : stats.open}
-                        icon={Activity}
-                        colorTheme="amber"
-                        trendPositive={false}
-                        subtext="Needs attention"
-                    />
-                    <StatsCard
-                        title="In Progress"
-                        value={loading ? '—' : stats.inProgress}
-                        icon={Clock}
-                        colorTheme="teal"
-                        trendPositive={true}
-                        subtext="Being worked on"
-                    />
-                    <StatsCard
-                        title="Resolved"
-                        value={loading ? '—' : stats.resolved}
-                        icon={CheckCircle2}
-                        colorTheme="green"
-                        trendPositive={true}
-                        subtext="Completed"
-                    />
-                    <StatsCard
-                        title="Critical"
-                        value={loading ? '—' : stats.critical}
-                        icon={AlertCircle}
-                        colorTheme="red"
-                        trendPositive={false}
-                        subtext="High severity"
-                    />
-                </StatsGrid>
+                <div style={{ display: 'flex', gap: '24px', padding: '0 20px', fontSize: '13px', color: '#64748b' }}>
+                    <span><strong>{stats.total}</strong> Total</span>
+                    <span><strong>{stats.open}</strong> Open</span>
+                    <span><strong>{stats.inProgress}</strong> In Progress</span>
+                    <span><strong>{stats.resolved}</strong> Resolved</span>
+                </div>
             </div>
 
             {/* ── Main Workspace ── */}
@@ -708,7 +666,7 @@ const AdminTickets = () => {
                     )}
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 };
 

@@ -16,7 +16,7 @@ import {
 import "../components/AdminDashboard/DashboardLayout.css";
 import SystemHealthMonitorWidget from '../components/AdminDashboard/SystemHealthMonitorWidget';
 
-const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<17)return"Good Afternoon"; if(h<21)return"Good Evening"; return"Good Night"; };
+
 const fmtINR = (v) => { if(!v&&v!==0)return"₹0"; const abs=Math.abs(v); if(abs>=100000)return`₹${(abs/100000).toFixed(2)}L`; if(abs>=1000)return`₹${(abs/1000).toFixed(1)}k`; return`₹${abs}`; };
 
 const ManagerDashboard = () => {
@@ -31,37 +31,6 @@ const ManagerDashboard = () => {
   } = useAppInit();
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
-  const [now, setNow] = useState(new Date());
-  const [weather, setWeather] = useState({ temp: '28°C', condition: 'Partly Cloudy' });
-
-  useEffect(() => { const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); }, []);
-
-  useEffect(() => {
-    const fetchWeather = async (lat, lon) => {
-      try {
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-        const data = await res.json();
-        if (data?.current_weather) {
-          const w = data.current_weather;
-          let cond = 'Clear';
-          if (w.weathercode === 1 || w.weathercode === 2) cond = 'Partly Cloudy';
-          else if (w.weathercode === 3) cond = 'Overcast';
-          else if (w.weathercode >= 45 && w.weathercode <= 48) cond = 'Fog';
-          else if (w.weathercode >= 51 && w.weathercode <= 67) cond = 'Rain';
-          else if (w.weathercode >= 80 && w.weathercode <= 82) cond = 'Rain Showers';
-          else if (w.weathercode >= 95) cond = 'Thunderstorm';
-          setWeather({ temp: `${Math.round(w.temperature)}°C`, condition: cond });
-        }
-      } catch (e) { console.error("Weather fetch failed", e); }
-    };
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-        () => fetchWeather(28.61, 77.21)
-      );
-    } else { fetchWeather(28.61, 77.21); }
-  }, []);
-
   // Derive upcoming events from pre-fetched tasks
   useEffect(() => {
     const n = new Date();
@@ -126,18 +95,15 @@ const ManagerDashboard = () => {
               <div className="bx-hero-ring bx-hero-ring-2"/>
 
               <div className="bx-hero-text" style={{zIndex:2}}>
-                <h1>{greeting()}, {user?.name?.split(' ')[0] || 'Manager'}! <span style={{fontSize:'1.5rem', display:'inline-block'}}>👋</span></h1>
+                <h1>Welcome, {user?.name?.split(' ')[0] || 'Manager'}</h1>
                 <p>Here's your team and operations overview for today.</p>
                 <div className="bx-hero-meta" style={{display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'0.6rem', marginTop:'1.2rem'}}>
                   <div style={{display:'flex', alignItems:'center', gap:'8px', color:'#f8fafc', fontWeight:'500', fontSize:'0.88rem'}}>
                     <Calendar size={15} color="#93c5fd"/> {dateStr}
                   </div>
                   <div style={{display:'flex', gap:'1.5rem', alignItems:'center'}}>
-                    <div style={{display:'flex', gap:'8px', alignItems:'center', color:'#f8fafc', fontWeight:'500', fontSize:'0.88rem'}}>
-                      <Cloud size={15} color="#93c5fd"/> {weather.temp} <span style={{color:'#cbd5e1', fontSize:'0.75rem', fontWeight:'normal'}}>{weather.condition}</span>
-                    </div>
                     <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.88rem', fontWeight:'500'}}>
-                      <span className="bx-status-dot" style={{backgroundColor:'#34d399', animation: 'live-pulse 2s infinite'}}></span> Live Data
+                      <span className="bx-status-dot" style={{backgroundColor:'#34d399'}}></span> Live Data
                     </div>
                   </div>
                 </div>

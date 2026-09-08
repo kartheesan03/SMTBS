@@ -320,14 +320,14 @@ const replacement = `<div className="db-page">
                    <div style={{fontSize: 14, fontWeight: 800, color: "#111827"}}>05</div>
                    <div style={{fontSize: 10, color: "#ef4444", fontWeight: 700}}>AUG</div>
                  </div>
-                 <div><div style={{fontSize: 12, fontWeight: 600, color: "#111827"}}>Management Meeting</div><div style={{fontSize: 11, color: "#64748b"}}>05 August, 2026</div></div>
+                 <div><div style={{fontSize: 12, fontWeight: 600, color: "#111827"}}>Management Meeting</div><div style={{fontSize: 11, color: "#64748b"}}>05 September, 2026</div></div>
                </div>
                <div style={{display: "flex", gap: 16}}>
                  <div style={{textAlign: "center", color: "#64748b"}}>
                    <div style={{fontSize: 14, fontWeight: 800, color: "#111827"}}>15</div>
                    <div style={{fontSize: 10, color: "#ef4444", fontWeight: 700}}>AUG</div>
                  </div>
-                 <div><div style={{fontSize: 12, fontWeight: 600, color: "#111827"}}>Monthly Audit</div><div style={{fontSize: 11, color: "#64748b"}}>15 August, 2026</div></div>
+                 <div><div style={{fontSize: 12, fontWeight: 600, color: "#111827"}}>Monthly Audit</div><div style={{fontSize: 11, color: "#64748b"}}>15 September, 2026</div></div>
                </div>
             </div>
           </div>

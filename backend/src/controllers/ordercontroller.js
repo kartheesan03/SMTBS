@@ -26,9 +26,10 @@ const getOrderPayload = (order, reqUser) => {
 };
 const getOrders = async (req, res) => {
     try {
-        let query = {};
+        let query = { orderType: { $in: ['purchase', 'sales'] } };
         const role = req.user?.role?.toLowerCase();
         if (role === 'admin' || role === 'super admin' || role === 'manager' || role === 'hr' || role === 'employee') {
+            // Keep default query which excludes 'expense'
         } else if (role === 'sales') {
             query.orderType = 'sales';
         } else if (role === 'vendor') {

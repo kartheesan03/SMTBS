@@ -131,20 +131,20 @@ const Reports = () => {
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - percent / 100 * circumference;
     return <div className="health-pie-wrapper">
-        <svg width="100%" height="100%" viewBox="0 0 64 64" style={{
+      <svg width="100%" height="100%" viewBox="0 0 64 64" style={{
         transform: "rotate(-90deg)"
       }}>
-          <circle cx="32" cy="32" r={radius} fill="none" stroke={`${color}22`} strokeWidth="6" />
-          <circle cx="32" cy="32" r={radius} fill="none" stroke={color} strokeWidth="6" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} style={{
+        <circle cx="32" cy="32" r={radius} fill="none" stroke={`${color}22`} strokeWidth="6" />
+        <circle cx="32" cy="32" r={radius} fill="none" stroke={color} strokeWidth="6" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} style={{
           transition: "stroke-dashoffset 0.5s ease"
         }} />
-        </svg>
-        <div className="health-pie-center" style={{
+      </svg>
+      <div className="health-pie-center" style={{
         color
       }}>
-          {percent}%
-        </div>
-      </div>;
+        {percent}%
+      </div>
+    </div>;
   };
   const exportPDF = () => {
     const doc = new jsPDF();
@@ -202,21 +202,21 @@ const Reports = () => {
   }} transition={{
     duration: 0.4
   }} className="rd-container">
-      <div className="rd-content">
-        <PageHeader 
-          title="Reports" 
-          badge="REPORTS"
-          subtitle="View and analyze material, inventory, movement, and logistics reports." 
-        />
-        {loading ? <div className="loading-state">
-            <RefreshCw className="spin-icon" size={32} />
-          </div> : <>
-            {/* KPI Cards */}
-            <StatsGrid columns={5}>
-              {kpis.map((kpi, idx) => <StatsCard key={idx} title={kpi.title} value={kpi.value} colorTheme={kpi.colorTheme} icon={kpi.icon} trendValue={kpi.trend > 0 ? `${kpi.isUp ? "+" : "-"}${kpi.trend}% vs last period` : kpi.subtitle} trendPositive={kpi.isUp} />)}
-            </StatsGrid>
-            {/* Chart Section */}
-            <motion.div initial={{
+    <div className="rd-content">
+      <PageHeader
+        title="Reports"
+        badge="REPORTS"
+        subtitle="View and analyze material, inventory, movement, and logistics reports."
+      />
+      {loading ? <div className="loading-state">
+        <RefreshCw className="spin-icon" size={32} />
+      </div> : <>
+        {/* KPI Cards */}
+        <StatsGrid columns={5}>
+          {kpis.map((kpi, idx) => <StatsCard key={idx} title={kpi.title} value={kpi.value} colorTheme={kpi.colorTheme} icon={kpi.icon} trendValue={kpi.trend > 0 ? `${kpi.isUp ? "+" : "-"}${kpi.trend}% vs last period` : kpi.subtitle} trendPositive={kpi.isUp} />)}
+        </StatsGrid>
+        {/* Chart Section */}
+        <motion.div initial={{
           opacity: 0,
           y: 20
         }} animate={{
@@ -228,10 +228,10 @@ const Reports = () => {
         }} style={{
           marginBottom: "24px"
         }}>
-              <NetProfitChart currentYearData={chartCyData} lastYearData={chartLyData} />
-            </motion.div>
-            {/* Health Metrics Bottom Row */}
-            <motion.div initial={{
+          <NetProfitChart currentYearData={chartCyData} lastYearData={chartLyData} />
+        </motion.div>
+        {/* Health Metrics Bottom Row */}
+        <motion.div initial={{
           opacity: 0,
           y: 20
         }} animate={{
@@ -241,33 +241,33 @@ const Reports = () => {
           delay: 0.3,
           duration: 0.4
         }} className="health-metrics-row">
-              {healthMetrics.map((hm, idx) => <div key={idx} className="health-metric-card">
-                  <div className="hm-left">
-                    <div className="hm-icon" style={{
+          {healthMetrics.map((hm, idx) => <div key={idx} className="health-metric-card">
+            <div className="hm-left">
+              <div className="hm-icon" style={{
                 background: `${hm.color}15`,
                 color: hm.color
               }}>
-                      {hm.icon}
-                    </div>
-                    <div className="hm-info">
-                      <h4>{hm.title}</h4>
-                      <div className="hm-stats">
-                        <span className="hm-value">{hm.value}</span>
-                        <span className="hm-status" style={{
+                {hm.icon}
+              </div>
+              <div className="hm-info">
+                <h4>{hm.title}</h4>
+                <div className="hm-stats">
+                  <span className="hm-value">{hm.value}</span>
+                  <span className="hm-status" style={{
                     color: hm.color
                   }}>
-                          ({hm.status})
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="hm-right">
-                    {renderPie(hm.percent, hm.color)}
-                  </div>
-                </div>)}
-            </motion.div>
-          </>}
-      </div>
-    </motion.div>;
+                    ({hm.status})
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="hm-right">
+              {renderPie(hm.percent, hm.color)}
+            </div>
+          </div>)}
+        </motion.div>
+      </>}
+    </div>
+  </motion.div>;
 };
 export default Reports;

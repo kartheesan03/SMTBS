@@ -266,11 +266,11 @@ const newLayout = `
              </div>
              <div className="db-event-item">
                <div className="db-event-date" style={{background: "#DBEAFE", color: "#2563EB"}}><div className="db-event-day">05</div><div className="db-event-mon">AUG</div></div>
-               <div className="db-event-body"><div className="db-event-title">Management Meeting</div><div className="db-event-sub">05 August, 2026</div></div>
+               <div className="db-event-body"><div className="db-event-title">Management Meeting</div><div className="db-event-sub">05 September, 2026</div></div>
              </div>
              <div className="db-event-item">
                <div className="db-event-date" style={{background: "#DCFCE7", color: "#16A34A"}}><div className="db-event-day">15</div><div className="db-event-mon">AUG</div></div>
-               <div className="db-event-body"><div className="db-event-title">Monthly Audit</div><div className="db-event-sub">15 August, 2026</div></div>
+               <div className="db-event-body"><div className="db-event-title">Monthly Audit</div><div className="db-event-sub">15 September, 2026</div></div>
              </div>
           </div>
         </div>

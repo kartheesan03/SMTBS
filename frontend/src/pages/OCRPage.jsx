@@ -384,6 +384,7 @@ const OCRPage = () => {
   };
 
   const handleAddExpense = async () => {
+    if (!selectedDoc) return;
     setIsProcessing(true);
     const t = toast.loading('Adding to Expense Tracking...');
     try {
@@ -626,7 +627,7 @@ const OCRPage = () => {
 
   if (view === 'list') {
     return (
-      <div style={{ padding: '24px 32px', background: 'var(--bg-app, #f8fafc)', minHeight: '100vh', animation: 'fadeIn 0.4s ease-out' }}>
+      <div style={{ width: '100%', boxSizing: 'border-box', animation: 'fadeIn 0.4s ease-out' }}>
         <PageHeader
           title="Document Intelligence"
           badge="AI TOOL"
@@ -637,6 +638,7 @@ const OCRPage = () => {
             display: 'inline-flex', alignItems: 'center', gap: '6px',
             marginTop: '-12px', marginBottom: '16px', padding: '6px 14px', borderRadius: '20px',
             background: '#eff6ff', color: '#1d4ed8', fontSize: '12px', fontWeight: '600',
+            alignSelf: 'flex-start'
           }}>
             <Shield size={14} /> View Only Mode
           </span>
@@ -648,20 +650,29 @@ const OCRPage = () => {
             onDragLeave={() => setIsDragOver(false)}
             onDrop={handleDrop}
             style={{
+              width: '100%',
+              boxSizing: 'border-box',
               background: isDragOver ? 'rgba(59, 130, 246, 0.02)' : '#fff',
               border: isDragOver ? '1px dashed #3b82f6' : '1px dashed #cbd5e1',
               borderRadius: '8px', padding: '60px 40px', textAlign: 'center',
               marginBottom: '32px', transition: 'all 0.2s ease',
               display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '400px',
+              gap: '24px'
             }}
           >
-            <Upload size={32} style={{ color: '#64748b', marginBottom: '16px' }} />
-            <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#1e293b', margin: '0 0 8px 0' }}>
-              Drag & Drop any document or image
-            </h2>
-            <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 24px 0', fontWeight: '500' }}>
-              PDF • DOC • DOCX • PNG • JPG • TIFF & more supported
-            </p>
+            <Upload size={32} style={{ color: '#64748b' }} />
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#1e293b', margin: 0 }}>
+                Drag & Drop any document or image
+              </h2>
+              <p style={{ color: '#64748b', fontSize: '13px', margin: 0, fontWeight: '500' }}>
+                PDF • DOC • DOCX • PNG • JPG • TIFF & more supported
+              </p>
+            </div>
+
             <label style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
               background: '#3b82f6', color: '#fff', padding: '10px 20px', borderRadius: '6px',
@@ -681,7 +692,8 @@ const OCRPage = () => {
                 disabled={isProcessing}
               />
             </label>
-            <p style={{ color: '#94a3b8', fontSize: '12px', marginTop: '24px', marginBottom: 0 }}>
+
+            <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0 }}>
               Max file size: 50MB. Secure processing.
             </p>
           </div>
@@ -945,7 +957,7 @@ const OCRPage = () => {
             ) : selectedDoc?.addedToExpense ? (
               <><CheckCircle2 size={16} /> Added to Expense</>
             ) : (
-              <><Plus size={16} /> Add to Expense</>
+              <><Plus size={16} /> Save to Expense</>
             )}
           </button>
         </div>

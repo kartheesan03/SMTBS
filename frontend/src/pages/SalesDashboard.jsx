@@ -15,7 +15,7 @@ import {
 import "../components/AdminDashboard/DashboardLayout.css";
 import SystemHealthMonitorWidget from '../components/AdminDashboard/SystemHealthMonitorWidget';
 
-const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<17)return"Good Afternoon"; if(h<21)return"Good Evening"; return"Good Night"; };
+
 const fmtINR = (v) => { if(!v&&v!==0)return"₹0"; const abs=Math.abs(v); if(abs>=100000)return`₹${(abs/100000).toFixed(2)}L`; if(abs>=1000)return`₹${(abs/1000).toFixed(1)}k`; return`₹${abs}`; };
 
 const SalesDashboard = () => {
@@ -31,37 +31,6 @@ const SalesDashboard = () => {
   } = useAppInit();
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
-  const [now, setNow] = useState(new Date());
-  const [weather, setWeather] = useState({ temp: '28°C', condition: 'Partly Cloudy' });
-
-  useEffect(() => { const t=setInterval(()=>setNow(new Date()),60000); return()=>clearInterval(t); }, []);
-
-  useEffect(() => {
-    const fetchWeather = async (lat, lon) => {
-      try {
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-        const data = await res.json();
-        if (data?.current_weather) {
-          const w = data.current_weather;
-          let cond = 'Clear';
-          if (w.weathercode === 1 || w.weathercode === 2) cond = 'Partly Cloudy';
-          else if (w.weathercode === 3) cond = 'Overcast';
-          else if (w.weathercode >= 45 && w.weathercode <= 48) cond = 'Fog';
-          else if (w.weathercode >= 51 && w.weathercode <= 67) cond = 'Rain';
-          else if (w.weathercode >= 80 && w.weathercode <= 82) cond = 'Rain Showers';
-          else if (w.weathercode >= 95) cond = 'Thunderstorm';
-          setWeather({ temp: `${Math.round(w.temperature)}°C`, condition: cond });
-        }
-      } catch (e) { console.error("Weather fetch failed", e); }
-    };
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-        () => fetchWeather(28.61, 77.21)
-      );
-    } else { fetchWeather(28.61, 77.21); }
-  }, []);
-
   // Derive upcoming events from pre-fetched tasks
   useEffect(() => {
     const n = new Date();
@@ -125,18 +94,15 @@ const SalesDashboard = () => {
               <div className="bx-hero-ring bx-hero-ring-2"/>
 
               <div className="bx-hero-text" style={{zIndex:2}}>
-                <h1>{greeting()}, {user?.name?.split(' ')[0] || 'Sales'}! <span style={{fontSize:'1.5rem', display:'inline-block'}}>👋</span></h1>
-                <p>Here's your sales pipeline and performance overview for today.</p>
+                <h1>Welcome, {user?.name?.split(' ')[0] || 'Sales'}</h1>
+                <p>Here's your sales and revenue overview for today.</p>
                 <div className="bx-hero-meta" style={{display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'0.6rem', marginTop:'1.2rem'}}>
                   <div style={{display:'flex', alignItems:'center', gap:'8px', color:'#f8fafc', fontWeight:'500', fontSize:'0.88rem'}}>
                     <Calendar size={15} color="#93c5fd"/> {dateStr}
                   </div>
                   <div style={{display:'flex', gap:'1.5rem', alignItems:'center'}}>
-                    <div style={{display:'flex', gap:'8px', alignItems:'center', color:'#f8fafc', fontWeight:'500', fontSize:'0.88rem'}}>
-                      <Cloud size={15} color="#93c5fd"/> {weather.temp} <span style={{color:'#cbd5e1', fontSize:'0.75rem', fontWeight:'normal'}}>{weather.condition}</span>
-                    </div>
                     <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.88rem', fontWeight:'500'}}>
-                      <span className="bx-status-dot" style={{backgroundColor:'#34d399', animation: 'live-pulse 2s infinite'}}></span> Live Data
+                      <span className="bx-status-dot" style={{backgroundColor:'#34d399'}}></span> Live Data
                     </div>
                   </div>
                 </div>
@@ -280,24 +246,38 @@ const SalesDashboard = () => {
                 <div className="bx-card-header">
                   <h3 className="bx-card-title">Deal Pipeline</h3>
                 </div>
-                <div style={{height:'220px', width:'100%', display:'flex', flexDirection:'column', alignItems:'center'}}>
-                  <ResponsiveContainer width="100%" height="70%">
-                    <PieChart>
-                      <Pie data={pipelineData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} dataKey="value" stroke="none">
-                        {["#DC2626","#F97316","#EAB308","#22C55E"].map((c,i) => <Cell key={i} fill={c}/>)}
-                      </Pie>
-                      <Tooltip contentStyle={{borderRadius:'8px', border:'none', boxShadow:'0 4px 6px rgba(0,0,0,0.1)'}}/>
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="bx-budget-stats" style={{width:'100%', marginTop:'0'}}>
-                    <div className="bx-budget-row">
-                      <div className="label"><div className="dot" style={{background:'#DC2626'}}></div> Prospects</div>
-                      <div className="val">{pipelineData[0]?.value || 0}</div>
-                    </div>
-                    <div className="bx-budget-row">
-                      <div className="label"><div className="dot" style={{background:'#22C55E'}}></div> Closed Won</div>
-                      <div className="val">{closedDeals}</div>
-                    </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '12px 20px', height: '220px', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                     <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>Total Active Deals</span>
+                     <span style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>{pipelineData.reduce((acc, curr) => acc + curr.value, 0)}</span>
+                  </div>
+                  
+                  {/* Segmented Progress Bar */}
+                  <div style={{ display: 'flex', width: '100%', height: '10px', borderRadius: '99px', overflow: 'hidden', background: '#f1f5f9', boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.05)' }}>
+                    {(() => {
+                      const total = pipelineData.reduce((acc, curr) => acc + curr.value, 0);
+                      const colors = ["#ef4444","#f97316","#eab308","#22c55e"];
+                      if (total === 0) return <div style={{ width: '100%', background: '#e2e8f0' }} />;
+                      return pipelineData.map((d, i) => d.value > 0 && (
+                        <div key={i} style={{ width: `${(d.value / total) * 100}%`, background: colors[i], transition: 'width 0.5s ease' }} title={`${d.name}: ${d.value}`} />
+                      ));
+                    })()}
+                  </div>
+
+                  {/* Legend List */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+                    {pipelineData.map((d, i) => {
+                      const colors = ["#ef4444","#f97316","#eab308","#22c55e"];
+                      return (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                             <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: colors[i] }} />
+                             <span style={{ fontSize: '13px', color: '#475569', fontWeight: 500 }}>{d.name}</span>
+                           </div>
+                           <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a' }}>{d.value}</span>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               </div>

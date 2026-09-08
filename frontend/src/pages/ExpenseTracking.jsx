@@ -156,12 +156,12 @@ const ExpenseTracking = () => {
                 <BarChart data={monthly} margin={{ top: 20, right: 10, left: 10, bottom: 20 }} barGap={8}>
                   <defs>
                     <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#059669" stopOpacity={0.9}/>
-                      <stop offset="95%" stopColor="#34d399" stopOpacity={0.7}/>
+                      <stop offset="5%" stopColor="#059669" stopOpacity={0.9} />
+                      <stop offset="95%" stopColor="#34d399" stopOpacity={0.7} />
                     </linearGradient>
                     <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#dc2626" stopOpacity={0.9}/>
-                      <stop offset="95%" stopColor="#f87171" stopOpacity={0.7}/>
+                      <stop offset="5%" stopColor="#dc2626" stopOpacity={0.9} />
+                      <stop offset="95%" stopColor="#f87171" stopOpacity={0.7} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />

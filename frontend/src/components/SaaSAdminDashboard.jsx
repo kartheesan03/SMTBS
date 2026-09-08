@@ -1,81 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import API from '../api/axios';
 import { 
     Search, Bell, MessageSquare, Send, Paperclip, AlertCircle, 
     Clock, CheckCircle2, User, Activity, ChevronDown, ChevronRight, Home, Inbox, Settings, Plus,
     Package, Users, Briefcase, CheckSquare, IndianRupee, LifeBuoy, HelpCircle, PieChart
 } from 'lucide-react';
-
-const MOCK_TICKETS = [
-    {
-        id: 'SUP-6601',
-        subject: 'Attendance issue',
-        category: 'Attendance',
-        status: 'Open',
-        priority: 'High',
-        submittedBy: { name: 'Karthik Raja', role: 'Admin' },
-        createdAt: '2026-12-08T09:23:15Z',
-        messages: [
-            {
-                id: 1,
-                sender: { name: 'Karthik Raja' },
-                message: 'attendance report not showing properly.',
-                createdAt: '2026-12-08T09:23:15Z',
-                isInternal: false
-            }
-        ]
-    },
-    {
-        id: 'SUP-6602',
-        subject: 'Server downtime reported',
-        category: 'Infrastructure',
-        status: 'In Progress',
-        priority: 'Urgent',
-        submittedBy: { name: 'Sarah Connor', role: 'DevOps' },
-        createdAt: '2026-12-08T10:10:00Z',
-        messages: [
-            {
-                id: 1,
-                sender: { name: 'Sarah Connor' },
-                message: 'The main API server is unresponsive since 10 AM.',
-                createdAt: '2026-12-08T10:10:00Z',
-                isInternal: false
-            },
-            {
-                id: 2,
-                sender: { name: 'Admin User' },
-                message: 'Investigating this immediately. Rebooting the instance.',
-                createdAt: '2026-12-08T10:15:00Z',
-                isInternal: true
-            }
-        ]
-    },
-    {
-        id: 'SUP-6603',
-        subject: 'Cannot login to vendor portal',
-        category: 'Access',
-        status: 'Resolved',
-        priority: 'Medium',
-        submittedBy: { name: 'John Doe', role: 'Vendor' },
-        createdAt: '2026-12-07T14:30:00Z',
-        messages: [
-            {
-                id: 1,
-                sender: { name: 'John Doe' },
-                message: 'My password reset link expired.',
-                createdAt: '2026-12-07T14:30:00Z',
-                isInternal: false
-            }
-        ]
-    }
-];
-
-const MOCK_STATS = {
-    total: 128,
-    open: 24,
-    inProgress: 18,
-    resolved: 82,
-    critical: 4
-};
 
 // Utilities for colors
 const statusColors = {
@@ -135,33 +64,79 @@ const CustomDropdown = ({ options, value, onChange, type }) => {
 };
 
 export default function SaaSAdminDashboard() {
-    const [selectedTicket, setSelectedTicket] = useState(MOCK_TICKETS[0]);
-    const [tickets, setTickets] = useState(MOCK_TICKETS);
+    const [selectedTicket, setSelectedTicket] = useState(null);
+    const [tickets, setTickets] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [replyText, setReplyText] = useState("");
     const [isInternalNote, setIsInternalNote] = useState(false);
 
-    const updateTicketDetails = (key, value) => {
-        const updated = { ...selectedTicket, [key]: value };
-        setSelectedTicket(updated);
-        setTickets(tickets.map(t => t.id === updated.id ? updated : t));
+    useEffect(() => {
+        fetchTickets();
+    }, []);
+
+    const fetchTickets = async () => {
+        try {
+            const res = await API.get('/tickets');
+            setTickets(res.data);
+            if (res.data.length > 0) setSelectedTicket(res.data[0]);
+        } catch (error) {
+            console.error("Error fetching tickets", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleSend = (e) => {
+    const fetchTicketDetails = async (ticket) => {
+        try {
+            const res = await API.get(`/tickets/${ticket._id || ticket.id}`);
+            setSelectedTicket(res.data.ticket);
+            // Optionally merge messages into selectedTicket if needed:
+            // setSelectedTicket({ ...res.data.ticket, messages: res.data.messages });
+        } catch (error) {
+            console.error("Error fetching ticket details", error);
+        }
+    };
+
+    const updateTicketDetails = async (key, value) => {
+        try {
+            const ticketId = selectedTicket._id || selectedTicket.id;
+            await API.put(`/tickets/${ticketId}`, { [key]: value });
+            
+            const updated = { ...selectedTicket, [key]: value };
+            setSelectedTicket(updated);
+            setTickets(tickets.map(t => (t._id || t.id) === ticketId ? updated : t));
+        } catch (error) {
+            console.error("Error updating ticket", error);
+        }
+    };
+
+    const handleSend = async (e) => {
         e.preventDefault();
         if (!replyText.trim()) return;
         
-        const newMessage = {
-            id: Date.now(),
-            sender: { name: 'Admin User' },
-            message: replyText,
-            createdAt: new Date().toISOString(),
-            isInternal: isInternalNote
-        };
+        try {
+            const ticketId = selectedTicket._id || selectedTicket.id;
+            const res = await API.post(`/tickets/${ticketId}/messages`, {
+                message: replyText,
+                isInternal: isInternalNote
+            });
+            
+            const newMessage = res.data;
+            const updated = { ...selectedTicket, messages: [...(selectedTicket.messages || []), newMessage] };
+            setSelectedTicket(updated);
+            setTickets(tickets.map(t => (t._id || t.id) === ticketId ? updated : t));
+            setReplyText("");
+        } catch (error) {
+            console.error("Error sending message", error);
+        }
+    };
 
-        const updated = { ...selectedTicket, messages: [...selectedTicket.messages, newMessage] };
-        setSelectedTicket(updated);
-        setTickets(tickets.map(t => t.id === updated.id ? updated : t));
-        setReplyText("");
+    const stats = {
+        total: tickets.length,
+        open: tickets.filter(t => t.status === 'Open').length,
+        inProgress: tickets.filter(t => t.status === 'In Progress').length,
+        resolved: tickets.filter(t => t.status === 'Resolved').length,
+        critical: tickets.filter(t => t.priority === 'Critical').length
     };
 
     return (
@@ -263,10 +238,10 @@ export default function SaaSAdminDashboard() {
                     {/* Stats Row */}
                     <div className="grid grid-cols-4 gap-6 flex-shrink-0">
                         {[
-                            { label: 'Total Tickets', val: MOCK_STATS.total, icon: Inbox, colorObj: statusColors['Closed'] },
-                            { label: 'Open', val: MOCK_STATS.open, icon: AlertCircle, colorObj: statusColors['Open'] },
-                            { label: 'In Progress', val: MOCK_STATS.inProgress, icon: Clock, colorObj: statusColors['In Progress'] },
-                            { label: 'Critical', val: MOCK_STATS.critical, icon: AlertCircle, colorObj: statusColors['Critical'] }
+                            { label: 'Total Tickets', val: stats.total, icon: Inbox, colorObj: statusColors['Closed'] },
+                            { label: 'Open', val: stats.open, icon: AlertCircle, colorObj: statusColors['Open'] },
+                            { label: 'In Progress', val: stats.inProgress, icon: Clock, colorObj: statusColors['In Progress'] },
+                            { label: 'Critical', val: stats.critical, icon: AlertCircle, colorObj: statusColors['Critical'] }
                         ].map((stat, i) => (
                             <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.colorObj.iconBg} ${stat.colorObj.icon}`}>
@@ -290,15 +265,21 @@ export default function SaaSAdminDashboard() {
                                 <button className="p-1.5 text-slate-400 hover:text-indigo-600 bg-white border border-slate-200 rounded-lg shadow-sm"><Plus size={16}/></button>
                             </div>
                             <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                                {tickets.map(ticket => {
-                                    const isSelected = selectedTicket.id === ticket.id;
+                                {loading ? (
+                                    <div className="p-4 text-center text-slate-500">Loading tickets...</div>
+                                ) : tickets.map(ticket => {
+                                    const tId = ticket._id || ticket.id;
+                                    const isSelected = selectedTicket && (selectedTicket._id || selectedTicket.id) === tId;
                                     const stColor = statusColors[ticket.status] || statusColors['Open'];
                                     const prColor = priorityColors[ticket.priority] || priorityColors['Low'];
                                     
                                     return (
                                         <div 
-                                            key={ticket.id}
-                                            onClick={() => setSelectedTicket(ticket)}
+                                            key={tId}
+                                            onClick={() => {
+                                                setSelectedTicket(ticket);
+                                                fetchTicketDetails(ticket);
+                                            }}
                                             className={`p-4 rounded-xl border cursor-pointer transition-all ${
                                                 isSelected 
                                                     ? 'bg-indigo-50/50 border-indigo-200 shadow-sm' 
@@ -306,7 +287,7 @@ export default function SaaSAdminDashboard() {
                                             }`}
                                         >
                                             <div className="flex justify-between items-start mb-2">
-                                                <span className={`text-[12px] font-bold ${isSelected ? 'text-indigo-600' : 'text-slate-500'}`}>{ticket.id}</span>
+                                                <span className={`text-[12px] font-bold ${isSelected ? 'text-indigo-600' : 'text-slate-500'}`}>{ticket.ticketNumber || tId}</span>
                                                 <span className="text-[11px] text-slate-400 font-medium">Dec 8</span>
                                             </div>
                                             <h4 className="text-[14px] font-semibold text-slate-900 leading-snug mb-3 line-clamp-1">{ticket.subject}</h4>
@@ -337,7 +318,7 @@ export default function SaaSAdminDashboard() {
                                     <div className="pl-2">
                                         <h2 className="text-xl font-bold text-slate-900 mb-2">{selectedTicket.subject}</h2>
                                         <div className="flex items-center gap-2 text-[13px] text-slate-500 mb-2">
-                                            <span className="font-semibold text-slate-700">{selectedTicket.id}</span>
+                                            <span className="font-semibold text-slate-700">{selectedTicket.ticketNumber || selectedTicket.id || selectedTicket._id}</span>
                                             <span>•</span>
                                             <span>{selectedTicket.category}</span>
                                         </div>
@@ -365,7 +346,7 @@ export default function SaaSAdminDashboard() {
 
                             {/* Chat Thread */}
                             <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50">
-                                {selectedTicket?.messages.map((msg, i) => {
+                                {(selectedTicket?.messages || []).map((msg, i) => {
                                     const isAdmin = msg.isInternal || msg.sender.name === 'Admin User';
                                     const isNote = msg.isInternal;
                                     

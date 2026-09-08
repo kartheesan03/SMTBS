@@ -9,7 +9,7 @@
 /* ── CSS Tokens ── */
 :root {
   --dash-gap: 24px;
-  --card-radius: 16px;
+  --card-radius: 4px;
   --card-pad: 24px;
   --card-border: #F3F4F6;
   --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
@@ -59,7 +59,7 @@
 .theme-admin {
   --role-primary: #4F46E5;
   --role-accent: #EEF2FF;
-  --role-hero-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  --role-hero-gradient: var(--role-primary);
   --role-hero-text: #ffffff;
   --role-hero-sub: rgba(255, 255, 255, 0.8);
   --role-card-border: #E5E7EB;
@@ -69,7 +69,7 @@
 .theme-hr {
   --role-primary: #7C3AED;
   --role-accent: #F5F3FF;
-  --role-hero-gradient: linear-gradient(135deg, #6D28D9 0%, #C026D3 100%);
+  --role-hero-gradient: var(--role-primary);
   --role-hero-text: #ffffff;
   --role-hero-sub: rgba(255, 255, 255, 0.8);
   --role-card-border: #E5E7EB;
@@ -79,7 +79,7 @@
 .theme-manager {
   --role-primary: #D97706;
   --role-accent: #FFFBEB;
-  --role-hero-gradient: linear-gradient(135deg, #B45309 0%, #F59E0B 100%);
+  --role-hero-gradient: var(--role-primary);
   --role-hero-text: #ffffff;
   --role-hero-sub: rgba(255, 255, 255, 0.8);
   --role-card-border: #E5E7EB;
@@ -89,7 +89,7 @@
 .theme-employee {
   --role-primary: #059669;
   --role-accent: #ECFDF5;
-  --role-hero-gradient: linear-gradient(135deg, #047857 0%, #10B981 100%);
+  --role-hero-gradient: var(--role-primary);
   --role-hero-text: #ffffff;
   --role-hero-sub: rgba(255, 255, 255, 0.8);
   --role-card-border: #E5E7EB;
@@ -99,7 +99,7 @@
 .theme-sales {
   --role-primary: #DC2626;
   --role-accent: #FEF2F2;
-  --role-hero-gradient: linear-gradient(135deg, #991B1B 0%, #EF4444 100%);
+  --role-hero-gradient: var(--role-primary);
   --role-hero-text: #ffffff;
   --role-hero-sub: rgba(255, 255, 255, 0.8);
   --role-card-border: #E5E7EB;

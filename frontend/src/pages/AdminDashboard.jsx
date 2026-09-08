@@ -17,9 +17,6 @@ import LiveOrganizationWidget from '../components/AdminDashboard/LiveOrganizatio
 import SystemHealthMonitorWidget from '../components/AdminDashboard/SystemHealthMonitorWidget';
 import OrderFinancesWidget from '../components/AdminDashboard/OrderFinancesWidget';
 
-
-const greeting = () => { const h=new Date().getHours(); if(h<12)return"Good Morning"; if(h<17)return"Good Afternoon"; if(h<21)return"Good Evening"; return"Good Night"; };
-
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -63,44 +60,6 @@ const AdminDashboard = () => {
   // Consume pre-fetched data from global AppInitContext
   const { dashboardData: initDashboardData } = useAppInit();
   const dashboardData = initDashboardData || {};
-
-  const [now, setNow] = useState(new Date());
-  const [weather, setWeather] = useState({ temp: '28°C', condition: 'Partly Cloudy' });
-
-  useEffect(() => { const t = setInterval(() => setNow(new Date()), 60000); return () => clearInterval(t); }, []);
-
-  useEffect(() => {
-    const fetchWeather = async (lat, lon) => {
-      try {
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
-        const data = await res.json();
-        if (data?.current_weather) {
-          const w = data.current_weather;
-          let cond = 'Clear';
-          if (w.weathercode === 1 || w.weathercode === 2) cond = 'Partly Cloudy';
-          else if (w.weathercode === 3) cond = 'Overcast';
-          else if (w.weathercode >= 45 && w.weathercode <= 48) cond = 'Fog';
-          else if (w.weathercode >= 51 && w.weathercode <= 67) cond = 'Rain';
-          else if (w.weathercode >= 71 && w.weathercode <= 77) cond = 'Snow';
-          else if (w.weathercode >= 80 && w.weathercode <= 82) cond = 'Rain Showers';
-          else if (w.weathercode >= 95) cond = 'Thunderstorm';
-          setWeather({ temp: `${Math.round(w.temperature)}°C`, condition: cond });
-        }
-      } catch (e) {
-        console.error("Weather fetch failed", e);
-      }
-    };
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-        (err) => fetchWeather(28.61, 77.21)
-      );
-    } else {
-      fetchWeather(28.61, 77.21);
-    }
-  }, []);
-
   const s = dashboardData?.stats || {};
   const tables = dashboardData?.tables || {};
   
@@ -179,18 +138,15 @@ const AdminDashboard = () => {
               <div className="bx-hero-ring bx-hero-ring-1"/>
               <div className="bx-hero-ring bx-hero-ring-2"/>
 
-              {/* LEFT: existing greeting text */}
+              {/* LEFT: hero text */}
               <div className="bx-hero-text" style={{zIndex:2}}>
-                <h1>{greeting()}, {user?.name?.split(' ')[0] || user?.firstName || 'Admin'}! <span style={{fontSize:'1.5rem', display:'inline-block'}}>👋</span></h1>
+                <h1>Welcome, {user?.name?.split(' ')[0] || user?.firstName || 'Admin'}</h1>
                 <p>Here's what's happening across your projects today.</p>
                 <div className="bx-hero-meta" style={{display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'0.6rem', marginTop:'1.2rem'}}>
                   <div style={{display:'flex', alignItems:'center', gap:'8px', color:'#f8fafc', fontWeight:'500', fontSize:'0.88rem'}}>
                     <Calendar size={15} color="#93c5fd"/> {dateStr}
                   </div>
                   <div style={{display:'flex', gap:'1.5rem', alignItems:'center'}}>
-                    <div style={{display:'flex', gap:'8px', alignItems:'center', color:'#f8fafc', fontWeight:'500', fontSize:'0.88rem'}}>
-                      <Cloud size={15} color="#93c5fd"/> {weather.temp} <span style={{color:'#cbd5e1', fontSize:'0.75rem', fontWeight:'normal'}}>{weather.condition}</span>
-                    </div>
                     <div style={{display:'flex', gap:'6px', alignItems:'center', color:'#34d399', fontSize:'0.88rem', fontWeight:'500'}}>
                       <span className="bx-status-dot" style={{backgroundColor: '#34d399'}}></span> Live Data
                     </div>

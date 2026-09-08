@@ -1671,8 +1671,8 @@ const getCashFlowForecast = async (req, res) => {
       totalPayroll += s.netSalary || 0;
     });
 
-    const currentCash = 150000; // Mock current balance
-    const projectedCash = currentCash + pendingReceivables - pendingPayables - (totalPayroll || 25000);
+    const currentCash = Math.max(0, totalSales - totalPurchases - totalPayroll);
+    const projectedCash = currentCash + pendingReceivables - pendingPayables - totalPayroll;
     const cashHealthScore = Math.max(0, Math.min(100, Math.floor((projectedCash / currentCash) * 100)));
 
     const apiKey = process.env.GEMINI_API_KEY;

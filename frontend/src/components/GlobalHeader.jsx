@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
-import { Menu, Search, Bell, Mail, Plus, User, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, Search, Bell, Mail, User, LogOut } from 'lucide-react';
 import CommandPalette from './CommandPalette';
 import './GlobalHeader.css';
 
@@ -65,10 +65,12 @@ const GlobalHeader = ({ onRefresh, onOpenModuleLauncher }) => {
                 <div className="header-actions">
                     <button className="header-icon-btn" onClick={() => navigate('/notifications')} title="Notifications">
                         <Bell size={22} color="#475569" strokeWidth={1.5} />
-                        <span className="header-badge">{unreadCount > 0 ? unreadCount : 55}</span>
+                        {unreadCount > 0 && (
+                            <span className="header-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+                        )}
                     </button>
 
-                    <button className="header-icon-btn" title="Messages">
+                    <button className="header-icon-btn" title="Messages" onClick={() => navigate('/social/messages')}>
                         <Mail size={22} color="#475569" strokeWidth={1.5} />
                     </button>
                 </div>

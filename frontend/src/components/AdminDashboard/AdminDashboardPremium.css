@@ -33,9 +33,9 @@
   --erp-shadow-lg: 0 10px 20px -3px rgba(0, 0, 0, 0.05);
   
   /* Radii - Premium */
-  --erp-radius-sm: 8px;
-  --erp-radius-md: 12px;
-  --erp-radius-lg: 16px;
+  --erp-radius-sm: 4px;
+  --erp-radius-md: 4px;
+  --erp-radius-lg: 4px;
 }
 
 [data-theme='dark'] {
