@@ -16,6 +16,7 @@ const SystemHealthMonitorWidget = () => {
           </div>
           <div className="bx-sh-header-text">
             <h2 className="bx-sh-title">SYSTEM HEALTH</h2>
+            <p className="bx-sh-subtitle">Connecting to live telemetry...</p>
           </div>
         </div>
         <div style={{ padding: '60px', textAlign: 'center', color: '#64748b', fontSize: '0.8rem' }}>
@@ -34,7 +35,7 @@ const SystemHealthMonitorWidget = () => {
           </div>
           <div className="bx-sh-header-text">
             <h2 className="bx-sh-title" style={{ color: '#ef4444' }}>SYSTEM HEALTH</h2>
-            <p className="bx-sh-subtitle">Disconnected</p>
+            <p className="bx-sh-subtitle">Telemetry disconnected</p>
           </div>
         </div>
       </div>
@@ -42,28 +43,33 @@ const SystemHealthMonitorWidget = () => {
   }
 
   const { status, color, insight, metrics, chart_data } = data;
-  
+
   // Format chart data for Recharts
   const formattedChartData = chart_data.map((val, idx) => ({ time: idx, load: val }));
 
   return (
     <div className="bx-sh-panel">
-      
+
       {/* 1. Header */}
       <div className="bx-sh-header">
         <div className="bx-sh-icon-container">
           <Server size={18} color="#0ea5e9" />
         </div>
         <div className="bx-sh-header-text">
-          <h2 className="bx-sh-title">SYSTEM HEALTH</h2>
+          <h2 className="bx-sh-title">LIVE SYSTEM HEALTH</h2>
+          <p className="bx-sh-subtitle">Automated infrastructure monitoring</p>
         </div>
       </div>
 
       {/* 2. Status row */}
       <div className="bx-sh-status-row">
-        <div className={`bx-sh-monitoring ${status === 'Warning' ? 'warning' : ''}`} style={{ color: color, display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color }}></div>
-          {status === 'Warning' ? 'ANOMALY DETECTED' : 'OPTIMAL'}
+        <div className={`bx-sh-monitoring ${status === 'Warning' ? 'warning' : ''}`} style={{ color: color }}>
+          <span className="pulse-dot" style={{ backgroundColor: color }}></span>
+          {status === 'Warning' ? 'SYSTEM ANOMALY DETECTED' : 'SYSTEM OPTIMAL'}
+        </div>
+        <div style={{ fontSize: '0.7rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <Activity size={12} />
+          Updating Real-Time
         </div>
       </div>
 
@@ -101,24 +107,31 @@ const SystemHealthMonitorWidget = () => {
       <div className="bx-sh-chart-container">
         <div className="bx-sh-chart-header">
           <div className="bx-sh-chart-title" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Cpu size={14} color="#0ea5e9"/> CPU Load
+            <Cpu size={14} color="#0ea5e9" /> CPU Load Heartbeat
           </div>
           <div style={{ color: color, fontWeight: '700', fontSize: '0.9rem' }}>
             {metrics.cpu_load}%
           </div>
         </div>
-        
+
         <div style={{ height: '110px', width: '100%' }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={formattedChartData} margin={{ top: 0, left: 0, right: 0, bottom: 0 }}>
-              <Area 
-                type="monotone" 
-                dataKey="load" 
-                stroke={color} 
+              <defs>
+                <linearGradient id="colorLoad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+                  <stop offset="95%" stopColor={color} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <YAxis domain={[0, 100]} hide={true} />
+              <Area
+                type="monotone"
+                dataKey="load"
+                stroke={color}
                 strokeWidth={2}
-                fillOpacity={0.1} 
-                fill={color} 
-                isAnimationActive={false}
+                fillOpacity={1}
+                fill="url(#colorLoad)"
+                isAnimationActive={false} // Disable animation for a raw heartbeat feel
               />
             </AreaChart>
           </ResponsiveContainer>
@@ -128,7 +141,7 @@ const SystemHealthMonitorWidget = () => {
           {insight}
         </div>
       </div>
-      
+
     </div>
   );
 };
