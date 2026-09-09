@@ -65,7 +65,7 @@ const Login = () => {
 
       {/* Main Container */}
       <div className="auth-right">
-        
+
         {/* SMTBMS Branding inside the container background */}
         <Link to="/" className="auth-brand-block">
           <div className="auth-brand-logo">
