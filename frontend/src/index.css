@@ -1474,9 +1474,18 @@ body.landing-page-active .app-main {
 
 body .app-main:has(.landing-container),
 body .app-main:has(.fx-login-shell),
+body .app-main:has(.auth-shell),
 body .app-layout .app-main:has(.landing-container),
-body .app-layout .app-main:has(.fx-login-shell) {
+body .app-layout .app-main:has(.fx-login-shell),
+body .app-layout .app-main:has(.auth-shell) {
   margin-left: 0 !important;
+  width: 100% !important;
+}
+
+body .app-content:has(.landing-container),
+body .app-content:has(.fx-login-shell),
+body .app-content:has(.auth-shell) {
+  padding: 0 !important;
   width: 100% !important;
 }
 

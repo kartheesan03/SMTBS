@@ -112,15 +112,6 @@ const LandingPage = () => {
                 Get Started{" "}
                 <ArrowRight size={18} style={{ marginLeft: "8px" }} />
               </button>
-              <button
-                className="btn-play-link"
-                onClick={() => navigate("/login")}
-              >
-                <div className="play-icon-circle">
-                  <Play size={14} fill="white" />
-                </div>
-                <span className="play-text">Watch Demo</span>
-              </button>
             </div>
             <div className="hero-feature-pills">
               <div className="feature-pill">

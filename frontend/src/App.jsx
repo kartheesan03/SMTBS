@@ -276,10 +276,10 @@ const AppContent = () => {
                     <Route path="/faq" element={<PublicPlaceholder title="FAQ" />} />
                     <Route path="/help" element={<PublicPlaceholder title="Help" />} />
                     
-                    {/* Root Route - Landing Page if not logged in, Dashboard if logged in */}
+                    {/* Root Route - Login if not logged in, Dashboard if logged in */}
                     <Route path="/" element={
                         !user ? (
-                            <LandingPage />
+                            <Navigate to="/login" replace />
                         ) : (
                             (() => {
                                 const r = user?.role ? user.role.toLowerCase() : '';

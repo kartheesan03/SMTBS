@@ -68,6 +68,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('userInfo');
         sessionStorage.removeItem('userInfo');
         clearDashboardCache();
+        delete API.defaults.headers.common['Authorization'];
         setUser(null);
     };
     const updateUser = (data) => {

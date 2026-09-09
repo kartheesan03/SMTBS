@@ -177,6 +177,11 @@ const FarmakuSidebar = () => {
         return groups;
     }, [navigation]);
 
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     return (
         <aside className="farmaku-sidebar">
             {/* ── Logo Header ── */}
@@ -269,7 +274,7 @@ const FarmakuSidebar = () => {
                         <span className="farmaku-footer-role">{user?.role || 'Role'}</span>
                     </div>
                 </div>
-                <div className="farmaku-logout-item" onClick={logout} title="Sign out">
+                <div className="farmaku-logout-item" onClick={handleLogout} title="Sign out">
                     <Icons.LogOut size={16} />
                 </div>
             </div>
