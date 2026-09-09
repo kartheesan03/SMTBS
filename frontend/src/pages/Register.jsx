@@ -65,6 +65,7 @@ const Register = () => {
 
   return (
     <div className="auth-shell">
+
       {/* Main Container */}
       <div className="auth-right">
         

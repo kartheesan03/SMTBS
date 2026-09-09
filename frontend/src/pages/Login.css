@@ -7,7 +7,7 @@
 .auth-shell {
   min-height: 100vh;
   width: 100%;
-  background-image: url('/login-bg.png');
+  background-image: url('/modern_tech_bg.png');
   background-size: cover;
   background-position: center;
   position: relative;
@@ -68,6 +68,8 @@
   max-width: calc(100vw - 48px);
   max-height: calc(100vh - 48px);
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   background: #ffffff;
   border-radius: 20px;
   padding: 40px;
@@ -75,16 +77,9 @@
   z-index: 5;
 }
 
-/* Custom scrollbar for the card */
+/* Hide scrollbar for the card */
 .auth-card-wrap::-webkit-scrollbar {
-  width: 6px;
-}
-.auth-card-wrap::-webkit-scrollbar-track {
-  background: transparent;
-}
-.auth-card-wrap::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 10px;
+  display: none;
 }
 
 /* ─── Card content ─── */
@@ -313,7 +308,7 @@
   cursor: pointer;
 }
 
-.auth-terms-row input[type="checkbox"] {
+.auth-terms-row input[type=checkbox] {
   width: 16px;
   height: 16px;
   margin-top: 2px;
