@@ -65,12 +65,73 @@ const Register = () => {
 
   return (
     <div className="auth-shell">
+      <div className="auth-background-overlay"></div>
+
+      {/* Left Branding Area */}
+      <div className="auth-left">
+        <div className="auth-brand-content">
+          <Link to="/" className="auth-logo-row">
+            <div className="auth-brand-logo">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#ffffff" strokeWidth="2" strokeLinejoin="round" fill="#ffffff" />
+                <path d="M2 17l10 5 10-5" stroke="#ffffff" strokeWidth="2" strokeLinejoin="round" />
+                <path d="M2 12l10 5 10-5" stroke="#ffffff" strokeWidth="2" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="auth-logo-text-group">
+              <span className="auth-brand-title">SMTBS</span>
+              <span className="auth-brand-subtitle">SMART MATERIAL TRACKING &<br/>BUSINESS MANAGEMENT SYSTEM</span>
+            </div>
+          </Link>
+
+          <h1 className="auth-main-headline">
+            Smarter Materials.<br/>
+            <span className="auth-accent">Stronger Business.</span>
+          </h1>
+
+          <p className="auth-supporting-text">
+            Track materials, manage inventory, streamline supply chain
+            operations, and gain complete visibility across your business
+            — all in one place.
+          </p>
+
+          <div className="auth-features-list">
+            <div className="auth-feature-item">
+              <Package className="auth-feature-icon" size={24} />
+              <div className="auth-feature-text">
+                <strong>MATERIAL TRACKING</strong>
+                <span>Track materials from source to destination.</span>
+              </div>
+            </div>
+            <div className="auth-feature-item">
+              <Database className="auth-feature-icon" size={24} />
+              <div className="auth-feature-text">
+                <strong>INVENTORY MANAGEMENT</strong>
+                <span>Real-time stock visibility and control.</span>
+              </div>
+            </div>
+            <div className="auth-feature-item">
+              <Truck className="auth-feature-icon" size={24} />
+              <div className="auth-feature-text">
+                <strong>SUPPLY CHAIN</strong>
+                <span>Smooth and efficient logistics operations.</span>
+              </div>
+            </div>
+            <div className="auth-feature-item">
+              <Activity className="auth-feature-icon" size={24} />
+              <div className="auth-feature-text">
+                <strong>BUSINESS OPERATIONS</strong>
+                <span>Integrated and streamlined business management.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Main Container */}
       <div className="auth-right">
-        
-        {/* SMTBMS Branding inside the container background */}
-        <Link to="/" className="auth-brand-block">
+        {/* Mobile SMTBMS Branding (hidden on desktop) */}
+        <Link to="/" className="auth-brand-block auth-mobile-brand">
           <div className="auth-brand-logo">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#ffffff" strokeWidth="2" strokeLinejoin="round" fill="#ffffff" />
