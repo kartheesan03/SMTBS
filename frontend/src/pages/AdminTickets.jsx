@@ -244,7 +244,8 @@ const AdminTickets = () => {
     const selId = selectedTicket?._id || selectedTicket?.id;
 
     return (
-        <div className="at-page">
+        <div className="rd-container page-container">
+        <div className="rd-content at-page">
             {/* ── Fixed Top Area: Header + Stats ── */}
             <div className="at-top-area">
                 {/* Page header */}
@@ -666,6 +667,7 @@ const AdminTickets = () => {
                     )}
                 </div>
             </div>
+        </div>
         </div>
     );
 };

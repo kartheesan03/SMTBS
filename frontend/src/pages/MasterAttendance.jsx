@@ -1,4 +1,4 @@
-import React, {
+﻿import React, {
   useState,
   useEffect,
   useCallback,
@@ -36,9 +36,9 @@ import { AuthContext } from "../context/AuthContext";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import UserAvatar from "../components/UserAvatar";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
-/* ─── Helper Utilities ─────────────────────────── */
+/* â”€â”€â”€ Helper Utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const formatTime = (iso) => {
-  if (!iso) return "—";
+  if (!iso) return "â€”";
   if (typeof iso === "string" && !iso.includes("T") && iso.includes(":"))
     return iso;
   const d = new Date(iso);
@@ -46,7 +46,7 @@ const formatTime = (iso) => {
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 const formatDate = (d) => {
-  if (!d) return "—";
+  if (!d) return "â€”";
   return new Date(d).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
@@ -54,7 +54,7 @@ const formatDate = (d) => {
   });
 };
 const calcHours = (ci, co, dateStr) => {
-  if (!ci || !co) return "—";
+  if (!ci || !co) return "â€”";
   const parseTime = (t, d) => {
     if (t.includes("T")) return new Date(t);
     const base = d ? new Date(d) : new Date();
@@ -71,9 +71,9 @@ const calcHours = (ci, co, dateStr) => {
   };
   const d1 = parseTime(ci, dateStr);
   const d2 = parseTime(co, dateStr);
-  if (isNaN(d1) || isNaN(d2)) return "—";
+  if (isNaN(d1) || isNaN(d2)) return "â€”";
   const h = (d2 - d1) / 36e5;
-  return h > 0 ? `${h.toFixed(1)}h` : "—";
+  return h > 0 ? `${h.toFixed(1)}h` : "â€”";
 };
 const getInitials = (fn, ln) =>
   `${(fn || "")[0] || ""}${(ln || "")[0] || ""}`.toUpperCase() || "??";
@@ -91,7 +91,7 @@ const MONTHS = [
   "November",
   "December",
 ];
-/* ─── Status Badge ─────────────────────────────── */
+/* â”€â”€â”€ Status Badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const StatusBadge = ({ status }) => {
   const map = {
     Present: { bg: "#dcfce7", color: "#166534", dot: "#16a34a" },
@@ -128,7 +128,7 @@ const StatusBadge = ({ status }) => {
     </span>
   );
 };
-/* ─── Edit Modal ───────────────────────────────── */
+/* â”€â”€â”€ Edit Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const EditModal = ({ record, onClose, onSave }) => {
   const [status, setStatus] = useState(record?.status || "-");
   const [checkIn, setCheckIn] = useState(
@@ -238,7 +238,7 @@ const EditModal = ({ record, onClose, onSave }) => {
                 fontSize: 13,
               }}
             >
-              · {formatDate(record.date)}
+              Â· {formatDate(record.date)}
             </span>
           </p>
         </div>
@@ -378,14 +378,14 @@ const EditModal = ({ record, onClose, onSave }) => {
               opacity: saving ? 0.7 : 1,
             }}
           >
-            {saving ? "Saving…" : "Save Changes"}
+            {saving ? "Savingâ€¦" : "Save Changes"}
           </button>
         </div>
       </div>
     </div>
   );
 };
-/* ─── DAILY TAB ────────────────────────────────── */
+/* â”€â”€â”€ DAILY TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const DailyTab = ({ canEdit }) => {
   const [data, setData] = useState([]);
   const [stats, setStats] = useState({
@@ -494,7 +494,7 @@ const DailyTab = ({ canEdit }) => {
                 ? `${Math.round(
                   (stats.presentToday / stats.totalEmployees) * 100
                 )}% workforce`
-                : "—"
+                : "â€”"
             }
             trendPositive={true}
           />
@@ -729,7 +729,7 @@ const DailyTab = ({ canEdit }) => {
                       color: "#94a3b8",
                     }}
                   >
-                    Loading attendance data…
+                    Loading attendance dataâ€¦
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
@@ -767,7 +767,7 @@ const DailyTab = ({ canEdit }) => {
                           />
                           <span style={{ fontWeight: 600, color: "#1e293b" }}>
                             {`${emp.firstName || ""} ${emp.lastName || ""
-                              }`.trim() || "—"}
+                              }`.trim() || "â€”"}
                           </span>
                         </div>
                       </td>
@@ -775,10 +775,10 @@ const DailyTab = ({ canEdit }) => {
                         style={{ color: "#94a3b8", fontSize: 13 }}
                         data-label="Emp ID"
                       >
-                        {emp.employeeId || "—"}
+                        {emp.employeeId || "â€”"}
                       </td>
                       <td style={{ color: "#64748b" }} data-label="Department">
-                        {emp.department || "—"}
+                        {emp.department || "â€”"}
                       </td>
                       <td
                         style={{
@@ -836,7 +836,7 @@ const DailyTab = ({ canEdit }) => {
     </motion.div>
   );
 };
-/* ─── MONTHLY SUMMARY TAB ──────────────────────── */
+/* â”€â”€â”€ MONTHLY SUMMARY TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const MonthlyTab = () => {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -1127,7 +1127,7 @@ const MonthlyTab = () => {
                       color: "#94a3b8",
                     }}
                   >
-                    Loading monthly data…
+                    Loading monthly dataâ€¦
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
@@ -1171,7 +1171,7 @@ const MonthlyTab = () => {
                             {(r.name || "??")[0].toUpperCase()}
                           </div>
                           <span style={{ fontWeight: 600, color: "#1e293b" }}>
-                            {r.name || "—"}
+                            {r.name || "â€”"}
                           </span>
                         </div>
                       </td>
@@ -1179,10 +1179,10 @@ const MonthlyTab = () => {
                         style={{ color: "#94a3b8", fontSize: 13 }}
                         data-label="Emp ID"
                       >
-                        {r.id || "—"}
+                        {r.id || "â€”"}
                       </td>
                       <td style={{ color: "#64748b" }} data-label="Department">
-                        {r.dept || "—"}
+                        {r.dept || "â€”"}
                       </td>
                       <td
                         style={{ textAlign: "center", fontWeight: 600 }}
@@ -1259,7 +1259,7 @@ const MonthlyTab = () => {
     </>
   );
 };
-/* ─── HISTORY TAB ──────────────────────────────── */
+/* â”€â”€â”€ HISTORY TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const HistoryTab = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -1516,7 +1516,7 @@ const HistoryTab = () => {
           }}
         >
           <strong style={{ color: "#1e293b" }}>{data.length}</strong> records
-          found · Page {page} of {totalPages || 1}
+          found Â· Page {page} of {totalPages || 1}
         </div>
         <div className="rd-table-scroll">
           <table
@@ -1546,7 +1546,7 @@ const HistoryTab = () => {
                       color: "#94a3b8",
                     }}
                   >
-                    Loading history…
+                    Loading historyâ€¦
                   </td>
                 </tr>
               ) : paginated.length === 0 ? (
@@ -1594,7 +1594,7 @@ const HistoryTab = () => {
                           />
                           <span style={{ fontWeight: 600, color: "#1e293b" }}>
                             {`${emp.firstName || ""} ${emp.lastName || ""
-                              }`.trim() || "—"}
+                              }`.trim() || "â€”"}
                           </span>
                         </div>
                       </td>
@@ -1602,10 +1602,10 @@ const HistoryTab = () => {
                         style={{ color: "#94a3b8", fontSize: 13 }}
                         data-label="Emp ID"
                       >
-                        {emp.employeeId || "—"}
+                        {emp.employeeId || "â€”"}
                       </td>
                       <td style={{ color: "#64748b" }} data-label="Department">
-                        {emp.department || "—"}
+                        {emp.department || "â€”"}
                       </td>
                       <td style={{ fontWeight: 500 }} data-label="Check In">
                         {formatTime(r.checkIn)}
@@ -1699,7 +1699,7 @@ const HistoryTab = () => {
     </>
   );
 };
-/* ─── MAIN COMPONENT ───────────────────────────── */
+/* â”€â”€â”€ MAIN COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const MasterAttendance = () => {
   const { user } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("daily");
@@ -1713,9 +1713,9 @@ const MasterAttendance = () => {
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rd-container"
+      className="page-container"
     >
-      <div className="rd-content">
+      <div className="page-content">
         {/* Page Header */}
         <PageHeader
           title="Master Attendance"
@@ -1779,3 +1779,4 @@ const MasterAttendance = () => {
   );
 };
 export default MasterAttendance;
+

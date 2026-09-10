@@ -1,4 +1,4 @@
-import PageHeader from '../components/PageHeader';
+﻿import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Briefcase, Users, Calendar, CheckCircle, Plus, Search, Trash2, Edit2, X, ChevronDown, Star, MapPin, Clock, UserPlus, AlertCircle, ArrowRight, Building2, Eye } from "lucide-react";
@@ -249,12 +249,12 @@ const JobModal = ({ job, onClose, onSave }) => {
           {/* Salary Range + Deadline */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
             <div>
-              <label style={labelStyle}>Salary Min (₹)</label>
+              <label style={labelStyle}>Salary Min (â‚¹)</label>
               <input type="text" inputMode="numeric" name="salaryMin" value={form.salaryMin}
                 onChange={handle} placeholder="300000" style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
             </div>
             <div>
-              <label style={labelStyle}>Salary Max (₹)</label>
+              <label style={labelStyle}>Salary Max (â‚¹)</label>
               <input type="text" inputMode="numeric" name="salaryMax" value={form.salaryMax}
                 onChange={handle} placeholder="600000" style={inputStyle} onFocus={inputFocus} onBlur={inputBlur} />
             </div>
@@ -334,7 +334,7 @@ const JobModal = ({ job, onClose, onSave }) => {
                 }}
                 onMouseOver={e => { if (!saving) e.currentTarget.style.background = "#f8fafc"; }}
                 onMouseOut={e => { e.currentTarget.style.background = "#fff"; }}>
-                {saving ? "Saving…" : "Save as Draft"}
+                {saving ? "Savingâ€¦" : "Save as Draft"}
               </button>
             )}
             <button type="button" onClick={() => submit(job ? form.status : "Published")} disabled={saving}
@@ -346,7 +346,7 @@ const JobModal = ({ job, onClose, onSave }) => {
               }}
               onMouseOver={e => { if (!saving) e.currentTarget.style.background = "#4338ca"; }}
               onMouseOut={e => { e.currentTarget.style.background = "#4f46e5"; }}>
-              {saving ? "Saving…" : job ? "Save Changes" : "Publish Job"}
+              {saving ? "Savingâ€¦" : job ? "Save Changes" : "Publish Job"}
             </button>
           </div>
         </div>
@@ -564,7 +564,7 @@ const CandidateModal = ({
           }}>
               Notes
             </label>
-            <textarea name="notes" value={form.notes} onChange={handle} rows={2} placeholder="Interview notes, observations…" style={{
+            <textarea name="notes" value={form.notes} onChange={handle} rows={2} placeholder="Interview notes, observationsâ€¦" style={{
             ...inp,
             resize: "vertical"
           }} />
@@ -609,7 +609,7 @@ const CandidateModal = ({
               color: form.rating > 0 ? "#f59e0b" : "#94a3b8",
               minWidth: 28
             }}>
-                {form.rating > 0 ? `${form.rating}/5` : "—"}
+                {form.rating > 0 ? `${form.rating}/5` : "â€”"}
               </span>
             </div>
           </div>
@@ -624,14 +624,14 @@ const CandidateModal = ({
           cursor: saving ? "not-allowed" : "pointer",
           opacity: saving ? 0.7 : 1
         }}>
-            {saving ? "Saving…" : candidate ? "Update Candidate" : "Add Candidate"}
+            {saving ? "Savingâ€¦" : candidate ? "Update Candidate" : "Add Candidate"}
           </button>
         </form>
       </div>
     </div>;
 };
 
-/* ─────────── Publish Success Modal ─────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Publish Success Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const PublishSuccessModal = ({ job, onClose }) => {
   const publicUrl = `${window.location.origin}/jobs/${job.slug}`;
   const [copied, setCopied] = useState(false);
@@ -644,8 +644,8 @@ const PublishSuccessModal = ({ job, onClose }) => {
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 500, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
         <div style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', padding: '32px 32px 24px', textAlign: 'center', position: 'relative' }}>
-          <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-          <div style={{ width: 64, height: 64, background: 'rgba(255,255,255,0.2)', borderRadius: '50%', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>🎉</div>
+          <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Ã—</button>
+          <div style={{ width: 64, height: 64, background: 'rgba(255,255,255,0.2)', borderRadius: '50%', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>ðŸŽ‰</div>
           <h2 style={{ color: '#fff', margin: 0, fontSize: 20, fontWeight: 800 }}>Job Published!</h2>
           <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: 8, fontSize: 14 }}>{job.title} is now live and accepting applications.</p>
         </div>
@@ -657,14 +657,14 @@ const PublishSuccessModal = ({ job, onClose }) => {
                 {publicUrl}
               </div>
               <button onClick={copyLink} style={{ flexShrink: 0, padding: '10px 16px', background: copied ? '#10b981' : '#f1f5f9', border: '1.5px solid ' + (copied ? '#10b981' : '#e2e8f0'), borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', color: copied ? '#fff' : '#475569', transition: 'all 0.2s' }}>
-                {copied ? '✓ Copied!' : 'Copy'}
+                {copied ? 'âœ“ Copied!' : 'Copy'}
               </button>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
             <button onClick={onClose} style={{ flex: 1, padding: '12px', border: '1.5px solid #e2e8f0', borderRadius: 10, background: '#fff', color: '#475569', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Close</button>
             <a href={publicUrl} target="_blank" rel="noopener noreferrer" style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', border: 'none', borderRadius: 10, color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              View Job →
+              View Job â†’
             </a>
           </div>
         </div>
@@ -773,7 +773,7 @@ const Recruitment = () => {
     y: 0
   }} transition={{
     duration: 0.4
-  }} className="rd-container">
+  }} className="rd-container page-container">
       {/* Modals */}
       {(jobModal || editJob) && <JobModal job={editJob} onClose={() => {
       setJobModal(false);
@@ -784,19 +784,19 @@ const Recruitment = () => {
       setEditCand(null);
     }} onSave={handleCandSave} />}
       {publishedJob && <PublishSuccessModal job={publishedJob} onClose={() => setPublishedJob(null)} />}
-      <div className="rd-content">
-        {/* ── Header ── */}
+      <div className="page-content">
+        {/* â”€â”€ Header â”€â”€ */}
         <PageHeader title="Recruitment" badge="HRMS" subtitle="Manage job postings, track candidates, and oversee the hiring process." actions={[
           { label: "Post Job", icon: Plus, primary: true, onClick: () => setJobModal(true), style: { height: 40, borderRadius: 7, fontWeight: 500, fontSize: 14 } }
         ]} />
-        {/* ── KPI Cards ── */}
+        {/* â”€â”€ KPI Cards â”€â”€ */}
         <StatsGrid>
-          <StatsCard title="Open Positions" value={loading ? "…" : stats.openJobs || 0} colorTheme="blue" icon={Briefcase} trendValue="Active job postings" trendPositive={true} />
-          <StatsCard title="Total Applicants" value={loading ? "…" : stats.totalApplied || 0} colorTheme="purple" icon={Users} trendValue="All applications" trendPositive={true} />
-          <StatsCard title="In Interview" value={loading ? "…" : stats.interviews || 0} colorTheme="yellow" icon={Calendar} trendValue="Scheduled interviews" trendPositive={true} />
-          <StatsCard title="Hired" value={loading ? "…" : stats.hired || 0} colorTheme="mint" icon={CheckCircle} trendValue="Successfully placed" trendPositive={true} />
+          <StatsCard title="Open Positions" value={loading ? "â€¦" : stats.openJobs || 0} colorTheme="blue" icon={Briefcase} trendValue="Active job postings" trendPositive={true} />
+          <StatsCard title="Total Applicants" value={loading ? "â€¦" : stats.totalApplied || 0} colorTheme="purple" icon={Users} trendValue="All applications" trendPositive={true} />
+          <StatsCard title="In Interview" value={loading ? "â€¦" : stats.interviews || 0} colorTheme="yellow" icon={Calendar} trendValue="Scheduled interviews" trendPositive={true} />
+          <StatsCard title="Hired" value={loading ? "â€¦" : stats.hired || 0} colorTheme="mint" icon={CheckCircle} trendValue="Successfully placed" trendPositive={true} />
         </StatsGrid>
-        {/* ── Pipeline strip ── */}
+        {/* â”€â”€ Pipeline strip â”€â”€ */}
         <motion.div initial={{
         opacity: 0,
         y: 10
@@ -879,7 +879,7 @@ const Recruitment = () => {
           })}
           </div>
         </motion.div>
-        {/* ── Tabs ── */}
+        {/* â”€â”€ Tabs â”€â”€ */}
         <div style={{
         display: "flex",
         gap: 4,
@@ -902,7 +902,7 @@ const Recruitment = () => {
               {tab === "jobs" ? `Job Postings (${jobs.length})` : `Candidates (${candidates.length})`}
             </button>)}
         </div>
-        {/* ── Content ── */}
+        {/* â”€â”€ Content â”€â”€ */}
         <motion.div initial={{
         opacity: 0,
         y: 20
@@ -922,7 +922,7 @@ const Recruitment = () => {
             background: "#fff"
           }}>
               <Search size={16} color="#94a3b8" />
-              <input type="text" className="rd-search-input" placeholder={activeTab === "jobs" ? "Search jobs or departments…" : "Search candidates or jobs…"} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+              <input type="text" className="rd-search-input" placeholder={activeTab === "jobs" ? "Search jobs or departmentsâ€¦" : "Search candidates or jobsâ€¦"} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
             {activeTab === "candidates" && <div style={{
             display: "flex",
@@ -951,7 +951,7 @@ const Recruitment = () => {
               </div>}
           </div>
           <div className="rd-table-scroll">
-            {/* ── Jobs Table ── */}
+            {/* â”€â”€ Jobs Table â”€â”€ */}
             {activeTab === "jobs" && <table className="rd-table rd-table-responsive" style={{
             width: "100%"
           }}>
@@ -977,7 +977,7 @@ const Recruitment = () => {
                   padding: 40,
                   color: "#94a3b8"
                 }}>
-                        Loading…
+                        Loadingâ€¦
                       </td>
                     </tr> : filteredJobs.length === 0 ? <tr>
                       <td colSpan={9} style={{
@@ -1035,7 +1035,7 @@ const Recruitment = () => {
                           fontSize: 10,
                           color: "#94a3b8"
                         }}>
-                                    ₹{(job.salaryMin / 100000).toFixed(1)}L – ₹
+                                    â‚¹{(job.salaryMin / 100000).toFixed(1)}L â€“ â‚¹
                                     {(job.salaryMax / 100000).toFixed(1)}L
                                   </div>}
                               </div>
@@ -1054,7 +1054,7 @@ const Recruitment = () => {
                                 {job.department}
                               </span> : <span style={{
                       color: "#cbd5e1"
-                    }}>—</span>}
+                    }}>â€”</span>}
                           </td>
                           <td data-label="Location" style={{
                     fontSize: 13,
@@ -1069,7 +1069,7 @@ const Recruitment = () => {
                                 {job.location}
                               </span> : <span style={{
                       color: "#cbd5e1"
-                    }}>—</span>}
+                    }}>â€”</span>}
                           </td>
                           <td data-label="Type">
                             <span style={{
@@ -1109,7 +1109,7 @@ const Recruitment = () => {
                       year: "numeric"
                     }) : <span style={{
                       color: "#cbd5e1"
-                    }}>—</span>}
+                    }}>â€”</span>}
                           </td>
                           <td data-label="Status">
                             <span style={{
@@ -1169,7 +1169,7 @@ const Recruitment = () => {
               })}
                 </tbody>
               </table>}
-            {/* ── Candidates Table ── */}
+            {/* â”€â”€ Candidates Table â”€â”€ */}
             {activeTab === "candidates" && <table className="rd-table rd-table-responsive" style={{ width: "100%" }}>
                 <thead>
                   <tr>
@@ -1186,7 +1186,7 @@ const Recruitment = () => {
                 </thead>
                 <tbody>
                   {loading
-                    ? <tr><td colSpan={9} style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>Loading…</td></tr>
+                    ? <tr><td colSpan={9} style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>Loadingâ€¦</td></tr>
                     : filteredCands.length === 0
                     ? <tr><td colSpan={9} style={{ textAlign: "center", padding: 48, color: "#94a3b8" }}>
                         <AlertCircle size={32} style={{ opacity: 0.3, marginBottom: 10 }} />
@@ -1240,7 +1240,7 @@ const Recruitment = () => {
                     color: "#475569",
                     fontWeight: 600
                   }}>
-                            {c.job?.title || "—"}
+                            {c.job?.title || "â€”"}
                           </td>
                           <td data-label="Contact" style={{
                     fontSize: 12,
@@ -1248,15 +1248,15 @@ const Recruitment = () => {
                   }}>
                             {c.phone || <span style={{
                       color: "#cbd5e1"
-                    }}>—</span>}
+                    }}>â€”</span>}
                           </td>
                           <td data-label="Experience" style={{ fontSize: 12, color: "#475569" }}>
-                            {c.experience || <span style={{ color: "#cbd5e1" }}>—</span>}
+                            {c.experience || <span style={{ color: "#cbd5e1" }}>â€”</span>}
                           </td>
                           <td data-label="Resume">
                             {c.resume
-                              ? <a href={`http://localhost:5000${c.resume}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: "#4f46e5", background: "#eef2ff", padding: "3px 10px", borderRadius: 5, textDecoration: "none", whiteSpace: "nowrap" }}>📄 View</a>
-                              : <span style={{ color: "#cbd5e1" }}>—</span>}
+                              ? <a href={`http://localhost:5000${c.resume}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: "#4f46e5", background: "#eef2ff", padding: "3px 10px", borderRadius: 5, textDecoration: "none", whiteSpace: "nowrap" }}>ðŸ“„ View</a>
+                              : <span style={{ color: "#cbd5e1" }}>â€”</span>}
                           </td>
                           <td data-label="Source">
                             {c.source ? <span style={{
@@ -1270,7 +1270,7 @@ const Recruitment = () => {
                                 {c.source}
                               </span> : <span style={{
                       color: "#cbd5e1"
-                    }}>—</span>}
+                    }}>â€”</span>}
                           </td>
                           <td data-label="Stage">
                             <div style={{

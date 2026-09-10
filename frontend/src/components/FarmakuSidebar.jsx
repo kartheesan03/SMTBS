@@ -93,7 +93,7 @@ const FarmakuSidebar = () => {
         if (hasChildren) {
             return (
                 <li key={index ?? item.title}>
-                    <div 
+                    <div
                         className={`farmaku-nav-item ${leafActive ? 'active' : ''} ${isExpanded ? 'expanded' : ''}`}
                         onClick={() => toggleMenu(item.title)}
                         {...extraProps}
@@ -159,7 +159,7 @@ const FarmakuSidebar = () => {
 
         navigation.forEach(item => {
             if (item.title === 'Settings') return; // Handled separately if needed, or put in SYSTEM
-            
+
             let placed = false;
             for (const section of SECTIONS_CONFIG) {
                 if (section.items.includes(item.title)) {
@@ -214,7 +214,7 @@ const FarmakuSidebar = () => {
                                         <div className="farmaku-section-label">{section.label}</div>
                                         <ul className="farmaku-nav-list">
                                             {items.map((item, index) => renderNavItem(item, `sys-${index}`))}
-                                            
+
                                             {!dynamicPaths.has('/notifications') && (
                                                 <li>
                                                     <NavLink to="/notifications" end className={() => `farmaku-nav-item${isLeafActive('/notifications') ? ' active' : ''}`}>

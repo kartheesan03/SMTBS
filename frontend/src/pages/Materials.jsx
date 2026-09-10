@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+﻿import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Package,
@@ -24,9 +24,9 @@ import PageHeader from "../components/PageHeader";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 /** Returns a human-readable relative time string from a Date/string. */
 const relativeTime = (dateStr) => {
-  if (!dateStr) return "—";
+  if (!dateStr) return "â€”";
   const diff = Date.now() - new Date(dateStr).getTime();
-  if (isNaN(diff)) return "—";
+  if (isNaN(diff)) return "â€”";
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "Just now";
   if (mins < 60) return `${mins}m ago`;
@@ -46,7 +46,7 @@ const GpsStatusBadge = ({ status }) => {
   const cfg = GPS_STATUS_CONFIG[status] || {
     color: "#94a3b8",
     bg: "#f1f5f9",
-    label: status || "—",
+    label: status || "â€”",
   };
   return (
     <span
@@ -169,7 +169,7 @@ const Materials = () => {
             display: "inline-block",
           }}
         >
-          {val || "—"}
+          {val || "â€”"}
         </span>
       ),
     },
@@ -411,12 +411,12 @@ const Materials = () => {
     (m) => getComputedStatus(m) === "Out of Stock"
   ).length;
   return (
-    <div className="rd-container">
-      <div className="rd-content">
-        <PageHeader 
-          title="Inventory" 
-          badge="INVENTORY" 
-          subtitle="Monitor available materials, quantities, locations, and stock levels." 
+    <div className="rd-container page-container">
+      <div className="page-content">
+        <PageHeader
+          title="Inventory"
+          badge="INVENTORY"
+          subtitle="Monitor available materials, quantities, locations, and stock levels."
         />
         <StatsGrid>
           <StatsCard
@@ -433,9 +433,8 @@ const Materials = () => {
             value={inStock}
             colorTheme="mint"
             icon={CheckCircle}
-            trendValue={`${
-              totalItems ? Math.round((inStock / totalItems) * 100) : 0
-            }% of inventory`}
+            trendValue={`${totalItems ? Math.round((inStock / totalItems) * 100) : 0
+              }% of inventory`}
             trendPositive={true}
             onClick={() => navigate("/materials")}
           />
@@ -444,9 +443,8 @@ const Materials = () => {
             value={lowStock}
             colorTheme="yellow"
             icon={AlertTriangle}
-            trendValue={`${
-              totalItems ? Math.round((lowStock / totalItems) * 100) : 0
-            }% need attention`}
+            trendValue={`${totalItems ? Math.round((lowStock / totalItems) * 100) : 0
+              }% need attention`}
             trendPositive={false}
             onClick={() => navigate("/materials")}
           />
@@ -455,9 +453,8 @@ const Materials = () => {
             value={outOfStock}
             colorTheme="peach"
             icon={XCircle}
-            trendValue={`${
-              totalItems ? Math.round((outOfStock / totalItems) * 100) : 0
-            }% critical`}
+            trendValue={`${totalItems ? Math.round((outOfStock / totalItems) * 100) : 0
+              }% critical`}
             trendPositive={false}
             onClick={() => navigate("/materials")}
           />
@@ -570,7 +567,7 @@ const Materials = () => {
                       {row.vendor?.name || "Local Vendor"}
                     </div>
                     <div style={{ color: "#64748b" }}>
-                      {row.vendor?.contactPerson || "Contact"} •{" "}
+                      {row.vendor?.contactPerson || "Contact"} â€¢{" "}
                       {row.vendor?.phone || "+91 0000000000"}
                     </div>
                   </div>
@@ -603,8 +600,8 @@ const Materials = () => {
                       {row._id
                         ? String(row._id).substring(0, 6)
                         : row.id
-                        ? String(row.id).substring(0, 6)
-                        : "100A"}
+                          ? String(row.id).substring(0, 6)
+                          : "100A"}
                     </div>
                   </div>
                   <div>
@@ -685,3 +682,4 @@ const Materials = () => {
   );
 };
 export default Materials;
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+﻿import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../api/axios";
 import toast from "react-hot-toast";
@@ -144,8 +144,8 @@ const MaterialDetails = ({ embeddedId }) => {
   const certs = material.certifications || [];
 
   return (
-    <div className="rd-container" style={{ padding: embeddedId ? "0" : "0 32px 32px 32px" }}>
-      <div className="rd-content" style={{ padding: 0 }}>
+    <div className={`rd-container ${!embeddedId ? 'page-container' : ''}`} style={embeddedId ? { padding: 0 } : {}}>
+      <div className="page-content" style={embeddedId ? { padding: 0 } : {}}>
       {/* Header & Back (Hidden if embedded) */}
       {!embeddedId && (
         <PageHeader 
@@ -1572,3 +1572,4 @@ const MaterialDetails = ({ embeddedId }) => {
 };
 
 export default MaterialDetails;
+

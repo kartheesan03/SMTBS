@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import API from "../api/axios";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import { motion } from "framer-motion";
@@ -136,20 +136,20 @@ const LeaveBalance = () => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="rd-container"
+      className="page-container"
     >
-      <div className="rd-content">
-        {/* ── Header ── */}
+      <div className="page-content">
+        {/* â”€â”€ Header â”€â”€ */}
         <PageHeader
           title="Leave Balance"
           badge="HRMS"
           subtitle="View remaining leave quotas, accruals, and entitlements for all leave types."
         />
-        {/* ── KPIs ── */}
+        {/* â”€â”€ KPIs â”€â”€ */}
         <StatsGrid columns={4}>
           <StatsCard
             title="Total Staff Tracked"
-            value={loading ? "…" : totalStaff}
+            value={loading ? "â€¦" : totalStaff}
             colorTheme="blue"
             icon={Users}
             trendValue="Active profiles"
@@ -157,7 +157,7 @@ const LeaveBalance = () => {
           />
           <StatsCard
             title="Total Leaves Taken"
-            value={loading ? "…" : totalLeavesTaken}
+            value={loading ? "â€¦" : totalLeavesTaken}
             colorTheme="peach"
             icon={TrendingDown}
             trendValue="Company wide"
@@ -165,7 +165,7 @@ const LeaveBalance = () => {
           />
           <StatsCard
             title="Avg Leaves / Employee"
-            value={loading ? "…" : avgLeavesTaken}
+            value={loading ? "â€¦" : avgLeavesTaken}
             colorTheme="purple"
             icon={CheckCircle}
             trendValue="Per employee"
@@ -173,7 +173,7 @@ const LeaveBalance = () => {
           />
           <StatsCard
             title="Currently On Leave"
-            value={loading ? "…" : currentlyOnLeave}
+            value={loading ? "â€¦" : currentlyOnLeave}
             colorTheme="yellow"
             icon={Clock}
             trendValue="Away today"
@@ -393,3 +393,4 @@ const LeaveBalance = () => {
   );
 };
 export default LeaveBalance;
+

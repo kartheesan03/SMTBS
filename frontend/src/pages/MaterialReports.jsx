@@ -1,4 +1,4 @@
-import PageHeader from '../components/PageHeader';
+﻿import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect } from "react";
 import { Package, TrendingUp, AlertTriangle, Download, FileText, Filter, CheckCircle, Clock } from "lucide-react";
 import API from "../api/axios";
@@ -161,8 +161,8 @@ const MaterialReports = () => {
     a.click();
     document.body.removeChild(a);
   };
-  return <div className="rd-container">
-      <div className="rd-content">
+  return <div className="page-container">
+      <div className="page-content">
         <PageHeader 
           title="Reports" 
           badge="REPORTS"

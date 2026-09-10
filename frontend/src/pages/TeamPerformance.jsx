@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+﻿import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import UserAvatar from "../components/UserAvatar";
@@ -207,7 +207,7 @@ const TeamPerformance = () => {
     return matchesSearch && matchesDept && matchesRating;
   });
 
-  /* ── Edit Performance Modal helper ── */
+  /* â”€â”€ Edit Performance Modal helper â”€â”€ */
   const renderEditModal = () => {
     if (!editModal) return null;
     const ts  = Math.min(100, Math.max(0, editModal.taskScore  ?? editModal.emp.kpi));
@@ -388,9 +388,9 @@ const TeamPerformance = () => {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="rd-container"
+        className="rd-container page-container"
       >
-        <div className="rd-content">
+        <div className="page-content">
           {/* Module Header */}
           <PageHeader
             title="Performance Reviews"
@@ -401,8 +401,8 @@ const TeamPerformance = () => {
           {/* KPI Cards */}
           <StatsGrid>
             <StatsCard title="Team Avg. Score" value={`${teamAvg}%`} colorTheme="blue" icon={TrendingUp} trendValue="Overall performance" trendPositive={teamAvg >= 75} />
-            <StatsCard title="Excellent" value={excellentCount} colorTheme="mint" icon={Award} trendValue="Score ≥ 90" trendPositive={true} />
-            <StatsCard title="Good" value={goodCount} colorTheme="yellow" icon={ThumbsUp} trendValue="Score 75–89" trendPositive={true} />
+            <StatsCard title="Excellent" value={excellentCount} colorTheme="mint" icon={Award} trendValue="Score â‰¥ 90" trendPositive={true} />
+            <StatsCard title="Good" value={goodCount} colorTheme="yellow" icon={ThumbsUp} trendValue="Score 75â€“89" trendPositive={true} />
             <StatsCard title="Below Average" value={belowAvgCount} colorTheme="peach" icon={ThumbsDown} trendValue="Score < 75" trendPositive={false} />
           </StatsGrid>
 

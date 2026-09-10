@@ -1,4 +1,4 @@
-import PageHeader from '../components/PageHeader';
+﻿import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -101,8 +101,8 @@ const Payroll = () => {
     y: 0
   }} transition={{
     duration: 0.4
-  }} className="rd-container">
-      <div className="rd-content">
+  }} className="rd-container page-container">
+      <div className="page-content">
         {/* Module Header */}
         <PageHeader 
           title="Payroll Management" 
@@ -285,7 +285,7 @@ const Payroll = () => {
                             color: "#94a3b8",
                             marginTop: 2
                           }}>
-                                  {emp.designation || "—"}
+                                  {emp.designation || "â€”"}
                                 </div>
                               </div>
                             </div>
@@ -299,7 +299,7 @@ const Payroll = () => {
                         fontSize: 12,
                         fontWeight: 600
                       }}>
-                              {emp.department || "—"}
+                              {emp.department || "â€”"}
                             </span>
                           </td>
                           <td style={{

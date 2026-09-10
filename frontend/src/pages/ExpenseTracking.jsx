@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import API from '../api/axios';
 import PageHeader from '../components/PageHeader';
 import { LoadingState } from '../components/DataStates';
@@ -75,7 +75,7 @@ const ExpenseTracking = () => {
 
   if (selectedTransaction) {
     return (
-      <div className="et-container">
+      <div className="page-container">
         <TransactionJourney
           transaction={selectedTransaction}
           allTransactions={data?.transactions || []}
@@ -93,7 +93,7 @@ const ExpenseTracking = () => {
   const pageRows = transactions?.slice(startIndex, startIndex + PAGE_SIZE) || [];
 
   return (
-    <div className="et-container">
+    <div className="page-container">
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <PageHeader
           title="Expense Tracker"
@@ -107,7 +107,7 @@ const ExpenseTracking = () => {
             padding: '12px 16px', marginBottom: '20px',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '18px' }}>🔗</span>
+              <span style={{ fontSize: '18px' }}>ðŸ”—</span>
               <div>
                 <div style={{ fontSize: '13px', fontWeight: '700', color: '#1d4ed8' }}>
                   Viewing record linked from OCR Document
@@ -117,7 +117,7 @@ const ExpenseTracking = () => {
                     ocrContext.invoiceId && `Invoice: ${ocrContext.invoiceId}`,
                     ocrContext.poNumber && `PO: ${ocrContext.poNumber}`,
                     ocrContext.vendor && `Vendor: ${ocrContext.vendor}`,
-                  ].filter(Boolean).join('  ·  ')}
+                  ].filter(Boolean).join('  Â·  ')}
                 </div>
               </div>
             </div>
@@ -125,7 +125,7 @@ const ExpenseTracking = () => {
               onClick={() => setShowOcrBanner(false)}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '18px', lineHeight: 1, padding: 0, flexShrink: 0 }}
               aria-label="Dismiss"
-            >×</button>
+            >Ã—</button>
           </div>
         )}
 
@@ -166,7 +166,7 @@ const ExpenseTracking = () => {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#64748b', fontWeight: 500 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#64748b', fontWeight: 500 }} tickFormatter={(value) => `₹${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`} dx={-10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: '#64748b', fontWeight: 500 }} tickFormatter={(value) => `â‚¹${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`} dx={-10} />
                   <RechartsTooltip
                     cursor={{ fill: '#f8fafc' }}
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)', padding: '12px' }}
@@ -290,3 +290,4 @@ const ExpenseTracking = () => {
 };
 
 export default ExpenseTracking;
+

@@ -343,20 +343,18 @@ const TrackingDashboard = () => {
               <MapPin size={14} color="#3b82f6" />
               {materialDetails?.warehouse || "Unassigned"}
               {materialDetails?.rack
-                ? ` • ${
-                    String(materialDetails.rack).toLowerCase().includes("rack")
-                      ? ""
-                      : "Rack "
-                  }${materialDetails.rack}`
+                ? ` • ${String(materialDetails.rack).toLowerCase().includes("rack")
+                  ? ""
+                  : "Rack "
+                }${materialDetails.rack}`
                 : ""}
               {materialDetails?.shelf
-                ? ` • ${
-                    String(materialDetails.shelf)
-                      .toLowerCase()
-                      .includes("shelf")
-                      ? ""
-                      : "Shelf "
-                  }${materialDetails.shelf}`
+                ? ` • ${String(materialDetails.shelf)
+                  .toLowerCase()
+                  .includes("shelf")
+                  ? ""
+                  : "Shelf "
+                }${materialDetails.shelf}`
                 : ""}
             </div>
           </div>
@@ -479,26 +477,26 @@ const TrackingDashboard = () => {
               {!materialDetails?.rack && !materialDetails?.shelf
                 ? "-"
                 : [
-                    materialDetails?.rack
-                      ? String(materialDetails.rack)
-                          .toLowerCase()
-                          .includes("rack")
-                        ? materialDetails.rack
-                        : `Rack ${materialDetails.rack}`
-                      : null,
-                    materialDetails?.shelf
-                      ? String(materialDetails.shelf)
-                          .toLowerCase()
-                          .includes("shelf") ||
-                        String(materialDetails.shelf)
-                          .toLowerCase()
-                          .includes("rack")
-                        ? materialDetails.shelf
-                        : `Shelf ${materialDetails.shelf}`
-                      : null,
-                  ]
-                    .filter(Boolean)
-                    .join(" / ")}
+                  materialDetails?.rack
+                    ? String(materialDetails.rack)
+                      .toLowerCase()
+                      .includes("rack")
+                      ? materialDetails.rack
+                      : `Rack ${materialDetails.rack}`
+                    : null,
+                  materialDetails?.shelf
+                    ? String(materialDetails.shelf)
+                      .toLowerCase()
+                      .includes("shelf") ||
+                      String(materialDetails.shelf)
+                        .toLowerCase()
+                        .includes("rack")
+                      ? materialDetails.shelf
+                      : `Shelf ${materialDetails.shelf}`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" / ")}
             </span>
           </div>
           <div className="mcc-info-item">
@@ -564,9 +562,8 @@ const TrackingDashboard = () => {
                       style={{
                         height: 60,
                         background: isCurrentRack ? "#eff6ff" : "#fff",
-                        border: `2px solid ${
-                          isCurrentRack ? "#3b82f6" : "#e2e8f0"
-                        }`,
+                        border: `2px solid ${isCurrentRack ? "#3b82f6" : "#e2e8f0"
+                          }`,
                         borderRadius: 0,
                         display: "flex",
                         flexDirection: "column",
@@ -731,7 +728,7 @@ const TrackingDashboard = () => {
                   width: `${Math.min(
                     ((materialDetails?.quantity || 0) /
                       materialDetails.maxStock) *
-                      100,
+                    100,
                     100
                   )}%`,
                   height: "100%",
@@ -756,13 +753,13 @@ const TrackingDashboard = () => {
               style={{
                 color:
                   materialDetails?.quantity >
-                  (materialDetails?.lowStockThreshold || 10)
+                    (materialDetails?.lowStockThreshold || 10)
                     ? "#10b981"
                     : "#f59e0b",
               }}
             >
               {materialDetails?.quantity >
-              (materialDetails?.lowStockThreshold || 10)
+                (materialDetails?.lowStockThreshold || 10)
                 ? "Healthy"
                 : "Needs Attention"}
             </span>
@@ -1324,13 +1321,13 @@ const TrackingDashboard = () => {
 
   return (
     <div className="page-container">
-      <header className="page-header" style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 24 }}>
         <PageHeader
           title="Movement Tracking"
           badge="MOVEMENT TRACKING"
           subtitle="Track material movements, transfers, and current locations across the project."
         />
-      </header>
+      </div>
 
       {viewMode === "detail" && (
         <div style={{ marginBottom: 16 }}>

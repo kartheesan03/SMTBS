@@ -196,7 +196,7 @@ body.logged-in.sidebar-collapsed .main-content.with-sidebar {
 }
 
 .page-container {
-  padding: 24px 32px;
+  padding: 16px 32px 32px 32px;
   max-width: 1600px;
   width: 100%;
   margin: 0 auto;
@@ -205,6 +205,24 @@ body.logged-in.sidebar-collapsed .main-content.with-sidebar {
   flex-direction: column;
   gap: 24px;
   min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+/* Fix double padding and unnecessary overflow when components use both containers */
+.page-container.rd-container,
+.rd-container.page-container {
+  min-height: auto !important; /* Override min-height: 100vh to prevent overflow */
+  height: auto;
+}
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* ─── SCROLLBAR ─── */
@@ -1455,15 +1473,13 @@ textarea:focus {
 }
 
 .app-content {
-  padding: 24px;
+  padding: 0;
   flex: 1;
   overflow-y: auto;
   overflow-x: auto;
 }
 
-.app-content:has(.rd-container) {
-  padding: 0;
-}
+
 
 /* Full-screen public pages (no sidebar margin, no content padding) */
 body.landing-page-active .app-main {
@@ -1576,3 +1592,4 @@ td.col-email {
 .rd-search-input::placeholder {
   color: var(--text-muted, #9CA3AF);
 }
+

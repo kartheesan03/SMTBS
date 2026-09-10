@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+﻿import React, { useState, useEffect, useContext } from "react";
 import {
   Plus,
   Folder,
@@ -330,50 +330,20 @@ const Projects = () => {
   };
 
   return (
-    <div
-      className="content-area"
-      style={{
-        padding: "24px",
-        backgroundColor: "#f8fafc",
-        minHeight: "calc(100vh - 70px)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          marginBottom: 24,
-        }}
-      >
+    <div className="rd-container page-container">
+      <div className="page-content">
         <PageHeader
           title="Projects"
           badge="PROJECTS"
           subtitle="Manage all active and past projects across departments."
+          actions={writeAccess ? [{
+            label: "New Project",
+            icon: Plus,
+            primary: true,
+            onClick: () => setShowModal(true)
+          }] : []}
         />
-        {writeAccess && (
-          <button
-            onClick={() => setShowModal(true)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "10px 16px",
-              backgroundColor: "#3b82f6",
-              color: "white",
-              border: "none",
-              borderRadius: 0,
-              cursor: "pointer",
-              fontWeight: 600,
-              fontSize: 14,
-              flexShrink: 0,
-            }}
-          >
-            <Plus size={16} /> New Project
-          </button>
-        )}
-      </div>
-      <div
+        <div
         className="dashboard-panel"
         style={{ padding: "20px", marginBottom: 24, display: "flex", gap: 16 }}
       >
@@ -571,8 +541,10 @@ const Projects = () => {
           }}
         />
       )}
+      </div>
     </div>
   );
 };
 
 export default Projects;
+

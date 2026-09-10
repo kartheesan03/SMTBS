@@ -1,4 +1,4 @@
-import PageHeader from '../components/PageHeader';
+﻿import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect } from "react";
 import API from "../api/axios";
 import { TrendingUp, CreditCard, AlertTriangle, IndianRupee, Search, Wallet } from "lucide-react";
@@ -42,9 +42,9 @@ const FinancialOperations = () => {
   const overdueAmount = overdueOrders.reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
   const outstandingRecv = salesOrders.filter(o => o.paymentStatus !== "Paid").reduce((s, o) => s + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0);
   const formatCurrency = val => {
-    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `₹${Math.round(val / 1000)}K`;
-    return `₹${val.toLocaleString()}`;
+    if (val >= 100000) return `â‚¹${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `â‚¹${Math.round(val / 1000)}K`;
+    return `â‚¹${val.toLocaleString()}`;
   };
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const currentMonthIdx = new Date().getMonth();
@@ -147,9 +147,9 @@ const FinancialOperations = () => {
     y: 0
   }} transition={{
     duration: 0.4
-  }} className="rd-container">
+  }} className="page-container">
     {" "}
-    <div className="rd-content">
+    <div className="page-content">
       {" "}
       {/* Module Header */}{" "}
       <PageHeader
@@ -202,7 +202,7 @@ const FinancialOperations = () => {
             <h3 className="rd-chart-title" style={{
               margin: 0
             }}>
-              P&L Overview — 6 Months
+              P&L Overview â€” 6 Months
             </h3>{" "}
           </div>{" "}
           <div style={{
@@ -227,7 +227,7 @@ const FinancialOperations = () => {
                   fill: "#94a3b8",
                   fontSize: 11
                 }} tickFormatter={v => `${v / 1000}K`} />{" "}
-                <Tooltip formatter={(val, name) => [`₹${val.toLocaleString()}`, `${name}`]} contentStyle={{
+                <Tooltip formatter={(val, name) => [`â‚¹${val.toLocaleString()}`, `${name}`]} contentStyle={{
                   borderRadius: 0,
                   border: "none",
                   boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)"
@@ -469,7 +469,7 @@ const FinancialOperations = () => {
             {" "}
             <div className="rd-table-title">Invoice Register</div>{" "}
             <div className="rd-table-subtitle">
-              Payables & receivables — all invoices
+              Payables & receivables â€” all invoices
             </div>{" "}
           </div>{" "}
           <div className="rd-table-actions" style={{
@@ -596,7 +596,7 @@ const FinancialOperations = () => {
                     color: "var(--rd-text-main)",
                     textAlign: "right"
                   }} data-label="Amount">
-                    ₹{inv.amount.toLocaleString()}
+                    â‚¹{inv.amount.toLocaleString()}
                   </td>{" "}
                   <td style={{
                     color: inv.status === "Overdue" ? "#ef4444" : "#64748b",
@@ -623,7 +623,7 @@ const FinancialOperations = () => {
                       fontWeight: 600,
                       fontSize: 13
                     }}>
-                      ✓ Done
+                      âœ“ Done
                     </span> : <button onClick={() => handleMarkPaid(inv._id)} className="rd-btn-compact outline" style={{
                       padding: "5px 12px",
                       fontSize: 12,

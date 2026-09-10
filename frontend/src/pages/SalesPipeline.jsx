@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   BarChart as BarChartIcon,
   TrendingUp,
@@ -120,9 +120,9 @@ const SalesPipeline = () => {
   const closedWon = (stageOrders["Closed Won"] || []).length;
   const winRate = dealCount > 0 ? Math.round((closedWon / dealCount) * 100) : 0;
   const formatShortCurrency = (val) => {
-    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `₹${Math.round(val / 1000)}K`;
-    return `₹${val}`;
+    if (val >= 100000) return `â‚¹${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `â‚¹${Math.round(val / 1000)}K`;
+    return `â‚¹${val}`;
   };
   const monthlyRevMap = {};
   const monthlyDeliveredMap = {};
@@ -209,9 +209,9 @@ const SalesPipeline = () => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="rd-container"
+      className="rd-container page-container"
     >
-      <div className="rd-content">
+      <div className="page-content">
         <PageHeader
           title="Sales Pipeline Overview"
           badge="PIPELINE"
@@ -294,7 +294,7 @@ const SalesPipeline = () => {
                 <BarChartIcon size={16} color="#3b82f6" />{" "}
               </div>{" "}
               <h3 className="rd-chart-title" style={{ margin: 0 }}>
-                Sales Pipeline — Stage Funnel
+                Sales Pipeline â€” Stage Funnel
               </h3>{" "}
             </div>{" "}
             <span
@@ -498,7 +498,7 @@ const SalesPipeline = () => {
                   <span
                     style={{ fontSize: 12, fontWeight: 700, color: "#10b981" }}
                   >
-                    ▲ 18.5%
+                    â–² 18.5%
                   </span>{" "}
                 </div>{" "}
                 <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
@@ -550,7 +550,7 @@ const SalesPipeline = () => {
                   <span
                     style={{ fontSize: 12, fontWeight: 700, color: "#10b981" }}
                   >
-                    ▲ 21.3%
+                    â–² 21.3%
                   </span>{" "}
                 </div>{" "}
                 <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
@@ -588,7 +588,7 @@ const SalesPipeline = () => {
                     tickFormatter={(v) => formatShortCurrency(v)}
                   />{" "}
                   <Tooltip
-                    formatter={(val) => `₹${val.toLocaleString()}`}
+                    formatter={(val) => `â‚¹${val.toLocaleString()}`}
                     cursor={{ fill: "#f1f5f9" }}
                     contentStyle={{
                       borderRadius: 0,
@@ -611,13 +611,13 @@ const SalesPipeline = () => {
                   />{" "}
                   <Bar
                     dataKey="revenue"
-                    name="Revenue (₹)"
+                    name="Revenue (â‚¹)"
                     fill="#3b82f6"
                     radius={[4, 4, 0, 0]}
                   />{" "}
                   <Bar
                     dataKey="delivered"
-                    name="Delivered (₹)"
+                    name="Delivered (â‚¹)"
                     fill="#10b981"
                     radius={[4, 4, 0, 0]}
                   />{" "}
@@ -1077,7 +1077,7 @@ const SalesPipeline = () => {
                             fontSize: 15,
                           }}
                         >
-                          ₹{oppVal.toLocaleString()}
+                          â‚¹{oppVal.toLocaleString()}
                         </div>{" "}
                       </div>{" "}
                     </div>{" "}
@@ -1092,3 +1092,4 @@ const SalesPipeline = () => {
   );
 };
 export default SalesPipeline;
+

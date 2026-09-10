@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import API from '../api/axios';
@@ -16,7 +16,7 @@ const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 
 const fmtFull = (val) =>
-  `₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}`;
+  `â‚¹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}`;
 
 const StatusBadge = ({ status }) => {
   const s = (status || '').toLowerCase().replace(/\s+/g, '-');
@@ -43,7 +43,7 @@ const StatusBadge = ({ status }) => {
       textTransform: 'capitalize',
       whiteSpace: 'nowrap'
     }}>
-      {status || '—'}
+      {status || 'â€”'}
     </span>
   );
 };
@@ -71,7 +71,7 @@ const OrderFinanceDetails = () => {
   const [allOrders, setAllOrders] = useState([]);
   const [orderLoading, setOrderLoading] = useState(false);
 
-  /* ── Fetch aggregated chart data ── */
+  /* â”€â”€ Fetch aggregated chart data â”€â”€ */
   const fetchChartData = useCallback(async (year) => {
     setLoading(true);
     setError(null);
@@ -86,7 +86,7 @@ const OrderFinanceDetails = () => {
     }
   }, []);
 
-  /* ── Fetch all orders for the year ── */
+  /* â”€â”€ Fetch all orders for the year â”€â”€ */
   const fetchAllOrders = useCallback(async (year) => {
     setOrderLoading(true);
     try {
@@ -113,17 +113,17 @@ const OrderFinanceDetails = () => {
     fetchAllOrders(selectedYear);
   }, [selectedYear, fetchChartData, fetchAllOrders]);
 
-  /* ── Aggregations ── */
+  /* â”€â”€ Aggregations â”€â”€ */
   const totalSales = chartData.reduce((s, m) => s + (m.sales || 0), 0);
   const totalPurchase = chartData.reduce((s, m) => s + (m.purchases || 0), 0);
   const salesCount = allOrders.filter(o => o.orderType === 'sales').length;
   const purchaseCount = allOrders.filter(o => o.orderType === 'purchase').length;
   const netBalance = totalSales - totalPurchase;
 
-  /* ── All unique statuses for filter ── */
+  /* â”€â”€ All unique statuses for filter â”€â”€ */
   const statusOptions = [...new Set(allOrders.map(o => o.status).filter(Boolean))];
 
-  /* ── Filtered list ── */
+  /* â”€â”€ Filtered list â”€â”€ */
   const filtered = allOrders.filter(o => {
     if (filterMonth !== 'all' && o._month !== parseInt(filterMonth)) return false;
     if (filterType !== 'all' && o.orderType !== filterType) return false;
@@ -149,9 +149,9 @@ const OrderFinanceDetails = () => {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className="rd-container"
+      className="page-container"
     >
-      <div className="rd-content">
+      <div className="page-content">
         {/* Back + Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
           <button
@@ -231,7 +231,7 @@ const OrderFinanceDetails = () => {
             >
               <div className="rd-table-header" style={{ borderBottom: '1px solid var(--rd-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
-                  <div className="rd-table-title">Monthly Summary — {selectedYear}</div>
+                  <div className="rd-table-title">Monthly Summary â€” {selectedYear}</div>
                   <div className="rd-table-subtitle">Month-by-month receivables vs payables</div>
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -296,13 +296,13 @@ const OrderFinanceDetails = () => {
                         <tr key={m.name} style={{ height: 44 }}>
                           <td style={{ fontWeight: 600 }}>{MONTHS_FULL[i]}</td>
                           <td style={{ textAlign: 'right', color: '#1d4ed8', fontWeight: 600 }}>
-                            {m.sales > 0 ? fmtFull(m.sales) : <span style={{ color: '#94a3b8' }}>—</span>}
+                            {m.sales > 0 ? fmtFull(m.sales) : <span style={{ color: '#94a3b8' }}>â€”</span>}
                           </td>
                           <td style={{ textAlign: 'right', color: '#c2410c', fontWeight: 600 }}>
-                            {m.purchases > 0 ? fmtFull(m.purchases) : <span style={{ color: '#94a3b8' }}>—</span>}
+                            {m.purchases > 0 ? fmtFull(m.purchases) : <span style={{ color: '#94a3b8' }}>â€”</span>}
                           </td>
                           <td style={{ textAlign: 'right', fontWeight: 700, color: net >= 0 ? '#15803d' : '#dc2626' }}>
-                            {net !== 0 ? `${net >= 0 ? '+' : ''}${fmtFull(Math.abs(net))}` : <span style={{ color: '#94a3b8' }}>—</span>}
+                            {net !== 0 ? `${net >= 0 ? '+' : ''}${fmtFull(Math.abs(net))}` : <span style={{ color: '#94a3b8' }}>â€”</span>}
                           </td>
                         </tr>
                       );
@@ -331,7 +331,7 @@ const OrderFinanceDetails = () => {
             >
               <div className="rd-table-header" style={{ borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 12 }}>
                 <div>
-                  <div className="rd-table-title">All Orders — {selectedYear}</div>
+                  <div className="rd-table-title">All Orders â€” {selectedYear}</div>
                   <div className="rd-table-subtitle">
                     {filtered.length} of {allOrders.length} orders shown
                   </div>
@@ -408,8 +408,8 @@ const OrderFinanceDetails = () => {
                       ) : filtered.slice((currentPage - 1) * 15, currentPage * 15).map((o, i) => {
                         const isSales = o.orderType === 'sales';
                         const name = isSales
-                          ? (o.customer?.company || o.customer?.name || '—')
-                          : (o.vendor?.companyName || o.vendor?.name || '—');
+                          ? (o.customer?.company || o.customer?.name || 'â€”')
+                          : (o.vendor?.companyName || o.vendor?.name || 'â€”');
                         return (
                           <tr key={`${o.id}-${i}`} style={{ height: 48, cursor: 'pointer' }}
                             onClick={() => navigate(`/orders/${o.id}/tracking`)}
@@ -434,7 +434,7 @@ const OrderFinanceDetails = () => {
                             <td style={{ color: '#64748b' }}>
                               {o.orderDate ? new Date(o.orderDate).toLocaleDateString('en-GB', {
                                 day: '2-digit', month: 'short', year: 'numeric'
-                              }) : '—'}
+                              }) : 'â€”'}
                             </td>
                             <td><StatusBadge status={o.status} /></td>
                             <td style={{ textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>
@@ -490,3 +490,4 @@ const OrderFinanceDetails = () => {
 };
 
 export default OrderFinanceDetails;
+

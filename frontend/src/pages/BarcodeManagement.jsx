@@ -1,4 +1,4 @@
-import PageHeader from '../components/PageHeader';
+﻿import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect } from "react";
 import { Package, Search, Camera, QrCode, AlertTriangle, ScanLine, Eye, Printer } from "lucide-react";
 import API from "../api/axios";
@@ -103,8 +103,8 @@ const BarcodeManagement = () => {
     background: "var(--rd-card-bg, #fff)",
     boxShadow: "-2px 0 6px -2px rgba(0,0,0,0.07)"
   };
-  return <div className="rd-container">
-      <div className="rd-content">
+  return <div className="page-container">
+      <div className="page-content">
         {/* Module Header */}
         <PageHeader 
           title="Barcode / QR" 

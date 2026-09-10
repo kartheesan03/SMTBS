@@ -1,4 +1,4 @@
-import PageHeader from '../components/PageHeader';
+﻿import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import API from "../api/axios";
@@ -316,7 +316,7 @@ const AddCourseModal = ({
           cursor: saving ? "not-allowed" : "pointer",
           opacity: saving ? 0.7 : 1
         }}>
-            {saving ? "Creating…" : "Create Course"}
+            {saving ? "Creatingâ€¦" : "Create Course"}
           </button>
         </form>
       </div>
@@ -381,10 +381,10 @@ const TrainingDevelopment = () => {
     y: 0
   }} transition={{
     duration: 0.4
-  }} className="rd-container">
+  }} className="rd-container page-container">
       {showAddModal && <AddCourseModal onClose={() => setShowAddModal(false)} onSave={newCourse => setCourses(prev => [newCourse, ...prev])} />}
-      <div className="rd-content">
-        {/* ── Module Header ── */}
+      <div className="page-content">
+        {/* â”€â”€ Module Header â”€â”€ */}
         <PageHeader
           title="Training & Development"
           badge="HRMS"
@@ -396,14 +396,14 @@ const TrainingDevelopment = () => {
             onClick: () => setShowAddModal(true)
           }]}
         />
-        {/* ── KPI Cards ── */}
+        {/* â”€â”€ KPI Cards â”€â”€ */}
         <StatsGrid>
           <StatsCard title="Total Courses" value={stats.totalCourses ?? 0} colorTheme="blue" icon={BookOpen} trendValue="All categories" trendPositive={true} />
           <StatsCard title="Enrolled Employees" value={stats.enrolledEmployees ?? 0} colorTheme="purple" icon={Users} trendValue="Across all courses" trendPositive={true} />
           <StatsCard title="Avg. Completion" value={`${stats.avgCompletion ?? 0}%`} colorTheme="mint" icon={TrendingUp} trendValue="Overall completion rate" trendPositive={(stats.avgCompletion ?? 0) >= 60} />
           <StatsCard title="Certifications" value={stats.certifications ?? 0} colorTheme="yellow" icon={Award} trendValue="Courses completed" trendPositive={true} />
         </StatsGrid>
-        {/* ── Table / Course Section ── */}
+        {/* â”€â”€ Table / Course Section â”€â”€ */}
         <motion.div initial={{
         opacity: 0,
         y: 20
@@ -433,7 +433,7 @@ const TrainingDevelopment = () => {
               background: "#fff"
             }}>
                 <Search size={16} color="#94a3b8" />
-                <input type="text" className="rd-search-input" placeholder="Search courses or instructors…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                <input type="text" className="rd-search-input" placeholder="Search courses or instructorsâ€¦" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
               </div>
               {/* Category pills */}
               <div style={{
@@ -496,7 +496,7 @@ const TrainingDevelopment = () => {
                   padding: 40,
                   color: "#94a3b8"
                 }}>
-                      Loading training data…
+                      Loading training dataâ€¦
                     </td>
                   </tr> : filtered.length === 0 ? <tr>
                     <td colSpan={9} style={{
@@ -598,7 +598,7 @@ const TrainingDevelopment = () => {
                               {course.instructor}
                             </span> : <span style={{
                       color: "#cbd5e1"
-                    }}>—</span>}
+                    }}>â€”</span>}
                         </td>
                         {/* Duration */}
                         <td data-label="Duration" style={{
@@ -614,7 +614,7 @@ const TrainingDevelopment = () => {
                               {course.duration}
                             </span> : <span style={{
                       color: "#cbd5e1"
-                    }}>—</span>}
+                    }}>â€”</span>}
                         </td>
                         {/* Enrolled */}
                         <td data-label="Enrolled" style={{
@@ -679,7 +679,7 @@ const TrainingDevelopment = () => {
                       year: "numeric"
                     }) : <span style={{
                       color: "#cbd5e1"
-                    }}>—</span>}
+                    }}>â€”</span>}
                         </td>
                         {/* Action */}
                         <td data-label="Action">
@@ -698,7 +698,7 @@ const TrainingDevelopment = () => {
                       whiteSpace: "nowrap",
                       opacity: isEnrolling ? 0.6 : 1
                     }}>
-                            {isEnrolling ? "Enrolling…" : course.myStatus === "Completed" ? <>
+                            {isEnrolling ? "Enrollingâ€¦" : course.myStatus === "Completed" ? <>
                                 <CheckCircle size={12} /> Certified
                               </> : course.myStatus === "In Progress" ? <>
                                 <Play size={12} /> Continue

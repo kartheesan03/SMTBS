@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { Loader, Check, AlertTriangle } from "lucide-react";
@@ -59,9 +59,9 @@ const ApplyLeave = () => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="rd-container"
+      className="page-container"
     >
-      <div className="rd-content">
+      <div className="page-content">
         {toast && (
           <div className={`lv-toast ${toast.ok ? "ok" : "err"}`}>
             {toast.ok ? <Check size={15} /> : <AlertTriangle size={15} />}
@@ -211,7 +211,7 @@ const ApplyLeave = () => {
                 >
                   {submitting ? (
                     <>
-                      <Loader size={16} className="lv-spin" /> Submitting…
+                      <Loader size={16} className="lv-spin" /> Submittingâ€¦
                     </>
                   ) : (
                     <>
@@ -225,7 +225,7 @@ const ApplyLeave = () => {
         </div>
 
         <style>{`
-          /* ── Toast ── */
+          /* â”€â”€ Toast â”€â”€ */
           .lv-toast {
             position: fixed;
             bottom: 28px;
@@ -252,7 +252,7 @@ const ApplyLeave = () => {
             color: #dc2626;
           }
 
-          /* ── Duration Banner ── */
+          /* â”€â”€ Duration Banner â”€â”€ */
           .lv-duration-banner {
             display: flex;
             align-items: center;
@@ -304,7 +304,7 @@ const ApplyLeave = () => {
             white-space: nowrap;
           }
 
-          /* ── Card ── */
+          /* â”€â”€ Card â”€â”€ */
           .lv-pro-card {
             background: #ffffff;
             border: 1px solid #e5e7eb;
@@ -313,7 +313,7 @@ const ApplyLeave = () => {
             overflow: hidden;
           }
 
-          /* ── Sections ── */
+          /* â”€â”€ Sections â”€â”€ */
           .lv-section {
             padding: 24px 28px;
             border-bottom: 1px solid #f1f5f9;
@@ -352,7 +352,7 @@ const ApplyLeave = () => {
             color: #d97706;
           }
 
-          /* ── Fields ── */
+          /* â”€â”€ Fields â”€â”€ */
           .lv-field-row {
             display: grid;
             grid-template-columns: 1fr;
@@ -405,7 +405,7 @@ const ApplyLeave = () => {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
           }
 
-          /* ── Select ── */
+          /* â”€â”€ Select â”€â”€ */
           .lv-select-wrap {
             position: relative;
           }
@@ -437,7 +437,7 @@ const ApplyLeave = () => {
             background-repeat: no-repeat;
           }
 
-          /* ── Actions ── */
+          /* â”€â”€ Actions â”€â”€ */
           .lv-actions {
             display: flex;
             justify-content: flex-end;
@@ -489,7 +489,7 @@ const ApplyLeave = () => {
             transform: none;
           }
 
-          /* ── Animations ── */
+          /* â”€â”€ Animations â”€â”€ */
           .lv-spin {
             animation: lvSpin 1s linear infinite;
           }
@@ -501,7 +501,7 @@ const ApplyLeave = () => {
             to { opacity: 1; transform: translateY(0); }
           }
 
-          /* ── Responsive ── */
+          /* â”€â”€ Responsive â”€â”€ */
           @media (max-width: 640px) {
             .lv-section { padding: 20px 18px; }
             .lv-field-row.two-col { grid-template-columns: 1fr; }
@@ -516,3 +516,4 @@ const ApplyLeave = () => {
 };
 
 export default ApplyLeave;
+

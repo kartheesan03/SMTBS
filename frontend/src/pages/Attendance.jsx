@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+﻿import React, { useState, useEffect, useCallback, useContext } from "react";
 import {
   Clock,
   CheckCircle,
@@ -36,7 +36,7 @@ import PageHeader from "../components/PageHeader";
 import { LoadingState } from "../components/DataStates";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import API from "../api/axios";
-/* ─────────────────────────── helpers ─────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const MONTHS = [
   "January",
   "February",
@@ -71,13 +71,13 @@ const parseDateTime = (ts, base) => {
   return isNaN(d) ? null : d;
 };
 const fmtTime = (ts, base) => {
-  if (!ts) return "—";
+  if (!ts) return "â€”";
   const d = parseDateTime(ts, base);
-  if (!d) return "—";
+  if (!d) return "â€”";
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 const fmtDate = (ds) => {
-  if (!ds) return "—";
+  if (!ds) return "â€”";
   return new Date(ds).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
@@ -91,7 +91,7 @@ const calcHrs = (ci, co, base) => {
   const h = (e - s) / 36e5;
   return h > 0 ? h : null;
 };
-/* ─────────────────────────── Custom Tooltip ─────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Custom Tooltip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -129,7 +129,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   }
   return null;
 };
-/* ─────────────────────────── Status Badge ─────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Status Badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const STATUS_META = {
   Present: { bg: "#dcfce7", color: "#166534", dot: "#16a34a" },
   Late: { bg: "#fef9c3", color: "#854d0e", dot: "#ca8a04" },
@@ -166,7 +166,7 @@ const StatusBadge = ({ status }) => {
     </span>
   );
 };
-/* ─────────────────────────── Today Hero Card ──────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Today Hero Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
   const isActive = status?.checkIn && !status?.checkOut;
   const isCompleted = status?.checkIn && status?.checkOut;
@@ -362,7 +362,7 @@ const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
     </motion.div>
   );
 };
-/* ─────────────────────────── Attendance Table (Daily) ─────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Attendance Table (Daily) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const AttendanceTable = ({ rows, showDate = true }) => {
   if (!rows || rows.length === 0)
     return (
@@ -472,7 +472,7 @@ const AttendanceTable = ({ rows, showDate = true }) => {
                       fontSize: 14,
                     }}
                   >
-                    {hrs ? `${hrs.toFixed(1)}h` : "—"}
+                    {hrs ? `${hrs.toFixed(1)}h` : "â€”"}
                   </span>
                 </td>
                 <td style={TD}>
@@ -497,7 +497,7 @@ const TH = {
   whiteSpace: "nowrap",
 };
 const TD = { padding: "14px 20px", fontSize: 14, whiteSpace: "nowrap" };
-/* ─────────────────────────── Monthly Table (all days) ─────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Monthly Table (all days) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const STATUS_ROW_META = {
   Present: { bg: "#f0fdf4", dot: "#16a34a", color: "#166534" },
   Late: { bg: "#fefce8", dot: "#ca8a04", color: "#854d0e" },
@@ -613,7 +613,7 @@ const MonthlyTable = ({ rows, todayStr }) => {
                       color: r.checkIn ? "#16a34a" : "#cbd5e1",
                     }}
                   >
-                    {r.checkIn ? fmtTime(r.checkIn, r.date) : "—"}
+                    {r.checkIn ? fmtTime(r.checkIn, r.date) : "â€”"}
                   </span>
                 </td>
                 <td style={TD}>
@@ -623,7 +623,7 @@ const MonthlyTable = ({ rows, todayStr }) => {
                       color: r.checkOut ? "#dc2626" : "#cbd5e1",
                     }}
                   >
-                    {r.checkOut ? fmtTime(r.checkOut, r.date) : "—"}
+                    {r.checkOut ? fmtTime(r.checkOut, r.date) : "â€”"}
                   </span>
                 </td>
                 <td style={TD}>
@@ -634,7 +634,7 @@ const MonthlyTable = ({ rows, todayStr }) => {
                       fontSize: 14,
                     }}
                   >
-                    {hrs ? `${hrs.toFixed(1)}h` : "—"}
+                    {hrs ? `${hrs.toFixed(1)}h` : "â€”"}
                   </span>
                 </td>
                 <td style={TD}>
@@ -674,7 +674,7 @@ const MonthlyTable = ({ rows, todayStr }) => {
     </div>
   );
 };
-/* ─────────────────────────── Daily Tab ────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Daily Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const DailyTab = ({ myHistory }) => {
   const [selDate, setSelDate] = useState(getLocalYMD());
   const goDay = (d) => {
@@ -818,7 +818,7 @@ const CARD = {
   overflow: "hidden",
   boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
 };
-/* ─────────────────────────── Monthly Tab ───────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Monthly Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const MonthlyTab = ({ myHistory }) => {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -1014,7 +1014,7 @@ const MonthlyTab = ({ myHistory }) => {
               color: "#1e293b",
             }}
           >
-            Daily Work Hours — {MONTHS[month]} {year}
+            Daily Work Hours â€” {MONTHS[month]} {year}
           </h3>
         </div>
         <div style={{ height: 160 }}>
@@ -1136,7 +1136,7 @@ const MonthlyTab = ({ myHistory }) => {
     </div>
   );
 };
-/* ─────────────────────────── Main Component ───────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const Attendance = () => {
   const { user } = useContext(AuthContext);
   const [status, setStatus] = useState(null);
@@ -1162,7 +1162,7 @@ const Attendance = () => {
     } else if (status?.checkIn && status?.checkOut) {
       const hrs = calcHrs(status.checkIn, status.checkOut, status.date);
       setTimer(
-        hrs ? `${Math.floor(hrs)}h ${Math.round((hrs % 1) * 60)}m` : "—"
+        hrs ? `${Math.floor(hrs)}h ${Math.round((hrs % 1) * 60)}m` : "â€”"
       );
     } else {
       setTimer("0h 0m 0s");
@@ -1258,7 +1258,7 @@ const Attendance = () => {
       setBusy(false);
     }
   };
-  if (loading) return <LoadingState message="Loading your attendance…" height="60vh" />;
+  if (loading) return <LoadingState message="Loading your attendanceâ€¦" height="60vh" />;
   const tabs = [
     { id: "daily", label: "Daily View", icon: Calendar },
     { id: "monthly", label: "Monthly View", icon: TrendingUp },
@@ -1267,9 +1267,9 @@ const Attendance = () => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="rd-container theme-hrms"
+      className="rd-container page-container theme-hrms"
     >
-      <div className="rd-content">
+      <div className="page-content">
         {/* Page Header */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -1279,7 +1279,7 @@ const Attendance = () => {
           <PageHeader
             title="Attendance Tracker"
             badge="HRMS"
-            subtitle={`Your personal attendance records · ${user?.name || ""}`}
+            subtitle={`Your personal attendance records Â· ${user?.name || ""}`}
           />
         </motion.div>
         {/* Today Card */}
@@ -1364,3 +1364,4 @@ const Attendance = () => {
   );
 };
 export default Attendance;
+

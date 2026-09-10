@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+﻿import React, { useContext, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import PasswordInput from "../components/ui/PasswordInput";
@@ -267,7 +267,8 @@ const Settings = () => {
     return date.toLocaleDateString();
   };
   return (
-    <div className="page-container">
+    <div className="rd-container page-container">
+    <div className="page-content">
       <div className="settings-tabs-wrapper">
         {availableTabs.map((tab) => (
           <button
@@ -391,7 +392,7 @@ const Settings = () => {
                   <div className="form-group">
                     <label>Phone</label>
                     <div className="input-with-icon">
-                      <span className="input-icon">📞</span>
+                      <span className="input-icon">ðŸ“ž</span>
                       <input
                         type="text"
                         value={formData.phone}
@@ -405,7 +406,7 @@ const Settings = () => {
                   <div className="form-group">
                     <label>Address</label>
                     <div className="input-with-icon">
-                      <span className="input-icon">📍</span>
+                      <span className="input-icon">ðŸ“</span>
                       <input
                         type="text"
                         value={formData.address}
@@ -429,17 +430,17 @@ const Settings = () => {
                         phone: user?.phone || "",
                         address: user?.address || "",
                       });
-                      toast("Changes cancelled", { icon: "✖" });
+                      toast("Changes cancelled", { icon: "âœ–" });
                     }}
                   >
-                    <span>✖</span> Cancel
+                    <span>âœ–</span> Cancel
                   </button>
                   <button
                     type="submit"
                     className="btn-save-full"
                     style={{ marginTop: 0 }}
                   >
-                    <span>💾</span> Save Changes
+                    <span>ðŸ’¾</span> Save Changes
                   </button>
                 </div>
               </form>
@@ -472,7 +473,7 @@ const Settings = () => {
                   </div>
                 </div>
                 <div className="detail-row">
-                  <div className="detail-label">📅 Joining Date</div>
+                  <div className="detail-label">ðŸ“… Joining Date</div>
                   <div className="detail-value">
                     {employeeData?.joinDate || employeeData?.joiningDate
                       ? new Date(
@@ -486,7 +487,7 @@ const Settings = () => {
                   </div>
                 </div>
                 <div className="detail-row">
-                  <div className="detail-label">⏱ Employment Type</div>
+                  <div className="detail-label">â± Employment Type</div>
                   <div className="detail-value">Full-Time</div>
                 </div>
                 <div className="detail-row">
@@ -1100,7 +1101,9 @@ const Settings = () => {
           }
         }
       `}</style>
+      </div>
     </div>
   );
 };
 export default Settings;
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import API from "../api/axios";
 import {
   Activity,
@@ -50,7 +50,8 @@ const AuditLogs = () => {
     }
   };
   return (
-    <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
+    <div className="rd-container page-container">
+      <div className="page-content">
       <div
         className="page-header"
         style={{
@@ -338,7 +339,9 @@ const AuditLogs = () => {
           </tbody>
         </table>
       </div>
+      </div>
     </div>
   );
 };
 export default AuditLogs;
+

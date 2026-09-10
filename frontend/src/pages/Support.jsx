@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+﻿import React, { useState, useEffect, useContext } from "react";
 import { Search, Plus, Filter, AlertCircle, Clock, CheckCircle2, Activity, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -117,7 +117,8 @@ const Support = () => {
     opacity: 0
   }} animate={{
     opacity: 1
-  }} className="service-desk-wrapper">
+  }} className="rd-container page-container service-desk-wrapper">
+    <div className="page-content">
             <PageHeader
               title="Support Center"
               badge="SUPPORT"
@@ -222,6 +223,7 @@ const Support = () => {
             </div>
 
             <NewComplaintModal isOpen={isNewModalOpen} onClose={() => setIsNewModalOpen(false)} onTicketCreated={handleTicketCreated} />
+        </div>
         </motion.div>;
 };
 export default Support;

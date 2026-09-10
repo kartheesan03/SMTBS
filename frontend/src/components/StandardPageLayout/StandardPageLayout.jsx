@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, FileText } from 'lucide-react';
+import PageHeader from '../PageHeader';
 import './StandardPageLayout.css';
 const StandardPageLayout = ({ 
-    title, 
+    title,
     subtitle, 
     breadcrumbs = [], 
     onSave, 
@@ -24,7 +25,7 @@ const StandardPageLayout = ({
         }
     };
     return (
-        <div className="standard-page-container">
+        <div className="standard-page-container page-container">
             <div className="standard-page-header-wrapper">
                 <div className="standard-page-breadcrumbs">
                     <button className="rd-back-btn" onClick={handleBack} style={{ marginLeft: '-12px', marginRight: '8px' }}>
@@ -43,12 +44,7 @@ const StandardPageLayout = ({
                         </React.Fragment>
                     ))}
                 </div>
-                <div className="standard-page-header">
-                    <div className="header-titles">
-                        <h1>{title}</h1>
-                        {subtitle && <p className="subtitle">{subtitle}</p>}
-                    </div>
-                </div>
+                <PageHeader title={title} subtitle={subtitle} />
             </div>
             <div className="standard-page-body">
                 <div className="standard-page-main">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -165,47 +165,20 @@ const TaskCalendar = () => {
   });
   const totalSlots = [...blanks, ...daysInMonthArray];
   return (
-    <div
-      className="content-area"
-      style={{
-        padding: "24px",
-        backgroundColor: "#f8fafc",
-        minHeight: "calc(100vh - 70px)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          marginBottom: 24,
-        }}
-      >
+    <div className="rd-container page-container">
+      <div className="page-content">
         <PageHeader
           title="Task Calendar"
           badge="TASKS"
           subtitle="Schedule and manage your upcoming events and tasks."
           showBack={true}
+          actions={[{
+            label: "New Event",
+            icon: Plus,
+            primary: true,
+            onClick: handleNewEventClick
+          }]}
         />
-        <button
-          onClick={handleNewEventClick}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 16px",
-            backgroundColor: "#3b82f6",
-            color: "white",
-            border: "none",
-            borderRadius: 0,
-            cursor: "pointer",
-            fontWeight: 600,
-            fontSize: 14,
-          }}
-        >
-          <Plus size={16} /> New Event
-        </button>
-      </div>
       <div className="dashboard-panel" style={{ padding: "24px" }}>
         <div
           style={{
@@ -565,7 +538,9 @@ const TaskCalendar = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
 export default TaskCalendar;
+

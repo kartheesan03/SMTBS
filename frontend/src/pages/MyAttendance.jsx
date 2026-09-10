@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+﻿import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ResponsiveContainer,
@@ -277,17 +277,18 @@ const MyAttendance = () => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="attendance-page-container"
+      className="rd-container page-container attendance-page-container"
     >
+      <div className="page-content">
       {" "}
       <PageHeader
         title="My Attendance"
         badge="HRMS"
-        subtitle={`Your personal attendance records · ${firstName}`}
+        subtitle={`Your personal attendance records Â· ${firstName}`}
       />{" "}
       <div className="att-main-grid">
         {" "}
-        {/* ── LEFT COLUMN: HERO ── */}{" "}
+        {/* â”€â”€ LEFT COLUMN: HERO â”€â”€ */}{" "}
         <div className="att-left-col">
           {" "}
           <div className="att-card att-hero-card">
@@ -444,7 +445,7 @@ const MyAttendance = () => {
             </div>{" "}
           </div>{" "}
         </div>{" "}
-        {/* ── RIGHT COLUMN: DASHBOARD ── */}{" "}
+        {/* â”€â”€ RIGHT COLUMN: DASHBOARD â”€â”€ */}{" "}
         <div className="att-right-col">
           {" "}
           {/* TOP SUMMARY KPIs */}{" "}
@@ -860,7 +861,9 @@ const MyAttendance = () => {
           </div>{" "}
         </div>{" "}
       </div>{" "}
+      </div>{" "}
     </motion.div>
   );
 };
 export default MyAttendance;
+

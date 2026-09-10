@@ -1,4 +1,4 @@
-import PageHeader from '../components/PageHeader';
+﻿import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
@@ -60,10 +60,10 @@ const Leads = () => {
     return matchesFilter && matchesSearch;
   });
   const formatCurrency = val => {
-    if (!val) return "₹0";
-    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `₹${Math.round(val / 1000)}K`;
-    return `₹${val.toLocaleString()}`;
+    if (!val) return "â‚¹0";
+    if (val >= 100000) return `â‚¹${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `â‚¹${Math.round(val / 1000)}K`;
+    return `â‚¹${val.toLocaleString()}`;
   };
   const advanceLead = async lead => {
     if (!writeAccess) {
@@ -104,9 +104,9 @@ const Leads = () => {
     y: 0
   }} transition={{
     duration: 0.4
-  }} className="rd-container">
+  }} className="rd-container page-container">
       {" "}
-      <div className="rd-content">
+      <div className="page-content">
         {" "}
         <PageHeader 
           title="Lead Management Center" 
@@ -116,7 +116,7 @@ const Leads = () => {
         <StatsGrid>
           {" "}
           <StatsCard title="Total Leads" value={leads.length} colorTheme="blue" icon={Target} trendValue="All leads" trendPositive={true} />{" "}
-          <StatsCard title="Hot Leads (≥80)" value={hotLeads.length} colorTheme="pink" icon={Zap} trendValue="High priority" trendPositive={true} />{" "}
+          <StatsCard title="Hot Leads (â‰¥80)" value={hotLeads.length} colorTheme="pink" icon={Zap} trendValue="High priority" trendPositive={true} />{" "}
           <StatsCard title="In Negotiation" value={inNegotiation.length} colorTheme="purple" icon={Handshake} trendValue="Active talks" trendPositive={true} />{" "}
           <StatsCard title="Pipeline Value" value={formatCurrency(pipelineValue)} colorTheme="mint" icon={IndianRupee} trendValue="Potential revenue" trendPositive={true} />{" "}
         </StatsGrid>{" "}
@@ -320,7 +320,7 @@ const Leads = () => {
                     color: "#10b981",
                     textAlign: "right"
                   }} data-label="Est. Value">
-                          ₹{(l.estValue || 0).toLocaleString()}
+                          â‚¹{(l.estValue || 0).toLocaleString()}
                         </td>{" "}
                         <td style={{
                     color: "#475569",
@@ -347,7 +347,7 @@ const Leads = () => {
                       border: "none"
                     }} onClick={() => advanceLead(l)}>
                             {" "}
-                            Advance →{" "}
+                            Advance â†’{" "}
                           </button>{" "}
                         </td>{" "}
                       </tr>;

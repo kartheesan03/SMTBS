@@ -1,4 +1,4 @@
-import PageHeader from '../components/PageHeader';
+﻿import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useContext } from "react";
 import { Package, AlertTriangle, Plus, CheckCircle, Clock, CornerUpLeft, Printer, FileText, RefreshCw, Download, Box, AlertCircle, ArrowUpRight, Activity, User, Building, Bell, AlertOctagon } from "lucide-react";
 import API from "../api/axios";
@@ -661,7 +661,8 @@ const MyMaterials = () => {
     const inStockItems = inventoryData.filter(row => (row.materialQty || 0) > (row.materialThreshold || 10)).length;
     const pendingRequests = requests.filter(r => ["Pending", "Manager Approved", "Processing"].includes(r.status)).length;
     const criticalItem = materialsList.find(m => (m.quantity || 0) <= (m.lowStockThreshold || 10));
-    return <div style={{
+    return <div className="rd-container page-container">
+      <div className="page-content" style={{
       display: "flex",
       flexDirection: "column",
       gap: "24px"
@@ -700,7 +701,7 @@ const MyMaterials = () => {
               fontWeight: 700,
               color: "#9f1239"
             }}>
-                  ⚠ Low Stock Alert
+                  âš  Low Stock Alert
                 </h4>
                 <p style={{
               margin: 0,
@@ -726,7 +727,7 @@ const MyMaterials = () => {
         <div className={pageMode === "requests" ? "erp-inventory-layout" : ""}>
           {/* LEFT COLUMN: Data Table */}
           <div className={pageMode === "requests" ? "erp-main-column" : ""}>
-            <DataTable title={getTableTitle()} subtitle={pageMode === "requests" ? "Track and manage your material requests" : "Comprehensive list of all materials — location, GPS status, and quantity from a single source of truth"} columns={getRenderColumns()} data={tableData} loading={loading} searchPlaceholder={pageMode === "requests" ? "Search requests..." : "Search materials, category..."} searchKeys={pageMode === "requests" ? ["material.name", "status", "reason"] : ["materialName", "materialCategory"]} primaryAction={{
+            <DataTable title={getTableTitle()} subtitle={pageMode === "requests" ? "Track and manage your material requests" : "Comprehensive list of all materials â€” location, GPS status, and quantity from a single source of truth"} columns={getRenderColumns()} data={tableData} loading={loading} searchPlaceholder={pageMode === "requests" ? "Search requests..." : "Search materials, category..."} searchKeys={pageMode === "requests" ? ["material.name", "status", "reason"] : ["materialName", "materialCategory"]} primaryAction={{
             label: "New Material Request",
             icon: Plus,
             onClick: () => setShowModal(true)
@@ -859,7 +860,8 @@ const MyMaterials = () => {
               </div>
             </div>}
         </div>
-      </div>;
+      </div>
+    </div>;
   };
   const renderStockWorkspace = () => {
     const stockData = materialsList;
@@ -1037,14 +1039,14 @@ const MyMaterials = () => {
         </div>
       </div>;
   };
-  return <div className="rd-container">
-      {pageMode === "inventory" || pageMode === "requests" ? <div className="rd-content" style={{
+  return <div className="page-container">
+      {pageMode === "inventory" || pageMode === "requests" ? <div className="page-content" style={{
       display: "flex",
       flexDirection: "column",
       width: "100%"
     }}>
           {renderWorkspace()}
-        </div> : pageMode === "stock" ? <div className="rd-content" style={{
+        </div> : pageMode === "stock" ? <div className="page-content" style={{
       display: "flex",
       flexDirection: "column",
       width: "100%"

@@ -22,9 +22,9 @@
      * Fix: cancel the 24px padding with negative margins,
      * then set an explicit viewport height = 100vh minus the 64px GlobalHeader.
      */
-    margin: -24px;
-    width: calc(100% + 48px);
-    height: calc(100vh - 64px);
+    width: 100%;
+    height: 100%;
+    min-height: calc(100vh - 160px);
 }
 
 
@@ -1146,8 +1146,6 @@
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 1024px) {
     .at-page {
-        margin: -24px;              /* keep cancelling app-content padding */
-        width: calc(100% + 48px);
         height: auto;               /* auto height — let content grow */
         overflow: visible;
     }

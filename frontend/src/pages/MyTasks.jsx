@@ -90,7 +90,7 @@ const MyTasks = () => {
         isBroadcast: false,
         broadcastRoles: ["Employee", "Sales"],
       });
-      setSuccessMsg("✅ Task assigned successfully! Notifications sent.");
+      setSuccessMsg("âœ… Task assigned successfully! Notifications sent.");
       setTimeout(() => setSuccessMsg(""), 4000);
       fetchData();
     } catch (err) {
@@ -180,14 +180,14 @@ const MyTasks = () => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="page-container"
+      className="rd-container page-container"
     >
-      {successMsg && (
-        <div className="toast-success animate-slide-down">
-          <CheckCircle2 size={18} /> {successMsg}
-        </div>
-      )}
-      <header className="page-header">
+      <div className="page-content">
+        {successMsg && (
+          <div className="toast-success animate-slide-down">
+            <CheckCircle2 size={18} /> {successMsg}
+          </div>
+        )}
         <PageHeader
           title={isManager ? "Task Management" : "My Tasks"}
           badge="TASKS"
@@ -196,27 +196,49 @@ const MyTasks = () => {
               ? "Assign and track tasks across employees and sales teams."
               : "Track your daily responsibilities and project milestones."
           }
+          actions={
+            <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+              <div
+                className="search-bar-sm glass-card"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #e2e8f0",
+                  background: "white",
+                }}
+              >
+                <Search size={16} color="#64748b" />
+                <input
+                  type="text"
+                  placeholder="Search tasks..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{ border: "none", outline: "none", background: "transparent", fontSize: "14px", color: "#1e293b" }}
+                />
+              </div>
+              {isManager && (
+                <button
+                  className="ui-btn-primary"
+                  onClick={() => setShowModal(true)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    fontWeight: 600,
+                    fontSize: "14px",
+                  }}
+                >
+                  <Plus size={16} /> Assign New Task
+                </button>
+              )}
+            </div>
+          }
         />
-        <div className="header-actions">
-          <div className="search-bar-sm glass-card">
-            <Search size={16} />
-            <input
-              type="text"
-              placeholder="Search tasks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          {isManager && (
-            <button
-              className="btn-primary flex-center gap-10"
-              onClick={() => setShowModal(true)}
-            >
-              <Plus size={18} /> Assign New Task
-            </button>
-          )}
-        </div>
-      </header>
       {/* Stats Cards for Manager/HR */}
       {isManager && (
         <motion.div
@@ -413,7 +435,7 @@ const MyTasks = () => {
                     ) : (
                       <td style={{ width: "15%", minWidth: "120px" }}>
                         <span className="assigned-by-name">
-                          {t.assignedBy?.name || t.assignedById || "—"}
+                          {t.assignedBy?.name || t.assignedById || "â€”"}
                         </span>
                       </td>
                     )}
@@ -520,9 +542,9 @@ const MyTasks = () => {
         <div className="modal-overlay">
           <div className="premium-card modal-content-lg animate-pop">
             <div className="modal-header">
-              <h2>📋 Assign New Task</h2>
+              <h2>ðŸ“‹ Assign New Task</h2>
               <button className="close-btn" onClick={() => setShowModal(false)}>
-                ✕
+                âœ•
               </button>
             </div>
             <form onSubmit={handleSubmit} className="modal-form">
@@ -585,9 +607,9 @@ const MyTasks = () => {
                       setFormData({ ...formData, priority: e.target.value })
                     }
                   >
-                    <option value="Low">🟢 Low</option>
-                    <option value="Medium">🟡 Medium</option>
-                    <option value="High">🔴 High</option>
+                    <option value="Low">ðŸŸ¢ Low</option>
+                    <option value="Medium">ðŸŸ¡ Medium</option>
+                    <option value="High">ðŸ”´ High</option>
                   </select>
                 </div>
               </div>
@@ -1364,7 +1386,9 @@ const MyTasks = () => {
           }
         }
       `}</style>
+      </div>
     </motion.div>
   );
 };
 export default MyTasks;
+

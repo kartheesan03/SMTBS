@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+﻿import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import CompanyFeed from './CompanyFeed';
@@ -45,7 +45,7 @@ class SafeSection extends React.Component {
           gap: '12px',
           boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
         }}>
-          <div style={{ fontSize: '40px' }}>⚠️</div>
+          <div style={{ fontSize: '40px' }}>âš ï¸</div>
           <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#1e293b' }}>
             {isNetwork ? 'Unable to load feed' : 'Something went wrong'}
           </h3>
@@ -68,7 +68,7 @@ class SafeSection extends React.Component {
               cursor: 'pointer',
             }}
           >
-            🔄 Retry
+            ðŸ”„ Retry
           </button>
           {process.env.NODE_ENV === 'development' && (
             <details style={{ marginTop: '8px', fontSize: '11px', color: '#94a3b8', textAlign: 'left', maxWidth: '400px', wordBreak: 'break-all' }}>
@@ -140,7 +140,7 @@ const Feed = () => {
       if (res.following) {
         toast.success(`Now following ${userName}`);
       } else {
-        toast(`Unfollowed ${userName}`, { icon: '👋' });
+        toast(`Unfollowed ${userName}`, { icon: 'ðŸ‘‹' });
         // Remove from suggestions after unfollow so list refreshes
         setSuggested(prev => prev.filter(p => p.id !== userId));
         setFollowedIds(prev => { const n = new Set(prev); n.delete(userId); return n; });
@@ -159,10 +159,13 @@ const Feed = () => {
   };
 
   return (
-    <div className="lf-root">
-      <div className="lf-grid">
+    <div className="rd-container page-container">
+      <div className="page-content">
 
-        {/* ─── LEFT SIDEBAR ─── */}
+        <div className="lf-root">
+          <div className="lf-grid">
+
+        {/* â”€â”€â”€ LEFT SIDEBAR â”€â”€â”€ */}
         <aside className="lf-left">
 
           {/* Company Profile Card */}
@@ -174,23 +177,23 @@ const Feed = () => {
               </div>
             </div>
             <div className="lf-profile-body">
-              <div className="lf-profile-name">{companyStats?.name ?? '—'}</div>
+              <div className="lf-profile-name">{companyStats?.name ?? 'â€”'}</div>
               <div className="lf-profile-tagline">{companyStats?.tagline ?? ''}</div>
               <div className="lf-profile-divider" />
               <div className="lf-profile-stats">
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Company members</span>
                   <span className="lf-profile-stat-value">
-                    {companyStats ? companyStats.members.toLocaleString() : '—'}
+                    {companyStats ? companyStats.members.toLocaleString() : 'â€”'}
                   </span>
                 </div>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Industry</span>
-                  <span className="lf-profile-stat-value text">{companyStats?.industry ?? '—'}</span>
+                  <span className="lf-profile-stat-value text">{companyStats?.industry ?? 'â€”'}</span>
                 </div>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Location</span>
-                  <span className="lf-profile-stat-value text">{companyStats?.location ?? '—'}</span>
+                  <span className="lf-profile-stat-value text">{companyStats?.location ?? 'â€”'}</span>
                 </div>
               </div>
             </div>
@@ -214,14 +217,15 @@ const Feed = () => {
 
         </aside>
 
-        {/* ─── MAIN FEED ─── */}
+        {/* â”€â”€â”€ MAIN FEED â”€â”€â”€ */}
         <main>
           {hashtagFilter && (
             <div className="lf-hashtag-bar">
               <span>Filtered by: {hashtagFilter}</span>
-              <span className="lf-hashtag-clear" onClick={() => setHashtagFilter(null)}>✕ Clear</span>
+              <span className="lf-hashtag-clear" onClick={() => setHashtagFilter(null)}>âœ• Clear</span>
             </div>
           )}
+
           <SafeSection>
             <CompanyFeed
               activeTab={activeTab}
@@ -232,7 +236,7 @@ const Feed = () => {
           </SafeSection>
         </main>
 
-        {/* ─── RIGHT SIDEBAR ─── */}
+        {/* â”€â”€â”€ RIGHT SIDEBAR â”€â”€â”€ */}
         <aside className="lf-right">
 
           {/* People You May Know */}
@@ -322,7 +326,7 @@ const Feed = () => {
               <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1 }}>About SMTBMS</span>
             </div>
             <div style={{ fontSize: '13px', color: 'var(--li-text-2)', lineHeight: 1.6 }}>
-              Smart Material Tracking &amp; Business Management System — A centralized platform for smarter operations.
+              Smart Material Tracking &amp; Business Management System â€” A centralized platform for smarter operations.
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
               {['ERP', 'CRM', 'HRMS', 'Inventory'].map(tag => (
@@ -339,7 +343,10 @@ const Feed = () => {
 
       </div>
     </div>
+    </div>
+    </div>
   );
 };
 
 export default Feed;
+

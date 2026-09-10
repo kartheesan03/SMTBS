@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import API from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 import { useGoogleLogin } from "@react-oauth/google";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Package, Database, Truck, Activity } from "lucide-react";
 
 const Register = () => {
   const [name, setName] = useState("");

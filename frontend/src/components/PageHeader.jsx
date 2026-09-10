@@ -2,18 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import './PageHeader.css';
+
 /**
  * PageHeader — standardized page title + module badge + optional subtitle.
- * Matches the Attendance Tracker reference style across the entire app.
- *
- * @param {string}  title    - Main page title (e.g. "Inventory Management")
- * @param {string}  badge    - Module label in uppercase (e.g. "INVENTORY") — optional
- * @param {string}  subtitle - Muted line beneath the title row — optional
- * @param {boolean} showBack - Whether to show a back arrow — optional
- * @param {boolean} hasInsights - Whether to show an attention dot (e.g. for pending actions)
  */
 const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = false, backPath = null, onBack = null, actions = [] }) => {
     const navigate = useNavigate();
+
     const handleBack = () => {
         if (onBack) {
             onBack();
@@ -23,62 +18,28 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
             navigate(-1);
         }
     };
+
     return (
         <div className="rd-module-header">
             <div className="rd-module-info">
-                <div
-                    className="rd-module-title-row"
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0px',
-                        flexWrap: 'nowrap',
-                    }}
-                >
+                <div className="rd-module-title-row">
                     {showBack && (
                         <button
                             onClick={handleBack}
-                            style={{
-                                background: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: '4px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: '#0f172a',
-                                borderRadius: '4px',
-                                marginRight: '6px',
-                                flexShrink: 0,
-                            }}
+                            className="rd-module-back-btn"
                             title="Go back"
                         >
                             <ArrowLeft size={22} />
                         </button>
                     )}
-                    <span
-                        className="rd-module-title"
-                        style={{
-                            margin: 0,
-                            padding: 0,
-                            lineHeight: 1.25,
-                            flexShrink: 0,
-                        }}
-                    >
+                    <h1 className="rd-module-title">
                         {title}
-                    </span>
+                    </h1>
                     {badge && (
                         <span className="rd-module-badge">{badge}</span>
                     )}
                     {hasInsights && (
-                        <div style={{
-                            width: 7,
-                            height: 7,
-                            borderRadius: '50%',
-                            background: '#ef4444',
-                            marginLeft: 6,
-                            boxShadow: '0 0 0 2px rgba(239, 68, 68, 0.2)'
-                        }} title="Actionable insights available" />
+                        <div className="rd-module-insights-dot" title="Actionable insights available" />
                     )}
                 </div>
                 {subtitle && (
@@ -89,7 +50,7 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
             </div>
             
             {actions && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="rd-module-actions">
                     {Array.isArray(actions) && actions.length > 0 ? actions.map((action, idx) => {
                         const Icon = action.icon;
                         return (
@@ -118,4 +79,5 @@ const PageHeader = ({ title, badge, subtitle, showBack = false, hasInsights = fa
         </div>
     );
 };
+
 export default PageHeader;

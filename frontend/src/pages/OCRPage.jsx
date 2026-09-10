@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+﻿import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Upload, Loader2, ArrowLeft, Save, CheckCircle2, XCircle,
@@ -16,7 +16,7 @@ import ValidationPanel from '../components/OCR/ValidationPanel';
 import AuditHistoryPanel from '../components/OCR/AuditHistoryPanel';
 import PageHeader from '../components/PageHeader';
 
-// ─── Processing steps ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Processing steps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PROCESSING_STEPS = [
   { id: 1, label: 'Uploading document' },
   { id: 2, label: 'Analyzing document type' },
@@ -30,7 +30,7 @@ const PROCESSING_STEPS = [
   { id: 10, label: 'Matching Purchase Request' },
 ];
 
-// ─── Workflow steps ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Workflow steps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const WORKFLOW_STEPS = [
   { id: 1, label: 'Upload' },
   { id: 2, label: 'Extract' },
@@ -48,20 +48,20 @@ const statusToWorkflow = (processingStatus, approvalStatus) => {
   return 1;
 };
 
-// ─── Status badge ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Status badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const StatusBadge = ({ status }) => {
   const map = {
-    Approved: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: '✓', border: 'rgba(22,163,74,0.2)' },
-    Ready_For_Approval: { bg: 'rgba(59,130,246,0.1)', color: '#3b82f6', icon: '●', border: 'rgba(59,130,246,0.2)' },
-    OCR_Completed: { bg: 'rgba(16,185,129,0.1)', color: '#10b981', icon: '✓', border: 'rgba(16,185,129,0.2)' },
-    Needs_Verification: { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', icon: '⚠', border: 'rgba(245,158,11,0.2)' },
-    Duplicate: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '⛔', border: 'rgba(239,68,68,0.2)' },
-    Rejected: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '✗', border: 'rgba(239,68,68,0.2)' },
-    Failed: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '✗', border: 'rgba(239,68,68,0.2)' },
-    Processing: { bg: 'rgba(99,102,241,0.1)', color: '#6366f1', icon: '⟳', border: 'rgba(99,102,241,0.2)' },
-    Validated: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: '✓', border: 'rgba(22,163,74,0.2)' },
+    Approved: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: 'âœ“', border: 'rgba(22,163,74,0.2)' },
+    Ready_For_Approval: { bg: 'rgba(59,130,246,0.1)', color: '#3b82f6', icon: 'â—', border: 'rgba(59,130,246,0.2)' },
+    OCR_Completed: { bg: 'rgba(16,185,129,0.1)', color: '#10b981', icon: 'âœ“', border: 'rgba(16,185,129,0.2)' },
+    Needs_Verification: { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', icon: 'âš ', border: 'rgba(245,158,11,0.2)' },
+    Duplicate: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: 'â›”', border: 'rgba(239,68,68,0.2)' },
+    Rejected: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: 'âœ—', border: 'rgba(239,68,68,0.2)' },
+    Failed: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: 'âœ—', border: 'rgba(239,68,68,0.2)' },
+    Processing: { bg: 'rgba(99,102,241,0.1)', color: '#6366f1', icon: 'âŸ³', border: 'rgba(99,102,241,0.2)' },
+    Validated: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: 'âœ“', border: 'rgba(22,163,74,0.2)' },
   };
-  const s = map[status] || { bg: '#f3f4f6', color: '#374151', icon: '●', border: '#e5e7eb' };
+  const s = map[status] || { bg: '#f3f4f6', color: '#374151', icon: 'â—', border: '#e5e7eb' };
   return (
     <span style={{
       padding: '5px 12px', borderRadius: '20px', fontSize: '12px',
@@ -74,7 +74,7 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// ─── Confidence chip ──────────────────────────────────────────────────────────
+// â”€â”€â”€ Confidence chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ConfChip = ({ score }) => {
   const pct = Math.round((score || 0) * 100);
   const color = pct >= 95 ? '#16a34a' : pct >= 80 ? '#d97706' : '#dc2626';
@@ -89,7 +89,7 @@ const ConfChip = ({ score }) => {
   );
 };
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const OCRPage = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
@@ -145,7 +145,7 @@ const OCRPage = () => {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
-  // ── API ─────────────────────────────────────────────────────────────────────
+  // â”€â”€ API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const fetchDocuments = async () => {
     setLoadingList(true);
     try {
@@ -291,7 +291,7 @@ const OCRPage = () => {
     }
   };
 
-  // ── Synchronize Raw Text ───────────────────────────────────────────────────
+  // â”€â”€ Synchronize Raw Text â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const generateSynchronizedRawText = (currentEditedData) => {
     const baseData = selectedDoc?.correctedData || selectedDoc?.originalOcrData || selectedDoc || {};
     let rawText = baseData.raw_text || selectedDoc?.originalOcrData?.raw_text || '';
@@ -406,7 +406,7 @@ const OCRPage = () => {
     setIsProcessing(true);
     try {
       await API.post(`/ocr/${selectedDoc.id}/approve`);
-      toast.success('Invoice approved ✓');
+      toast.success('Invoice approved âœ“');
       loadDocument(selectedDoc.id);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to approve');
@@ -476,7 +476,7 @@ const OCRPage = () => {
           a.click();
           URL.revokeObjectURL(bUrl);
         }),
-      { loading: `Generating ${docName}...`, success: `✓ ${docName} downloaded!`, error: 'Export failed' }
+      { loading: `Generating ${docName}...`, success: `âœ“ ${docName} downloaded!`, error: 'Export failed' }
     );
   };
 
@@ -627,7 +627,8 @@ const OCRPage = () => {
 
   if (view === 'list') {
     return (
-      <div style={{ width: '100%', boxSizing: 'border-box', animation: 'fadeIn 0.4s ease-out' }}>
+      <div className="rd-container page-container" style={{ animation: 'fadeIn 0.4s ease-out' }}>
+        <div className="page-content">
         <PageHeader
           title="Document Intelligence"
           badge="AI TOOL"
@@ -663,13 +664,13 @@ const OCRPage = () => {
             }}
           >
             <Upload size={32} style={{ color: '#64748b' }} />
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#1e293b', margin: 0 }}>
                 Drag & Drop any document or image
               </h2>
               <p style={{ color: '#64748b', fontSize: '13px', margin: 0, fontWeight: '500' }}>
-                PDF • DOC • DOCX • PNG • JPG • TIFF & more supported
+                PDF â€¢ DOC â€¢ DOCX â€¢ PNG â€¢ JPG â€¢ TIFF & more supported
               </p>
             </div>
 
@@ -698,6 +699,7 @@ const OCRPage = () => {
             </p>
           </div>
         )}
+      </div>
       </div>
     );
   }
@@ -837,7 +839,7 @@ const OCRPage = () => {
       {/* AI Document Assistant */}
       <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '18px' }}>🤖</span>
+          <span style={{ fontSize: '18px' }}>ðŸ¤–</span>
           <div>
             <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>AI Document Assistant</h3>
             <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>Ask questions about the uploaded document (e.g. "What is the total amount?")</p>
@@ -901,7 +903,7 @@ const OCRPage = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {hasChanges ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#f59e0b', fontSize: '14px', fontWeight: '600' }}>
-              <span style={{ fontSize: '18px' }}>●</span> Unsaved changes
+              <span style={{ fontSize: '18px' }}>â—</span> Unsaved changes
             </div>
           ) : (selectedDoc?.approvalStatus === 'Approved' && !isReEditing ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#16a34a', fontSize: '14px', fontWeight: '600' }}>
@@ -909,7 +911,7 @@ const OCRPage = () => {
             </div>
           ) : (isReEditing ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#3b82f6', fontSize: '14px', fontWeight: '600' }}>
-              <span style={{ fontSize: '18px' }}>✎</span> Editing
+              <span style={{ fontSize: '18px' }}>âœŽ</span> Editing
             </div>
           ) : null))}
         </div>
@@ -963,7 +965,7 @@ const OCRPage = () => {
         </div>
       </div>
 
-      {/* ── Clear Changes Warning Modal ────────────────────────────────────── */}
+      {/* â”€â”€ Clear Changes Warning Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {showClearModal && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
@@ -989,7 +991,7 @@ const OCRPage = () => {
       )}
 
 
-      {/* ── Reject modal ────────────────────────────────────────────────────── */}
+      {/* â”€â”€ Reject modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {showRejectModal && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
@@ -1028,7 +1030,7 @@ const OCRPage = () => {
   );
 };
 
-// ─── Tiny style helpers ───────────────────────────────────────────────────────
+// â”€â”€â”€ Tiny style helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const btnStyle = (bg, color, border) => ({
   display: 'inline-flex', alignItems: 'center', gap: '6px',
   padding: '8px 16px', borderRadius: '7px',
@@ -1045,3 +1047,4 @@ const iconBtn = {
 };
 
 export default OCRPage;
+

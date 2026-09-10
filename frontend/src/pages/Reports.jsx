@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import API from "../api/axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -201,8 +201,8 @@ const Reports = () => {
     y: 0
   }} transition={{
     duration: 0.4
-  }} className="rd-container">
-    <div className="rd-content">
+  }} className="page-container">
+    <div className="page-content">
       <PageHeader
         title="Reports"
         badge="REPORTS"

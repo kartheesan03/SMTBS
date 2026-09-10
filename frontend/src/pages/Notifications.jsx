@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+﻿import React, { useState, useContext } from "react";
 import { NotificationContext } from "../context/NotificationContext";
 import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
@@ -243,9 +243,10 @@ const NotificationsPage = () => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="page-container"
+      className="rd-container page-container"
       style={{ paddingBottom: "40px" }}
     >
+      <div className="page-content">
       {/* Toast */}
       {toast && (
         <div
@@ -773,7 +774,9 @@ const NotificationsPage = () => {
       <style>{`
                 @keyframes spin { to { transform: rotate(360deg); } }
             `}</style>
+      </div>
     </motion.div>
   );
 };
 export default NotificationsPage;
+

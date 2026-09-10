@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+﻿import React, { useState, useEffect, useCallback } from "react";
 import API from "../api/axios";
 import DataTable from "../components/Dashboard/DataTable";
 import {
@@ -45,7 +45,7 @@ const MySalaryPage = () => {
     fetchHistory();
   }, [fetchHistory]);
 
-  if (loading) return <LoadingState message="Loading salary data…" height="100vh" />;
+  if (loading) return <LoadingState message="Loading salary dataâ€¦" height="100vh" />;
   if (error) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '16px' }}>
       <p style={{ color: '#ef4444', fontSize: '15px' }}>{error}</p>
@@ -74,7 +74,7 @@ const MySalaryPage = () => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="page-container"
+      className="rd-container page-container"
     >
       <header className="page-header" style={{ marginBottom: 0 }}>
         <PageHeader
@@ -83,7 +83,7 @@ const MySalaryPage = () => {
           subtitle="Review your payment history and download official payslips."
         />
       </header>
-      <div className="module-content">
+      <div className="page-content">
         {history.length === 0 ? (
           <div className="premium-card no-salary-card">
             <IndianRupee size={48} className="no-salary-icon" />
@@ -103,7 +103,7 @@ const MySalaryPage = () => {
                 <td>
                   <strong>{s.month}</strong>
                 </td>
-                <td>₹{s.netSalary?.toLocaleString()}</td>
+                <td>â‚¹{s.netSalary?.toLocaleString()}</td>
                 <td>
                   <div
                     className={`status-badge ${s.status
@@ -123,7 +123,7 @@ const MySalaryPage = () => {
                 <td>
                   {s.paymentDate
                     ? new Date(s.paymentDate).toLocaleDateString()
-                    : "—"}
+                    : "â€”"}
                 </td>
                 <td>
                   <div
@@ -513,3 +513,4 @@ const MySalaryPage = () => {
   );
 };
 export default MySalaryPage;
+

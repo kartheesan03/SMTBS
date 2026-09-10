@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+﻿import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -245,7 +245,7 @@ const HolidayModal = ({ holiday, onClose, onSave }) => {
               value={form.description}
               onChange={handle}
               rows={2}
-              placeholder="Optional note…"
+              placeholder="Optional noteâ€¦"
               style={{ ...inp, resize: "vertical" }}
             />
           </div>
@@ -306,7 +306,7 @@ const HolidayModal = ({ holiday, onClose, onSave }) => {
               marginTop: 4,
             }}
           >
-            {saving ? "Saving…" : holiday ? "Save Changes" : "Add Holiday"}
+            {saving ? "Savingâ€¦" : holiday ? "Save Changes" : "Add Holiday"}
           </button>
         </form>
       </div>
@@ -489,7 +489,7 @@ const HolidayCalendar = () => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="rd-container"
+      className="page-container"
     >
       {(showModal || editHoliday) && (
         <HolidayModal
@@ -501,7 +501,7 @@ const HolidayCalendar = () => {
           onSave={handleSave}
         />
       )}
-      <div className="rd-content">
+      <div className="page-content">
         {/* Header */}
         <PageHeader
           title="Holiday Calendar"
@@ -585,7 +585,7 @@ const HolidayCalendar = () => {
         <StatsGrid>
           <StatsCard
             title="Total Holidays"
-            value={loading ? "…" : holidays.length}
+            value={loading ? "â€¦" : holidays.length}
             colorTheme="blue"
             icon={Calendar}
             trendValue={`In ${year}`}
@@ -593,7 +593,7 @@ const HolidayCalendar = () => {
           />
           <StatsCard
             title="Upcoming"
-            value={loading ? "…" : upcoming}
+            value={loading ? "â€¦" : upcoming}
             colorTheme="mint"
             icon={Gift}
             trendValue="Remaining this year"
@@ -601,7 +601,7 @@ const HolidayCalendar = () => {
           />
           <StatsCard
             title="National"
-            value={loading ? "…" : national}
+            value={loading ? "â€¦" : national}
             colorTheme="peach"
             icon={Flag}
             trendValue="Public holidays"
@@ -609,7 +609,7 @@ const HolidayCalendar = () => {
           />
           <StatsCard
             title="Company Declared"
-            value={loading ? "…" : company}
+            value={loading ? "â€¦" : company}
             colorTheme="purple"
             icon={Building2}
             trendValue="Internal holidays"
@@ -625,7 +625,7 @@ const HolidayCalendar = () => {
             alignItems: "start",
           }}
         >
-          {/* ── Left: Mini Calendar ── */}
+          {/* â”€â”€ Left: Mini Calendar â”€â”€ */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -806,7 +806,7 @@ const HolidayCalendar = () => {
               ))}
             </motion.div>
           </div>
-          {/* ── Right: Holiday List ── */}
+          {/* â”€â”€ Right: Holiday List â”€â”€ */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -818,7 +818,7 @@ const HolidayCalendar = () => {
               style={{ borderBottom: "none", flexWrap: "wrap", gap: 10 }}
             >
               <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
-                All Holidays — {year}
+                All Holidays â€” {year}
               </div>
               <div style={{ display: "flex", gap: 6 }}>
                 {["All", ...Object.keys(TYPE_CONFIG)].map((t) => (
@@ -877,7 +877,7 @@ const HolidayCalendar = () => {
                           color: "#94a3b8",
                         }}
                       >
-                        Loading holidays…
+                        Loading holidaysâ€¦
                       </td>
                     </tr>
                   ) : filtered.length === 0 ? (
@@ -1035,7 +1035,7 @@ const HolidayCalendar = () => {
                                   <span
                                     style={{ fontSize: 11, color: "#cbd5e1" }}
                                   >
-                                    —
+                                    â€”
                                   </span>
                                 )}
                               </td>
@@ -1087,3 +1087,4 @@ const HolidayCalendar = () => {
   );
 };
 export default HolidayCalendar;
+

@@ -1,4 +1,4 @@
-import PageHeader from '../components/PageHeader';
+﻿import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useContext } from "react";
 import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
@@ -75,13 +75,13 @@ const ERP = () => {
   };
   const filteredPurchaseOrders = purchaseOrders.filter(filterFunction);
   const filteredSalesOrders = salesOrders.filter(filterFunction);
-  
+
   const paginatedPurchaseOrders = filteredPurchaseOrders.slice((poPage - 1) * itemsPerPage, poPage * itemsPerPage);
   const paginatedSalesOrders = filteredSalesOrders.slice((soPage - 1) * itemsPerPage, soPage * itemsPerPage);
   const formatCurrency = val => {
-    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `₹${(val / 1000).toFixed(0)}K`;
-    return `₹${val.toLocaleString()}`;
+    if (val >= 100000) return `â‚¹${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `â‚¹${(val / 1000).toFixed(0)}K`;
+    return `â‚¹${val.toLocaleString()}`;
   };
 
   const renderPagination = (total, currentPage, setPage) => {
@@ -95,7 +95,7 @@ const ERP = () => {
           Showing {start} to {end} of {total} records
         </div>
         <div style={{ display: 'flex', gap: '4px' }}>
-          <button 
+          <button
             disabled={currentPage === 1}
             onClick={() => setPage(currentPage - 1)}
             style={{ padding: '6px 12px', border: '1px solid #e2e8f0', background: '#fff', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', borderRadius: '4px', opacity: currentPage === 1 ? 0.5 : 1 }}
@@ -111,7 +111,7 @@ const ERP = () => {
               {i + 1}
             </button>
           ))}
-          <button 
+          <button
             disabled={currentPage === totalPages}
             onClick={() => setPage(currentPage + 1)}
             style={{ padding: '6px 12px', border: '1px solid #e2e8f0', background: '#fff', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', borderRadius: '4px', opacity: currentPage === totalPages ? 0.5 : 1 }}
@@ -125,24 +125,24 @@ const ERP = () => {
   const renderTableRows = filteredList => {
     if (filteredList.length === 0) {
       return <tr>
-          <td colSpan={8} style={{
+        <td colSpan={8} style={{
           textAlign: "center",
           padding: 40,
           color: "#94a3b8"
         }}>
-            No orders found
-          </td>
-        </tr>;
+          No orders found
+        </td>
+      </tr>;
     }
     return filteredList.map((order, i) => {
-      const vendorName = order.vendor?.companyName || order.vendor?.name || order.vendorName || order.customer?.company || order.customer?.name || order.supplierName || "—";
-      let itemDesc = "—";
+      const vendorName = order.vendor?.companyName || order.vendor?.name || order.vendorName || order.customer?.company || order.customer?.name || order.supplierName || "â€”";
+      let itemDesc = "â€”";
       if (order.items && order.items.length > 0) {
         itemDesc = order.items.map(item => {
           const name = item.materialName || item.name || item.productName || item.material && (item.material.name || item.material.materialName) || "Item";
           const qty = item.quantity || item.qty || 0;
           const unit = item.unit || "pcs";
-          return `${name} × ${qty} ${unit}`;
+          return `${name} Ã— ${qty} ${unit}`;
         }).join(", ");
       } else if (order.description || order.notes) {
         itemDesc = order.description || order.notes;
@@ -174,96 +174,96 @@ const ERP = () => {
       return <tr key={order._id || i} style={{
         height: "52px"
       }}>
-          {" "}
-          <td style={{
+        {" "}
+        <td style={{
           verticalAlign: "middle",
           fontWeight: 700,
           color: "#3b82f6",
           whiteSpace: "nowrap"
-        }} title={order.orderNumber || order.poNumber || order.id || "—"} data-label="ID">
-            {order.orderNumber || order.poNumber || order.id || "—"}
-          </td>{" "}
-          <td style={{
+        }} title={order.orderNumber || order.poNumber || order.id || "â€”"} data-label="ID">
+          {order.orderNumber || order.poNumber || order.id || "â€”"}
+        </td>{" "}
+        <td style={{
           verticalAlign: "middle",
           fontWeight: 600,
           color: "var(--rd-text-main)",
           whiteSpace: "normal",
           wordBreak: "break-word"
         }} title={vendorName} data-label="Vendor/Customer">
-            {vendorName}
-          </td>{" "}
-          <td style={{
+          {vendorName}
+        </td>{" "}
+        <td style={{
           verticalAlign: "middle",
           color: "#475569",
           whiteSpace: "normal",
           wordBreak: "break-word"
         }} title={itemDesc} data-label="Item Description">
-            {itemDesc}
-          </td>{" "}
-          <td style={{
+          {itemDesc}
+        </td>{" "}
+        <td style={{
           verticalAlign: "middle",
           fontWeight: 700,
           color: "var(--rd-text-main)",
           textAlign: "right"
         }} data-label="Amount">
-            ₹{amount.toLocaleString()}
-          </td>{" "}
-          <td style={{
+          â‚¹{amount.toLocaleString()}
+        </td>{" "}
+        <td style={{
           verticalAlign: "middle",
           color: "#64748b"
         }} data-label="Raised">
-            {raised ? new Date(raised).toLocaleDateString("en-GB", {
+          {raised ? new Date(raised).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "2-digit",
             year: "2-digit"
-          }) : "—"}
-          </td>{" "}
-          <td style={{
+          }) : "â€”"}
+        </td>{" "}
+        <td style={{
           verticalAlign: "middle",
           color: "#64748b",
           textAlign: "center"
         }} data-label="Delivery">
-            {delivery ? new Date(delivery).toLocaleDateString("en-GB", {
+          {delivery ? new Date(delivery).toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "2-digit",
             year: "2-digit"
-          }) : "—"}
-          </td>{" "}
-          <td style={{
+          }) : "â€”"}
+        </td>{" "}
+        <td style={{
           verticalAlign: "middle"
         }} data-label="Status">
-            {" "}
-            <div style={{
+          {" "}
+          <div style={{
             display: "flex",
             alignItems: "center",
             gap: "6px"
           }}>
+            {" "}
+            <span className={`ui-badge ${statusColors[status] === "rd-status-red" ? "danger" : statusColors[status] === "rd-status-green" ? "success" : statusColors[status] === "rd-status-orange" ? "warning" : "info"}`}>
               {" "}
-              <span className={`ui-badge ${statusColors[status] === "rd-status-red" ? "danger" : statusColors[status] === "rd-status-green" ? "success" : statusColors[status] === "rd-status-orange" ? "warning" : "info"}`}>
-                {" "}
-                {status}{" "}
-              </span>{" "}
-              {isHighPriority && <span title={`${priority} Priority`} style={{
+              {status}{" "}
+            </span>{" "}
+            {isHighPriority && <span title={`${priority} Priority`} style={{
               color: "#ef4444",
               fontSize: "14px"
             }}>
-                  🚩
-                </span>}{" "}
-            </div>{" "}
-          </td>{" "}
-          <td style={{
+              ðŸš©
+            </span>}{" "}
+          </div>{" "}
+        </td>{" "}
+        <td style={{
           verticalAlign: "middle",
           textAlign: "center"
         }} data-label="Actions">
-            {" "}
-            <button className="rd-btn-compact outline" style={{
+          {" "}
+          <button className="rd-btn-compact outline" style={{
             padding: "6px"
           }} title="View Order" onClick={() => navigate(`/orders/${order._id || order.id}/tracking`)}>
-              {" "}
-              <Eye size={14} />{" "}
-            </button>{" "}
-          </td>{" "}
-        </tr>;
+            {" "}
+            <Eye size={14} />{" "}
+          </button>{" "}
+        </td>{" "}
+      </tr>;
     });
   };
   if (loading) return <LoadingState message="Loading..." height="100vh" />;
@@ -275,26 +275,26 @@ const ERP = () => {
     y: 0
   }} transition={{
     duration: 0.4
-  }} className="rd-container">
+  }} className="rd-container page-container">
+    {" "}
+    <div className="page-content">
       {" "}
-      <div className="rd-content">
+      {/* Module Header */}{" "}
+      <PageHeader
+        title="Procurement"
+        badge="PROCUREMENT"
+        subtitle="Manage procurement activities, purchasing requirements, and material sourcing."
+      />{" "}
+      {/* KPI Cards */}{" "}
+      <StatsGrid>
         {" "}
-        {/* Module Header */}{" "}
-        <PageHeader 
-          title="Procurement" 
-          badge="PROCUREMENT"
-          subtitle="Manage procurement activities, purchasing requirements, and material sourcing." 
-        />{" "}
-        {/* KPI Cards */}{" "}
-        <StatsGrid>
-          {" "}
-          <StatsCard title="Total POs" value={purchaseOrders.length} colorTheme="blue" icon={ShoppingCart} trendValue="Purchase Orders" trendPositive={true} />{" "}
-          <StatsCard title="Total SOs" value={salesOrders.length} colorTheme="mint" icon={ShoppingCart} trendValue="Sales Orders" trendPositive={true} />{" "}
-          <StatsCard title="Total PO Value" value={formatCurrency(totalPOValue)} colorTheme="purple" icon={IndianRupee} trendValue="Total spent" trendPositive={true} />{" "}
-          <StatsCard title="Total SO Value" value={formatCurrency(salesOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0))} colorTheme="peach" icon={IndianRupee} trendValue="Total revenue" trendPositive={true} />{" "}
-        </StatsGrid>{" "}
-        {/* Purchase Orders Table */}{" "}
-        <motion.div initial={{
+        <StatsCard title="Total POs" value={purchaseOrders.length} colorTheme="blue" icon={ShoppingCart} trendValue="Purchase Orders" trendPositive={true} />{" "}
+        <StatsCard title="Total SOs" value={salesOrders.length} colorTheme="mint" icon={ShoppingCart} trendValue="Sales Orders" trendPositive={true} />{" "}
+        <StatsCard title="Total PO Value" value={formatCurrency(totalPOValue)} colorTheme="purple" icon={IndianRupee} trendValue="Total spent" trendPositive={true} />{" "}
+        <StatsCard title="Total SO Value" value={formatCurrency(salesOrders.reduce((sum, o) => sum + (Number(o.totalAmount) || Number(o.grandTotal) || 0), 0))} colorTheme="peach" icon={IndianRupee} trendValue="Total revenue" trendPositive={true} />{" "}
+      </StatsGrid>{" "}
+      {/* Purchase Orders Table */}{" "}
+      <motion.div initial={{
         opacity: 0,
         y: 20
       }} animate={{
@@ -306,39 +306,39 @@ const ERP = () => {
       }} className="rd-table-card" style={{
         marginBottom: "24px"
       }}>
-          {" "}
-          <div className="rd-table-header" style={{
+        {" "}
+        <div className="rd-table-header" style={{
           borderBottom: "1px solid var(--rd-border)",
           flexWrap: "wrap",
           gap: 16
         }}>
+          {" "}
+          <div>
             {" "}
-            <div>
-              {" "}
-              <div className="rd-table-title">Purchase Orders</div>{" "}
-              <div className="rd-table-subtitle">
-                All procurement requests and approvals
-              </div>{" "}
+            <div className="rd-table-title">Purchase Orders</div>{" "}
+            <div className="rd-table-subtitle">
+              All procurement requests and approvals
             </div>{" "}
-            <div className="rd-table-actions" style={{
+          </div>{" "}
+          <div className="rd-table-actions" style={{
             flexWrap: "wrap"
           }}>
-              {" "}
-              <div className="rd-search-bar" style={{
+            {" "}
+            <div className="rd-search-bar" style={{
               minWidth: 220,
               flexShrink: 0,
               background: "#f8fafc"
             }}>
-                {" "}
-                <Search size={16} color="#94a3b8" />{" "}
-                <input type="text" className="rd-search-input" placeholder="Search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />{" "}
-              </div>{" "}
-              <div style={{
+              {" "}
+              <Search size={16} color="#94a3b8" />{" "}
+              <input type="text" className="rd-search-input" placeholder="Search..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />{" "}
+            </div>{" "}
+            <div style={{
               display: "flex",
               gap: 6
             }}>
-                {" "}
-                {filters.map(f => <button key={f} onClick={() => setActiveFilter(f)} style={{
+              {" "}
+              {filters.map(f => <button key={f} onClick={() => setActiveFilter(f)} style={{
                 padding: "6px 14px",
                 borderRadius: 0,
                 fontSize: 13,
@@ -349,62 +349,62 @@ const ERP = () => {
                 color: activeFilter === f ? "#fff" : "#64748b",
                 borderColor: activeFilter === f ? "#3b82f6" : "#e2e8f0"
               }}>
-                    {f}
-                  </button>)}{" "}
-              </div>{" "}
-              {user?.role !== "Employee" && user?.role !== "Sales" && <button className="rd-btn-solid" onClick={() => navigate("/orders/select-type")}>
-                  + Raise PO
-                </button>}{" "}
+                {f}
+              </button>)}{" "}
             </div>{" "}
+            {user?.role !== "Employee" && user?.role !== "Sales" && <button className="rd-btn-solid" onClick={() => navigate("/orders/select-type")}>
+              + Raise PO
+            </button>}{" "}
           </div>{" "}
-          <div className="rd-table-scroll">
-            {" "}
-            <table className="rd-table rd-table-responsive" style={{
+        </div>{" "}
+        <div className="rd-table-scroll">
+          {" "}
+          <table className="rd-table rd-table-responsive" style={{
             width: "100%"
           }}>
+            {" "}
+            <thead>
               {" "}
-              <thead>
+              <tr>
                 {" "}
-                <tr>
-                  {" "}
-                  <th style={{
+                <th style={{
                   width: "15%"
                 }}>PO ID</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "20%"
                 }}>VENDOR</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "20%"
                 }}>ITEM DESCRIPTION</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "12%",
                   textAlign: "right"
                 }}>AMOUNT</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "10%"
                 }}>RAISED</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "10%",
                   textAlign: "center"
                 }}>
-                    DELIVERY
-                  </th>{" "}
-                  <th style={{
+                  DELIVERY
+                </th>{" "}
+                <th style={{
                   width: "8%"
                 }}>STATUS</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "5%",
                   textAlign: "center"
                 }}>ACTIONS</th>{" "}
-                </tr>{" "}
-              </thead>{" "}
-              <tbody> {renderTableRows(paginatedPurchaseOrders)} </tbody>{" "}
-            </table>{" "}
-          </div>{" "}
-          {renderPagination(filteredPurchaseOrders.length, poPage, setPoPage)}
-        </motion.div>{" "}
-        {/* Sales Orders Table */}{" "}
-        <motion.div initial={{
+              </tr>{" "}
+            </thead>{" "}
+            <tbody> {renderTableRows(paginatedPurchaseOrders)} </tbody>{" "}
+          </table>{" "}
+        </div>{" "}
+        {renderPagination(filteredPurchaseOrders.length, poPage, setPoPage)}
+      </motion.div>{" "}
+      {/* Sales Orders Table */}{" "}
+      <motion.div initial={{
         opacity: 0,
         y: 20
       }} animate={{
@@ -414,68 +414,68 @@ const ERP = () => {
         delay: 0.3,
         duration: 0.4
       }} className="rd-table-card">
-          {" "}
-          <div className="rd-table-header" style={{
+        {" "}
+        <div className="rd-table-header" style={{
           borderBottom: "1px solid var(--rd-border)",
           flexWrap: "wrap",
           gap: 16
         }}>
+          {" "}
+          <div>
             {" "}
-            <div>
-              {" "}
-              <div className="rd-table-title">Sales Orders</div>{" "}
-              <div className="rd-table-subtitle">
-                All customer sales and fulfillments
-              </div>{" "}
+            <div className="rd-table-title">Sales Orders</div>{" "}
+            <div className="rd-table-subtitle">
+              All customer sales and fulfillments
             </div>{" "}
           </div>{" "}
-          <div className="rd-table-scroll">
-            {" "}
-            <table className="rd-table rd-table-responsive" style={{
+        </div>{" "}
+        <div className="rd-table-scroll">
+          {" "}
+          <table className="rd-table rd-table-responsive" style={{
             width: "100%"
           }}>
+            {" "}
+            <thead>
               {" "}
-              <thead>
+              <tr>
                 {" "}
-                <tr>
-                  {" "}
-                  <th style={{
+                <th style={{
                   width: "15%"
                 }}>SO ID</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "20%"
                 }}>CUSTOMER</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "20%"
                 }}>ITEM DESCRIPTION</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "12%",
                   textAlign: "right"
                 }}>AMOUNT</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "10%"
                 }}>RAISED</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "10%",
                   textAlign: "center"
                 }}>
-                    DELIVERY
-                  </th>{" "}
-                  <th style={{
+                  DELIVERY
+                </th>{" "}
+                <th style={{
                   width: "8%"
                 }}>STATUS</th>{" "}
-                  <th style={{
+                <th style={{
                   width: "5%",
                   textAlign: "center"
                 }}>ACTIONS</th>{" "}
-                </tr>{" "}
-              </thead>{" "}
-              <tbody> {renderTableRows(paginatedSalesOrders)} </tbody>{" "}
-            </table>{" "}
-          </div>{" "}
-          {renderPagination(filteredSalesOrders.length, soPage, setSoPage)}
-        </motion.div>{" "}
-      </div>{" "}
-    </motion.div>;
+              </tr>{" "}
+            </thead>{" "}
+            <tbody> {renderTableRows(paginatedSalesOrders)} </tbody>{" "}
+          </table>{" "}
+        </div>{" "}
+        {renderPagination(filteredSalesOrders.length, soPage, setSoPage)}
+      </motion.div>{" "}
+    </div>{" "}
+  </motion.div>;
 };
 export default ERP;

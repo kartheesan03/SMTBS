@@ -1,4 +1,4 @@
-import PageHeader from '../components/PageHeader';
+﻿import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
@@ -49,10 +49,10 @@ const OrderManagement = () => {
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   const formatCurrency = val => {
-    if (!val || val === 0) return "₹0";
-    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `₹${(val / 1000).toFixed(0)}K`;
-    return `₹${val.toLocaleString()}`;
+    if (!val || val === 0) return "â‚¹0";
+    if (val >= 100000) return `â‚¹${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `â‚¹${(val / 1000).toFixed(0)}K`;
+    return `â‚¹${val.toLocaleString()}`;
   };
   const filters = ["All", "Created", "Pending", "Processing", "In Transit", "Delivered"];
   const filteredOrders = orders.filter(o => {
@@ -146,9 +146,9 @@ const OrderManagement = () => {
     y: 0
   }} transition={{
     duration: 0.4
-  }} className="rd-container">
+  }} className="rd-container page-container">
       {" "}
-      <div className="rd-content">
+      <div className="page-content">
         {" "}
         {/* Module Header */}{" "}
         <PageHeader 
@@ -327,7 +327,7 @@ const OrderManagement = () => {
                   fill: "#94a3b8",
                   fontSize: 11
                 }} tickFormatter={v => `${v}K`} />{" "}
-                  <Tooltip formatter={value => `₹${value}K`} cursor={{
+                  <Tooltip formatter={value => `â‚¹${value}K`} cursor={{
                   fill: "transparent"
                 }} contentStyle={{
                   borderRadius: 0,
@@ -448,8 +448,8 @@ const OrderManagement = () => {
                       No orders found
                     </td>
                   </tr> : paginatedOrders.map((o, i) => {
-                const orderId = o.orderNumber || "—";
-                const status = o.status || "—";
+                const orderId = o.orderNumber || "â€”";
+                const status = o.status || "â€”";
                 const statusColors = {
                   New: "rd-status-blue",
                   Created: "rd-status-blue",
@@ -490,7 +490,7 @@ const OrderManagement = () => {
                 const pri = o.priority || "Normal";
                 const priStyle = priorityColors[pri] || priorityColors["Normal"];
                 const type = (o.orderType || "").toLowerCase() === "purchase" || String(orderId).startsWith("PO-") ? "Purchase" : "Sales";
-                const partyName = o.customer?.company || o.customer?.name || o.vendor?.companyName || o.vendor?.name || "—";
+                const partyName = o.customer?.company || o.customer?.name || o.vendor?.companyName || o.vendor?.name || "â€”";
                 return <tr key={o._id || o.id || i} style={{
                   cursor: "pointer"
                 }} onClick={() => navigate(`/orders/${o._id || o.id}/tracking`)}>
@@ -534,7 +534,7 @@ const OrderManagement = () => {
                     color: "var(--rd-text-main)",
                     textAlign: "right"
                   }} data-label="Amount">
-                          ₹
+                          â‚¹
                           {(Number(o.totalAmount) || Number(o.grandTotal) || 0).toLocaleString()}
                         </td>{" "}
                         <td style={{
@@ -544,7 +544,7 @@ const OrderManagement = () => {
                       day: "2-digit",
                       month: "2-digit",
                       year: "2-digit"
-                    }) : "—"}
+                    }) : "â€”"}
                         </td>{" "}
                         <td data-label="Priority">
                           {" "}
@@ -570,7 +570,7 @@ const OrderManagement = () => {
                         <td style={{
                     color: "#475569"
                   }} data-label="Manager">
-                          {o.manager || o.salesRep || "—"}
+                          {o.manager || o.salesRep || "â€”"}
                         </td>{" "}
                         <td style={{
                     textAlign: "center"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../api/axios";
 import toast from "react-hot-toast";
@@ -132,7 +132,7 @@ const CustomerDetails = () => {
     {
       key: "total",
       label: "Total Amount",
-      render: (val) => `₹${val.toLocaleString()}`,
+      render: (val) => `â‚¹${val.toLocaleString()}`,
     },
   ];
   const ordersContent = (
@@ -175,8 +175,9 @@ const CustomerDetails = () => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      style={{ padding: "24px" }}
+      className="rd-container page-container"
     >
+      <div className="page-content">
       <div style={{ marginBottom: "16px" }}>
         <PageHeader title="" showBack={true} backPath="/customers" />
       </div>
@@ -192,7 +193,9 @@ const CustomerDetails = () => {
         />
         <Tabs tabs={tabs} />
       </DetailViewContainer>
+      </div>
     </motion.div>
   );
 };
 export default CustomerDetails;
+
