@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import "./Login.css";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../api/axios";
@@ -18,6 +18,14 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const roles = ["Admin", "HR", "Manager", "Employee", "Sales"];
+
+  // Lock page scroll while on the login screen
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
 
   const redirectAfterAuth = (data) => {
     if (data.isProfileComplete === false && (data.role === "Customer" || data.role === "Vendor")) {
