@@ -21,6 +21,8 @@ const AIChatMessage = require('./AIChatMessage');
 const PostAcknowledgement = require('./PostAcknowledgement');
 const StoryView = require('./StoryView');
 const OCRDocument = require('./OCRDocument');
+const Integration = require('./Integration');
+const SystemSetting = require('./SystemSetting');
 
 function setupAssociations() {
     Employee.sequelizeModel.belongsTo(User.sequelizeModel, { foreignKey: 'userIdField', as: 'userId' });

@@ -44,6 +44,7 @@ const feedRoutes = require('./src/routes/feedRoutes');
 const ocrRoutes = require('./src/routes/ocrRoutes');
 const assistantRoutes = require('./src/routes/assistantRoutes');
 const expenseTrackingRoutes = require('./src/routes/expenseTrackingRoutes');
+const integrationRoutes = require('./src/routes/integrationRoutes');
 
 const app = express();
 
@@ -104,6 +105,7 @@ app.use('/api/social', socialRoutes);
 app.use('/api/feed', feedRoutes);
 app.use('/api/ocr', ocrRoutes);
 app.use('/api/expense-tracking', expenseTrackingRoutes);
+app.use('/api/integrations', integrationRoutes);
 
 // ─── 404 handler ─────────────────────────────────────────────────────────────
 app.use((req, res, next) => {

@@ -90,7 +90,7 @@ const MyTasks = () => {
         isBroadcast: false,
         broadcastRoles: ["Employee", "Sales"],
       });
-      setSuccessMsg("âœ… Task assigned successfully! Notifications sent.");
+      setSuccessMsg("✅ Task assigned successfully! Notifications sent.");
       setTimeout(() => setSuccessMsg(""), 4000);
       fetchData();
     } catch (err) {
@@ -544,7 +544,7 @@ const MyTasks = () => {
             <div className="modal-header">
               <h2>📋 Assign New Task</h2>
               <button className="close-btn" onClick={() => setShowModal(false)}>
-                âœ•
+                ✕
               </button>
             </div>
             <form onSubmit={handleSubmit} className="modal-form">

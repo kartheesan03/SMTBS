@@ -498,7 +498,7 @@ const SalesPipeline = () => {
                   <span
                     style={{ fontSize: 12, fontWeight: 700, color: "#10b981" }}
                   >
-                    â–² 18.5%
+                    ▲ 18.5%
                   </span>{" "}
                 </div>{" "}
                 <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
@@ -550,7 +550,7 @@ const SalesPipeline = () => {
                   <span
                     style={{ fontSize: 12, fontWeight: 700, color: "#10b981" }}
                   >
-                    â–² 21.3%
+                    ▲ 21.3%
                   </span>{" "}
                 </div>{" "}
                 <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>

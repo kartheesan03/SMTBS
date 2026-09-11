@@ -139,13 +139,13 @@ const LeaveBalance = () => {
       className="page-container"
     >
       <div className="page-content">
-        {/* â”€â”€ Header â”€â”€ */}
+        {/* ── Header ── */}
         <PageHeader
           title="Leave Balance"
           badge="HRMS"
           subtitle="View remaining leave quotas, accruals, and entitlements for all leave types."
         />
-        {/* â”€â”€ KPIs â”€â”€ */}
+        {/* ── KPIs ── */}
         <StatsGrid columns={4}>
           <StatsCard
             title="Total Staff Tracked"

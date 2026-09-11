@@ -61,11 +61,19 @@ const DataTable = ({
     }, []);
     const filteredData = useMemo(() => {
         if (!search) return data;
+        const q = search.toLowerCase();
+        const extractText = (val) => {
+            if (val === null || val === undefined) return '';
+            if (typeof val === 'object' && !Array.isArray(val)) {
+                return Object.values(val).map(extractText).join(' ');
+            }
+            if (Array.isArray(val)) return val.map(extractText).join(' ');
+            return String(val);
+        };
         return data.filter(item => {
             return columns.some(col => {
                 const val = item[col.key];
-                if (val === null || val === undefined) return false;
-                return String(val).toLowerCase().includes(search.toLowerCase());
+                return extractText(val).toLowerCase().includes(q);
             });
         });
     }, [data, search, columns]);

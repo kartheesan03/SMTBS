@@ -45,7 +45,7 @@ class SafeSection extends React.Component {
           gap: '12px',
           boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
         }}>
-          <div style={{ fontSize: '40px' }}>âš ï¸</div>
+          <div style={{ fontSize: '40px' }}>⚠️ï¸</div>
           <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#1e293b' }}>
             {isNetwork ? 'Unable to load feed' : 'Something went wrong'}
           </h3>
@@ -165,7 +165,7 @@ const Feed = () => {
         <div className="lf-root">
           <div className="lf-grid">
 
-        {/* â”€â”€â”€ LEFT SIDEBAR â”€â”€â”€ */}
+        {/* ─── LEFT SIDEBAR ─── */}
         <aside className="lf-left">
 
           {/* Company Profile Card */}
@@ -217,12 +217,12 @@ const Feed = () => {
 
         </aside>
 
-        {/* â”€â”€â”€ MAIN FEED â”€â”€â”€ */}
+        {/* ─── MAIN FEED ─── */}
         <main>
           {hashtagFilter && (
             <div className="lf-hashtag-bar">
               <span>Filtered by: {hashtagFilter}</span>
-              <span className="lf-hashtag-clear" onClick={() => setHashtagFilter(null)}>âœ• Clear</span>
+              <span className="lf-hashtag-clear" onClick={() => setHashtagFilter(null)}>✕ Clear</span>
             </div>
           )}
 
@@ -236,7 +236,7 @@ const Feed = () => {
           </SafeSection>
         </main>
 
-        {/* â”€â”€â”€ RIGHT SIDEBAR â”€â”€â”€ */}
+        {/* ─── RIGHT SIDEBAR ─── */}
         <aside className="lf-right">
 
           {/* People You May Know */}

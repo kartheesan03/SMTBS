@@ -16,7 +16,7 @@ import ValidationPanel from '../components/OCR/ValidationPanel';
 import AuditHistoryPanel from '../components/OCR/AuditHistoryPanel';
 import PageHeader from '../components/PageHeader';
 
-// â”€â”€â”€ Processing steps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Processing steps ─────────────────────────────────────────────────────────
 const PROCESSING_STEPS = [
   { id: 1, label: 'Uploading document' },
   { id: 2, label: 'Analyzing document type' },
@@ -30,7 +30,7 @@ const PROCESSING_STEPS = [
   { id: 10, label: 'Matching Purchase Request' },
 ];
 
-// â”€â”€â”€ Workflow steps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Workflow steps ───────────────────────────────────────────────────────────
 const WORKFLOW_STEPS = [
   { id: 1, label: 'Upload' },
   { id: 2, label: 'Extract' },
@@ -48,17 +48,17 @@ const statusToWorkflow = (processingStatus, approvalStatus) => {
   return 1;
 };
 
-// â”€â”€â”€ Status badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Status badge ─────────────────────────────────────────────────────────────
 const StatusBadge = ({ status }) => {
   const map = {
     Approved: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: '✓', border: 'rgba(22,163,74,0.2)' },
     Ready_For_Approval: { bg: 'rgba(59,130,246,0.1)', color: '#3b82f6', icon: 'â—', border: 'rgba(59,130,246,0.2)' },
     OCR_Completed: { bg: 'rgba(16,185,129,0.1)', color: '#10b981', icon: '✓', border: 'rgba(16,185,129,0.2)' },
-    Needs_Verification: { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', icon: 'âš ', border: 'rgba(245,158,11,0.2)' },
-    Duplicate: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: 'â›”', border: 'rgba(239,68,68,0.2)' },
-    Rejected: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: 'âœ—', border: 'rgba(239,68,68,0.2)' },
-    Failed: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: 'âœ—', border: 'rgba(239,68,68,0.2)' },
-    Processing: { bg: 'rgba(99,102,241,0.1)', color: '#6366f1', icon: 'âŸ³', border: 'rgba(99,102,241,0.2)' },
+    Needs_Verification: { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', icon: '⚠️', border: 'rgba(245,158,11,0.2)' },
+    Duplicate: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '⛔', border: 'rgba(239,68,68,0.2)' },
+    Rejected: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '✗', border: 'rgba(239,68,68,0.2)' },
+    Failed: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: '✗', border: 'rgba(239,68,68,0.2)' },
+    Processing: { bg: 'rgba(99,102,241,0.1)', color: '#6366f1', icon: '⟳', border: 'rgba(99,102,241,0.2)' },
     Validated: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: '✓', border: 'rgba(22,163,74,0.2)' },
   };
   const s = map[status] || { bg: '#f3f4f6', color: '#374151', icon: 'â—', border: '#e5e7eb' };
@@ -74,7 +74,7 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// â”€â”€â”€ Confidence chip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Confidence chip ──────────────────────────────────────────────────────────
 const ConfChip = ({ score }) => {
   const pct = Math.round((score || 0) * 100);
   const color = pct >= 95 ? '#16a34a' : pct >= 80 ? '#d97706' : '#dc2626';
@@ -89,7 +89,7 @@ const ConfChip = ({ score }) => {
   );
 };
 
-// â”€â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Main Component ───────────────────────────────────────────────────────────
 const OCRPage = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
@@ -145,7 +145,7 @@ const OCRPage = () => {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
-  // â”€â”€ API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── API ─────────────────────────────────────────────────────────────────────
   const fetchDocuments = async () => {
     setLoadingList(true);
     try {
@@ -291,7 +291,7 @@ const OCRPage = () => {
     }
   };
 
-  // â”€â”€ Synchronize Raw Text â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Synchronize Raw Text ───────────────────────────────────────────────────
   const generateSynchronizedRawText = (currentEditedData) => {
     const baseData = selectedDoc?.correctedData || selectedDoc?.originalOcrData || selectedDoc || {};
     let rawText = baseData.raw_text || selectedDoc?.originalOcrData?.raw_text || '';
@@ -965,7 +965,7 @@ const OCRPage = () => {
         </div>
       </div>
 
-      {/* â”€â”€ Clear Changes Warning Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Clear Changes Warning Modal ────────────────────────────────────── */}
       {showClearModal && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
@@ -991,7 +991,7 @@ const OCRPage = () => {
       )}
 
 
-      {/* â”€â”€ Reject modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Reject modal ────────────────────────────────────────────────────── */}
       {showRejectModal && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
@@ -1030,7 +1030,7 @@ const OCRPage = () => {
   );
 };
 
-// â”€â”€â”€ Tiny style helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Tiny style helpers ───────────────────────────────────────────────────────
 const btnStyle = (bg, color, border) => ({
   display: 'inline-flex', alignItems: 'center', gap: '6px',
   padding: '8px 16px', borderRadius: '7px',

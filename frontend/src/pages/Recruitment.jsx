@@ -631,7 +631,7 @@ const CandidateModal = ({
     </div>;
 };
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Publish Success Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────── Publish Success Modal ─────────── */
 const PublishSuccessModal = ({ job, onClose }) => {
   const publicUrl = `${window.location.origin}/jobs/${job.slug}`;
   const [copied, setCopied] = useState(false);
@@ -785,18 +785,18 @@ const Recruitment = () => {
     }} onSave={handleCandSave} />}
       {publishedJob && <PublishSuccessModal job={publishedJob} onClose={() => setPublishedJob(null)} />}
       <div className="page-content">
-        {/* â”€â”€ Header â”€â”€ */}
+        {/* ── Header ── */}
         <PageHeader title="Recruitment" badge="HRMS" subtitle="Manage job postings, track candidates, and oversee the hiring process." actions={[
           { label: "Post Job", icon: Plus, primary: true, onClick: () => setJobModal(true), style: { height: 40, borderRadius: 7, fontWeight: 500, fontSize: 14 } }
         ]} />
-        {/* â”€â”€ KPI Cards â”€â”€ */}
+        {/* ── KPI Cards ── */}
         <StatsGrid>
           <StatsCard title="Open Positions" value={loading ? "…" : stats.openJobs || 0} colorTheme="blue" icon={Briefcase} trendValue="Active job postings" trendPositive={true} />
           <StatsCard title="Total Applicants" value={loading ? "…" : stats.totalApplied || 0} colorTheme="purple" icon={Users} trendValue="All applications" trendPositive={true} />
           <StatsCard title="In Interview" value={loading ? "…" : stats.interviews || 0} colorTheme="yellow" icon={Calendar} trendValue="Scheduled interviews" trendPositive={true} />
           <StatsCard title="Hired" value={loading ? "…" : stats.hired || 0} colorTheme="mint" icon={CheckCircle} trendValue="Successfully placed" trendPositive={true} />
         </StatsGrid>
-        {/* â”€â”€ Pipeline strip â”€â”€ */}
+        {/* ── Pipeline strip ── */}
         <motion.div initial={{
         opacity: 0,
         y: 10
@@ -879,7 +879,7 @@ const Recruitment = () => {
           })}
           </div>
         </motion.div>
-        {/* â”€â”€ Tabs â”€â”€ */}
+        {/* ── Tabs ── */}
         <div style={{
         display: "flex",
         gap: 4,
@@ -902,7 +902,7 @@ const Recruitment = () => {
               {tab === "jobs" ? `Job Postings (${jobs.length})` : `Candidates (${candidates.length})`}
             </button>)}
         </div>
-        {/* â”€â”€ Content â”€â”€ */}
+        {/* ── Content ── */}
         <motion.div initial={{
         opacity: 0,
         y: 20
@@ -951,7 +951,7 @@ const Recruitment = () => {
               </div>}
           </div>
           <div className="rd-table-scroll">
-            {/* â”€â”€ Jobs Table â”€â”€ */}
+            {/* ── Jobs Table ── */}
             {activeTab === "jobs" && <table className="rd-table rd-table-responsive" style={{
             width: "100%"
           }}>
@@ -1169,7 +1169,7 @@ const Recruitment = () => {
               })}
                 </tbody>
               </table>}
-            {/* â”€â”€ Candidates Table â”€â”€ */}
+            {/* ── Candidates Table ── */}
             {activeTab === "candidates" && <table className="rd-table rd-table-responsive" style={{ width: "100%" }}>
                 <thead>
                   <tr>

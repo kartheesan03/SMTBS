@@ -36,7 +36,7 @@ import { AuthContext } from "../context/AuthContext";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import UserAvatar from "../components/UserAvatar";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
-/* â”€â”€â”€ Helper Utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Helper Utilities ─────────────────────────── */
 const formatTime = (iso) => {
   if (!iso) return "—";
   if (typeof iso === "string" && !iso.includes("T") && iso.includes(":"))
@@ -91,7 +91,7 @@ const MONTHS = [
   "November",
   "December",
 ];
-/* â”€â”€â”€ Status Badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Status Badge ─────────────────────────────── */
 const StatusBadge = ({ status }) => {
   const map = {
     Present: { bg: "#dcfce7", color: "#166534", dot: "#16a34a" },
@@ -128,7 +128,7 @@ const StatusBadge = ({ status }) => {
     </span>
   );
 };
-/* â”€â”€â”€ Edit Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Edit Modal ───────────────────────────────── */
 const EditModal = ({ record, onClose, onSave }) => {
   const [status, setStatus] = useState(record?.status || "-");
   const [checkIn, setCheckIn] = useState(
@@ -385,7 +385,7 @@ const EditModal = ({ record, onClose, onSave }) => {
     </div>
   );
 };
-/* â”€â”€â”€ DAILY TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── DAILY TAB ────────────────────────────────── */
 const DailyTab = ({ canEdit }) => {
   const [data, setData] = useState([]);
   const [stats, setStats] = useState({
@@ -836,7 +836,7 @@ const DailyTab = ({ canEdit }) => {
     </motion.div>
   );
 };
-/* â”€â”€â”€ MONTHLY SUMMARY TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── MONTHLY SUMMARY TAB ──────────────────────── */
 const MonthlyTab = () => {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -1259,7 +1259,7 @@ const MonthlyTab = () => {
     </>
   );
 };
-/* â”€â”€â”€ HISTORY TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── HISTORY TAB ──────────────────────────────── */
 const HistoryTab = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -1699,7 +1699,7 @@ const HistoryTab = () => {
     </>
   );
 };
-/* â”€â”€â”€ MAIN COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── MAIN COMPONENT ───────────────────────────── */
 const MasterAttendance = () => {
   const { user } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("daily");

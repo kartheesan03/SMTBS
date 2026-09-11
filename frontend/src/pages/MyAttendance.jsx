@@ -288,7 +288,7 @@ const MyAttendance = () => {
       />{" "}
       <div className="att-main-grid">
         {" "}
-        {/* â”€â”€ LEFT COLUMN: HERO â”€â”€ */}{" "}
+        {/* ── LEFT COLUMN: HERO ── */}{" "}
         <div className="att-left-col">
           {" "}
           <div className="att-card att-hero-card">
@@ -445,7 +445,7 @@ const MyAttendance = () => {
             </div>{" "}
           </div>{" "}
         </div>{" "}
-        {/* â”€â”€ RIGHT COLUMN: DASHBOARD â”€â”€ */}{" "}
+        {/* ── RIGHT COLUMN: DASHBOARD ── */}{" "}
         <div className="att-right-col">
           {" "}
           {/* TOP SUMMARY KPIs */}{" "}

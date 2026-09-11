@@ -36,7 +36,7 @@ import PageHeader from "../components/PageHeader";
 import { LoadingState } from "../components/DataStates";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import API from "../api/axios";
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────── helpers ─────────────────────────── */
 const MONTHS = [
   "January",
   "February",
@@ -91,7 +91,7 @@ const calcHrs = (ci, co, base) => {
   const h = (e - s) / 36e5;
   return h > 0 ? h : null;
 };
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Custom Tooltip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────── Custom Tooltip ─────────────────────── */
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -129,7 +129,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   }
   return null;
 };
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Status Badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────── Status Badge ─────────────────────── */
 const STATUS_META = {
   Present: { bg: "#dcfce7", color: "#166534", dot: "#16a34a" },
   Late: { bg: "#fef9c3", color: "#854d0e", dot: "#ca8a04" },
@@ -166,7 +166,7 @@ const StatusBadge = ({ status }) => {
     </span>
   );
 };
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Today Hero Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────── Today Hero Card ──────────────────── */
 const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
   const isActive = status?.checkIn && !status?.checkOut;
   const isCompleted = status?.checkIn && status?.checkOut;
@@ -362,7 +362,7 @@ const TodayCard = ({ status, timer, onCheckIn, onCheckOut, busy }) => {
     </motion.div>
   );
 };
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Attendance Table (Daily) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────── Attendance Table (Daily) ─────────── */
 const AttendanceTable = ({ rows, showDate = true }) => {
   if (!rows || rows.length === 0)
     return (
@@ -497,7 +497,7 @@ const TH = {
   whiteSpace: "nowrap",
 };
 const TD = { padding: "14px 20px", fontSize: 14, whiteSpace: "nowrap" };
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Monthly Table (all days) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────── Monthly Table (all days) ─────────── */
 const STATUS_ROW_META = {
   Present: { bg: "#f0fdf4", dot: "#16a34a", color: "#166534" },
   Late: { bg: "#fefce8", dot: "#ca8a04", color: "#854d0e" },
@@ -674,7 +674,7 @@ const MonthlyTable = ({ rows, todayStr }) => {
     </div>
   );
 };
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Daily Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────── Daily Tab ────────────────────────── */
 const DailyTab = ({ myHistory }) => {
   const [selDate, setSelDate] = useState(getLocalYMD());
   const goDay = (d) => {
@@ -818,7 +818,7 @@ const CARD = {
   overflow: "hidden",
   boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
 };
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Monthly Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────── Monthly Tab ───────────────────────── */
 const MonthlyTab = ({ myHistory }) => {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -1136,7 +1136,7 @@ const MonthlyTab = ({ myHistory }) => {
     </div>
   );
 };
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────── Main Component ───────────────────── */
 const Attendance = () => {
   const { user } = useContext(AuthContext);
   const [status, setStatus] = useState(null);

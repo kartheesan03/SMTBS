@@ -625,7 +625,7 @@ const HolidayCalendar = () => {
             alignItems: "start",
           }}
         >
-          {/* â”€â”€ Left: Mini Calendar â”€â”€ */}
+          {/* ── Left: Mini Calendar ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -806,7 +806,7 @@ const HolidayCalendar = () => {
               ))}
             </motion.div>
           </div>
-          {/* â”€â”€ Right: Holiday List â”€â”€ */}
+          {/* ── Right: Holiday List ── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

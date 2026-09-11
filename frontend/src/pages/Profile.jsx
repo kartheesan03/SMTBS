@@ -564,7 +564,7 @@ const Profile = () => {
             <div className="danger-info">
               <h4>Delete Account Permanently</h4>
               <p>
-                âš  This action cannot be undone. All your profile data, orders,
+                ⚠️ This action cannot be undone. All your profile data, orders,
                 materials, and account information will be permanently removed.
               </p>
             </div>

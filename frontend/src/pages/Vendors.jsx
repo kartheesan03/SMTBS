@@ -118,7 +118,33 @@ const Vendors = () => {
   }, {
     key: "category",
     label: "Category",
-    sortable: true
+    sortable: true,
+    render: val => {
+      const cat = val || "Uncategorized";
+      return <span style={{
+        padding: "4px 10px",
+        fontSize: 12,
+        fontWeight: 600,
+        background: "#f1f5f9",
+        color: "#475569",
+        borderRadius: "12px",
+        display: "inline-block"
+      }}>{cat}</span>;
+    }
+  }, {
+    key: "materialsSupplied",
+    label: "Materials",
+    render: (val) => {
+      if (!val || !Array.isArray(val) || val.length === 0) return <span style={{ color: "#94a3b8", fontSize: 12 }}>None</span>;
+      return <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+        {val.slice(0, 2).map((m, i) => (
+          <span key={i} style={{ padding: "2px 6px", background: "#f1f5f9", borderRadius: "4px", fontSize: 11, color: "#475569" }}>
+            {typeof m === 'string' ? m : m.name}
+          </span>
+        ))}
+        {val.length > 2 && <span style={{ padding: "2px 6px", background: "#f1f5f9", borderRadius: "4px", fontSize: 11, color: "#64748b" }}>+{val.length - 2}</span>}
+      </div>;
+    }
   }, {
     key: "rating",
     label: "Rating",

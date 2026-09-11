@@ -430,10 +430,10 @@ const Settings = () => {
                         phone: user?.phone || "",
                         address: user?.address || "",
                       });
-                      toast("Changes cancelled", { icon: "âœ–" });
+                      toast("Changes cancelled", { icon: "✖" });
                     }}
                   >
-                    <span>âœ–</span> Cancel
+                    <span>✖</span> Cancel
                   </button>
                   <button
                     type="submit"

@@ -116,7 +116,7 @@ const Leads = () => {
         <StatsGrid>
           {" "}
           <StatsCard title="Total Leads" value={leads.length} colorTheme="blue" icon={Target} trendValue="All leads" trendPositive={true} />{" "}
-          <StatsCard title="Hot Leads (â‰¥80)" value={hotLeads.length} colorTheme="pink" icon={Zap} trendValue="High priority" trendPositive={true} />{" "}
+          <StatsCard title="Hot Leads (≥80)" value={hotLeads.length} colorTheme="pink" icon={Zap} trendValue="High priority" trendPositive={true} />{" "}
           <StatsCard title="In Negotiation" value={inNegotiation.length} colorTheme="purple" icon={Handshake} trendValue="Active talks" trendPositive={true} />{" "}
           <StatsCard title="Pipeline Value" value={formatCurrency(pipelineValue)} colorTheme="mint" icon={IndianRupee} trendValue="Potential revenue" trendPositive={true} />{" "}
         </StatsGrid>{" "}
@@ -347,7 +347,7 @@ const Leads = () => {
                       border: "none"
                     }} onClick={() => advanceLead(l)}>
                             {" "}
-                            Advance â†’{" "}
+                            Advance →{" "}
                           </button>{" "}
                         </td>{" "}
                       </tr>;

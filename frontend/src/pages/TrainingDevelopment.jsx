@@ -384,7 +384,7 @@ const TrainingDevelopment = () => {
   }} className="rd-container page-container">
       {showAddModal && <AddCourseModal onClose={() => setShowAddModal(false)} onSave={newCourse => setCourses(prev => [newCourse, ...prev])} />}
       <div className="page-content">
-        {/* â”€â”€ Module Header â”€â”€ */}
+        {/* ── Module Header ── */}
         <PageHeader
           title="Training & Development"
           badge="HRMS"
@@ -396,14 +396,14 @@ const TrainingDevelopment = () => {
             onClick: () => setShowAddModal(true)
           }]}
         />
-        {/* â”€â”€ KPI Cards â”€â”€ */}
+        {/* ── KPI Cards ── */}
         <StatsGrid>
           <StatsCard title="Total Courses" value={stats.totalCourses ?? 0} colorTheme="blue" icon={BookOpen} trendValue="All categories" trendPositive={true} />
           <StatsCard title="Enrolled Employees" value={stats.enrolledEmployees ?? 0} colorTheme="purple" icon={Users} trendValue="Across all courses" trendPositive={true} />
           <StatsCard title="Avg. Completion" value={`${stats.avgCompletion ?? 0}%`} colorTheme="mint" icon={TrendingUp} trendValue="Overall completion rate" trendPositive={(stats.avgCompletion ?? 0) >= 60} />
           <StatsCard title="Certifications" value={stats.certifications ?? 0} colorTheme="yellow" icon={Award} trendValue="Courses completed" trendPositive={true} />
         </StatsGrid>
-        {/* â”€â”€ Table / Course Section â”€â”€ */}
+        {/* ── Table / Course Section ── */}
         <motion.div initial={{
         opacity: 0,
         y: 20

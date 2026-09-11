@@ -71,7 +71,7 @@ const OrderFinanceDetails = () => {
   const [allOrders, setAllOrders] = useState([]);
   const [orderLoading, setOrderLoading] = useState(false);
 
-  /* â”€â”€ Fetch aggregated chart data â”€â”€ */
+  /* ── Fetch aggregated chart data ── */
   const fetchChartData = useCallback(async (year) => {
     setLoading(true);
     setError(null);
@@ -86,7 +86,7 @@ const OrderFinanceDetails = () => {
     }
   }, []);
 
-  /* â”€â”€ Fetch all orders for the year â”€â”€ */
+  /* ── Fetch all orders for the year ── */
   const fetchAllOrders = useCallback(async (year) => {
     setOrderLoading(true);
     try {
@@ -113,17 +113,17 @@ const OrderFinanceDetails = () => {
     fetchAllOrders(selectedYear);
   }, [selectedYear, fetchChartData, fetchAllOrders]);
 
-  /* â”€â”€ Aggregations â”€â”€ */
+  /* ── Aggregations ── */
   const totalSales = chartData.reduce((s, m) => s + (m.sales || 0), 0);
   const totalPurchase = chartData.reduce((s, m) => s + (m.purchases || 0), 0);
   const salesCount = allOrders.filter(o => o.orderType === 'sales').length;
   const purchaseCount = allOrders.filter(o => o.orderType === 'purchase').length;
   const netBalance = totalSales - totalPurchase;
 
-  /* â”€â”€ All unique statuses for filter â”€â”€ */
+  /* ── All unique statuses for filter ── */
   const statusOptions = [...new Set(allOrders.map(o => o.status).filter(Boolean))];
 
-  /* â”€â”€ Filtered list â”€â”€ */
+  /* ── Filtered list ── */
   const filtered = allOrders.filter(o => {
     if (filterMonth !== 'all' && o._month !== parseInt(filterMonth)) return false;
     if (filterType !== 'all' && o.orderType !== filterType) return false;

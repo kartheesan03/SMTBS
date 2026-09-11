@@ -51,14 +51,30 @@ const VendorDetails = () => {
         const { data: vendorData } = await API.get(`/vendors/${id}`);
         const actualVendor = vendorData.vendor || vendorData;
         setVendor(actualVendor);
-        const { data: materialsData } = await API.get("/materials");
-        const vId = String(actualVendor.id || actualVendor._id);
-        const vMaterials = materialsData.filter(
-          (m) =>
-            String(m.vendorId) === vId ||
-            String(m.vendor?.id || m.vendor?._id || m.vendor) === vId
-        );
-        setMaterials(vMaterials);
+        // Use materials returned directly from the vendor endpoint
+        let dbMaterials = Array.isArray(vendorData.materials) ? vendorData.materials : [];
+        // If the vendor endpoint didn't return linked materials, try dedicated endpoint
+        if (dbMaterials.length === 0) {
+          try {
+            const { data: vendorMatsData } = await API.get(`/vendors/${id}/materials`);
+            if (Array.isArray(vendorMatsData)) dbMaterials = vendorMatsData;
+          } catch (_) {}
+        }
+        // Final fallback: use materialsSupplied field on the vendor record
+        if (dbMaterials.length === 0 && actualVendor.materialsSupplied && actualVendor.materialsSupplied.length > 0) {
+          dbMaterials = actualVendor.materialsSupplied.map((m, idx) => {
+            const name = typeof m === 'string' ? m : (m.name || 'Unknown Material');
+            return {
+              id: `ms-${idx}`,
+              sku: typeof m === 'object' && m.sku ? m.sku : '-',
+              name,
+              quantity: typeof m === 'object' && m.quantity != null ? m.quantity : 0,
+              unit: typeof m === 'object' && m.unit ? m.unit : 'pcs',
+              price: typeof m === 'object' && m.price != null ? m.price : 0,
+            };
+          });
+        }
+        setMaterials(dbMaterials);
         const events = [];
         if (actualVendor.createdAt) {
           events.push({

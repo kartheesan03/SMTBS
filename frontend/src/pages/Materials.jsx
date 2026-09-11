@@ -174,7 +174,45 @@ const Materials = () => {
       ),
     },
     {
+      key: "vendor",
+      label: "VENDOR",
+      sortable: false,
+      render: (val, row) => {
+        const vendorInfo = row.vendor;
+        if (!vendorInfo || (!vendorInfo.vendorName && !vendorInfo.name)) {
+          return (
+            <span style={{ color: "#cbd5e1", fontSize: 12, fontStyle: "italic" }}>
+              No Vendor
+            </span>
+          );
+        }
+        const name = vendorInfo.vendorName || vendorInfo.name;
+        const vid = vendorInfo.vendorId || vendorInfo.id || vendorInfo._id;
+        return (
+          <span
+            onClick={(e) => { e.stopPropagation(); navigate(`/vendors/${vid}`); }}
+            title={`View vendor: ${name}`}
+            style={{
+              color: "#0f172a",
+              fontWeight: 600,
+              fontSize: 13,
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              whiteSpace: "nowrap",
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = "#3b82f6"}
+            onMouseLeave={e => e.currentTarget.style.color = "#0f172a"}
+          >
+            {name}
+          </span>
+        );
+      },
+    },
+    {
       key: "quantity",
+
       label: "AVAIL / TOTAL",
       sortable: true,
       align: "center",
@@ -532,7 +570,7 @@ const Materials = () => {
               subtitle="View and manage materials currently available across project locations."
               columns={columns}
               data={materialsData}
-              searchPlaceholder="Search by item code or name..."
+              searchPlaceholder="Search by item code, name, category, or vendor..."
               expandableRowRender={(row) => (
                 <div
                   style={{

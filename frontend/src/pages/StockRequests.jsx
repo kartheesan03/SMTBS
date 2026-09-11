@@ -130,7 +130,7 @@ const StockHealthPanel = ({
     padding: 0,
     overflow: "hidden"
   }}>
-      {/* â”€â”€ LEFT: Gauge + Sparkline â”€â”€ */}
+      {/* ── LEFT: Gauge + Sparkline ── */}
       <div style={{
       flex: "0 0 auto",
       width: 224,
@@ -175,7 +175,7 @@ const StockHealthPanel = ({
           <Sparkline data={chartData} />
         </div>
       </div>
-      {/* â”€â”€ RIGHT: Distribution bar + legend + stats â”€â”€ */}
+      {/* ── RIGHT: Distribution bar + legend + stats ── */}
       <div style={{
       flex: 1,
       padding: "28px 28px 24px",
@@ -227,7 +227,7 @@ const StockHealthPanel = ({
             background: pct === 100 ? "#d1fae5" : pct >= 80 ? "#fef9c3" : "#fee2e2",
             color: pct === 100 ? "#059669" : pct >= 80 ? "#a16207" : "#dc2626"
           }}>
-              {pct === 100 ? "✓ All Healthy" : pct >= 80 ? "âš  Mostly Healthy" : "âœ— Needs Attention"}
+              {pct === 100 ? "✓ All Healthy" : pct >= 80 ? "⚠️ Mostly Healthy" : "✗ Needs Attention"}
             </span>
           </div>
           {/* Segmented bar */}
@@ -413,7 +413,7 @@ const StockRequests = () => {
           <StatsCard title="Low Stock" value={lowCount} colorTheme="yellow" icon={AlertTriangle} trendValue={`${totalItems ? Math.round(lowCount / totalItems * 100) : 0}% approaching reorder`} trendPositive={false} onClick={() => navigate("/stock-requests")} />
           <StatsCard title="Critical / 0" value={outCount} colorTheme="peach" icon={XCircle} trendValue={`${totalItems ? Math.round(outCount / totalItems * 100) : 0}% need action`} trendPositive={false} onClick={() => navigate("/stock-requests")} />
         </StatsGrid>
-        {/* â”€â”€ Stock Health Panel â”€â”€ */}
+        {/* ── Stock Health Panel ── */}
         <StockHealthPanel healthyCount={healthyCount} lowCount={lowCount} outCount={outCount} totalItems={totalItems} allCategories={allCategories} chartData={chartData} />
         {/* Table Section */}
         <div className="rd-table-card">

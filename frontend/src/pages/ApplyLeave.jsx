@@ -225,7 +225,7 @@ const ApplyLeave = () => {
         </div>
 
         <style>{`
-          /* â”€â”€ Toast â”€â”€ */
+          /* ── Toast ── */
           .lv-toast {
             position: fixed;
             bottom: 28px;
@@ -252,7 +252,7 @@ const ApplyLeave = () => {
             color: #dc2626;
           }
 
-          /* â”€â”€ Duration Banner â”€â”€ */
+          /* ── Duration Banner ── */
           .lv-duration-banner {
             display: flex;
             align-items: center;
@@ -304,7 +304,7 @@ const ApplyLeave = () => {
             white-space: nowrap;
           }
 
-          /* â”€â”€ Card â”€â”€ */
+          /* ── Card ── */
           .lv-pro-card {
             background: #ffffff;
             border: 1px solid #e5e7eb;
@@ -313,7 +313,7 @@ const ApplyLeave = () => {
             overflow: hidden;
           }
 
-          /* â”€â”€ Sections â”€â”€ */
+          /* ── Sections ── */
           .lv-section {
             padding: 24px 28px;
             border-bottom: 1px solid #f1f5f9;
@@ -352,7 +352,7 @@ const ApplyLeave = () => {
             color: #d97706;
           }
 
-          /* â”€â”€ Fields â”€â”€ */
+          /* ── Fields ── */
           .lv-field-row {
             display: grid;
             grid-template-columns: 1fr;
@@ -405,7 +405,7 @@ const ApplyLeave = () => {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
           }
 
-          /* â”€â”€ Select â”€â”€ */
+          /* ── Select ── */
           .lv-select-wrap {
             position: relative;
           }
@@ -437,7 +437,7 @@ const ApplyLeave = () => {
             background-repeat: no-repeat;
           }
 
-          /* â”€â”€ Actions â”€â”€ */
+          /* ── Actions ── */
           .lv-actions {
             display: flex;
             justify-content: flex-end;
@@ -489,7 +489,7 @@ const ApplyLeave = () => {
             transform: none;
           }
 
-          /* â”€â”€ Animations â”€â”€ */
+          /* ── Animations ── */
           .lv-spin {
             animation: lvSpin 1s linear infinite;
           }
@@ -501,7 +501,7 @@ const ApplyLeave = () => {
             to { opacity: 1; transform: translateY(0); }
           }
 
-          /* â”€â”€ Responsive â”€â”€ */
+          /* ── Responsive ── */
           @media (max-width: 640px) {
             .lv-section { padding: 20px 18px; }
             .lv-field-row.two-col { grid-template-columns: 1fr; }

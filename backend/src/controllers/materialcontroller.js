@@ -1,6 +1,8 @@
 const Material = require('../models/Material');
 const MaterialMovement = require('../models/MaterialMovement');
 const Order = require('../models/Order');
+const Vendor = require('../models/Vendor');
+const sequelize = require('../config/sequelize');
 const { notifyManager, notifyCritical } = require('../services/notificationService');
 const { logAudit, buildChanges } = require('../services/auditService');
 const Notification = require('../models/Notification');
@@ -56,15 +58,48 @@ const getMaterialList = async (req, res) => {
 };
 const getMaterials = async (req, res) => {
     try {
-        const materials = await Material.find({}).populate('vendor', 'name email contactPerson phone');
+        const materials = await Material.find({});
         const activeMaterials = materials.filter(m => m.isActive !== false);
-        if (req.user && req.user.role === 'Employee') {
-            console.log(`[API /materials] Fetched ${activeMaterials.length} materials for Employee ${req.user.id || req.user._id}.`);
-            return res.json(activeMaterials);
-        }
-        console.log(`[API /materials] Fetched ${activeMaterials.length} active materials.`);
-        res.json(activeMaterials);
+
+        // Build a vendor map from the vendormaterial join table (preferred vendor per material)
+        const vendorLinks = await sequelize.query(
+            `SELECT vm.materialId, vm.vendorId, vm.isPreferred, v.name as vendorName
+             FROM vendormaterial vm
+             INNER JOIN vendor v ON vm.vendorId = v.id
+             WHERE vm.status = 'Active'
+             ORDER BY vm.isPreferred DESC`,
+            { type: sequelize.QueryTypes.SELECT }
+        );
+
+        // Build a map: materialId → [{ vendorId, vendorName, isPreferred }]
+        const matVendorMap = {};
+        vendorLinks.forEach(link => {
+            const mid = String(link.materialId);
+            if (!matVendorMap[mid]) matVendorMap[mid] = [];
+            matVendorMap[mid].push({
+                vendorId: link.vendorId,
+                vendorName: link.vendorName,
+                isPreferred: !!link.isPreferred
+            });
+        });
+
+        // Attach vendor info (primary vendor first)
+        const enriched = activeMaterials.map(m => {
+            const plain = m.toJSON ? m.toJSON() : { ...m };
+            const mid = String(m.id || m._id);
+            const vendors = matVendorMap[mid] || [];
+            const primaryVendor = vendors.find(v => v.isPreferred) || vendors[0] || null;
+            return {
+                ...plain,
+                vendor: primaryVendor,
+                allVendors: vendors
+            };
+        });
+
+        console.log(`[API /materials] Fetched ${enriched.length} active materials with vendor info.`);
+        res.json(enriched);
     } catch (error) {
+        console.error('[getMaterials error]', error.message);
         res.status(500).json({ message: error.message });
     }
 };

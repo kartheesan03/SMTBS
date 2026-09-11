@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import PageHeader from "../components/PageHeader";
+import API from "../api/axios";
 import "./IntegrationsSettings.css";
 const IntegrationsSettings = () => {
   const defaultIntegrations = [
@@ -78,40 +79,101 @@ const IntegrationsSettings = () => {
       iconBg: "#f8fafc",
     },
   ];
-  const [apiKey, setApiKey] = useState("sk-smtbms-........................");
-  const [webhookUrl, setWebhookUrl] = useState(
-    "https://your-app.com/webhook/smtbms"
-  );
+  const [apiKey, setApiKey] = useState("");
+  const [webhookUrl, setWebhookUrl] = useState("");
   const [intList, setIntList] = useState(defaultIntegrations);
-  const handleToggleConnect = (id) => {
-    setIntList((prev) =>
-      prev.map((int) => {
-        if (int.id === id) {
-          const newState = !int.connected;
-          toast.success(
-            `${int.name} ${
-              newState ? "connected" : "disconnected"
-            } successfully`
-          );
-          return { ...int, connected: newState };
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    fetchIntegrations();
+  }, []);
+
+  const fetchIntegrations = async () => {
+    try {
+      setLoading(true);
+      const { data } = await API.get('/integrations');
+      if (data.integrations) {
+        setIntList((prev) =>
+          prev.map((int) => {
+            const dbInt = data.integrations.find((i) => i.provider === int.id);
+            return dbInt ? { ...int, connected: dbInt.isConnected } : int;
+          })
+        );
+      }
+      if (data.apiKey) setApiKey(data.apiKey);
+      if (data.webhookUrl) setWebhookUrl(data.webhookUrl);
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to load integrations');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleConnect = async (id) => {
+    const int = intList.find((i) => i.id === id);
+    const isConnecting = !int.connected;
+    
+    try {
+      if (isConnecting) {
+        if (id === 'slack') {
+          const webhookUrl = prompt("Enter your Slack Incoming Webhook URL:");
+          if (!webhookUrl) return;
+          toast.loading(`Connecting to ${int.name}...`, { id: 'connectToast' });
+          await API.post(`/integrations/${id}/connect`, { webhookUrl });
+          toast.success(`${int.name} connected successfully`, { id: 'connectToast' });
+        } else if (id === 'sheets' || id === 'whatsapp') {
+          const webhookUrl = prompt("Enter your Zapier/Make Webhook URL:");
+          if (!webhookUrl) return;
+          toast.loading(`Connecting to ${int.name}...`, { id: 'connectToast' });
+          await API.post(`/integrations/${id}/connect`, { webhookUrl });
+          toast.success(`${int.name} connected successfully`, { id: 'connectToast' });
+        } else {
+          toast.loading(`Connecting to ${int.name}...`, { id: 'connectToast' });
+          // Simulate a brief delay for other mocked endpoints (aws, github, docker)
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await API.post(`/integrations/${id}/connect`);
+          toast.success(`${int.name} connected successfully`, { id: 'connectToast' });
         }
-        return int;
-      })
-    );
+      } else {
+        toast.loading(`Disconnecting ${int.name}...`, { id: 'connectToast' });
+        await API.post(`/integrations/${id}/disconnect`);
+        toast.success(`${int.name} disconnected successfully`, { id: 'connectToast' });
+      }
+      
+      setIntList((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, connected: isConnecting } : i))
+      );
+    } catch (error) {
+      console.error(error);
+      toast.error(`Failed to ${isConnecting ? 'connect' : 'disconnect'} ${int.name}`, { id: 'connectToast' });
+    }
   };
-  const handleRegenerateKey = () => {
-    const randomString =
-      Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15);
-    setApiKey(`sk-smtbms-${randomString}`);
-    toast.success("API Key regenerated successfully");
+
+  const handleRegenerateKey = async () => {
+    if (!window.confirm("Are you sure? Existing applications using this key will lose access.")) return;
+    try {
+      const { data } = await API.post('/integrations/system/apikey');
+      setApiKey(data.apiKey);
+      toast.success("API Key regenerated successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to regenerate API key");
+    }
   };
-  const handleSaveWebhook = () => {
+
+  const handleSaveWebhook = async () => {
     if (!webhookUrl.trim()) {
       toast.error("Webhook URL cannot be empty");
       return;
     }
-    toast.success("Webhook URL saved successfully");
+    try {
+      await API.post('/integrations/system/webhook', { webhookUrl });
+      toast.success("Webhook URL saved successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save Webhook URL");
+    }
   };
   const copyToClipboard = () => {
     navigator.clipboard.writeText(apiKey);

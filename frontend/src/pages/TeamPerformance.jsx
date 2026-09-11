@@ -207,7 +207,7 @@ const TeamPerformance = () => {
     return matchesSearch && matchesDept && matchesRating;
   });
 
-  /* â”€â”€ Edit Performance Modal helper â”€â”€ */
+  /* ── Edit Performance Modal helper ── */
   const renderEditModal = () => {
     if (!editModal) return null;
     const ts  = Math.min(100, Math.max(0, editModal.taskScore  ?? editModal.emp.kpi));

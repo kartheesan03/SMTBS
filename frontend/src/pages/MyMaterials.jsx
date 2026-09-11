@@ -701,7 +701,7 @@ const MyMaterials = () => {
               fontWeight: 700,
               color: "#9f1239"
             }}>
-                  âš  Low Stock Alert
+                  ⚠️ Low Stock Alert
                 </h4>
                 <p style={{
               margin: 0,

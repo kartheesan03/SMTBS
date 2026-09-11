@@ -202,8 +202,8 @@
 
 .ui-kv-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 24px;
 }
 
 .ui-kv-item {
@@ -224,4 +224,7 @@
     font-size: 14px;
     font-weight: 600;
     color: var(--text-heading, #0f172a);
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    min-width: 0;
 }
