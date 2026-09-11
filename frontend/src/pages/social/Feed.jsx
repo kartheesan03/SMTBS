@@ -68,7 +68,7 @@ class SafeSection extends React.Component {
               cursor: 'pointer',
             }}
           >
-            ðŸ”„ Retry
+            🔄 Retry
           </button>
           {process.env.NODE_ENV === 'development' && (
             <details style={{ marginTop: '8px', fontSize: '11px', color: '#94a3b8', textAlign: 'left', maxWidth: '400px', wordBreak: 'break-all' }}>
@@ -140,7 +140,7 @@ const Feed = () => {
       if (res.following) {
         toast.success(`Now following ${userName}`);
       } else {
-        toast(`Unfollowed ${userName}`, { icon: 'ðŸ‘‹' });
+        toast(`Unfollowed ${userName}`, { icon: '👋' });
         // Remove from suggestions after unfollow so list refreshes
         setSuggested(prev => prev.filter(p => p.id !== userId));
         setFollowedIds(prev => { const n = new Set(prev); n.delete(userId); return n; });

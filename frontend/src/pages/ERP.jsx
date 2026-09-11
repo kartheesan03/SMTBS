@@ -247,7 +247,7 @@ const ERP = () => {
               color: "#ef4444",
               fontSize: "14px"
             }}>
-              ðŸš©
+              🚩
             </span>}{" "}
           </div>{" "}
         </td>{" "}

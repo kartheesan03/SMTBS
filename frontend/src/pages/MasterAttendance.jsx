@@ -238,7 +238,7 @@ const EditModal = ({ record, onClose, onSave }) => {
                 fontSize: 13,
               }}
             >
-              Â· {formatDate(record.date)}
+              · {formatDate(record.date)}
             </span>
           </p>
         </div>
@@ -1516,7 +1516,7 @@ const HistoryTab = () => {
           }}
         >
           <strong style={{ color: "#1e293b" }}>{data.length}</strong> records
-          found Â· Page {page} of {totalPages || 1}
+          found · Page {page} of {totalPages || 1}
         </div>
         <div className="rd-table-scroll">
           <table

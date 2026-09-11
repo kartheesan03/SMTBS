@@ -645,7 +645,7 @@ const PublishSuccessModal = ({ job, onClose }) => {
       <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 500, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
         <div style={{ background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', padding: '32px 32px 24px', textAlign: 'center', position: 'relative' }}>
           <button onClick={onClose} style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-          <div style={{ width: 64, height: 64, background: 'rgba(255,255,255,0.2)', borderRadius: '50%', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>ðŸŽ‰</div>
+          <div style={{ width: 64, height: 64, background: 'rgba(255,255,255,0.2)', borderRadius: '50%', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30 }}>🎉</div>
           <h2 style={{ color: '#fff', margin: 0, fontSize: 20, fontWeight: 800 }}>Job Published!</h2>
           <p style={{ color: 'rgba(255,255,255,0.8)', marginTop: 8, fontSize: 14 }}>{job.title} is now live and accepting applications.</p>
         </div>
@@ -1255,7 +1255,7 @@ const Recruitment = () => {
                           </td>
                           <td data-label="Resume">
                             {c.resume
-                              ? <a href={`http://localhost:5000${c.resume}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: "#4f46e5", background: "#eef2ff", padding: "3px 10px", borderRadius: 5, textDecoration: "none", whiteSpace: "nowrap" }}>ðŸ“„ View</a>
+                              ? <a href={`http://localhost:5000${c.resume}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, fontWeight: 600, color: "#4f46e5", background: "#eef2ff", padding: "3px 10px", borderRadius: 5, textDecoration: "none", whiteSpace: "nowrap" }}>📄 View</a>
                               : <span style={{ color: "#cbd5e1" }}>—</span>}
                           </td>
                           <td data-label="Source">

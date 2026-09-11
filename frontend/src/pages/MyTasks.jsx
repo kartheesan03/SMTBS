@@ -542,7 +542,7 @@ const MyTasks = () => {
         <div className="modal-overlay">
           <div className="premium-card modal-content-lg animate-pop">
             <div className="modal-header">
-              <h2>ðŸ“‹ Assign New Task</h2>
+              <h2>📋 Assign New Task</h2>
               <button className="close-btn" onClick={() => setShowModal(false)}>
                 âœ•
               </button>
@@ -607,9 +607,9 @@ const MyTasks = () => {
                       setFormData({ ...formData, priority: e.target.value })
                     }
                   >
-                    <option value="Low">ðŸŸ¢ Low</option>
-                    <option value="Medium">ðŸŸ¡ Medium</option>
-                    <option value="High">ðŸ”´ High</option>
+                    <option value="Low">🟢 Low</option>
+                    <option value="Medium">🟡 Medium</option>
+                    <option value="High">🔴 High</option>
                   </select>
                 </div>
               </div>

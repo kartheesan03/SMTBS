@@ -107,7 +107,7 @@ const ExpenseTracking = () => {
             padding: '12px 16px', marginBottom: '20px',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '18px' }}>ðŸ”—</span>
+              <span style={{ fontSize: '18px' }}>🔗</span>
               <div>
                 <div style={{ fontSize: '13px', fontWeight: '700', color: '#1d4ed8' }}>
                   Viewing record linked from OCR Document
@@ -117,7 +117,7 @@ const ExpenseTracking = () => {
                     ocrContext.invoiceId && `Invoice: ${ocrContext.invoiceId}`,
                     ocrContext.poNumber && `PO: ${ocrContext.poNumber}`,
                     ocrContext.vendor && `Vendor: ${ocrContext.vendor}`,
-                  ].filter(Boolean).join('  Â·  ')}
+                  ].filter(Boolean).join('  ·  ')}
                 </div>
               </div>
             </div>

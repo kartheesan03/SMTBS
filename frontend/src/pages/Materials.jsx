@@ -567,7 +567,7 @@ const Materials = () => {
                       {row.vendor?.name || "Local Vendor"}
                     </div>
                     <div style={{ color: "#64748b" }}>
-                      {row.vendor?.contactPerson || "Contact"} â€¢{" "}
+                      {row.vendor?.contactPerson || "Contact"} •{" "}
                       {row.vendor?.phone || "+91 0000000000"}
                     </div>
                   </div>

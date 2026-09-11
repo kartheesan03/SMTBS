@@ -670,7 +670,7 @@ const OCRPage = () => {
                 Drag & Drop any document or image
               </h2>
               <p style={{ color: '#64748b', fontSize: '13px', margin: 0, fontWeight: '500' }}>
-                PDF â€¢ DOC â€¢ DOCX â€¢ PNG â€¢ JPG â€¢ TIFF & more supported
+                PDF • DOC • DOCX • PNG • JPG • TIFF & more supported
               </p>
             </div>
 
@@ -839,7 +839,7 @@ const OCRPage = () => {
       {/* AI Document Assistant */}
       <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '24px' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '18px' }}>ðŸ¤–</span>
+          <span style={{ fontSize: '18px' }}>🤖</span>
           <div>
             <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>AI Document Assistant</h3>
             <p style={{ margin: 0, color: '#64748b', fontSize: '13px' }}>Ask questions about the uploaded document (e.g. "What is the total amount?")</p>

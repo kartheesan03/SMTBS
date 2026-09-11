@@ -1,4 +1,4 @@
-﻿import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import PasswordInput from "../components/ui/PasswordInput";
@@ -392,7 +392,7 @@ const Settings = () => {
                   <div className="form-group">
                     <label>Phone</label>
                     <div className="input-with-icon">
-                      <span className="input-icon">ðŸ“ž</span>
+                      <span className="input-icon">📞</span>
                       <input
                         type="text"
                         value={formData.phone}
@@ -406,7 +406,7 @@ const Settings = () => {
                   <div className="form-group">
                     <label>Address</label>
                     <div className="input-with-icon">
-                      <span className="input-icon">ðŸ“</span>
+                      <span className="input-icon">📍 </span>
                       <input
                         type="text"
                         value={formData.address}
@@ -440,7 +440,7 @@ const Settings = () => {
                     className="btn-save-full"
                     style={{ marginTop: 0 }}
                   >
-                    <span>ðŸ’¾</span> Save Changes
+                    <span>💾</span> Save Changes
                   </button>
                 </div>
               </form>
@@ -473,7 +473,7 @@ const Settings = () => {
                   </div>
                 </div>
                 <div className="detail-row">
-                  <div className="detail-label">ðŸ“… Joining Date</div>
+                  <div className="detail-label">📅 Joining Date</div>
                   <div className="detail-value">
                     {employeeData?.joinDate || employeeData?.joiningDate
                       ? new Date(

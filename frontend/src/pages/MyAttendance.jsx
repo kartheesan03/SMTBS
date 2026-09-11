@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ResponsiveContainer,
@@ -284,7 +284,7 @@ const MyAttendance = () => {
       <PageHeader
         title="My Attendance"
         badge="HRMS"
-        subtitle={`Your personal attendance records Â· ${firstName}`}
+        subtitle={`Your personal attendance records · ${firstName}`}
       />{" "}
       <div className="att-main-grid">
         {" "}

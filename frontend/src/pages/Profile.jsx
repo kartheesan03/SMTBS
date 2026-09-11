@@ -1,4 +1,4 @@
-﻿import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import API from "../api/axios";
 import PasswordInput from "../components/ui/PasswordInput";
@@ -348,7 +348,7 @@ const Profile = () => {
               <div className="form-group">
                 <label>Phone</label>
                 <div className="input-with-icon">
-                  <span className="input-icon">ðŸ“ž</span>
+                  <span className="input-icon">📞</span>
                   <input
                     type="text"
                     value={formData.phone}
@@ -362,7 +362,7 @@ const Profile = () => {
               <div className="form-group">
                 <label>Address</label>
                 <div className="input-with-icon">
-                  <span className="input-icon">ðŸ“</span>
+                  <span className="input-icon">📍 </span>
                   <input
                     type="text"
                     value={formData.address}
@@ -391,17 +391,17 @@ const Profile = () => {
                       phone: employeeData?.phone || "",
                       address: employeeData?.address || "",
                     });
-                    toast("Changes cancelled", { icon: "âœ–" });
+                    toast("Changes cancelled", { icon: "✖" });
                   }}
                 >
-                  <span>âœ–</span> Cancel
+                  <span>✖</span> Cancel
                 </button>
                 <button
                   type="submit"
                   className="btn-save-full"
                   style={{ marginTop: 0 }}
                 >
-                  <span>ðŸ’¾</span> Save Changes
+                  <span>💾</span> Save Changes
                 </button>
               </div>
             </form>
@@ -434,7 +434,7 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="detail-row">
-                  <div className="detail-label">ðŸ“… Joining Date</div>
+                  <div className="detail-label">📅 Joining Date</div>
                   <div className="detail-value">
                     {employeeData?.joinDate || employeeData?.joiningDate
                       ? new Date(
@@ -448,11 +448,11 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="detail-row">
-                  <div className="detail-label">â± Employment Type</div>
+                  <div className="detail-label">⏱️ Employment Type</div>
                   <div className="detail-value">Full-Time</div>
                 </div>
                 <div className="detail-row">
-                  <div className="detail-label">ðŸ¢ Base Location</div>
+                  <div className="detail-label">🏢 Base Location</div>
                   <div className="detail-value">Headquarters</div>
                 </div>
               </div>

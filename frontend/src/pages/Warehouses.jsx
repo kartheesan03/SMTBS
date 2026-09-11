@@ -1,4 +1,4 @@
-﻿import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect } from "react";
 import { Building, Package, AlertTriangle, IndianRupee, MapPin, Plus, Box, ShieldCheck, Search, X } from "lucide-react";
 import API from "../api/axios";
@@ -272,7 +272,7 @@ const Warehouses = () => {
               fontSize: 13,
               color: "#64748b"
             }}>
-                  {selectedZone.location} â€¢ {selectedZone.totalItems} Unique
+                  {selectedZone.location} • {selectedZone.totalItems} Unique
                   Items
                 </p>
               </div>

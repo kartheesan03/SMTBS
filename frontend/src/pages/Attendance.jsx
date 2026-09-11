@@ -1279,7 +1279,7 @@ const Attendance = () => {
           <PageHeader
             title="Attendance Tracker"
             badge="HRMS"
-            subtitle={`Your personal attendance records Â· ${user?.name || ""}`}
+            subtitle={`Your personal attendance records · ${user?.name || ""}`}
           />
         </motion.div>
         {/* Today Card */}

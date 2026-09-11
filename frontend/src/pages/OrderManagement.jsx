@@ -490,7 +490,7 @@ const OrderManagement = () => {
                 const pri = o.priority || "Normal";
                 const priStyle = priorityColors[pri] || priorityColors["Normal"];
                 const type = (o.orderType || "").toLowerCase() === "purchase" || String(orderId).startsWith("PO-") ? "Purchase" : "Sales";
-                const partyName = o.customer?.company || o.customer?.name || o.vendor?.companyName || o.vendor?.name || "â€”";
+                const partyName = o.customer?.company || o.customer?.name || o.vendor?.companyName || o.vendor?.name || "—";
                 return <tr key={o._id || o.id || i} style={{
                   cursor: "pointer"
                 }} onClick={() => navigate(`/orders/${o._id || o.id}/tracking`)}>
@@ -544,7 +544,7 @@ const OrderManagement = () => {
                       day: "2-digit",
                       month: "2-digit",
                       year: "2-digit"
-                    }) : "â€”"}
+                    }) : "—"}
                         </td>{" "}
                         <td data-label="Priority">
                           {" "}
@@ -570,7 +570,7 @@ const OrderManagement = () => {
                         <td style={{
                     color: "#475569"
                   }} data-label="Manager">
-                          {o.manager || o.salesRep || "â€”"}
+                          {o.manager || o.salesRep || "—"}
                         </td>{" "}
                         <td style={{
                     textAlign: "center"
