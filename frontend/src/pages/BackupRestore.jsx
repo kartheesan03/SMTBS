@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import {
   Database,
   Download,
+  CloudDownload,
   RefreshCw,
   Upload,
   ShieldCheck,
@@ -31,17 +32,16 @@ const BackupKPICard = ({
   trendValue,
 }) => {
   const themeClass = color
-    ? `ent-theme-${
-        color === "green"
-          ? "success"
-          : color === "red"
-          ? "danger"
-          : color === "orange"
+    ? `ent-theme-${color === "green"
+      ? "success"
+      : color === "red"
+        ? "danger"
+        : color === "orange"
           ? "warning"
           : color === "purple"
-          ? "purple"
-          : "primary"
-      }`
+            ? "purple"
+            : "primary"
+    }`
     : "ent-theme-primary";
   return (
     <div className={`ent-module-card ${themeClass}`}>
