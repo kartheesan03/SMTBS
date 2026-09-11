@@ -11,11 +11,16 @@ const vendorData = [
     category: 'Steel & Metals',
     contactPerson: 'Ravi Shankar',
     email: 'ravi@srilakshmisteel.in',
-    phone: '9865432100',
-    gstNumber: '33AAAAA0000A1Z5',
+    phone: '+91 98654 32100',
+    address: 'Plot No. 42, SIDCO Industrial Estate, Kurichi, Coimbatore, Tamil Nadu – 641021',
+    gstNumber: '33AABCS1234A1Z5',
+    website: null,
     status: 'Active',
     rating: 4.8,
-    outstanding: 124500
+    outstanding: 124500,
+    city: 'Coimbatore',
+    state: 'Tamil Nadu',
+    pinCode: '641021'
   },
   {
     vendorCode: 'VEN-002',
@@ -23,11 +28,16 @@ const vendorData = [
     category: 'Steel & Metals',
     contactPerson: 'Arjun Kumar',
     email: 'arjun@abcmetals.in',
-    phone: '9876543210',
-    gstNumber: '33BBBBB1111B2Z6',
+    phone: '+91 98765 43210',
+    address: 'Survey No. 78, Anna Nagar Industrial Area, Chennai, Tamil Nadu – 600040',
+    gstNumber: '33AABCM4567B2Z6',
+    website: null,
     status: 'Active',
     rating: 4.5,
-    outstanding: 86200
+    outstanding: 86200,
+    city: 'Chennai',
+    state: 'Tamil Nadu',
+    pinCode: '600040'
   },
   {
     vendorCode: 'VEN-003',
@@ -35,11 +45,16 @@ const vendorData = [
     category: 'Structural Steel',
     contactPerson: 'Suresh Kumar',
     email: 'sales@kumarsteel.in',
-    phone: '9843215678',
-    gstNumber: '33CCCCC2222C3Z7',
+    phone: '+91 98432 15678',
+    address: 'No. 12, Mettur Road, Industrial Nagar, Salem, Tamil Nadu – 636002',
+    gstNumber: '33AABCK7890C3Z7',
+    website: null,
     status: 'Active',
     rating: 4.2,
-    outstanding: 215800
+    outstanding: 215800,
+    city: 'Salem',
+    state: 'Tamil Nadu',
+    pinCode: '636002'
   },
   {
     vendorCode: 'VEN-004',
@@ -47,11 +62,16 @@ const vendorData = [
     category: 'Industrial Materials',
     contactPerson: 'Priya Menon',
     email: 'priya@southernindustrial.in',
-    phone: '9798765432',
-    gstNumber: '33DDDDD3333D4Z8',
+    phone: '+91 97987 65432',
+    address: 'Block C, Ambattur Industrial Estate, Ambattur, Chennai, Tamil Nadu – 600058',
+    gstNumber: '33AABCS2345D4Z8',
+    website: null,
     status: 'Active',
     rating: 4.6,
-    outstanding: 54750
+    outstanding: 54750,
+    city: 'Chennai',
+    state: 'Tamil Nadu',
+    pinCode: '600058'
   },
   {
     vendorCode: 'VEN-005',
@@ -59,11 +79,16 @@ const vendorData = [
     category: 'Alloy & Stainless Steel',
     contactPerson: 'Manoj Patel',
     email: 'manoj@bharatalloy.in',
-    phone: '9812345678',
-    gstNumber: '33EEEEE4444E5Z9',
+    phone: '+91 98123 45678',
+    address: '45/B, GIDC Estate, Vatva, Ahmedabad, Gujarat – 382445',
+    gstNumber: '24AABCB3456E5Z9',
+    website: null,
     status: 'Active',
     rating: 4.7,
-    outstanding: 98300
+    outstanding: 98300,
+    city: 'Ahmedabad',
+    state: 'Gujarat',
+    pinCode: '382445'
   },
   {
     vendorCode: 'VEN-006',
@@ -71,11 +96,16 @@ const vendorData = [
     category: 'Steel Products',
     contactPerson: 'Karthik Raj',
     email: 'karthik@chennaiiron.in',
-    phone: '9952012345',
-    gstNumber: '33FFFFF5555F6Z1',
+    phone: '+91 99520 12345',
+    address: 'Old No. 5, New No. 11, Madhavaram High Road, Perambur, Chennai, Tamil Nadu – 600011',
+    gstNumber: '33AABCC4567F6Z1',
+    website: null,
     status: 'Active',
     rating: 4.1,
-    outstanding: 176400
+    outstanding: 176400,
+    city: 'Chennai',
+    state: 'Tamil Nadu',
+    pinCode: '600011'
   },
   {
     vendorCode: 'VEN-007',
@@ -83,23 +113,33 @@ const vendorData = [
     category: 'Sheet & Coil',
     contactPerson: 'Naveen Kumar',
     email: 'naveen@primemetal.in',
-    phone: '9887654321',
-    gstNumber: '33GGGGG6666G7Z2',
+    phone: '+91 98876 54321',
+    address: 'Unit 7, Kapaleeswarar Nagar, Nungambakkam, Chennai, Tamil Nadu – 600034',
+    gstNumber: '33AABCP5678G7Z2',
+    website: null,
     status: 'Active',
     rating: 4.4,
-    outstanding: 63900
+    outstanding: 63900,
+    city: 'Chennai',
+    state: 'Tamil Nadu',
+    pinCode: '600034'
   },
   {
     vendorCode: 'VEN-008',
     name: 'Tamil Nadu Steel Mart',
     category: 'General Steel',
     contactPerson: 'Vignesh R',
-    email: 'vicky@tnstealmart.in',
-    phone: '9789012345',
-    gstNumber: '33HHHHH7777H8Z3',
+    email: 'vicky@tnsteelmart.in',
+    phone: '+91 97890 12345',
+    address: 'Door No. 3, Trichy Road, Singanallur, Coimbatore, Tamil Nadu – 641005',
+    gstNumber: '33AABCT6789H8Z3',
+    website: null,
     status: 'Inactive',
     rating: 3.8,
-    outstanding: 32100
+    outstanding: 32100,
+    city: 'Coimbatore',
+    state: 'Tamil Nadu',
+    pinCode: '641005'
   }
 ];
 
@@ -115,8 +155,8 @@ async function seedVendors() {
         where: {
           [Op.or]: [
             { vendorCode: vData.vendorCode },
-            { gstNumber: vData.gstNumber },
-            { name: vData.name }
+            { name: vData.name },
+            { email: vData.email }
           ]
         }
       });

@@ -159,11 +159,8 @@ const Feed = () => {
   };
 
   return (
-    <div className="rd-container page-container">
-      <div className="page-content">
-
-        <div className="lf-root">
-          <div className="lf-grid">
+    <div className="lf-root">
+      <div className="lf-grid">
 
         {/* ─── LEFT SIDEBAR ─── */}
         <aside className="lf-left">
@@ -342,8 +339,6 @@ const Feed = () => {
         </aside>
 
       </div>
-    </div>
-    </div>
     </div>
   );
 };

@@ -57,20 +57,22 @@ const Vendors = () => {
   };
   const renderStars = rating => {
     const r = Number(rating) || 0;
-    const full = Math.floor(r);
-    const half = r - full >= 0.5 ? 1 : 0;
-    const empty = 5 - full - half;
-    return <div style={{
-      display: "flex",
-      gap: 2
-    }}>
-      {" "}
-      {[...Array(full)].map((_, i) => <Star key={`f${i}`} size={14} fill="#f59e0b" color="#f59e0b" />)}{" "}
-      {half ? <Star key="h" size={14} fill="#f59e0b" color="#f59e0b" style={{
-        clipPath: "inset(0 50% 0 0)"
-      }} /> : null}{" "}
-      {[...Array(empty)].map((_, i) => <Star key={`e${i}`} size={14} fill="none" color="#cbd5e1" />)}{" "}
-    </div>;
+    const rounded = Math.round(r);
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: "6px", whiteSpace: "nowrap" }}>
+        <div style={{ display: "flex", gap: "2px" }}>
+          {[1, 2, 3, 4, 5].map(i => (
+            <Star
+              key={i}
+              size={14}
+              fill={i <= rounded ? "#f59e0b" : "none"}
+              color={i <= rounded ? "#f59e0b" : "#cbd5e1"}
+            />
+          ))}
+        </div>
+        <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>{r.toFixed(1)}</span>
+      </div>
+    );
   };
   const columns = [{
     key: "name",
@@ -130,20 +132,6 @@ const Vendors = () => {
         borderRadius: "12px",
         display: "inline-block"
       }}>{cat}</span>;
-    }
-  }, {
-    key: "materialsSupplied",
-    label: "Materials",
-    render: (val) => {
-      if (!val || !Array.isArray(val) || val.length === 0) return <span style={{ color: "#94a3b8", fontSize: 12 }}>None</span>;
-      return <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
-        {val.slice(0, 2).map((m, i) => (
-          <span key={i} style={{ padding: "2px 6px", background: "#f1f5f9", borderRadius: "4px", fontSize: 11, color: "#475569" }}>
-            {typeof m === 'string' ? m : m.name}
-          </span>
-        ))}
-        {val.length > 2 && <span style={{ padding: "2px 6px", background: "#f1f5f9", borderRadius: "4px", fontSize: 11, color: "#64748b" }}>+{val.length - 2}</span>}
-      </div>;
     }
   }, {
     key: "rating",
