@@ -1,4 +1,4 @@
-﻿import React, { useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import CompanyFeed from './CompanyFeed';
@@ -177,23 +177,23 @@ const Feed = () => {
               </div>
             </div>
             <div className="lf-profile-body">
-              <div className="lf-profile-name">{companyStats?.name ?? 'â€”'}</div>
+              <div className="lf-profile-name">{companyStats?.name ?? '—'}</div>
               <div className="lf-profile-tagline">{companyStats?.tagline ?? ''}</div>
               <div className="lf-profile-divider" />
               <div className="lf-profile-stats">
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Company members</span>
                   <span className="lf-profile-stat-value">
-                    {companyStats ? companyStats.members.toLocaleString() : 'â€”'}
+                    {companyStats ? companyStats.members.toLocaleString() : '—'}
                   </span>
                 </div>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Industry</span>
-                  <span className="lf-profile-stat-value text">{companyStats?.industry ?? 'â€”'}</span>
+                  <span className="lf-profile-stat-value text">{companyStats?.industry ?? '—'}</span>
                 </div>
                 <div className="lf-profile-stat">
                   <span className="lf-profile-stat-label">Location</span>
-                  <span className="lf-profile-stat-value text">{companyStats?.location ?? 'â€”'}</span>
+                  <span className="lf-profile-stat-value text">{companyStats?.location ?? '—'}</span>
                 </div>
               </div>
             </div>
@@ -326,7 +326,7 @@ const Feed = () => {
               <span className="lf-right-title" style={{ marginBottom: 0, lineHeight: 1 }}>About SMTBMS</span>
             </div>
             <div style={{ fontSize: '13px', color: 'var(--li-text-2)', lineHeight: 1.6 }}>
-              Smart Material Tracking &amp; Business Management System â€” A centralized platform for smarter operations.
+              Smart Material Tracking &amp; Business Management System — A centralized platform for smarter operations.
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
               {['ERP', 'CRM', 'HRMS', 'Inventory'].map(tag => (

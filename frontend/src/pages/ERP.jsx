@@ -1,4 +1,4 @@
-﻿import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useContext } from "react";
 import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
@@ -79,9 +79,9 @@ const ERP = () => {
   const paginatedPurchaseOrders = filteredPurchaseOrders.slice((poPage - 1) * itemsPerPage, poPage * itemsPerPage);
   const paginatedSalesOrders = filteredSalesOrders.slice((soPage - 1) * itemsPerPage, soPage * itemsPerPage);
   const formatCurrency = val => {
-    if (val >= 100000) return `â‚¹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `â‚¹${(val / 1000).toFixed(0)}K`;
-    return `â‚¹${val.toLocaleString()}`;
+    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `₹${(val / 1000).toFixed(0)}K`;
+    return `₹${val.toLocaleString()}`;
   };
 
   const renderPagination = (total, currentPage, setPage) => {
@@ -135,14 +135,14 @@ const ERP = () => {
       </tr>;
     }
     return filteredList.map((order, i) => {
-      const vendorName = order.vendor?.companyName || order.vendor?.name || order.vendorName || order.customer?.company || order.customer?.name || order.supplierName || "â€”";
-      let itemDesc = "â€”";
+      const vendorName = order.vendor?.companyName || order.vendor?.name || order.vendorName || order.customer?.company || order.customer?.name || order.supplierName || "—";
+      let itemDesc = "—";
       if (order.items && order.items.length > 0) {
         itemDesc = order.items.map(item => {
           const name = item.materialName || item.name || item.productName || item.material && (item.material.name || item.material.materialName) || "Item";
           const qty = item.quantity || item.qty || 0;
           const unit = item.unit || "pcs";
-          return `${name} Ã— ${qty} ${unit}`;
+          return `${name} × ${qty} ${unit}`;
         }).join(", ");
       } else if (order.description || order.notes) {
         itemDesc = order.description || order.notes;
@@ -180,8 +180,8 @@ const ERP = () => {
           fontWeight: 700,
           color: "#3b82f6",
           whiteSpace: "nowrap"
-        }} title={order.orderNumber || order.poNumber || order.id || "â€”"} data-label="ID">
-          {order.orderNumber || order.poNumber || order.id || "â€”"}
+        }} title={order.orderNumber || order.poNumber || order.id || "—"} data-label="ID">
+          {order.orderNumber || order.poNumber || order.id || "—"}
         </td>{" "}
         <td style={{
           verticalAlign: "middle",
@@ -206,7 +206,7 @@ const ERP = () => {
           color: "var(--rd-text-main)",
           textAlign: "right"
         }} data-label="Amount">
-          â‚¹{amount.toLocaleString()}
+          ₹{amount.toLocaleString()}
         </td>{" "}
         <td style={{
           verticalAlign: "middle",
@@ -216,7 +216,7 @@ const ERP = () => {
             day: "2-digit",
             month: "2-digit",
             year: "2-digit"
-          }) : "â€”"}
+          }) : "—"}
         </td>{" "}
         <td style={{
           verticalAlign: "middle",
@@ -227,7 +227,7 @@ const ERP = () => {
             day: "2-digit",
             month: "2-digit",
             year: "2-digit"
-          }) : "â€”"}
+          }) : "—"}
         </td>{" "}
         <td style={{
           verticalAlign: "middle"

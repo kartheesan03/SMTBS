@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Users,
@@ -160,7 +160,7 @@ const HRMS = () => {
           badge="HRMS"
           subtitle="View, manage, and organize your full workforce across all departments."
         />
-        {/* KPI Cards â€” Real Data */}
+        {/* KPI Cards — Real Data */}
         {/* Employee Roster Strip */}
         <StatsGrid>
           <StatsCard
@@ -364,12 +364,12 @@ const HRMS = () => {
                         </div>
                       </td>
                       <td style={{ fontWeight: 500 }} data-label="Position">
-                        {emp.designation || "â€”"}
+                        {emp.designation || "—"}
                       </td>
                       <td data-label="Email">
                         <EmailCell
                           email={
-                            emp.userId?.email || emp.email || emp.contact || "â€”"
+                            emp.userId?.email || emp.email || emp.contact || "—"
                           }
                         />
                       </td>
@@ -377,7 +377,7 @@ const HRMS = () => {
                         {emp.phone ||
                           (emp.contact && emp.contact.match(/^[0-9+\-\\s]+$/)
                             ? emp.contact
-                            : "â€”")}
+                            : "—")}
                       </td>
                       <td data-label="Role / Dept">
                         <span
@@ -414,7 +414,7 @@ const HRMS = () => {
                           }}
                           title="View Details"
                         >
-                          ðŸ‘
+                          👁️
                         </button>
                         {!isEmployeeOrSales && (
                           <>
@@ -433,7 +433,7 @@ const HRMS = () => {
                               }}
                               title="Edit Employee"
                             >
-                              âœŽ
+                              ✏️
                             </button>
                             <button
                               className="rd-btn-compact"
@@ -447,7 +447,7 @@ const HRMS = () => {
                               }}
                               title="Delete Employee"
                             >
-                              ðŸ—‘
+                              🗑️
                             </button>
                           </>
                         )}

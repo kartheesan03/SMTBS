@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../api/axios";
 import toast from "react-hot-toast";
@@ -132,7 +132,7 @@ const CustomerDetails = () => {
     {
       key: "total",
       label: "Total Amount",
-      render: (val) => `â‚¹${val.toLocaleString()}`,
+      render: (val) => `₹${val.toLocaleString()}`,
     },
   ];
   const ordersContent = (

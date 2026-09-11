@@ -1,4 +1,4 @@
-﻿import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -285,7 +285,7 @@ const Payroll = () => {
                             color: "#94a3b8",
                             marginTop: 2
                           }}>
-                                  {emp.designation || "â€”"}
+                                  {emp.designation || "—"}
                                 </div>
                               </div>
                             </div>
@@ -299,7 +299,7 @@ const Payroll = () => {
                         fontSize: 12,
                         fontWeight: 600
                       }}>
-                              {emp.department || "â€”"}
+                              {emp.department || "—"}
                             </span>
                           </td>
                           <td style={{

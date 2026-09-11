@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import API from "../api/axios";
 import DataTable from "../components/Dashboard/DataTable";
 import {
@@ -31,6 +31,7 @@ const MySalaryPage = () => {
     try {
       setLoading(true);
       setError(null);
+      const formatMoney = amt => "₹" + amt.toLocaleString("en-IN", {});
       const { data } = await API.get("/salaries/my");
       setHistory(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -45,7 +46,7 @@ const MySalaryPage = () => {
     fetchHistory();
   }, [fetchHistory]);
 
-  if (loading) return <LoadingState message="Loading salary dataâ€¦" height="100vh" />;
+  if (loading) return <LoadingState message="Loading salary data…" height="100vh" />;
   if (error) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '16px' }}>
       <p style={{ color: '#ef4444', fontSize: '15px' }}>{error}</p>
@@ -103,7 +104,7 @@ const MySalaryPage = () => {
                 <td>
                   <strong>{s.month}</strong>
                 </td>
-                <td>â‚¹{s.netSalary?.toLocaleString()}</td>
+                <td>₹{s.netSalary?.toLocaleString()}</td>
                 <td>
                   <div
                     className={`status-badge ${s.status
@@ -123,7 +124,7 @@ const MySalaryPage = () => {
                 <td>
                   {s.paymentDate
                     ? new Date(s.paymentDate).toLocaleDateString()
-                    : "â€”"}
+                    : "—"}
                 </td>
                 <td>
                   <div

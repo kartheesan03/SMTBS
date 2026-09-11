@@ -1,4 +1,4 @@
-﻿import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
@@ -58,9 +58,9 @@ const Customers = ({
   const atRisk = customers.filter(c => c.status === "At Risk" || c.status === "Inactive");
   const totalRevenue = customers.reduce((sum, c) => sum + (Number(c.revenue) || Number(c.totalRevenue) || 0), 0);
   const formatCurrency = val => {
-    if (!val || val === 0) return "â‚¹0";
-    if (val >= 1000) return `â‚¹${(val / 1000).toFixed(0)}K`;
-    return `â‚¹${val.toLocaleString()}`;
+    if (!val || val === 0) return "₹0";
+    if (val >= 1000) return `₹${(val / 1000).toFixed(0)}K`;
+    return `₹${val.toLocaleString()}`;
   };
   const columns = [{
     key: "name",

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -245,7 +245,7 @@ const HolidayModal = ({ holiday, onClose, onSave }) => {
               value={form.description}
               onChange={handle}
               rows={2}
-              placeholder="Optional noteâ€¦"
+              placeholder="Optional note…"
               style={{ ...inp, resize: "vertical" }}
             />
           </div>
@@ -306,7 +306,7 @@ const HolidayModal = ({ holiday, onClose, onSave }) => {
               marginTop: 4,
             }}
           >
-            {saving ? "Savingâ€¦" : holiday ? "Save Changes" : "Add Holiday"}
+            {saving ? "Saving…" : holiday ? "Save Changes" : "Add Holiday"}
           </button>
         </form>
       </div>
@@ -585,7 +585,7 @@ const HolidayCalendar = () => {
         <StatsGrid>
           <StatsCard
             title="Total Holidays"
-            value={loading ? "â€¦" : holidays.length}
+            value={loading ? "…" : holidays.length}
             colorTheme="blue"
             icon={Calendar}
             trendValue={`In ${year}`}
@@ -593,7 +593,7 @@ const HolidayCalendar = () => {
           />
           <StatsCard
             title="Upcoming"
-            value={loading ? "â€¦" : upcoming}
+            value={loading ? "…" : upcoming}
             colorTheme="mint"
             icon={Gift}
             trendValue="Remaining this year"
@@ -601,7 +601,7 @@ const HolidayCalendar = () => {
           />
           <StatsCard
             title="National"
-            value={loading ? "â€¦" : national}
+            value={loading ? "…" : national}
             colorTheme="peach"
             icon={Flag}
             trendValue="Public holidays"
@@ -609,7 +609,7 @@ const HolidayCalendar = () => {
           />
           <StatsCard
             title="Company Declared"
-            value={loading ? "â€¦" : company}
+            value={loading ? "…" : company}
             colorTheme="purple"
             icon={Building2}
             trendValue="Internal holidays"
@@ -818,7 +818,7 @@ const HolidayCalendar = () => {
               style={{ borderBottom: "none", flexWrap: "wrap", gap: 10 }}
             >
               <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
-                All Holidays â€” {year}
+                All Holidays — {year}
               </div>
               <div style={{ display: "flex", gap: 6 }}>
                 {["All", ...Object.keys(TYPE_CONFIG)].map((t) => (
@@ -877,7 +877,7 @@ const HolidayCalendar = () => {
                           color: "#94a3b8",
                         }}
                       >
-                        Loading holidaysâ€¦
+                        Loading holidays…
                       </td>
                     </tr>
                   ) : filtered.length === 0 ? (
@@ -1035,7 +1035,7 @@ const HolidayCalendar = () => {
                                   <span
                                     style={{ fontSize: 11, color: "#cbd5e1" }}
                                   >
-                                    â€”
+                                    —
                                   </span>
                                 )}
                               </td>

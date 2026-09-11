@@ -1,4 +1,4 @@
-﻿import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Package, TrendingUp, AlertTriangle, XCircle, ExternalLink } from "lucide-react";
@@ -122,7 +122,7 @@ const StockHealthPanel = ({
   chartData
 }) => {
   const pct = totalItems ? Math.round(healthyCount / totalItems * 100) : 0;
-  const trendLabel = lowCount === 0 && outCount === 0 ? "â†’ Stable â€” all items within threshold" : outCount > 0 ? "â†˜ Critical items detected" : "â†— Low stock items need attention";
+  const trendLabel = lowCount === 0 && outCount === 0 ? "→ Stable — all items within threshold" : outCount > 0 ? "↘ Critical items detected" : "↗ Low stock items need attention";
   return <div className="rd-chart-card" style={{
     display: "flex",
     gap: 0,
@@ -168,7 +168,7 @@ const StockHealthPanel = ({
             fontWeight: 600,
             color: outCount > 0 ? "#ef4444" : lowCount > 0 ? "#f59e0b" : "#10b981"
           }}>
-              {outCount > 0 ? "â†˜" : lowCount > 0 ? "â†’" : "â†—"}{" "}
+              {outCount > 0 ? "↘" : lowCount > 0 ? "→" : "↗"}{" "}
               {outCount > 0 ? "Issues" : lowCount > 0 ? "Watch" : "Stable"}
             </span>
           </div>
@@ -227,7 +227,7 @@ const StockHealthPanel = ({
             background: pct === 100 ? "#d1fae5" : pct >= 80 ? "#fef9c3" : "#fee2e2",
             color: pct === 100 ? "#059669" : pct >= 80 ? "#a16207" : "#dc2626"
           }}>
-              {pct === 100 ? "âœ“ All Healthy" : pct >= 80 ? "âš  Mostly Healthy" : "âœ— Needs Attention"}
+              {pct === 100 ? "✓ All Healthy" : pct >= 80 ? "âš  Mostly Healthy" : "âœ— Needs Attention"}
             </span>
           </div>
           {/* Segmented bar */}

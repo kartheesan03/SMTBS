@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BarChart as BarChartIcon,
   TrendingUp,
@@ -120,9 +120,9 @@ const SalesPipeline = () => {
   const closedWon = (stageOrders["Closed Won"] || []).length;
   const winRate = dealCount > 0 ? Math.round((closedWon / dealCount) * 100) : 0;
   const formatShortCurrency = (val) => {
-    if (val >= 100000) return `â‚¹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `â‚¹${Math.round(val / 1000)}K`;
-    return `â‚¹${val}`;
+    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `₹${Math.round(val / 1000)}K`;
+    return `₹${val}`;
   };
   const monthlyRevMap = {};
   const monthlyDeliveredMap = {};
@@ -294,7 +294,7 @@ const SalesPipeline = () => {
                 <BarChartIcon size={16} color="#3b82f6" />{" "}
               </div>{" "}
               <h3 className="rd-chart-title" style={{ margin: 0 }}>
-                Sales Pipeline â€” Stage Funnel
+                Sales Pipeline — Stage Funnel
               </h3>{" "}
             </div>{" "}
             <span
@@ -588,7 +588,7 @@ const SalesPipeline = () => {
                     tickFormatter={(v) => formatShortCurrency(v)}
                   />{" "}
                   <Tooltip
-                    formatter={(val) => `â‚¹${val.toLocaleString()}`}
+                    formatter={(val) => `₹${val.toLocaleString()}`}
                     cursor={{ fill: "#f1f5f9" }}
                     contentStyle={{
                       borderRadius: 0,
@@ -611,13 +611,13 @@ const SalesPipeline = () => {
                   />{" "}
                   <Bar
                     dataKey="revenue"
-                    name="Revenue (â‚¹)"
+                    name="Revenue (₹)"
                     fill="#3b82f6"
                     radius={[4, 4, 0, 0]}
                   />{" "}
                   <Bar
                     dataKey="delivered"
-                    name="Delivered (â‚¹)"
+                    name="Delivered (₹)"
                     fill="#10b981"
                     radius={[4, 4, 0, 0]}
                   />{" "}
@@ -1077,7 +1077,7 @@ const SalesPipeline = () => {
                             fontSize: 15,
                           }}
                         >
-                          â‚¹{oppVal.toLocaleString()}
+                          ₹{oppVal.toLocaleString()}
                         </div>{" "}
                       </div>{" "}
                     </div>{" "}

@@ -435,7 +435,7 @@ const MyTasks = () => {
                     ) : (
                       <td style={{ width: "15%", minWidth: "120px" }}>
                         <span className="assigned-by-name">
-                          {t.assignedBy?.name || t.assignedById || "â€”"}
+                          {t.assignedBy?.name || t.assignedById || "—"}
                         </span>
                       </td>
                     )}

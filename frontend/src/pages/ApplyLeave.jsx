@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { Loader, Check, AlertTriangle } from "lucide-react";
@@ -211,7 +211,7 @@ const ApplyLeave = () => {
                 >
                   {submitting ? (
                     <>
-                      <Loader size={16} className="lv-spin" /> Submittingâ€¦
+                      <Loader size={16} className="lv-spin" /> Submitting…
                     </>
                   ) : (
                     <>

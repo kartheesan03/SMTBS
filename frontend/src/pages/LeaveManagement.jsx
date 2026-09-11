@@ -1,4 +1,4 @@
-﻿import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, FileText, Clock, CheckCircle, XCircle, Plus, Calendar } from "lucide-react";
@@ -116,7 +116,7 @@ const LeaveManagement = () => {
   };
   const getInitials = (firstName, lastName) => `${(firstName || "")[0] || ""}${(lastName || "")[0] || ""}`.toUpperCase() || "??";
   const calculateDays = (start, end) => {
-    if (!start || !end) return "â€”";
+    if (!start || !end) return "—";
     const s = new Date(start);
     const e = new Date(end);
     const diffMs = e - s;
@@ -124,7 +124,7 @@ const LeaveManagement = () => {
     return `${diffDays}d`;
   };
   const formatDate = isoString => {
-    if (!isoString) return "â€”";
+    if (!isoString) return "—";
     return new Date(isoString).toLocaleDateString();
   };
   const filteredLeaves = leaves.filter(leave => {
@@ -268,7 +268,7 @@ const LeaveManagement = () => {
                           color: "#94a3b8",
                           marginTop: 2
                         }}>
-                                {emp.employeeId || "â€”"}
+                                {emp.employeeId || "—"}
                               </div>
                             </div>
                           </div>
@@ -276,7 +276,7 @@ const LeaveManagement = () => {
                         <td style={{
                     color: "#64748b"
                   }} data-label="Dept">
-                          {emp.department || "â€”"}
+                          {emp.department || "—"}
                         </td>
                         <td data-label="Leave Type">
                           {getTypePill(leave.type)}
@@ -328,7 +328,7 @@ const LeaveManagement = () => {
                       color: "#94a3b8",
                       fontSize: 12
                     }}>
-                              â€”
+                              —
                             </span>}
                         </td>
                       </tr>;

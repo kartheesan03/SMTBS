@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import API from '../api/axios';
@@ -16,7 +16,7 @@ const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'];
 
 const fmtFull = (val) =>
-  `â‚¹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}`;
+  `₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}`;
 
 const StatusBadge = ({ status }) => {
   const s = (status || '').toLowerCase().replace(/\s+/g, '-');
@@ -43,7 +43,7 @@ const StatusBadge = ({ status }) => {
       textTransform: 'capitalize',
       whiteSpace: 'nowrap'
     }}>
-      {status || 'â€”'}
+      {status || '—'}
     </span>
   );
 };
@@ -231,7 +231,7 @@ const OrderFinanceDetails = () => {
             >
               <div className="rd-table-header" style={{ borderBottom: '1px solid var(--rd-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
-                  <div className="rd-table-title">Monthly Summary â€” {selectedYear}</div>
+                  <div className="rd-table-title">Monthly Summary — {selectedYear}</div>
                   <div className="rd-table-subtitle">Month-by-month receivables vs payables</div>
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -296,13 +296,13 @@ const OrderFinanceDetails = () => {
                         <tr key={m.name} style={{ height: 44 }}>
                           <td style={{ fontWeight: 600 }}>{MONTHS_FULL[i]}</td>
                           <td style={{ textAlign: 'right', color: '#1d4ed8', fontWeight: 600 }}>
-                            {m.sales > 0 ? fmtFull(m.sales) : <span style={{ color: '#94a3b8' }}>â€”</span>}
+                            {m.sales > 0 ? fmtFull(m.sales) : <span style={{ color: '#94a3b8' }}>—</span>}
                           </td>
                           <td style={{ textAlign: 'right', color: '#c2410c', fontWeight: 600 }}>
-                            {m.purchases > 0 ? fmtFull(m.purchases) : <span style={{ color: '#94a3b8' }}>â€”</span>}
+                            {m.purchases > 0 ? fmtFull(m.purchases) : <span style={{ color: '#94a3b8' }}>—</span>}
                           </td>
                           <td style={{ textAlign: 'right', fontWeight: 700, color: net >= 0 ? '#15803d' : '#dc2626' }}>
-                            {net !== 0 ? `${net >= 0 ? '+' : ''}${fmtFull(Math.abs(net))}` : <span style={{ color: '#94a3b8' }}>â€”</span>}
+                            {net !== 0 ? `${net >= 0 ? '+' : ''}${fmtFull(Math.abs(net))}` : <span style={{ color: '#94a3b8' }}>—</span>}
                           </td>
                         </tr>
                       );
@@ -331,7 +331,7 @@ const OrderFinanceDetails = () => {
             >
               <div className="rd-table-header" style={{ borderBottom: '1px solid var(--rd-border)', flexWrap: 'wrap', gap: 12 }}>
                 <div>
-                  <div className="rd-table-title">All Orders â€” {selectedYear}</div>
+                  <div className="rd-table-title">All Orders — {selectedYear}</div>
                   <div className="rd-table-subtitle">
                     {filtered.length} of {allOrders.length} orders shown
                   </div>
@@ -408,8 +408,8 @@ const OrderFinanceDetails = () => {
                       ) : filtered.slice((currentPage - 1) * 15, currentPage * 15).map((o, i) => {
                         const isSales = o.orderType === 'sales';
                         const name = isSales
-                          ? (o.customer?.company || o.customer?.name || 'â€”')
-                          : (o.vendor?.companyName || o.vendor?.name || 'â€”');
+                          ? (o.customer?.company || o.customer?.name || '—')
+                          : (o.vendor?.companyName || o.vendor?.name || '—');
                         return (
                           <tr key={`${o.id}-${i}`} style={{ height: 48, cursor: 'pointer' }}
                             onClick={() => navigate(`/orders/${o.id}/tracking`)}
@@ -434,7 +434,7 @@ const OrderFinanceDetails = () => {
                             <td style={{ color: '#64748b' }}>
                               {o.orderDate ? new Date(o.orderDate).toLocaleDateString('en-GB', {
                                 day: '2-digit', month: 'short', year: 'numeric'
-                              }) : 'â€”'}
+                              }) : '—'}
                             </td>
                             <td><StatusBadge status={o.status} /></td>
                             <td style={{ textAlign: 'right', fontWeight: 700, color: '#0f172a' }}>

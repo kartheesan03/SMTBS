@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import {
   Clock,
   CheckCircle,
@@ -71,13 +71,13 @@ const parseDateTime = (ts, base) => {
   return isNaN(d) ? null : d;
 };
 const fmtTime = (ts, base) => {
-  if (!ts) return "â€”";
+  if (!ts) return "—";
   const d = parseDateTime(ts, base);
-  if (!d) return "â€”";
+  if (!d) return "—";
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 const fmtDate = (ds) => {
-  if (!ds) return "â€”";
+  if (!ds) return "—";
   return new Date(ds).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
@@ -472,7 +472,7 @@ const AttendanceTable = ({ rows, showDate = true }) => {
                       fontSize: 14,
                     }}
                   >
-                    {hrs ? `${hrs.toFixed(1)}h` : "â€”"}
+                    {hrs ? `${hrs.toFixed(1)}h` : "—"}
                   </span>
                 </td>
                 <td style={TD}>
@@ -613,7 +613,7 @@ const MonthlyTable = ({ rows, todayStr }) => {
                       color: r.checkIn ? "#16a34a" : "#cbd5e1",
                     }}
                   >
-                    {r.checkIn ? fmtTime(r.checkIn, r.date) : "â€”"}
+                    {r.checkIn ? fmtTime(r.checkIn, r.date) : "—"}
                   </span>
                 </td>
                 <td style={TD}>
@@ -623,7 +623,7 @@ const MonthlyTable = ({ rows, todayStr }) => {
                       color: r.checkOut ? "#dc2626" : "#cbd5e1",
                     }}
                   >
-                    {r.checkOut ? fmtTime(r.checkOut, r.date) : "â€”"}
+                    {r.checkOut ? fmtTime(r.checkOut, r.date) : "—"}
                   </span>
                 </td>
                 <td style={TD}>
@@ -634,7 +634,7 @@ const MonthlyTable = ({ rows, todayStr }) => {
                       fontSize: 14,
                     }}
                   >
-                    {hrs ? `${hrs.toFixed(1)}h` : "â€”"}
+                    {hrs ? `${hrs.toFixed(1)}h` : "—"}
                   </span>
                 </td>
                 <td style={TD}>
@@ -1014,7 +1014,7 @@ const MonthlyTab = ({ myHistory }) => {
               color: "#1e293b",
             }}
           >
-            Daily Work Hours â€” {MONTHS[month]} {year}
+            Daily Work Hours — {MONTHS[month]} {year}
           </h3>
         </div>
         <div style={{ height: 160 }}>
@@ -1162,7 +1162,7 @@ const Attendance = () => {
     } else if (status?.checkIn && status?.checkOut) {
       const hrs = calcHrs(status.checkIn, status.checkOut, status.date);
       setTimer(
-        hrs ? `${Math.floor(hrs)}h ${Math.round((hrs % 1) * 60)}m` : "â€”"
+        hrs ? `${Math.floor(hrs)}h ${Math.round((hrs % 1) * 60)}m` : "—"
       );
     } else {
       setTimer("0h 0m 0s");
@@ -1258,7 +1258,7 @@ const Attendance = () => {
       setBusy(false);
     }
   };
-  if (loading) return <LoadingState message="Loading your attendanceâ€¦" height="60vh" />;
+  if (loading) return <LoadingState message="Loading your attendance…" height="60vh" />;
   const tabs = [
     { id: "daily", label: "Daily View", icon: Calendar },
     { id: "monthly", label: "Monthly View", icon: TrendingUp },

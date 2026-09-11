@@ -1,4 +1,4 @@
-﻿import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
@@ -60,10 +60,10 @@ const Leads = () => {
     return matchesFilter && matchesSearch;
   });
   const formatCurrency = val => {
-    if (!val) return "â‚¹0";
-    if (val >= 100000) return `â‚¹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `â‚¹${Math.round(val / 1000)}K`;
-    return `â‚¹${val.toLocaleString()}`;
+    if (!val) return "₹0";
+    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `₹${Math.round(val / 1000)}K`;
+    return `₹${val.toLocaleString()}`;
   };
   const advanceLead = async lead => {
     if (!writeAccess) {
@@ -320,7 +320,7 @@ const Leads = () => {
                     color: "#10b981",
                     textAlign: "right"
                   }} data-label="Est. Value">
-                          â‚¹{(l.estValue || 0).toLocaleString()}
+                          ₹{(l.estValue || 0).toLocaleString()}
                         </td>{" "}
                         <td style={{
                     color: "#475569",

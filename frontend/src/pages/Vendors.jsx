@@ -1,4 +1,4 @@
-﻿import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
@@ -50,10 +50,10 @@ const Vendors = () => {
   const onHoldVendors = vendors.filter(v => (v.status || "").toLowerCase() === "on hold");
   const totalOutstanding = vendors.reduce((sum, v) => sum + (Number(v.outstanding) || 0), 0);
   const formatCurrency = val => {
-    if (!val || val === 0) return "â‚¹0";
-    if (val >= 100000) return `â‚¹${(val / 100000).toFixed(1)}L`;
-    if (val >= 1000) return `â‚¹${(val / 1000).toFixed(0)}K`;
-    return `â‚¹${val.toLocaleString()}`;
+    if (!val || val === 0) return "₹0";
+    if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+    if (val >= 1000) return `₹${(val / 1000).toFixed(0)}K`;
+    return `₹${val.toLocaleString()}`;
   };
   const renderStars = rating => {
     const r = Number(rating) || 0;
@@ -141,7 +141,7 @@ const Vendors = () => {
       fontWeight: 600,
       color: "#ef4444"
     }}>
-      â‚¹{(val || 0).toLocaleString()}
+      ₹{(val || 0).toLocaleString()}
     </span>
   }];
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo") || "{}");

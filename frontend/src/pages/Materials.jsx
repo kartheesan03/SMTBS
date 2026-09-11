@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Package,
@@ -24,9 +24,9 @@ import PageHeader from "../components/PageHeader";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 /** Returns a human-readable relative time string from a Date/string. */
 const relativeTime = (dateStr) => {
-  if (!dateStr) return "â€”";
+  if (!dateStr) return "—";
   const diff = Date.now() - new Date(dateStr).getTime();
-  if (isNaN(diff)) return "â€”";
+  if (isNaN(diff)) return "—";
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "Just now";
   if (mins < 60) return `${mins}m ago`;
@@ -46,7 +46,7 @@ const GpsStatusBadge = ({ status }) => {
   const cfg = GPS_STATUS_CONFIG[status] || {
     color: "#94a3b8",
     bg: "#f1f5f9",
-    label: status || "â€”",
+    label: status || "—",
   };
   return (
     <span
@@ -169,7 +169,7 @@ const Materials = () => {
             display: "inline-block",
           }}
         >
-          {val || "â€”"}
+          {val || "—"}
         </span>
       ),
     },

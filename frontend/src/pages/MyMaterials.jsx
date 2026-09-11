@@ -1,4 +1,4 @@
-﻿import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useContext } from "react";
 import { Package, AlertTriangle, Plus, CheckCircle, Clock, CornerUpLeft, Printer, FileText, RefreshCw, Download, Box, AlertCircle, ArrowUpRight, Activity, User, Building, Bell, AlertOctagon } from "lucide-react";
 import API from "../api/axios";
@@ -727,7 +727,7 @@ const MyMaterials = () => {
         <div className={pageMode === "requests" ? "erp-inventory-layout" : ""}>
           {/* LEFT COLUMN: Data Table */}
           <div className={pageMode === "requests" ? "erp-main-column" : ""}>
-            <DataTable title={getTableTitle()} subtitle={pageMode === "requests" ? "Track and manage your material requests" : "Comprehensive list of all materials â€” location, GPS status, and quantity from a single source of truth"} columns={getRenderColumns()} data={tableData} loading={loading} searchPlaceholder={pageMode === "requests" ? "Search requests..." : "Search materials, category..."} searchKeys={pageMode === "requests" ? ["material.name", "status", "reason"] : ["materialName", "materialCategory"]} primaryAction={{
+            <DataTable title={getTableTitle()} subtitle={pageMode === "requests" ? "Track and manage your material requests" : "Comprehensive list of all materials — location, GPS status, and quantity from a single source of truth"} columns={getRenderColumns()} data={tableData} loading={loading} searchPlaceholder={pageMode === "requests" ? "Search requests..." : "Search materials, category..."} searchKeys={pageMode === "requests" ? ["material.name", "status", "reason"] : ["materialName", "materialCategory"]} primaryAction={{
             label: "New Material Request",
             icon: Plus,
             onClick: () => setShowModal(true)

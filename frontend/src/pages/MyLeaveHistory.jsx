@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import PageHeader from "../components/PageHeader";
@@ -178,11 +178,11 @@ const MyLeaveHistory = () => {
     );
   };
   const calculateDays = (start, end) => {
-    if (!start || !end) return "â€”";
+    if (!start || !end) return "—";
     const diffMs = new Date(end) - new Date(start);
     return `${Math.ceil(diffMs / 86400000) + 1}d`;
   };
-  const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString() : "â€”");
+  const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString() : "—");
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -330,7 +330,7 @@ const MyLeaveHistory = () => {
                           textOverflow: "ellipsis",
                         }}
                       >
-                        {leave.reason || "â€”"}
+                        {leave.reason || "—"}
                       </td>
                       <td data-label="Status">
                         {getStatusBadge(leave.status)}

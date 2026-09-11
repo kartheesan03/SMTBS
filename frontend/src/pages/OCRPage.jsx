@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Upload, Loader2, ArrowLeft, Save, CheckCircle2, XCircle,
@@ -51,15 +51,15 @@ const statusToWorkflow = (processingStatus, approvalStatus) => {
 // â”€â”€â”€ Status badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const StatusBadge = ({ status }) => {
   const map = {
-    Approved: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: 'âœ“', border: 'rgba(22,163,74,0.2)' },
+    Approved: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: '✓', border: 'rgba(22,163,74,0.2)' },
     Ready_For_Approval: { bg: 'rgba(59,130,246,0.1)', color: '#3b82f6', icon: 'â—', border: 'rgba(59,130,246,0.2)' },
-    OCR_Completed: { bg: 'rgba(16,185,129,0.1)', color: '#10b981', icon: 'âœ“', border: 'rgba(16,185,129,0.2)' },
+    OCR_Completed: { bg: 'rgba(16,185,129,0.1)', color: '#10b981', icon: '✓', border: 'rgba(16,185,129,0.2)' },
     Needs_Verification: { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', icon: 'âš ', border: 'rgba(245,158,11,0.2)' },
     Duplicate: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: 'â›”', border: 'rgba(239,68,68,0.2)' },
     Rejected: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: 'âœ—', border: 'rgba(239,68,68,0.2)' },
     Failed: { bg: 'rgba(239,68,68,0.1)', color: '#ef4444', icon: 'âœ—', border: 'rgba(239,68,68,0.2)' },
     Processing: { bg: 'rgba(99,102,241,0.1)', color: '#6366f1', icon: 'âŸ³', border: 'rgba(99,102,241,0.2)' },
-    Validated: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: 'âœ“', border: 'rgba(22,163,74,0.2)' },
+    Validated: { bg: 'rgba(22,163,74,0.1)', color: '#16a34a', icon: '✓', border: 'rgba(22,163,74,0.2)' },
   };
   const s = map[status] || { bg: '#f3f4f6', color: '#374151', icon: 'â—', border: '#e5e7eb' };
   return (
@@ -406,7 +406,7 @@ const OCRPage = () => {
     setIsProcessing(true);
     try {
       await API.post(`/ocr/${selectedDoc.id}/approve`);
-      toast.success('Invoice approved âœ“');
+      toast.success('Invoice approved ✓');
       loadDocument(selectedDoc.id);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to approve');
@@ -476,7 +476,7 @@ const OCRPage = () => {
           a.click();
           URL.revokeObjectURL(bUrl);
         }),
-      { loading: `Generating ${docName}...`, success: `âœ“ ${docName} downloaded!`, error: 'Export failed' }
+      { loading: `Generating ${docName}...`, success: `✓ ${docName} downloaded!`, error: 'Export failed' }
     );
   };
 
@@ -911,7 +911,7 @@ const OCRPage = () => {
             </div>
           ) : (isReEditing ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#3b82f6', fontSize: '14px', fontWeight: '600' }}>
-              <span style={{ fontSize: '18px' }}>âœŽ</span> Editing
+              <span style={{ fontSize: '18px' }}>✏️</span> Editing
             </div>
           ) : null))}
         </div>

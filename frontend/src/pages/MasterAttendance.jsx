@@ -1,4 +1,4 @@
-﻿import React, {
+import React, {
   useState,
   useEffect,
   useCallback,
@@ -38,7 +38,7 @@ import UserAvatar from "../components/UserAvatar";
 import "../components/AdminDashboard/AdminDashboardRedesign.css";
 /* â”€â”€â”€ Helper Utilities â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const formatTime = (iso) => {
-  if (!iso) return "â€”";
+  if (!iso) return "—";
   if (typeof iso === "string" && !iso.includes("T") && iso.includes(":"))
     return iso;
   const d = new Date(iso);
@@ -46,7 +46,7 @@ const formatTime = (iso) => {
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 const formatDate = (d) => {
-  if (!d) return "â€”";
+  if (!d) return "—";
   return new Date(d).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
@@ -54,7 +54,7 @@ const formatDate = (d) => {
   });
 };
 const calcHours = (ci, co, dateStr) => {
-  if (!ci || !co) return "â€”";
+  if (!ci || !co) return "—";
   const parseTime = (t, d) => {
     if (t.includes("T")) return new Date(t);
     const base = d ? new Date(d) : new Date();
@@ -71,9 +71,9 @@ const calcHours = (ci, co, dateStr) => {
   };
   const d1 = parseTime(ci, dateStr);
   const d2 = parseTime(co, dateStr);
-  if (isNaN(d1) || isNaN(d2)) return "â€”";
+  if (isNaN(d1) || isNaN(d2)) return "—";
   const h = (d2 - d1) / 36e5;
-  return h > 0 ? `${h.toFixed(1)}h` : "â€”";
+  return h > 0 ? `${h.toFixed(1)}h` : "—";
 };
 const getInitials = (fn, ln) =>
   `${(fn || "")[0] || ""}${(ln || "")[0] || ""}`.toUpperCase() || "??";
@@ -378,7 +378,7 @@ const EditModal = ({ record, onClose, onSave }) => {
               opacity: saving ? 0.7 : 1,
             }}
           >
-            {saving ? "Savingâ€¦" : "Save Changes"}
+            {saving ? "Saving…" : "Save Changes"}
           </button>
         </div>
       </div>
@@ -494,7 +494,7 @@ const DailyTab = ({ canEdit }) => {
                 ? `${Math.round(
                   (stats.presentToday / stats.totalEmployees) * 100
                 )}% workforce`
-                : "â€”"
+                : "—"
             }
             trendPositive={true}
           />
@@ -729,7 +729,7 @@ const DailyTab = ({ canEdit }) => {
                       color: "#94a3b8",
                     }}
                   >
-                    Loading attendance dataâ€¦
+                    Loading attendance data…
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
@@ -767,7 +767,7 @@ const DailyTab = ({ canEdit }) => {
                           />
                           <span style={{ fontWeight: 600, color: "#1e293b" }}>
                             {`${emp.firstName || ""} ${emp.lastName || ""
-                              }`.trim() || "â€”"}
+                              }`.trim() || "—"}
                           </span>
                         </div>
                       </td>
@@ -775,10 +775,10 @@ const DailyTab = ({ canEdit }) => {
                         style={{ color: "#94a3b8", fontSize: 13 }}
                         data-label="Emp ID"
                       >
-                        {emp.employeeId || "â€”"}
+                        {emp.employeeId || "—"}
                       </td>
                       <td style={{ color: "#64748b" }} data-label="Department">
-                        {emp.department || "â€”"}
+                        {emp.department || "—"}
                       </td>
                       <td
                         style={{
@@ -1127,7 +1127,7 @@ const MonthlyTab = () => {
                       color: "#94a3b8",
                     }}
                   >
-                    Loading monthly dataâ€¦
+                    Loading monthly data…
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
@@ -1171,7 +1171,7 @@ const MonthlyTab = () => {
                             {(r.name || "??")[0].toUpperCase()}
                           </div>
                           <span style={{ fontWeight: 600, color: "#1e293b" }}>
-                            {r.name || "â€”"}
+                            {r.name || "—"}
                           </span>
                         </div>
                       </td>
@@ -1179,10 +1179,10 @@ const MonthlyTab = () => {
                         style={{ color: "#94a3b8", fontSize: 13 }}
                         data-label="Emp ID"
                       >
-                        {r.id || "â€”"}
+                        {r.id || "—"}
                       </td>
                       <td style={{ color: "#64748b" }} data-label="Department">
-                        {r.dept || "â€”"}
+                        {r.dept || "—"}
                       </td>
                       <td
                         style={{ textAlign: "center", fontWeight: 600 }}
@@ -1546,7 +1546,7 @@ const HistoryTab = () => {
                       color: "#94a3b8",
                     }}
                   >
-                    Loading historyâ€¦
+                    Loading history…
                   </td>
                 </tr>
               ) : paginated.length === 0 ? (
@@ -1594,7 +1594,7 @@ const HistoryTab = () => {
                           />
                           <span style={{ fontWeight: 600, color: "#1e293b" }}>
                             {`${emp.firstName || ""} ${emp.lastName || ""
-                              }`.trim() || "â€”"}
+                              }`.trim() || "—"}
                           </span>
                         </div>
                       </td>
@@ -1602,10 +1602,10 @@ const HistoryTab = () => {
                         style={{ color: "#94a3b8", fontSize: 13 }}
                         data-label="Emp ID"
                       >
-                        {emp.employeeId || "â€”"}
+                        {emp.employeeId || "—"}
                       </td>
                       <td style={{ color: "#64748b" }} data-label="Department">
-                        {emp.department || "â€”"}
+                        {emp.department || "—"}
                       </td>
                       <td style={{ fontWeight: 500 }} data-label="Check In">
                         {formatTime(r.checkIn)}

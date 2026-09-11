@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import API from "../api/axios";
 import { StatsCard, StatsGrid } from "../components/ui/StatsCard";
 import { motion } from "framer-motion";
@@ -149,7 +149,7 @@ const LeaveBalance = () => {
         <StatsGrid columns={4}>
           <StatsCard
             title="Total Staff Tracked"
-            value={loading ? "â€¦" : totalStaff}
+            value={loading ? "…" : totalStaff}
             colorTheme="blue"
             icon={Users}
             trendValue="Active profiles"
@@ -157,7 +157,7 @@ const LeaveBalance = () => {
           />
           <StatsCard
             title="Total Leaves Taken"
-            value={loading ? "â€¦" : totalLeavesTaken}
+            value={loading ? "…" : totalLeavesTaken}
             colorTheme="peach"
             icon={TrendingDown}
             trendValue="Company wide"
@@ -165,7 +165,7 @@ const LeaveBalance = () => {
           />
           <StatsCard
             title="Avg Leaves / Employee"
-            value={loading ? "â€¦" : avgLeavesTaken}
+            value={loading ? "…" : avgLeavesTaken}
             colorTheme="purple"
             icon={CheckCircle}
             trendValue="Per employee"
@@ -173,7 +173,7 @@ const LeaveBalance = () => {
           />
           <StatsCard
             title="Currently On Leave"
-            value={loading ? "â€¦" : currentlyOnLeave}
+            value={loading ? "…" : currentlyOnLeave}
             colorTheme="yellow"
             icon={Clock}
             trendValue="Away today"

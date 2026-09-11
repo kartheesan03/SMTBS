@@ -1,4 +1,4 @@
-﻿import PageHeader from '../components/PageHeader';
+import PageHeader from '../components/PageHeader';
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import API from "../api/axios";
@@ -316,7 +316,7 @@ const AddCourseModal = ({
           cursor: saving ? "not-allowed" : "pointer",
           opacity: saving ? 0.7 : 1
         }}>
-            {saving ? "Creatingâ€¦" : "Create Course"}
+            {saving ? "Creating…" : "Create Course"}
           </button>
         </form>
       </div>
@@ -433,7 +433,7 @@ const TrainingDevelopment = () => {
               background: "#fff"
             }}>
                 <Search size={16} color="#94a3b8" />
-                <input type="text" className="rd-search-input" placeholder="Search courses or instructorsâ€¦" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                <input type="text" className="rd-search-input" placeholder="Search courses or instructors…" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
               </div>
               {/* Category pills */}
               <div style={{
@@ -496,7 +496,7 @@ const TrainingDevelopment = () => {
                   padding: 40,
                   color: "#94a3b8"
                 }}>
-                      Loading training dataâ€¦
+                      Loading training data…
                     </td>
                   </tr> : filtered.length === 0 ? <tr>
                     <td colSpan={9} style={{
@@ -598,7 +598,7 @@ const TrainingDevelopment = () => {
                               {course.instructor}
                             </span> : <span style={{
                       color: "#cbd5e1"
-                    }}>â€”</span>}
+                    }}>—</span>}
                         </td>
                         {/* Duration */}
                         <td data-label="Duration" style={{
@@ -614,7 +614,7 @@ const TrainingDevelopment = () => {
                               {course.duration}
                             </span> : <span style={{
                       color: "#cbd5e1"
-                    }}>â€”</span>}
+                    }}>—</span>}
                         </td>
                         {/* Enrolled */}
                         <td data-label="Enrolled" style={{
@@ -679,7 +679,7 @@ const TrainingDevelopment = () => {
                       year: "numeric"
                     }) : <span style={{
                       color: "#cbd5e1"
-                    }}>â€”</span>}
+                    }}>—</span>}
                         </td>
                         {/* Action */}
                         <td data-label="Action">
@@ -698,7 +698,7 @@ const TrainingDevelopment = () => {
                       whiteSpace: "nowrap",
                       opacity: isEnrolling ? 0.6 : 1
                     }}>
-                            {isEnrolling ? "Enrollingâ€¦" : course.myStatus === "Completed" ? <>
+                            {isEnrolling ? "Enrolling…" : course.myStatus === "Completed" ? <>
                                 <CheckCircle size={12} /> Certified
                               </> : course.myStatus === "In Progress" ? <>
                                 <Play size={12} /> Continue
