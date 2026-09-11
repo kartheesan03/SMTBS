@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, AlertCircle } from 'lucide-react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
+import './NewComplaintModal.css';
 
 const NewComplaintModal = ({ isOpen, onClose, onTicketCreated }) => {
     const [subject, setSubject] = useState('');

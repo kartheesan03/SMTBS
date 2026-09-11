@@ -855,39 +855,23 @@ const AdminTickets = () => {
                     <div className="at-stats-row">
 
                         <div className="at-stat">
-                            <strong>
-                                {stats.total}
-                            </strong>
-                            <span>
-                                Total
-                            </span>
+                            <span>Total</span>
+                            <strong>{stats.total}</strong>
                         </div>
 
                         <div className="at-stat">
-                            <strong>
-                                {stats.open}
-                            </strong>
-                            <span>
-                                Open
-                            </span>
+                            <span>Open</span>
+                            <strong>{stats.open}</strong>
                         </div>
 
                         <div className="at-stat">
-                            <strong>
-                                {stats.inProgress}
-                            </strong>
-                            <span>
-                                In Progress
-                            </span>
+                            <span>In Progress</span>
+                            <strong>{stats.inProgress}</strong>
                         </div>
 
                         <div className="at-stat">
-                            <strong>
-                                {stats.resolved}
-                            </strong>
-                            <span>
-                                Resolved
-                            </span>
+                            <span>Resolved</span>
+                            <strong>{stats.resolved}</strong>
                         </div>
 
                     </div>
