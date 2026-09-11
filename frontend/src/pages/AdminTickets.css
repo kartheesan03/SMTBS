@@ -122,7 +122,7 @@
 
     display: grid;
 
-    grid-template-columns: 38% 62%;
+    grid-template-columns: 360px 1fr;
 
     gap: 0;
 
@@ -420,7 +420,7 @@
     background: #ffffff;
 
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: hidden;
 
     box-sizing: border-box;
 }
@@ -432,7 +432,7 @@
 
 .at-list-state {
     width: 100%;
-    min-height: 240px;
+    min-height: 150px;
 
     display: flex;
     flex-direction: column;
@@ -639,47 +639,43 @@
 
 @media (min-width: 1025px) {
 
+    .app-content:has(.at-page) {
+        background: #eef2f7;
+    }
+
     .page-container:has(.at-page) {
         width: 100%;
-
-        height: auto;
-
+        height: calc(100vh - 80px);
         min-height: 0;
-
-        padding: 16px 32px 0 !important;
-
+        padding: 16px 32px 16px !important;
         box-sizing: border-box;
-
-        overflow: visible;
+        overflow: hidden;
     }
 
     .at-page {
-        height: auto;
+        height: 100%;
         min-height: 0;
     }
 
     .at-top-area {
         flex: 0 0 auto;
-
         padding-bottom: 10px;
     }
 
     .at-workspace {
-        flex: 0 0 auto;
-
-        grid-template-columns: 38% 62%;
-
+        flex: 1 1 0;
+        grid-template-columns: 360px 1fr;
         min-height: 0;
     }
 
     .at-list-panel,
     .at-detail-panel {
-        height: auto;
+        height: 100%;
     }
 
     .at-empty-state {
-        height: auto;
-        min-height: 276px;
+        height: 100%;
+        min-height: 0;
     }
 }
 
