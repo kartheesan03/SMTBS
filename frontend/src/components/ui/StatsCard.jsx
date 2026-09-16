@@ -166,14 +166,14 @@ export const StatsGrid = ({ children, columns, style, className = '' }) => {
                     grid-template-columns: 1fr;
                 }
                 @media (min-width: 640px) {
-                    .minimal-stat-grid { grid-template-columns: repeat(2, 1fr); }
+                    .minimal-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
                 }
                 @media (min-width: 1024px) {
-                    .minimal-stat-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
-                    .minimal-stat-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
-                    .minimal-stat-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
-                    .minimal-stat-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
-                    .minimal-stat-grid.cols-6 { grid-template-columns: repeat(6, 1fr); }
+                    .minimal-stat-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                    .minimal-stat-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+                    .minimal-stat-grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+                    .minimal-stat-grid.cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+                    .minimal-stat-grid.cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
                 }
             `}</style>
             {validChildren.map((child) => {

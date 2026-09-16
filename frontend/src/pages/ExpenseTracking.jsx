@@ -94,7 +94,7 @@ const ExpenseTracking = () => {
 
   return (
     <div className="page-container">
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', minWidth: 0 }}>
         <PageHeader
           title="Expense Tracker"
           subtitle="Centralized reporting and tracking of income and expenses across OCR and Procurement."

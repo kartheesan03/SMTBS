@@ -531,8 +531,8 @@
 /* ── Collapsed FAB (State 2) ───────────────────────────── */
 .aria-fab {
     position: fixed;
-    bottom: 22px;
-    right: 22px;
+    bottom: 40px;
+    right: 40px;
     z-index: 9999;
     display: flex;
     align-items: center;

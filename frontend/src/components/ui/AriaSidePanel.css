@@ -40,7 +40,7 @@
 
 /* Expanded Split-View State */
 .aria-side-panel.split-view {
-    width: calc(100vw - 260px); /* 260px leaves space for the main dashboard sidebar */
+    width: calc(100% - 260px); /* 260px leaves space for the main dashboard sidebar */
 }
 
 /* Left Panel (Chat) */
