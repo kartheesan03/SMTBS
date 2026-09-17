@@ -1,6 +1,6 @@
 # Smart Material Tracking and Business Management System (SMTBMS)
 
-A full-stack enterprise resource planning and material tracking solution built with React, Node.js, Express, and MongoDB.
+A full-stack enterprise resource planning and material tracking solution built with React, Node.js, Express, and MySQL.
 
 ## Features
 - **Role-Based Authentication**: Admin, HR, Manager, Employee, and Sales roles.
@@ -15,7 +15,7 @@ root/
 ├── backend/            # Express.js Server
 │   ├── config/         # Database configuration
 │   ├── controllers/    # Business logic
-│   ├── models/         # MongoDB Schemas
+│   ├── models/         # Sequelize Models
 │   ├── middleware/     # Auth & Role protection
 │   └── routes/         # API Endpoints
 └── frontend/           # React App (Vite)
@@ -29,7 +29,7 @@ root/
 
 ### 1. Prerequisite
 - Node.js installed
-- MongoDB installed and running locally on `localhost:27017`
+- MySQL installed and running locally on `localhost:3306`
 
 ### 2. Backend Setup
 ```bash
@@ -53,6 +53,6 @@ npm run dev
 
 ## Tech Stack
 - **Frontend**: React, React Router, Recharts, Lucide Icons, Framer Motion.
-- **Backend**: Node.js, Express, Mongoose, JWT, Bcrypt.
+- **Backend**: Node.js, Express, Sequelize, MySQL, JWT, Bcrypt.
 - **Design**: Vanilla CSS with Modern Glassmorphism.
 
